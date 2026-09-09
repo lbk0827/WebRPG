@@ -1,0 +1,7 @@
+# 저장소 내 줄 끝은 항상 LF. Windows 체크아웃에서도 CRLF 변환하지 않는다.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.gif binary
+*.webp binary
+*.woff2 binary

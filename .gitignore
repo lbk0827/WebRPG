@@ -1,0 +1,12 @@
+node_modules/
+dist/
+build/
+.env
+.env.local
+*.log
+.DS_Store
+Thumbs.db
+
+# 클린룸: 원본 참고 소스는 절대 이 저장소에 포함하지 않는다
+_Reference_ReadOnly/
+Hall-of-Fame/
