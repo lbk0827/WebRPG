@@ -174,6 +174,89 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .verdict button { margin-left: 8px; }
 .verdict small { display: block; margin-top: 4px; color: var(--muted); }
 
+/* 전투 스테이지 (M2 렌더러) */
+.arena {
+  --turn-ms: 900ms;
+  --lunge: min(420ms, calc(var(--turn-ms) * 0.45));
+  display: grid; grid-template-columns: 1fr 56px 1fr; gap: 4px; align-items: center;
+  padding: 10px 6px; border-radius: 14px; border: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse at 50% 120%, rgba(178,58,72,0.10), transparent 60%),
+    linear-gradient(180deg, #ece7dc 0%, #e2dccd 100%);
+  overflow: hidden; min-height: 240px;
+}
+.arena .center { text-align: center; }
+.arena .headline { font-weight: 800; font-size: 13px; }
+.arena .sub { font-size: 11px; color: var(--muted); }
+.side { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.side.t0 .col.back { order: 1; } .side.t0 .col.front { order: 2; }
+.side.t1 .col.front { order: 1; } .side.t1 .col.back { order: 2; }
+.col { display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 60px; }
+.col.back { opacity: 0.92; }
+.char { position: relative; text-align: center; width: 100%; }
+.char .sprite { position: relative; display: inline-block; }
+.char img { width: 40px; height: 40px; display: block; margin: 0 auto; transition: filter 0.3s, transform 0.3s; }
+.char .nm { font-size: 10px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.char .bar { height: 4px; margin: 2px 4px 0; }
+.char .tags { display: flex; justify-content: center; gap: 2px; flex-wrap: wrap; margin-top: 2px; }
+.char .tag { font-size: 9px; padding: 0 4px; }
+.char.dead img { filter: grayscale(1) brightness(0.7); transform: rotate(75deg) translateY(6px); opacity: 0.45; }
+.char.dead .nm { color: var(--muted); text-decoration: line-through; }
+.side.t0 .char.acting img { animation: lunge-r var(--lunge) ease-out; }
+.side.t1 .char.acting img { animation: lunge-l var(--lunge) ease-out; }
+.char.hit img { animation: shake 360ms ease-in-out; }
+.char.acting.hit img { animation: shake 360ms ease-in-out; }
+.char.casting img { filter: drop-shadow(0 0 6px var(--cast)); }
+.castmark { position: absolute; left: 50%; top: -6px; transform: translate(-50%, -100%); font-size: 9px; background: var(--cast); color: #fff; padding: 0 5px; border-radius: 6px; white-space: nowrap; animation: pulse 1.2s infinite; }
+.bubble {
+  position: absolute; left: 50%; bottom: calc(100% - 4px); transform: translateX(-50%);
+  background: #fff; border: 1px solid var(--ink); border-radius: 8px; padding: 2px 6px;
+  font-size: 10px; font-weight: 700; white-space: nowrap; z-index: 3;
+  animation: bubble-in 220ms ease-out;
+}
+.bubble::after { content: ''; position: absolute; left: 50%; top: 100%; margin-left: -4px; border: 4px solid transparent; border-top-color: var(--ink); }
+.bubble.exhausted { background: var(--bad); color: #fff; border-color: var(--bad); }
+.bubble.exhausted::after { border-top-color: var(--bad); }
+.bubble.cast { background: var(--cast); color: #fff; border-color: var(--cast); }
+.bubble.cast::after { border-top-color: var(--cast); }
+.bubble.resolve { background: #fff5cc; }
+.bubble.failed { background: #fff5cc; color: var(--warn); }
+.popups { position: absolute; left: 0; right: 0; top: 0; pointer-events: none; z-index: 4; }
+.popup {
+  position: absolute; left: 50%; top: 10px; transform: translateX(-50%);
+  font-weight: 800; font-size: 13px; text-shadow: 0 1px 0 #fff, 0 0 3px #fff;
+  animation: popup-float 900ms ease-out both;
+}
+.popup.dmg { color: var(--bad); }
+.popup.heal { color: var(--good); }
+.popup.sp { color: var(--sp); font-size: 11px; }
+.popup.block { color: var(--muted); font-size: 11px; }
+.popup.status { color: var(--cast); font-size: 10px; }
+.popup.interrupt { color: var(--cast); font-size: 13px; }
+.popup.revive { color: var(--good); font-size: 13px; }
+.popup.cover { color: var(--team1); font-size: 10px; }
+@keyframes lunge-r { 0% { transform: translateX(0); } 40% { transform: translateX(22px) scale(1.08); } 100% { transform: translateX(0); } }
+@keyframes lunge-l { 0% { transform: translateX(0); } 40% { transform: translateX(-22px) scale(1.08); } 100% { transform: translateX(0); } }
+@keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
+@keyframes popup-float { 0% { opacity: 0; transform: translate(-50%, 8px); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -26px); } }
+@keyframes bubble-in { from { opacity: 0; transform: translate(-50%, 4px); } to { opacity: 1; transform: translate(-50%, 0); } }
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
+@media (min-width: 760px) {
+  .arena { grid-template-columns: 1fr 90px 1fr; padding: 16px 12px; min-height: 300px; }
+  .arena .headline { font-size: 16px; }
+  .char img { width: 60px; height: 60px; }
+  .char .nm { font-size: 12px; }
+  .char .bar { margin: 3px 10px 0; }
+  .bubble { font-size: 12px; }
+  .popup { font-size: 16px; }
+  @keyframes lunge-r { 0% { transform: translateX(0); } 40% { transform: translateX(36px) scale(1.1); } 100% { transform: translateX(0); } }
+  @keyframes lunge-l { 0% { transform: translateX(0); } 40% { transform: translateX(-36px) scale(1.1); } 100% { transform: translateX(0); } }
+}
+@media (prefers-reduced-motion: reduce) {
+  .char img, .popup, .bubble, .castmark { animation: none !important; }
+}
+.player-bar button.on { background: var(--ink); color: #fff; }
+
 /* 훈련장 */
 .report { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
 .report .big { display: flex; align-items: baseline; gap: 12px; }

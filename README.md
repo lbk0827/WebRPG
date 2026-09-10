@@ -74,13 +74,15 @@ apps/web/               웹 훈련장 — Vite + React, 서버 없음 (엔진을
   src/state.ts          편성 · 슬롯별 수칙 · 시드 (localStorage 보존)
   src/lib/condition.ts  조건 편집 모델 ↔ 엔진 Condition 트리, 한국어 문장화
   src/lib/roster.ts     이벤트 로그를 커서까지 접어 전황 복원 (재생기 핵심)
-  src/components/       PartyPanel 편성 · RuleEditor 수칙 · BattleView 재생기+타임라인 · Trainer 훈련장
+  src/components/       MissionList/MissionPlay 훈련 과제 · PartyPanel 편성 · RuleEditor 수칙
+                        Replay 재생기 · Stage 전투 연출(돌진·피격·팝업·말풍선) · Trainer 훈련장
 ```
 
 ## 현재 상태
 
-M1 구현 중. 엔진 코어 완료, 웹 훈련장 완료 (편성 · 수칙 편집 · 전투 재생 · 훈련장),
-**훈련 과제 7개** (앱 첫 화면). 375px 폰 폭에서 수칙 편집기 성립 확인.
+**프로토타입 플레이 가능.** 엔진 코어 완료, 웹 훈련장 완료 (편성 · 수칙 편집 · 전투 재생 · 훈련장),
+**훈련 과제 7개** (앱 첫 화면), **시각적 전투 스테이지** (돌진·피격·데미지 팝업·조항 말풍선·사망 연출).
+375px 폰 폭에서 수칙 편집기 성립 확인.
 
 훈련 과제는 사람이 플레이하기 전에 테스트로 검증된다 — "기본 수칙은 지고, 정답은 이긴다"를
 엔진으로 확인한 과제만 나간다 (`packages/engine/test/missions.test.ts`).

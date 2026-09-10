@@ -1,9 +1,10 @@
-// 이벤트 재생기 + 타임라인 렌더러. 결과(BattleResult)만 받는다 — 자유 전투와 훈련 과제가 공유.
-// M2 의 스테이지 렌더러는 이 컴포넌트의 cursor 위에 얹는다 (docs/06 §4).
+// 이벤트 재생기 + 렌더러 2종(스테이지, 타임라인). 결과(BattleResult)만 받는다 — 자유 전투와 훈련 과제가 공유.
+// cursor 는 "다음 턴의 turnBegin 인덱스" (exclusive). events[1..cursor-1] 이 완결된 턴들이다.
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { BattleEvent, BattleResult } from '@webrpg/engine'
-import { describeEvent, jobIcon, outcomeText, skillLabel, statusLabel, type Names } from '../lib/labels'
-import { rosterAt, turnStarts, type RosterChar } from '../lib/roster'
+import { describeEvent, outcomeText, type Names } from '../lib/labels'
+import { rosterAt, turnStarts } from '../lib/roster'
+import { Stage } from './Stage'
 
 interface Props {
   result: BattleResult
@@ -13,19 +14,26 @@ interface Props {
 }
 
 const SPEEDS = [
-  { label: '느리게', ms: 1400 },
-  { label: '보통', ms: 700 },
-  { label: '빠르게', ms: 250 },
+  { label: '느리게', ms: 1600 },
+  { label: '보통', ms: 900 },
+  { label: '빠르게', ms: 350 },
 ]
 
 export function Replay({ result, names, jobs, autoPlay = true }: Props) {
+  const starts = useMemo(() => turnStarts(result.events), [result])
   const [cursor, setCursor] = useState(1)
   const [playing, setPlaying] = useState(autoPlay)
   const [speed, setSpeed] = useState(1)
+  const [showLog, setShowLog] = useState(false)
   const logRef = useRef<HTMLDivElement>(null)
-  const starts = useMemo(() => turnStarts(result.events), [result])
+  const len = result.events.length
 
-  // 새 결과가 오면 처음부터
+  const nextCursor = (c: number): number => starts.find((s) => s > c) ?? len
+  const prevCursor = (c: number): number => {
+    const prev = [...starts].reverse().find((s) => s < c)
+    return prev === undefined ? 1 : prev
+  }
+
   useEffect(() => {
     setCursor(1)
     setPlaying(autoPlay)
@@ -35,88 +43,63 @@ export function Replay({ result, names, jobs, autoPlay = true }: Props) {
     if (!playing) return
     const id = window.setInterval(() => {
       setCursor((c) => {
-        const next = starts.find((s) => s > c)
-        if (next === undefined) {
+        if (c >= len) {
           setPlaying(false)
-          return result.events.length
+          return c
         }
-        return next + 1
+        return nextCursor(c)
       })
     }, SPEEDS[speed].ms)
     return () => window.clearInterval(id)
-  }, [playing, speed, result, starts])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [playing, speed, result])
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight })
-  }, [cursor])
+  }, [cursor, showLog])
 
   const roster = useMemo(() => rosterAt(result.events, cursor), [result, cursor])
   if (!roster) return null
 
+  const turnNo = starts.filter((s) => s < cursor).length
+  const finished = cursor >= len
   const step = (d: -1 | 1) => {
     setPlaying(false)
-    if (d === 1) {
-      const next = starts.find((s) => s > cursor - 1)
-      setCursor(next === undefined ? result.events.length : next + 1)
-    } else {
-      const prev = [...starts].reverse().find((s) => s < cursor - 1)
-      setCursor(prev === undefined ? 1 : prev + 1)
-    }
+    setCursor((c) => (d === 1 ? nextCursor(c) : prevCursor(c)))
   }
-  const turnNo = starts.filter((s) => s < cursor).length
-  const finished = cursor >= result.events.length
 
   return (
     <div className="replay">
-      <div className="stage">
-        <Team side={0} chars={roster[0]} jobs={jobs[0]} />
-        <div className="vs">
-          <div className="turn">{finished ? outcomeText(result.outcome) : `${turnNo}번째 행동`}</div>
-          {finished && <div className="sub">총 {result.actionCount}회 행동</div>}
-        </div>
-        <Team side={1} chars={roster[1]} jobs={jobs[1]} />
-      </div>
+      <Stage
+        events={result.events}
+        cursor={cursor}
+        roster={roster}
+        jobs={jobs}
+        turnMs={SPEEDS[speed].ms}
+        headline={finished ? outcomeText(result.outcome) : turnNo === 0 ? '출전' : `${turnNo}번째 행동`}
+        sub={finished ? `총 ${result.actionCount}회 행동` : undefined}
+      />
 
       <div className="player-bar">
         <button onClick={() => { setPlaying(false); setCursor(1) }} title="처음으로">|◀</button>
         <button onClick={() => step(-1)} title="이전 턴">◀</button>
         <button className="primary" onClick={() => setPlaying((p) => !p)} disabled={finished}>{playing ? '일시정지' : '재생'}</button>
         <button onClick={() => step(1)} title="다음 턴">▶</button>
-        <button onClick={() => { setPlaying(false); setCursor(result.events.length) }} title="끝까지">▶|</button>
+        <button onClick={() => { setPlaying(false); setCursor(len) }} title="끝까지">▶|</button>
         <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))}>
           {SPEEDS.map((s, i) => (
             <option key={i} value={i}>{s.label}</option>
           ))}
         </select>
+        <button className={showLog ? 'on' : ''} onClick={() => setShowLog((v) => !v)} title="전황 보고서">보고서</button>
       </div>
 
-      <div className="log" ref={logRef}>
-        <Timeline events={result.events} cursor={cursor} names={names} />
-      </div>
+      {showLog && (
+        <div className="log" ref={logRef}>
+          <Timeline events={result.events} cursor={cursor} names={names} />
+        </div>
+      )}
     </div>
-  )
-}
-
-function Team({ side, chars, jobs }: { side: 0 | 1; chars: RosterChar[]; jobs: string[] }) {
-  return (
-    <ul className={`team t${side}`}>
-      {chars.map((c, i) => (
-        <li key={i} className={`${c.alive ? '' : 'dead'} ${c.row}`}>
-          <img src={jobIcon(jobs[i])} alt="" width={36} height={36} />
-          <div className="bars">
-            <div className="name">{c.name}</div>
-            <div className="bar hp"><i style={{ width: `${(c.hp / c.maxHp) * 100}%` }} /></div>
-            <div className="bar sp"><i style={{ width: `${c.maxSp ? (c.sp / c.maxSp) * 100 : 0}%` }} /></div>
-            <div className="tags">
-              {c.casting && <span className="tag cast">{skillLabel(c.casting)} 시전중</span>}
-              {c.statuses.map((s) => (
-                <span key={s} className="tag">{statusLabel(s)}</span>
-              ))}
-            </div>
-          </div>
-        </li>
-      ))}
-    </ul>
   )
 }
 
