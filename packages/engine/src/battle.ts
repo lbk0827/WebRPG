@@ -6,6 +6,7 @@ import type { BattleState, CharState } from './state'
 import {
   chargeRate,
   createCharState,
+  effectiveCharge,
   emit,
   getChar,
   hasStatus,
@@ -172,7 +173,7 @@ function takeTurn(actor: CharState, st: BattleState): void {
       actor.pending = { skillId: skill.id, targets: targets.map((r) => ({ ref: r.target.ref, hits: r.hits })) }
       emit(st, { t: 'castStart', actor: actor.ref, skillId: skill.id })
       actor.actionCount++
-      actor.gauge = GAUGE_MAX - skill.charge
+      actor.gauge = GAUGE_MAX - effectiveCharge(skill.charge, actor)
       return
     }
 

@@ -50,6 +50,8 @@ export function describeEvent(e: BattleEvent, names: Names): Line | null {
       return e.delta > 0 ? { kind: 'heal', text: `${who(e.target)} SP +${e.delta}` } : null
     case 'statusApply':
       return { kind: 'status', text: `${who(e.target)} [${statusLabel(e.status)}] ${e.duration}턴` }
+    case 'statusResisted':
+      return { kind: 'cover', text: `${who(e.target)}가 [${statusLabel(e.status)}]을 저항했다` }
     case 'statusTick':
       return { kind: 'damage', text: `${who(e.target)} [${statusLabel(e.status)}] ${e.amount} 피해` }
     case 'statusExpire':

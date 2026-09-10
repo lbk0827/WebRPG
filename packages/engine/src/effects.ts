@@ -2,7 +2,7 @@
 import type { Effect, Skill } from './types'
 import { GAUGE_MAX, pctOf } from './fixed'
 import type { BattleState, CharState } from './state'
-import { emit, findStatus } from './state'
+import { emit, findStatus, resistPct } from './state'
 import { STATUS_DEFS } from './data/statuses'
 import { calcDamage, calcHeal, calcSpRestore } from './damage'
 
@@ -33,7 +33,7 @@ export function applyEffect(
         })
         return
       }
-      const amount = calcDamage(effect.school, effect.power, effect.pierce === true, actor, target)
+      const amount = calcDamage(effect.school, effect.power, effect.pierce === true, actor, target, effect.scaleBy)
       target.hp = Math.max(0, target.hp - amount)
       emit(st, { t: 'damage', source: actor.ref, target: target.ref, amount, school: effect.school })
       if (target.hp === 0) kill(target, st)
@@ -59,6 +59,14 @@ export function applyEffect(
 
     case 'applyStatus': {
       if (!target.alive) return
+      // 디버프는 LUK 로 저항할 수 있다 (자신/아군 버프는 저항하지 않음)
+      if (STATUS_DEFS[effect.status].category === 'debuff' && target.ref.team !== actor.ref.team) {
+        const r = resistPct(target, actor)
+        if (r > 0 && st.rng.pct() < r) {
+          emit(st, { t: 'statusResisted', target: target.ref, status: effect.status })
+          return
+        }
+      }
       const magnitude = effect.magnitude ?? STATUS_DEFS[effect.status].defaultMagnitude
       const existing = findStatus(target, effect.status)
       if (existing) {

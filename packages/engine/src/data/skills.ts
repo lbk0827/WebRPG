@@ -28,7 +28,7 @@ const list: Skill[] = [
     target: { side: 'enemy', scope: 'single', hits: 3 },
     charge: 0,
     stiff: 50,
-    effects: [{ kind: 'damage', school: 'phys', power: 55 }],
+    effects: [{ kind: 'damage', school: 'phys', power: 55 , scaleBy: 'dex' }],
   },
   {
     id: 'sweep',
@@ -67,7 +67,7 @@ const list: Skill[] = [
     charge: 0,
     stiff: 50,
     ignoreCover: true,
-    effects: [{ kind: 'damage', school: 'phys', power: 120 }],
+    effects: [{ kind: 'damage', school: 'phys', power: 120 , scaleBy: 'dex' }],
   },
   {
     id: 'mend',
@@ -134,7 +134,7 @@ const list: Skill[] = [
     stiff: 0,
     ignoreCover: true,
     effects: [
-      { kind: 'damage', school: 'phys', power: 40 },
+      { kind: 'damage', school: 'phys', power: 40 , scaleBy: 'dex' },
       { kind: 'modifyGauge', delta: -500 },
     ],
   },
@@ -179,7 +179,7 @@ const list: Skill[] = [
     charge: 0,
     stiff: 0,
     effects: [
-      { kind: 'damage', school: 'phys', power: 60 },
+      { kind: 'damage', school: 'phys', power: 60 , scaleBy: 'dex' },
       { kind: 'applyStatus', status: 'poison', duration: 4, magnitude: 5 },
     ],
   },
@@ -191,7 +191,7 @@ const list: Skill[] = [
     charge: 0,
     stiff: 0,
     effects: [
-      { kind: 'damage', school: 'phys', power: 40 },
+      { kind: 'damage', school: 'phys', power: 40 , scaleBy: 'dex' },
       { kind: 'applyStatus', status: 'poison', duration: 5, magnitude: 10 },
     ],
   },

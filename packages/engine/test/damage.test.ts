@@ -10,7 +10,7 @@ function ch(stats: Partial<CharSetup['stats']>): ReturnType<typeof createCharSta
     name: 'x',
     row: 'front',
     guard: { mode: 'never' },
-    stats: { maxHp: 100, maxSp: 0, str: 0, int: 0, spd: 10, def: 0, mdef: 0, ...stats },
+    stats: { maxHp: 100, maxSp: 0, str: 0, int: 0, dex: 30, spd: 10, luk: 10, def: 0, mdef: 0, ...stats },
     skills: [],
     rules: { rows: [] },
   }

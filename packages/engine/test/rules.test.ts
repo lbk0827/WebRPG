@@ -10,7 +10,7 @@ function dummy(over: Partial<CharSetup> & { id: string }): CharSetup {
     name: over.id,
     row: 'front',
     guard: { mode: 'never' },
-    stats: { maxHp: 400, maxSp: 50, str: 40, int: 40, spd: 40, def: 5, mdef: 5 },
+    stats: { maxHp: 400, maxSp: 50, str: 40, int: 40, dex: 30, spd: 40, luk: 10, def: 5, mdef: 5 },
     skills: ['strike'],
     rules: { rows: [{ condition: always, skillId: 'strike' }] },
     ...over,
@@ -44,7 +44,7 @@ describe('수칙 평가', () => {
   it('SP 가 부족하면 skillFailed(noSp) 후 다음 행으로 넘어간다', () => {
     const c = dummy({
       id: 'c',
-      stats: { maxHp: 400, maxSp: 5, str: 40, int: 40, spd: 40, def: 5, mdef: 5 },
+      stats: { maxHp: 400, maxSp: 5, str: 40, int: 40, dex: 30, spd: 40, luk: 10, def: 5, mdef: 5 },
       rules: {
         rows: [
           { condition: always, skillId: 'heavyBlow' },
@@ -69,7 +69,7 @@ describe('수칙 평가', () => {
         ],
       },
     })
-    const ev = run([c], [dummy({ id: 'foe', stats: { maxHp: 2000, maxSp: 0, str: 1, int: 1, spd: 40, def: 0, mdef: 0 } })])
+    const ev = run([c], [dummy({ id: 'foe', stats: { maxHp: 2000, maxSp: 0, str: 1, int: 1, dex: 30, spd: 40, luk: 10, def: 0, mdef: 0 } })])
     const cries = ev.filter((e) => e.t === 'ruleFired' && e.actor.team === 0 && e.skillId === 'warCry')
     expect(cries.length).toBe(1)
   })
@@ -77,8 +77,8 @@ describe('수칙 평가', () => {
 
 describe('시전과 끊기 (§4.4 — 시그니처 메커니즘)', () => {
   it('선딜 스킬은 castStart 후 다음 차례에 castResolve 된다', () => {
-    const caster = dummy({ id: 'caster', row: 'back', stats: { maxHp: 400, maxSp: 100, str: 5, int: 60, spd: 40, def: 5, mdef: 5 }, rules: { rows: [{ condition: always, skillId: 'inferno' }] } })
-    const ev = run([caster], [dummy({ id: 'foe', stats: { maxHp: 5000, maxSp: 0, str: 1, int: 1, spd: 10, def: 0, mdef: 0 } })])
+    const caster = dummy({ id: 'caster', row: 'back', stats: { maxHp: 400, maxSp: 100, str: 5, int: 60, dex: 30, spd: 40, luk: 10, def: 5, mdef: 5 }, rules: { rows: [{ condition: always, skillId: 'inferno' }] } })
+    const ev = run([caster], [dummy({ id: 'foe', stats: { maxHp: 5000, maxSp: 0, str: 1, int: 1, dex: 30, spd: 10, luk: 10, def: 0, mdef: 0 } })])
     const start = ev.findIndex((e) => e.t === 'castStart' && e.actor.team === 0)
     const resolve = ev.findIndex((e) => e.t === 'castResolve' && e.actor.team === 0)
     expect(start).toBeGreaterThan(-1)
@@ -93,11 +93,11 @@ describe('시전과 끊기 (§4.4 — 시그니처 메커니즘)', () => {
   })
 
   it('침묵을 걸면 진행 중인 시전이 castInterrupted 로 취소된다', () => {
-    const caster = dummy({ id: 'caster', row: 'back', stats: { maxHp: 400, maxSp: 200, str: 5, int: 60, spd: 30, def: 5, mdef: 5 }, rules: { rows: [{ condition: always, skillId: 'inferno' }] } })
-    const wall = dummy({ id: 'wall', stats: { maxHp: 3000, maxSp: 0, str: 1, int: 1, spd: 10, def: 0, mdef: 0 } })
+    const caster = dummy({ id: 'caster', row: 'back', stats: { maxHp: 400, maxSp: 200, str: 5, int: 60, dex: 30, spd: 30, luk: 10, def: 5, mdef: 5 }, rules: { rows: [{ condition: always, skillId: 'inferno' }] } })
+    const wall = dummy({ id: 'wall', stats: { maxHp: 3000, maxSp: 0, str: 1, int: 1, dex: 30, spd: 10, luk: 10, def: 0, mdef: 0 } })
     const husher = dummy({
       id: 'husher',
-      stats: { maxHp: 400, maxSp: 200, str: 20, int: 20, spd: 90, def: 5, mdef: 5 },
+      stats: { maxHp: 400, maxSp: 200, str: 20, int: 20, dex: 30, spd: 90, luk: 10, def: 5, mdef: 5 },
       rules: { rows: [{ condition: { op: 'atom', atom: { kind: 'teamCastingCount', side: 'enemy', cmp: 'gte', value: 1 } }, skillId: 'hush' }, { condition: always, skillId: 'strike' }] },
     })
     const ev = run([husher], [wall, caster])
@@ -107,8 +107,8 @@ describe('시전과 끊기 (§4.4 — 시그니처 메커니즘)', () => {
 
 describe('타수 (§6.1)', () => {
   it('선딜이 있는 multi 스킬도 발동 시 정확히 hits 번만 때린다', () => {
-    const caster = dummy({ id: 'caster', row: 'back', stats: { maxHp: 400, maxSp: 22, str: 5, int: 60, spd: 40, def: 5, mdef: 5 }, rules: { rows: [{ condition: always, skillId: 'inferno' }, { condition: always, skillId: 'strike' }] } })
-    const foes = [0, 1, 2, 3, 4].map((i) => dummy({ id: `foe${i}`, stats: { maxHp: 99999, maxSp: 0, str: 1, int: 1, spd: 5, def: 0, mdef: 0 } }))
+    const caster = dummy({ id: 'caster', row: 'back', stats: { maxHp: 400, maxSp: 22, str: 5, int: 60, dex: 30, spd: 40, luk: 10, def: 5, mdef: 5 }, rules: { rows: [{ condition: always, skillId: 'inferno' }, { condition: always, skillId: 'strike' }] } })
+    const foes = [0, 1, 2, 3, 4].map((i) => dummy({ id: `foe${i}`, stats: { maxHp: 99999, maxSp: 0, str: 1, int: 1, dex: 30, spd: 5, luk: 10, def: 0, mdef: 0 } }))
     const ev = run([caster], foes)
     const resolveIdx = ev.findIndex((e) => e.t === 'castResolve' && e.actor.team === 0)
     const nextTurn = ev.findIndex((e, i) => i > resolveIdx && e.t === 'turnBegin')
@@ -117,8 +117,8 @@ describe('타수 (§6.1)', () => {
   })
 
   it('all 스코프는 생존한 적 전원을 각각 hits 번 때린다', () => {
-    const sweeper = dummy({ id: 'sweeper', stats: { maxHp: 400, maxSp: 14, str: 40, int: 5, spd: 40, def: 5, mdef: 5 }, rules: { rows: [{ condition: always, skillId: 'sweep' }, { condition: always, skillId: 'strike' }] } })
-    const foes = [0, 1, 2].map((i) => dummy({ id: `foe${i}`, row: i === 0 ? 'front' : 'back', guard: { mode: 'always' }, stats: { maxHp: 99999, maxSp: 0, str: 1, int: 1, spd: 5, def: 0, mdef: 0 } }))
+    const sweeper = dummy({ id: 'sweeper', stats: { maxHp: 400, maxSp: 14, str: 40, int: 5, dex: 30, spd: 40, luk: 10, def: 5, mdef: 5 }, rules: { rows: [{ condition: always, skillId: 'sweep' }, { condition: always, skillId: 'strike' }] } })
+    const foes = [0, 1, 2].map((i) => dummy({ id: `foe${i}`, row: i === 0 ? 'front' : 'back', guard: { mode: 'always' }, stats: { maxHp: 99999, maxSp: 0, str: 1, int: 1, dex: 30, spd: 5, luk: 10, def: 0, mdef: 0 } }))
     const ev = run([sweeper], foes)
     const resolveIdx = ev.findIndex((e) => e.t === 'castResolve' && e.actor.team === 0)
     const nextTurn = ev.findIndex((e, i) => i > resolveIdx && e.t === 'turnBegin')
@@ -133,8 +133,8 @@ describe('타수 (§6.1)', () => {
 describe('진형과 엄호 (§4.2)', () => {
   it('always 엄호 방침의 전열은 후열을 대신 맞는다', () => {
     // 전투가 연장전까지 가도 방벽이 죽지 않도록 HP 를 충분히 크게 둔다
-    const tank = dummy({ id: 'tank', guard: { mode: 'always' }, stats: { maxHp: 999999, maxSp: 0, str: 1, int: 1, spd: 5, def: 0, mdef: 0 } })
-    const squishy = dummy({ id: 'squishy', row: 'back', stats: { maxHp: 3000, maxSp: 0, str: 1, int: 1, spd: 5, def: 0, mdef: 0 } })
+    const tank = dummy({ id: 'tank', guard: { mode: 'always' }, stats: { maxHp: 999999, maxSp: 0, str: 1, int: 1, dex: 30, spd: 5, luk: 10, def: 0, mdef: 0 } })
+    const squishy = dummy({ id: 'squishy', row: 'back', stats: { maxHp: 3000, maxSp: 0, str: 1, int: 1, dex: 30, spd: 5, luk: 10, def: 0, mdef: 0 } })
     const archer = dummy({ id: 'archer', rules: { rows: [{ condition: always, skillId: 'strike' }] } })
     // 공격자는 임의 대상을 고르므로 후열이 뽑히는 경우가 있어야 한다
     const ev = run([archer], [tank, squishy], 3)
@@ -143,9 +143,9 @@ describe('진형과 엄호 (§4.2)', () => {
   })
 
   it('ignoreCover 스킬은 엄호를 뚫는다', () => {
-    const tank = dummy({ id: 'tank', guard: { mode: 'always' }, stats: { maxHp: 3000, maxSp: 0, str: 1, int: 1, spd: 5, def: 0, mdef: 0 } })
-    const squishy = dummy({ id: 'squishy', row: 'back', stats: { maxHp: 3000, maxSp: 0, str: 1, int: 1, spd: 5, def: 0, mdef: 0 } })
-    const sniper = dummy({ id: 'sniper', stats: { maxHp: 400, maxSp: 500, str: 40, int: 40, spd: 40, def: 5, mdef: 5 }, rules: { rows: [{ condition: always, skillId: 'pierceShot' }] } })
+    const tank = dummy({ id: 'tank', guard: { mode: 'always' }, stats: { maxHp: 3000, maxSp: 0, str: 1, int: 1, dex: 30, spd: 5, luk: 10, def: 0, mdef: 0 } })
+    const squishy = dummy({ id: 'squishy', row: 'back', stats: { maxHp: 3000, maxSp: 0, str: 1, int: 1, dex: 30, spd: 5, luk: 10, def: 0, mdef: 0 } })
+    const sniper = dummy({ id: 'sniper', stats: { maxHp: 400, maxSp: 500, str: 40, int: 40, dex: 30, spd: 40, luk: 10, def: 5, mdef: 5 }, rules: { rows: [{ condition: always, skillId: 'pierceShot' }] } })
     const ev = run([sniper], [tank, squishy], 3)
     expect(ev.some((e) => e.t === 'cover')).toBe(false)
     expect(ev.some((e) => e.t === 'damage' && e.target.index === 1 && e.amount > 0)).toBe(true)

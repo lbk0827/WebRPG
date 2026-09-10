@@ -3,6 +3,7 @@
 // "기본 수칙은 지고 solution 은 이긴다"가 검증되어야 한다.
 import type { BattleResult, CharSetup, Condition, GuardPolicy, Row, RuleRow, RuleSet, Stats, TeamSetup } from '../types'
 import { PRESETS } from './presets'
+import { SKILLS } from './skills'
 
 export interface MissionChar {
   job: string
@@ -38,6 +39,8 @@ export interface MissionObjective {
   aliveSlots?: number[]
   /** 전투 중 한 번 이상 소생되어야 하는 플레이어 슬롯 */
   revivedSlots?: number[]
+  /** 특정 스킬을 N회 이상 사용해야 한다 (배우려는 개념을 직접 판정) */
+  skillUses?: { skillId: string; min: number }
 }
 
 export interface Mission {
@@ -76,6 +79,11 @@ export function judgeMission(m: Mission, result: BattleResult): Verdict {
   if (result.outcome !== 'team0') failed.push(result.outcome === 'draw' ? '무승부로 끝났다' : '전투에서 졌다')
 
   const nameOf = (slot: number): string => m.player[slot].name ?? PRESETS[m.player[slot].job].name
+  if (m.objective?.skillUses) {
+    const { skillId, min } = m.objective.skillUses
+    const used = result.events.filter((e) => e.t === 'ruleFired' && e.actor.team === 0 && e.skillId === skillId).length
+    if (used < min) failed.push(`${SKILLS[skillId]?.label ?? skillId}을(를) ${min}회 이상 써야 한다 (${used}회)`)
+  }
   if (m.objective?.aliveSlots || m.objective?.revivedSlots) {
     const alive = m.player.map(() => true)
     const revived = m.player.map(() => false)
@@ -221,8 +229,8 @@ export const MISSIONS: Mission[] = [
       { job: 'mage', rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 6 }), 'bolt'), row(always, 'meditate')) },
     ],
     enemy: [
-      { job: 'rogue', name: '습격자', stats: { maxSp: 0 }, rules: strikeOnly },
-      { job: 'rogue', name: '습격자', stats: { maxSp: 0 }, rules: strikeOnly },
+      { job: 'rogue', name: '습격자', stats: { maxSp: 0, str: 44 }, rules: strikeOnly },
+      { job: 'rogue', name: '습격자', stats: { maxSp: 0, str: 44 }, rules: strikeOnly },
     ],
     editable: [0],
     limits: { guardOnly: true },
@@ -290,7 +298,7 @@ export const MISSIONS: Mission[] = [
       { job: 'priest', row: 'front', rules: rules(row(atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 30 }), 'mend'), row(always, 'strike')) },
     ],
     enemy: [
-      { job: 'elf', name: '암살자', stats: { maxHp: 260, str: 120, spd: 90, maxSp: 24 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 12 }), 'pierceShot'), row(always, 'strike')) },
+      { job: 'elf', name: '암살자', stats: { maxHp: 260, str: 120, dex: 120, spd: 90, maxSp: 24 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 12 }), 'pierceShot'), row(always, 'strike')) },
       { job: 'warrior', name: '교관', stats: { maxHp: 700, str: 40, maxSp: 0 }, guard: { mode: 'never' }, rules: strikeOnly },
     ],
     editable: [2],
@@ -339,17 +347,18 @@ export const MISSIONS: Mission[] = [
     title: '독을 풀어라',
     brief:
       '적 독술사 둘이 맹독을 바른다. 중독된 단원은 자기 차례마다 피가 빠진다. 프리스트는 치유로 버티려 하지만 독이 계속 흐르는 한 밑 빠진 독이다. 정화는 디버프에 걸린 아군만 노린다.',
-    goal: '프리스트가 독을 풀게 만들어 이겨라',
+    goal: '프리스트가 독을 세 번 이상 풀게 만들고 이겨라 (이기는 것만으로는 부족하다)',
     lesson: '"아군 중 [상태] N명 이상" 조건 — 상태이상을 관측하고 대응한다',
     hint: '프리스트 1번 조항에 "아군 중 [중독] 1명 이상 → 정화"를 넣어라. 정화는 중독자가 없으면 자동으로 건너뛴다.',
     seed: 109,
+    objective: { skillUses: { skillId: 'cleanse', min: 3 } },
     player: [
       { job: 'warrior', guard: { mode: 'never' }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'heavyBlow'), row(always, 'strike')) },
       { job: 'priest', rules: rules(row(atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 50 }), 'mend'), row(always, 'strike')) },
     ],
     enemy: [
-      { job: 'rogue', name: '독술사', skills: ['strike', 'venomStrong'], stats: { maxHp: 420, maxSp: 40, str: 36 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venomStrong'), row(always, 'strike')) },
-      { job: 'rogue', name: '독술사', skills: ['strike', 'venomStrong'], stats: { maxHp: 420, maxSp: 40, str: 36 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venomStrong'), row(always, 'strike')) },
+      { job: 'rogue', name: '독술사', skills: ['strike', 'venomStrong'], stats: { maxHp: 340, maxSp: 32, str: 20, dex: 36, spd: 50 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venomStrong'), row(always, 'strike')) },
+      { job: 'rogue', name: '독술사', skills: ['strike', 'venomStrong'], stats: { maxHp: 340, maxSp: 32, str: 20, dex: 36, spd: 50 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venomStrong'), row(always, 'strike')) },
     ],
     editable: [1],
     solution: [

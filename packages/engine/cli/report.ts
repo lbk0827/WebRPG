@@ -61,6 +61,8 @@ function render(e: BattleEvent): string {
       return e.delta > 0 ? `      → ${who(e.target)} SP +${e.delta}` : ''
     case 'statusApply':
       return `      → ${who(e.target)} [${e.status}] ${e.duration}턴`
+    case 'statusResisted':
+      return `      ${who(e.target)} 이(가) [${e.status}] 을 저항했다`
     case 'statusTick':
       return `      ${who(e.target)} [${e.status}] ${e.amount} 피해`
     case 'statusExpire':

@@ -16,8 +16,10 @@ export function calcDamage(
   pierce: boolean,
   attacker: CharState,
   target: CharState,
+  scaleBy: 'str' | 'dex' = 'str',
 ): number {
-  const stat = school === 'phys' ? attacker.setup.stats.str : attacker.setup.stats.int
+  const s = attacker.setup.stats
+  const stat = school === 'magic' ? s.int : scaleBy === 'dex' ? s.dex : s.str
   const base = isqrt(stat * 100)
   let raw = pctOf(base, power)
   raw = pctOf(raw, 100 + atkModPct(attacker))

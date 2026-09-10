@@ -130,6 +130,21 @@ export function effectiveSpd(c: CharState): number {
   return Math.max(1, pctOf(c.setup.stats.spd, 100 + mod))
 }
 
+/** 상태이상 저항 %. (대상 LUK − 시전자 LUK) / 4, 0~30. 디버프에만 적용. */
+export function resistPct(target: CharState, source: CharState): number {
+  return clamp(Math.floor((target.setup.stats.luk - source.setup.stats.luk) / 4), 0, 30)
+}
+
+/** DEX 에 의한 시전(선딜) 단축 %. dex/4, 최대 25 — dex 100 에서 상한. */
+export function chargeReductionPct(c: CharState): number {
+  return Math.min(25, Math.floor(c.setup.stats.dex / 4))
+}
+
+/** 스킬의 실제 선딜. DEX 로 단축된다. */
+export function effectiveCharge(charge: number, c: CharState): number {
+  return pctOf(charge, 100 - chargeReductionPct(c))
+}
+
 /** 한 틱당 게이지 충전량. 제곱근이므로 속도 투자에 수확 체감. */
 export function chargeRate(c: CharState): number {
   return isqrt(effectiveSpd(c) * 100) + CHARGE_BASE

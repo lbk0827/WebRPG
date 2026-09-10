@@ -28,7 +28,7 @@ export function PartyPanel({ slots, enemy, onSlot, onEnemy }: Props) {
                 <img src={jobIcon(s.job)} alt="" width={44} height={44} />
               </button>
               <div className="info">
-                <div className="name">{jobName(s.job)} <small>HP {p.stats.maxHp} · SP {p.stats.maxSp} · 속도 {p.stats.spd}</small></div>
+                <div className="name">{jobName(s.job)} <small>HP {p.stats.maxHp} · SP {p.stats.maxSp} · 힘 {p.stats.str} · 지능 {p.stats.int} · 손재주 {p.stats.dex} · 속도 {p.stats.spd} · 운 {p.stats.luk}</small></div>
                 <div className="skills">{p.skills.map(skillLabel).join(' · ')}</div>
                 <div className="controls">
                   <span className="seg">

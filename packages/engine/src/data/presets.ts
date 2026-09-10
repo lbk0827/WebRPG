@@ -14,7 +14,7 @@ export const PRESETS: Record<string, CharSetup> = {
     name: '전사',
     row: 'front',
     guard: { mode: 'hpAbove', pct: 30 },
-    stats: { maxHp: 560, maxSp: 50, str: 50, int: 5, spd: 32, def: 22, mdef: 9 },
+    stats: { maxHp: 560, maxSp: 50, str: 50, int: 5, dex: 20, spd: 32, luk: 10, def: 22, mdef: 9 },
     skills: ['strike', 'heavyBlow', 'sweep', 'warCry', 'sunder'],
     rules: {
       rows: [
@@ -30,7 +30,7 @@ export const PRESETS: Record<string, CharSetup> = {
     name: '도적',
     row: 'front',
     guard: { mode: 'never' },
-    stats: { maxHp: 380, maxSp: 70, str: 44, int: 20, spd: 70, def: 10, mdef: 10 },
+    stats: { maxHp: 380, maxSp: 70, str: 36, int: 20, dex: 52, spd: 70, luk: 20, def: 10, mdef: 10 },
     skills: ['strike', 'flurry', 'venom', 'stagger', 'hush'],
     rules: {
       rows: [
@@ -45,7 +45,7 @@ export const PRESETS: Record<string, CharSetup> = {
     name: '마법사',
     row: 'back',
     guard: { mode: 'never' },
-    stats: { maxHp: 300, maxSp: 120, str: 5, int: 62, spd: 35, def: 5, mdef: 20 },
+    stats: { maxHp: 300, maxSp: 120, str: 5, int: 62, dex: 16, spd: 35, luk: 15, def: 5, mdef: 20 },
     skills: ['strike', 'bolt', 'inferno', 'meditate'],
     rules: {
       rows: [
@@ -60,7 +60,7 @@ export const PRESETS: Record<string, CharSetup> = {
     name: '프리스트',
     row: 'back',
     guard: { mode: 'never' },
-    stats: { maxHp: 340, maxSp: 110, str: 8, int: 52, spd: 38, def: 8, mdef: 18 },
+    stats: { maxHp: 340, maxSp: 110, str: 8, int: 52, dex: 20, spd: 38, luk: 25, def: 8, mdef: 18 },
     skills: ['strike', 'mend', 'prayer', 'resurrect', 'cleanse', 'ward'],
     rules: {
       rows: [
@@ -75,7 +75,7 @@ export const PRESETS: Record<string, CharSetup> = {
     name: '엘프',
     row: 'back',
     guard: { mode: 'never' },
-    stats: { maxHp: 350, maxSp: 60, str: 46, int: 10, spd: 55, def: 10, mdef: 10 },
+    stats: { maxHp: 350, maxSp: 60, str: 34, int: 10, dex: 56, spd: 55, luk: 20, def: 10, mdef: 10 },
     skills: ['strike', 'flurry', 'venom', 'pierceShot'],
     rules: {
       rows: [

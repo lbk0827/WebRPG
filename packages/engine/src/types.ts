@@ -68,7 +68,11 @@ export interface Stats {
   maxSp: number
   str: number
   int: number
+  /** 손재주 — 도적·궁수 계열 물리 스킬의 위력 스탯, 시전 시간 단축 */
+  dex: number
   spd: number
+  /** 운 — 상태이상 저항 (전투 밖에서는 드롭·제작 확률, M2) */
+  luk: number
   /** 물리 고정 방어 */
   def: number
   /** 마법 고정 방어 */
@@ -104,7 +108,7 @@ export type TargetPriority =
   | { mode: 'require'; by: 'hasStatus'; status: StatusId }
 
 export type Effect =
-  | { kind: 'damage'; school: 'phys' | 'magic'; power: number; pierce?: boolean }
+  | { kind: 'damage'; school: 'phys' | 'magic'; power: number; pierce?: boolean; /** 물리 위력 스탯. 기본 str */ scaleBy?: 'str' | 'dex' }
   | { kind: 'heal'; power: number }
   | { kind: 'restoreSp'; power: number }
   | { kind: 'applyStatus'; status: StatusId; duration: number; magnitude?: number }
@@ -194,6 +198,7 @@ export type BattleEvent =
   | { t: 'heal'; source: CharRef; target: CharRef; amount: number }
   | { t: 'spChange'; target: CharRef; delta: number }
   | { t: 'statusApply'; target: CharRef; status: StatusId; duration: number }
+  | { t: 'statusResisted'; target: CharRef; status: StatusId }
   | { t: 'statusTick'; target: CharRef; status: StatusId; amount: number }
   | { t: 'statusExpire'; target: CharRef; status: StatusId }
   | { t: 'gaugeShift'; target: CharRef; delta: number }

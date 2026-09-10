@@ -97,6 +97,9 @@ function currentTurnFx(events: BattleEvent[], cursor: number): Fx {
         fx.lunge = true
         push(e.target, { text: `[${statusLabel(e.status)}]`, kind: 'status' })
         break
+      case 'statusResisted':
+        push(e.target, { text: '저항', kind: 'block' })
+        break
       case 'castInterrupted':
         push(e.target, { text: '끊김!', kind: 'interrupt' })
         fx.hit.add(key(e.target))
