@@ -5,6 +5,10 @@ export type { Rng } from './rng'
 export { SKILLS } from './data/skills'
 export { STATUS_DEFS } from './data/statuses'
 export { PRESETS, TEAMS, makeTeam } from './data/presets'
+export { MISSIONS, MISSION_BY_ID, missionTeams, missionChar, solutionOverrides, judgeMission } from './data/missions'
+export type { Mission, MissionChar, MissionLimits, MissionObjective, SlotOverride, Verdict } from './data/missions'
+export { analyze } from './analysis'
+export type { Analysis, TeamAnalysis } from './analysis'
 
 import type { BattleConfig } from './types'
 

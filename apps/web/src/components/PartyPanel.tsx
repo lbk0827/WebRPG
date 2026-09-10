@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import type { GuardPolicy } from '@webrpg/engine'
 import { PRESETS } from '@webrpg/engine'
 import { ENEMY_OPTIONS, slotFromPreset, type SlotState } from '../state'
 import { jobIcon, jobName, skillLabel } from '../lib/labels'
+import { GUARDS, guardByKey, guardKey } from '../lib/guards'
 
 interface Props {
   slots: SlotState[]
@@ -12,20 +12,6 @@ interface Props {
 }
 
 const JOBS = Object.keys(PRESETS)
-
-type GuardKey = 'always' | 'never' | 'hp30' | 'hp50' | 'hp75' | 'p25' | 'p50' | 'p75'
-const GUARDS: { key: GuardKey; label: string; policy: GuardPolicy }[] = [
-  { key: 'always', label: '항상 엄호', policy: { mode: 'always' } },
-  { key: 'never', label: '엄호 안 함', policy: { mode: 'never' } },
-  { key: 'hp30', label: 'HP 30% 넘을 때', policy: { mode: 'hpAbove', pct: 30 } },
-  { key: 'hp50', label: 'HP 50% 넘을 때', policy: { mode: 'hpAbove', pct: 50 } },
-  { key: 'hp75', label: 'HP 75% 넘을 때', policy: { mode: 'hpAbove', pct: 75 } },
-  { key: 'p25', label: '25% 확률', policy: { mode: 'chance', pct: 25 } },
-  { key: 'p50', label: '50% 확률', policy: { mode: 'chance', pct: 50 } },
-  { key: 'p75', label: '75% 확률', policy: { mode: 'chance', pct: 75 } },
-]
-const guardKey = (g: GuardPolicy): GuardKey =>
-  g.mode === 'always' ? 'always' : g.mode === 'never' ? 'never' : g.mode === 'hpAbove' ? (`hp${g.pct}` as GuardKey) : (`p${g.pct}` as GuardKey)
 
 export function PartyPanel({ slots, enemy, onSlot, onEnemy }: Props) {
   const [picking, setPicking] = useState<number | null>(null)
@@ -49,7 +35,7 @@ export function PartyPanel({ slots, enemy, onSlot, onEnemy }: Props) {
                     <button className={s.row === 'front' ? 'on' : ''} onClick={() => onSlot(i, { ...s, row: 'front' })}>전열</button>
                     <button className={s.row === 'back' ? 'on' : ''} onClick={() => onSlot(i, { ...s, row: 'back' })}>후열</button>
                   </span>
-                  <select value={guardKey(s.guard)} onChange={(e) => onSlot(i, { ...s, guard: GUARDS.find((g) => g.key === e.target.value)!.policy })}>
+                  <select value={guardKey(s.guard)} onChange={(e) => onSlot(i, { ...s, guard: guardByKey(e.target.value) })}>
                     {GUARDS.map((g) => (
                       <option key={g.key} value={g.key}>{g.label}</option>
                     ))}
