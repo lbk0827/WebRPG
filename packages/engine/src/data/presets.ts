@@ -1,4 +1,5 @@
-// M1 프리셋 단원 (§8.1). 스탯·보유 스킬 고정. 플레이어는 수칙과 편성만 바꾼다.
+// M1 프리셋 단원 (§8.1). 직업 5종 — assets/manifest.json 의 jobs 키와 1:1.
+// 스탯·보유 스킬 고정. 플레이어는 수칙과 편성만 바꾼다.
 // 기본 수칙은 "그럭저럭 돌아가는" 수준으로 둔다 — 퍼즐은 이걸 고치는 데서 시작한다.
 import type { CharSetup, Condition, RuleRow, TeamSetup } from '../types'
 
@@ -8,46 +9,33 @@ const row = (condition: Condition, skillId: string, maxUses?: number): RuleRow =
   maxUses === undefined ? { condition, skillId } : { condition, skillId, maxUses }
 
 export const PRESETS: Record<string, CharSetup> = {
-  bulwark: {
-    id: 'bulwark',
-    name: '방벽병',
+  warrior: {
+    id: 'warrior',
+    name: '전사',
     row: 'front',
-    guard: { mode: 'always' },
-    stats: { maxHp: 620, maxSp: 40, str: 40, int: 5, spd: 25, def: 26, mdef: 10 },
-    skills: ['strike', 'heavyBlow', 'warCry', 'sunder'],
+    guard: { mode: 'hpAbove', pct: 30 },
+    stats: { maxHp: 560, maxSp: 50, str: 50, int: 5, spd: 32, def: 22, mdef: 9 },
+    skills: ['strike', 'heavyBlow', 'sweep', 'warCry', 'sunder'],
     rules: {
       rows: [
         row(atom({ kind: 'selfActionCount', cmp: 'eq', value: 1 }), 'warCry', 1),
-        row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'sunder'),
-        row(always, 'strike'),
-      ],
-    },
-  },
-  blade: {
-    id: 'blade',
-    name: '검사',
-    row: 'front',
-    guard: { mode: 'hpAbove', pct: 50 },
-    stats: { maxHp: 460, maxSp: 60, str: 56, int: 5, spd: 40, def: 15, mdef: 8 },
-    skills: ['strike', 'heavyBlow', 'flurry', 'sweep'],
-    rules: {
-      rows: [
         row(atom({ kind: 'teamAliveCount', side: 'enemy', cmp: 'gte', value: 4 }), 'sweep'),
         row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'heavyBlow'),
         row(always, 'strike'),
       ],
     },
   },
-  ranger: {
-    id: 'ranger',
-    name: '궁수',
-    row: 'back',
+  rogue: {
+    id: 'rogue',
+    name: '도적',
+    row: 'front',
     guard: { mode: 'never' },
-    stats: { maxHp: 350, maxSp: 60, str: 46, int: 10, spd: 55, def: 10, mdef: 10 },
-    skills: ['strike', 'flurry', 'venom', 'pierceShot'],
+    stats: { maxHp: 380, maxSp: 70, str: 44, int: 20, spd: 70, def: 10, mdef: 10 },
+    skills: ['strike', 'flurry', 'venom', 'stagger', 'hush'],
     rules: {
       rows: [
-        row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 12 }), 'pierceShot'),
+        row(atom({ kind: 'teamCastingCount', side: 'enemy', cmp: 'gte', value: 1 }), 'hush'),
+        row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venom'),
         row(always, 'strike'),
       ],
     },
@@ -67,9 +55,9 @@ export const PRESETS: Record<string, CharSetup> = {
       ],
     },
   },
-  cleric: {
-    id: 'cleric',
-    name: '사제',
+  priest: {
+    id: 'priest',
+    name: '프리스트',
     row: 'back',
     guard: { mode: 'never' },
     stats: { maxHp: 340, maxSp: 110, str: 8, int: 52, spd: 38, def: 8, mdef: 18 },
@@ -82,32 +70,16 @@ export const PRESETS: Record<string, CharSetup> = {
       ],
     },
   },
-  disruptor: {
-    id: 'disruptor',
-    name: '교란자',
+  elf: {
+    id: 'elf',
+    name: '엘프',
     row: 'back',
     guard: { mode: 'never' },
-    stats: { maxHp: 330, maxSp: 80, str: 32, int: 30, spd: 72, def: 8, mdef: 12 },
-    skills: ['strike', 'stagger', 'hush', 'venom'],
+    stats: { maxHp: 350, maxSp: 60, str: 46, int: 10, spd: 55, def: 10, mdef: 10 },
+    skills: ['strike', 'flurry', 'venom', 'pierceShot'],
     rules: {
       rows: [
-        row(atom({ kind: 'teamCastingCount', side: 'enemy', cmp: 'gte', value: 1 }), 'hush'),
-        row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venom'),
-        row(always, 'strike'),
-      ],
-    },
-  },
-  berserker: {
-    id: 'berserker',
-    name: '광전사',
-    row: 'front',
-    guard: { mode: 'chance', pct: 25 },
-    stats: { maxHp: 530, maxSp: 50, str: 66, int: 5, spd: 46, def: 8, mdef: 5 },
-    skills: ['strike', 'flurry', 'sweep', 'warCry'],
-    rules: {
-      rows: [
-        row(atom({ kind: 'selfActionCount', cmp: 'eq', value: 1 }), 'warCry', 1),
-        row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 10 }), 'flurry'),
+        row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 12 }), 'pierceShot'),
         row(always, 'strike'),
       ],
     },
@@ -127,8 +99,8 @@ export function makeTeam(name: string, ids: string[]): TeamSetup {
 }
 
 export const TEAMS: Record<string, () => TeamSetup> = {
-  balanced: () => makeTeam('균형', ['bulwark', 'blade', 'ranger', 'mage', 'cleric']),
-  rush: () => makeTeam('돌격', ['berserker', 'blade', 'bulwark', 'ranger', 'ranger']),
-  control: () => makeTeam('제압', ['bulwark', 'disruptor', 'mage', 'cleric', 'ranger']),
-  casters: () => makeTeam('마도', ['bulwark', 'bulwark', 'mage', 'mage', 'cleric']),
+  balanced: () => makeTeam('균형', ['warrior', 'warrior', 'elf', 'mage', 'priest']),
+  rush: () => makeTeam('돌격', ['warrior', 'warrior', 'rogue', 'elf', 'elf']),
+  control: () => makeTeam('제압', ['warrior', 'rogue', 'mage', 'priest', 'elf']),
+  casters: () => makeTeam('마도', ['warrior', 'warrior', 'mage', 'mage', 'priest']),
 }

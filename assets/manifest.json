@@ -1,0 +1,22 @@
+{
+  "$comment": "리소스 매니페스트. 엔진의 preset id 를 키로 쓴다. 웹 클라이언트는 이 파일만 읽는다.",
+  "jobs": {
+    "warrior": { "name": "전사", "icon": "jobs/warrior.svg", "color": "#b23a48", "role": "전열 방벽 · 타격" },
+    "rogue":   { "name": "도적", "icon": "jobs/rogue.svg",   "color": "#5b4b8a", "role": "끊기 · 독 · 연타" },
+    "mage":    { "name": "마법사", "icon": "jobs/mage.svg",  "color": "#2f6fd6", "role": "후열 광역 마법" },
+    "priest":  { "name": "프리스트", "icon": "jobs/priest.svg", "color": "#d4a017", "role": "회복 · 소생 · 보호" },
+    "elf":     { "name": "엘프", "icon": "jobs/elf.svg",     "color": "#3e8e5a", "role": "후열 관통 사격" }
+  },
+  "palette": {
+    "ink": "#1d1d24",
+    "paper": "#e9e4d8",
+    "steel": "#cfd6e0",
+    "leather": "#8a7550",
+    "wood": "#6b4b2a",
+    "arcane": "#8fd3ff",
+    "holy": "#fff5cc",
+    "venom": "#7bd389",
+    "team0": "#b23a48",
+    "team1": "#2f6fd6"
+  }
+}

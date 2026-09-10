@@ -31,6 +31,8 @@
 | [docs/03_세계관_톤.md](docs/03_세계관_톤.md) | ADR-002. 판타지 용병단 / 교전 수칙 프레임 / 용어 매핑 |
 | [docs/04_직업트리_PvP_결정.md](docs/04_직업트리_PvP_결정.md) | ADR-003. 직업은 2단 유지 / 투기장은 정체성, 토벌은 리텐션 |
 | [docs/05_M1_전투엔진_명세.md](docs/05_M1_전투엔진_명세.md) | **M1 명세** — 조건 16종, 효과 8종, 스킬 15종, 이벤트 로그 |
+| [docs/06_리소스_목록.md](docs/06_리소스_목록.md) | M1 리소스 목록 / 직업 5종 아이콘 / 조달 원칙 |
+| [assets/README.md](assets/README.md) | **리소스 라이선스 원장** — 모든 에셋의 출처 기록 |
 
 ## 기술 스택 (ADR-001)
 
@@ -63,6 +65,10 @@ packages/engine/        전투 엔진 — 순수 함수, 의존성 0, DOM/시간
   src/data/             스킬 · 상태이상 · 프리셋 단원 (전부 데이터)
   cli/report.ts         전황 보고서 렌더러
   cli/train.ts          훈련장
+assets/                 리소스 (전부 자체 제작 — README.md 가 라이선스 원장)
+  jobs/*.svg            직업 아이콘 5종
+  manifest.json         preset id → 아이콘/색상 매핑, 팔레트
+  preview.html          아이콘 미리보기
 apps/                   (예정) 웹 클라이언트
 ```
 
