@@ -55,14 +55,14 @@ export function MissionList({ progress, onOpen, onFree }: Props) {
 
       <div className={`free-card ${freeOpen ? '' : 'locked'}`}>
         <div className="body">
-          <span className="title">자유 훈련 — 내 편성으로</span>
+          <span className="title">의뢰 — 내 용병단으로</span>
           <span className="lesson">
             {freeOpen
-              ? '직업 5종 중 5명을 골라 편성하고, 수칙을 전부 직접 짜서 상대 팀과 겨룹니다. 훈련장에서 100회 승률로 검증하세요.'
+              ? '이제 진짜 의뢰입니다. 내 단원 다섯이 성장하고, 수칙은 전부 내가 짭니다. 마을 외곽의 탈영병부터.'
               : `과제를 ${FREE_UNLOCK}개 마치면 열립니다. (${clearedCount}/${FREE_UNLOCK})`}
           </span>
         </div>
-        <button className="primary" disabled={!freeOpen} onClick={onFree}>편성하러 가기 →</button>
+        <button className="primary" disabled={!freeOpen} onClick={onFree}>의뢰소로 →</button>
       </div>
     </section>
   )

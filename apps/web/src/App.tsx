@@ -1,36 +1,45 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MISSIONS, MISSION_BY_ID } from '@webrpg/engine'
-import { buildEnemyTeam, buildPlayerTeam, loadState, saveState, type AppState, type SlotState } from './state'
+import { MISSIONS, MISSION_BY_ID, PRESETS } from '@webrpg/engine'
+import type { SlotState } from './state'
+import { loadGame, saveGame, type GameSave } from './game/save'
+import { memberStats, partyMembers, updateMember } from './game/members'
 import { loadProgress, saveProgress, type MissionProgress } from './missionState'
-import { PartyPanel } from './components/PartyPanel'
 import { RuleEditor } from './components/RuleEditor'
-import { BattleView } from './components/BattleView'
-import { Trainer } from './components/Trainer'
 import { MissionList } from './components/MissionList'
 import { MissionPlay } from './components/MissionPlay'
+import { QuestBoard } from './components/QuestBoard'
+import { RosterPanel } from './components/RosterPanel'
+import { TrainingGround } from './components/TrainingGround'
 
-type Tab = 'missions' | 'party' | 'rules' | 'battle' | 'train'
+type Tab = 'missions' | 'quest' | 'roster' | 'rules' | 'train'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'missions', label: '과제' },
-  { key: 'party', label: '편성' },
+  { key: 'quest', label: '의뢰' },
+  { key: 'roster', label: '단원' },
   { key: 'rules', label: '수칙' },
-  { key: 'battle', label: '전투' },
   { key: 'train', label: '훈련장' },
 ]
 
 export function App() {
-  const [state, setState] = useState<AppState>(loadState)
+  const [save, setSave] = useState<GameSave>(loadGame)
   const [progress, setProgress] = useState<MissionProgress>(loadProgress)
   const [tab, setTab] = useState<Tab>('missions')
   const [missionId, setMissionId] = useState<string | null>(null)
 
-  useEffect(() => saveState(state), [state])
+  useEffect(() => saveGame(save), [save])
   useEffect(() => saveProgress(progress), [progress])
 
-  const player = useMemo(() => buildPlayerTeam(state), [state])
-  const enemy = useMemo(() => buildEnemyTeam(state), [state])
-  const setSlot = (i: number, next: SlotState) => setState((s) => ({ ...s, slots: s.slots.map((x, j) => (j === i ? next : x)) }))
+  const party = useMemo(() => partyMembers(save), [save])
+  const slots: SlotState[] = useMemo(
+    () => party.map((m) => ({ job: m.job, row: m.row, guard: m.guard, rules: m.rules, stats: memberStats(m), skills: PRESETS[m.job].skills })),
+    [party],
+  )
+  const setSlot = (i: number, next: SlotState) => {
+    const m = party[i]
+    if (!m) return
+    setSave((s) => updateMember(s, { ...m, row: next.row, guard: next.guard, rules: next.rules }))
+  }
 
   const mission = missionId ? MISSION_BY_ID[missionId] : null
   const nextMission = mission ? MISSIONS[mission.no] : undefined
@@ -48,17 +57,13 @@ export function App() {
   return (
     <div className="app">
       <header className="top">
-        <h1>교전 수칙 훈련장 <small>M1</small></h1>
+        <h1>교전 수칙 훈련장 <small>M2</small></h1>
         <nav className="tabs desktop">{nav}</nav>
       </header>
 
       <main>
         {tab === 'missions' && !mission && (
-          <MissionList
-            progress={progress}
-            onOpen={(id) => { setMissionId(id); window.scrollTo(0, 0) }}
-            onFree={() => { setTab('party'); window.scrollTo(0, 0) }}
-          />
+          <MissionList progress={progress} onOpen={(id) => { setMissionId(id); window.scrollTo(0, 0) }} onFree={() => { setTab('quest'); window.scrollTo(0, 0) }} />
         )}
         {tab === 'missions' && mission && (
           <MissionPlay
@@ -70,10 +75,10 @@ export function App() {
             onNext={nextMission ? () => { setMissionId(nextMission.id); window.scrollTo(0, 0) } : null}
           />
         )}
-        {tab === 'party' && <PartyPanel slots={state.slots} enemy={state.enemy} onSlot={setSlot} onEnemy={(e) => setState((s) => ({ ...s, enemy: e }))} />}
-        {tab === 'rules' && <RuleEditor slots={state.slots} onChange={setSlot} />}
-        {tab === 'battle' && <BattleView player={player} enemy={enemy} seed={state.seed} onSeed={(seed) => setState((s) => ({ ...s, seed }))} />}
-        {tab === 'train' && <Trainer player={player} enemy={enemy} seed={state.seed} />}
+        {tab === 'quest' && <QuestBoard save={save} onSave={setSave} />}
+        {tab === 'roster' && <RosterPanel save={save} onSave={setSave} />}
+        {tab === 'rules' && (slots.length ? <RuleEditor slots={slots} onChange={setSlot} names={party.map((m) => m.name)} /> : <p className="hint">단원 탭에서 편성을 먼저 하세요.</p>)}
+        {tab === 'train' && <TrainingGround save={save} />}
       </main>
 
       <nav className="tabs mobile">{nav}</nav>

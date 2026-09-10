@@ -1,5 +1,5 @@
-// 앱 상태: 플레이어 편성(5슬롯 + 슬롯별 수칙) · 적 팀 프리셋 · 시드. localStorage 에 보존.
-import type { CharSetup, GuardPolicy, Row, RuleSet, TeamSetup } from '@webrpg/engine'
+// 수칙 편집기가 다루는 슬롯 형태. 훈련 과제(고정 단원)와 내 용병단(성장 단원)이 같은 편집기를 쓴다.
+import type { GuardPolicy, Row, RuleSet, Stats, TeamSetup } from '@webrpg/engine'
 import { PRESETS, TEAMS } from '@webrpg/engine'
 
 export interface SlotState {
@@ -7,69 +7,15 @@ export interface SlotState {
   row: Row
   guard: GuardPolicy
   rules: RuleSet
+  /** 성장 반영 스탯 (생략 시 직업 기본값) — 패턴 수 상한 계산용 */
+  stats?: Stats
+  /** 보유 스킬 (생략 시 직업 기본값) */
+  skills?: string[]
 }
-
-export interface AppState {
-  slots: SlotState[]
-  enemy: string
-  seed: number
-}
-
-const STORAGE_KEY = 'webrpg.m1.v1'
 
 export function slotFromPreset(job: string): SlotState {
   const p = PRESETS[job]
   return { job, row: p.row, guard: structuredClone(p.guard), rules: structuredClone(p.rules) }
-}
-
-export function defaultState(): AppState {
-  return {
-    slots: ['warrior', 'warrior', 'elf', 'mage', 'priest'].map(slotFromPreset),
-    enemy: 'rush',
-    seed: 1,
-  }
-}
-
-export function loadState(): AppState {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY)
-    if (!raw) return defaultState()
-    const parsed = JSON.parse(raw) as AppState
-    if (!Array.isArray(parsed.slots) || parsed.slots.length !== 5) return defaultState()
-    if (!TEAMS[parsed.enemy]) parsed.enemy = 'rush'
-    for (const s of parsed.slots) if (!PRESETS[s.job]) return defaultState()
-    return parsed
-  } catch {
-    return defaultState()
-  }
-}
-
-export function saveState(s: AppState): void {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(s))
-  } catch {
-    /* 저장 실패는 무시 — 편의 기능일 뿐 */
-  }
-}
-
-export function buildPlayerTeam(s: AppState): TeamSetup {
-  return {
-    name: '내 용병단',
-    members: s.slots.map((slot, i): CharSetup => {
-      const p = PRESETS[slot.job]
-      return {
-        ...structuredClone(p),
-        id: `${p.id}#${i}`,
-        row: slot.row,
-        guard: structuredClone(slot.guard),
-        rules: structuredClone(slot.rules),
-      }
-    }),
-  }
-}
-
-export function buildEnemyTeam(s: AppState): TeamSetup {
-  return TEAMS[s.enemy]()
 }
 
 export const ENEMY_OPTIONS: { key: string; label: string }[] = Object.keys(TEAMS).map((key) => ({
@@ -78,3 +24,5 @@ export const ENEMY_OPTIONS: { key: string; label: string }[] = Object.keys(TEAMS
     .members.map((m) => m.name)
     .join('·')})`,
 }))
+
+export const enemyTeam = (key: string): TeamSetup => (TEAMS[key] ?? TEAMS.rush)()

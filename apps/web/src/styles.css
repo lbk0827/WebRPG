@@ -262,6 +262,34 @@ button.big { padding: 10px 22px; font-size: 15px; }
 }
 .player-bar button.on { background: var(--ink); color: #fff; }
 
+/* 의뢰소 · 단원 (M2-1) */
+.regions { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.region button { width: 100%; text-align: left; display: grid; grid-template-columns: 30px 1fr; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; }
+.region.on button { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.region.locked button { opacity: 0.55; }
+.region .no { width: 26px; height: 26px; border-radius: 50%; background: var(--team1); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 12px; }
+.region .body { display: grid; gap: 1px; }
+.region .title { font-weight: 700; }
+.region .lesson { font-size: 12px; color: var(--muted); }
+.region-detail { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin-top: 8px; }
+.region-detail .brief { margin: 0 0 6px; }
+.slot.empty { border-left: 4px solid var(--line); }
+.avatar.empty { width: 48px; height: 48px; border-radius: 50%; border: 1px dashed var(--line); display: grid; place-items: center; color: var(--muted); }
+.members { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.member { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px; }
+.member header { display: grid; grid-template-columns: 40px 1fr auto; gap: 10px; align-items: center; }
+.member .name { font-weight: 700; }
+.member .bar.exp { height: 5px; margin: 3px 0 2px; }
+.member .bar.exp i { background: var(--warn); }
+.member .stats { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 8px 0 4px; font-size: 13px; }
+.member .stat { display: inline-flex; align-items: center; gap: 4px; }
+.member .stat button { padding: 0 8px; min-height: 26px; line-height: 1; }
+.member .stat small { color: var(--good); }
+.member .skills { font-size: 12px; color: var(--muted); }
+.saveio { margin-top: 14px; font-size: 13px; }
+.saveio textarea { width: 100%; font: 11px/1.3 ui-monospace, monospace; margin-top: 6px; border: 1px solid var(--line); border-radius: 8px; padding: 6px; }
+.training h3 { margin-top: 16px; }
+
 /* 훈련장 */
 .report { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
 .report .big { display: flex; align-items: baseline; gap: 12px; }

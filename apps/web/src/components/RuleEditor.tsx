@@ -27,7 +27,8 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
   const reorderOnly = limits?.reorderOnly === true
   const guardOnly = limits?.guardOnly === true
   const rowsLocked = !canEdit || guardOnly
-  const skills = PRESETS[slot.job].skills
+  const skills = slot.skills ?? PRESETS[slot.job].skills
+  const stats = slot.stats ?? PRESETS[slot.job].stats
   const rows = slot.rules.rows
 
   const setRows = (next: RuleRow[]) => onChange(sel, { ...slot, rules: { rows: next } })
@@ -45,10 +46,10 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
     setOpen((o) => ({ ...o, [rows.length]: true }))
   }
   const reset = () => onChange(sel, { ...slot, rules: structuredClone(PRESETS[slot.job].rules) })
-  const statCap = maxRuleRows(PRESETS[slot.job].stats)
+  const statCap = maxRuleRows(stats)
   const cap = Math.min(statCap, limits?.maxRows ?? statCap)
   const atMax = rows.length >= cap
-  const nextInt = nextRuleRowInt(PRESETS[slot.job].stats)
+  const nextInt = nextRuleRowInt(stats)
 
   return (
     <section className="rules">
