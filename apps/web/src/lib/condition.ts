@@ -1,11 +1,13 @@
 // 수칙 편집기의 조건 모델. 엔진의 Condition 트리를 "AND/OR 로 묶인 원자 목록"으로 단순화해 편집한다.
 // 편집기가 표현 못 하는 깊은 트리는 읽기 전용 설명으로만 보여준다.
-import type { Cmp, Condition, ConditionAtom, Row, Side, StatKey, StatusId } from '@webrpg/engine'
+import type { Cmp, CondStat, Condition, ConditionAtom, Row, Side, StatKey, StatusId } from '@webrpg/engine'
 import { STATUS_DEFS } from '@webrpg/engine'
 
 export type Field = 'cmp' | 'value' | 'row' | 'status' | 'stat'
 
 export const STAT_LABEL: Record<StatKey, string> = { str: '힘', int: '지능', dex: '손재주', spd: '속도', luk: '운' }
+/** 조건에서 비교 가능한 능력치 — 분배 스탯 + 방어 (docs/11 §5.6) */
+export const COND_STAT_LABEL: Record<CondStat, string> = { ...STAT_LABEL, def: '방어', mdef: '마법 방어' }
 
 export interface KindSpec {
   /** side 가 있는 kind 는 "{side}" 자리에 아군/적군이 들어간다 */
@@ -33,6 +35,12 @@ export const KIND_SPECS: Record<ConditionAtom['kind'], KindSpec> = {
   teamSpPctBelow: { label: '{side} 중 SP가', fields: ['value'], unit: '% 이하인 자 있음', defaultValue: 20 },
   chance: { label: '확률', fields: ['value'], unit: '%', defaultValue: 50 },
   selfStat: { label: '내 능력치', fields: ['stat', 'value', 'cmp'], unit: '', defaultValue: 30 },
+  // 제로식 판정 목록에서 채택 (docs/11 §5.6)
+  teamAnyHpPct: { label: '{side} 누군가 HP 비율', fields: ['value', 'cmp'], unit: '%', defaultValue: 40 },
+  teamAnyHpAbs: { label: '{side} 누군가 HP', fields: ['value', 'cmp'], unit: '', defaultValue: 150 },
+  teamAnySpPct: { label: '{side} 누군가 SP 비율', fields: ['value', 'cmp'], unit: '%', defaultValue: 20 },
+  teamAvgSpPct: { label: '{side} 평균 SP', fields: ['value', 'cmp'], unit: '%', defaultValue: 50 },
+  selfActionEvery: { label: '내 행동 매', fields: ['value'], unit: '회째마다', defaultValue: 3 },
 }
 
 export interface PickerItem {
@@ -42,8 +50,9 @@ export interface PickerItem {
   label: string
 }
 
-const SELF_KINDS: ConditionAtom['kind'][] = ['selfHpPct', 'selfHpAbs', 'selfSpPct', 'selfSpAbs', 'selfRow', 'selfHasStatus', 'selfActionCount', 'selfStat']
-const TEAM_KINDS: ConditionAtom['kind'][] = ['teamAnyHpPctBelow', 'teamAliveCount', 'teamDeadCount', 'teamAvgHpPct', 'teamCastingCount', 'teamStatusCount', 'teamRowCount', 'teamSpPctBelow']
+// 피커에 보이는 종류. teamAnyHpPctBelow · teamSpPctBelow 는 teamAnyHpPct · teamAnySpPct 의 '이하' 특수형이라 숨기고, 읽을 때 변환한다
+const SELF_KINDS: ConditionAtom['kind'][] = ['selfHpPct', 'selfHpAbs', 'selfSpPct', 'selfSpAbs', 'selfRow', 'selfHasStatus', 'selfActionCount', 'selfActionEvery', 'selfStat']
+const TEAM_KINDS: ConditionAtom['kind'][] = ['teamAnyHpPct', 'teamAnyHpAbs', 'teamAliveCount', 'teamDeadCount', 'teamAvgHpPct', 'teamCastingCount', 'teamStatusCount', 'teamRowCount', 'teamAnySpPct', 'teamAvgSpPct']
 
 export const PICKER_GROUPS: { group: string; items: PickerItem[] }[] = [
   { group: '자신', items: SELF_KINDS.map((kind) => ({ key: kind, kind, label: KIND_SPECS[kind].label })) },
@@ -86,7 +95,22 @@ export function makeAtom(kind: ConditionAtom['kind'], side: Side = 'ally'): Cond
       return { kind, percent: v }
     case 'selfStat':
       return { kind, stat: 'str', cmp: 'gte', value: v }
+    case 'teamAnyHpPct':
+    case 'teamAnyHpAbs':
+    case 'teamAnySpPct':
+      return { kind, side, cmp: 'lte', value: v }
+    case 'teamAvgSpPct':
+      return { kind, side, cmp: 'gte', value: v }
+    case 'selfActionEvery':
+      return { kind, value: v }
   }
+}
+
+/** 옛 특수형을 일반형으로 (편집기 표시용 — 엔진은 둘 다 평가한다) */
+export function modernizeAtom(a: ConditionAtom): ConditionAtom {
+  if (a.kind === 'teamAnyHpPctBelow') return { kind: 'teamAnyHpPct', side: a.side, cmp: 'lte', value: a.value }
+  if (a.kind === 'teamSpPctBelow') return { kind: 'teamAnySpPct', side: a.side, cmp: 'lte', value: a.value }
+  return a
 }
 
 // ───────────────────────────── 편집기 모델 ↔ 엔진 Condition
@@ -111,8 +135,8 @@ export function toCondition(ec: EditorCondition): Condition {
 /** 편집기가 표현 가능한 형태면 변환, 아니면 null (읽기 전용 표시) */
 export function fromCondition(c: Condition): EditorCondition | null {
   const one = (n: Condition): EditorAtom | null => {
-    if (n.op === 'atom') return { atom: n.atom, not: false }
-    if (n.op === 'not' && n.node.op === 'atom') return { atom: n.node.atom, not: true }
+    if (n.op === 'atom') return { atom: modernizeAtom(n.atom), not: false }
+    if (n.op === 'not' && n.node.op === 'atom') return { atom: modernizeAtom(n.node.atom), not: true }
     return null
   }
   if (c.op === 'always') return { join: 'and', atoms: [] }
@@ -168,7 +192,17 @@ export function describeAtom(a: ConditionAtom): string {
     case 'chance':
       return `${a.percent}% 확률`
     case 'selfStat':
-      return `내 ${STAT_LABEL[a.stat]} ${a.value} ${cmpText(a.cmp)}`
+      return `내 ${COND_STAT_LABEL[a.stat]} ${a.value} ${cmpText(a.cmp)}`
+    case 'teamAnyHpPct':
+      return `${sideText(a.side)} 중 HP ${a.value}% ${cmpText(a.cmp)}인 자 있음`
+    case 'teamAnyHpAbs':
+      return `${sideText(a.side)} 중 HP ${a.value} ${cmpText(a.cmp)}인 자 있음`
+    case 'teamAnySpPct':
+      return `${sideText(a.side)} 중 SP ${a.value}% ${cmpText(a.cmp)}인 자 있음`
+    case 'teamAvgSpPct':
+      return `${sideText(a.side)} 평균 SP ${a.value}% ${cmpText(a.cmp)}`
+    case 'selfActionEvery':
+      return `내 ${a.value}회째 행동마다`
   }
 }
 

@@ -38,7 +38,21 @@ export type ConditionAtom =
   | { kind: 'teamRowCount'; side: Side; row: Row; cmp: Cmp; value: number }
   | { kind: 'teamSpPctBelow'; side: Side; value: number }
   | { kind: 'chance'; percent: number }
-  | { kind: 'selfStat'; stat: StatKey; cmp: Cmp; value: number }
+  | { kind: 'selfStat'; stat: CondStat; cmp: Cmp; value: number }
+  // ── 제로식 판정 목록에서 채택 (docs/11 §5.6). 위의 *Below 둘은 아래 *Pct 의 lte 특수형 — 호환을 위해 남긴다
+  /** HP 비율이 N% 이상/이하인 대상이 존재 */
+  | { kind: 'teamAnyHpPct'; side: Side; cmp: Cmp; value: number }
+  /** HP 절대값이 N 이상/이하인 대상이 존재 */
+  | { kind: 'teamAnyHpAbs'; side: Side; cmp: Cmp; value: number }
+  /** SP 비율이 N% 이상/이하인 대상이 존재 */
+  | { kind: 'teamAnySpPct'; side: Side; cmp: Cmp; value: number }
+  /** 평균 SP 비율 */
+  | { kind: 'teamAvgSpPct'; side: Side; cmp: Cmp; value: number }
+  /** 자신의 N번째 행동마다 (N, 2N, 3N …) — 주기 버프용 */
+  | { kind: 'selfActionEvery'; value: number }
+
+/** 조건에서 비교할 수 있는 능력치 — 분배 스탯 5 + 방어 2 */
+export type CondStat = StatKey | 'def' | 'mdef'
 
 export type Condition =
   | { op: 'always' }
