@@ -154,6 +154,11 @@ main { flex: 1; padding: 10px 12px 76px; max-width: 960px; width: 100%; margin: 
 .mission-card .cast i { font-style: normal; font-size: 10px; color: var(--muted); margin: 0 6px; }
 .mission-card .cast img.edit { outline: 2px solid var(--warn); border-radius: 50%; }
 .mission-card .lock { grid-column: 1 / -1; font-size: 11px; color: var(--muted); }
+.free-card { margin-top: 14px; display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: center; background: var(--card); border: 1px dashed var(--team1); border-radius: 12px; padding: 12px; }
+.free-card.locked { border-style: dashed; border-color: var(--line); opacity: 0.7; }
+.free-card .title { display: block; font-weight: 700; }
+.free-card .lesson { display: block; font-size: 12px; color: var(--muted); margin-top: 2px; }
+@media (max-width: 480px) { .free-card { grid-template-columns: 1fr; } }
 .mission-head h2 { margin: 4px 0; }
 .mission-head .brief { margin: 6px 0; }
 .mission-head .goal { font-weight: 600; background: #fff5cc; border-radius: 8px; padding: 8px 10px; }

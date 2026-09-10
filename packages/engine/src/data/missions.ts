@@ -10,6 +10,8 @@ export interface MissionChar {
   name?: string
   /** 훈련용 상대는 스탯을 덮어쓸 수 있다 (예: 허수아비) */
   stats?: Partial<Stats>
+  /** 보유 스킬 덮어쓰기 (훈련용 상대 전용 스킬 등) */
+  skills?: string[]
   row?: Row
   guard?: GuardPolicy
   rules: RuleSet
@@ -106,7 +108,7 @@ export function missionChar(mc: MissionChar, idx: number): CharSetup {
     row: mc.row ?? p.row,
     guard: structuredClone(mc.guard ?? p.guard),
     stats: { ...p.stats, ...mc.stats },
-    skills: [...p.skills],
+    skills: [...(mc.skills ?? p.skills)],
     rules: structuredClone(mc.rules),
   }
 }
@@ -298,6 +300,156 @@ export const MISSIONS: Mission[] = [
           row(atom({ kind: 'teamDeadCount', side: 'ally', cmp: 'gte', value: 1 }), 'resurrect'),
           row(atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 30 }), 'mend'),
           row(always, 'strike'),
+        ),
+      },
+    ],
+  },
+  {
+    id: 'aoe',
+    no: 8,
+    title: '많을 땐 휩쓸어라',
+    brief:
+      '잡병 넷이 몰려온다. 전사의 수칙은 강타 → 기본 공격뿐이라 한 놈씩 찍어 넘어뜨리는 동안 나머지 셋이 계속 때린다. 휩쓸기는 적 전원을 한 번에 친다 — 적이 많을 때만.',
+    goal: '적이 많을 땐 휩쓸고, 적을 땐 찍어서 이겨라',
+    lesson: '"적군 생존자 수" 조건 — 광역과 단일을 상황으로 고른다',
+    hint: '1번 조항에 "적군 생존자 3명 이상 → 휩쓸기"를 넣어라. 셋 이하로 줄면 강타로 넘어간다.',
+    seed: 108,
+    player: [{ job: 'warrior', rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'heavyBlow'), row(always, 'strike')) }],
+    enemy: [0, 1, 2, 3].map(() => ({
+      job: 'warrior' as const,
+      name: '잡병',
+      stats: { maxHp: 150, str: 27, def: 5, maxSp: 0 },
+      guard: { mode: 'never' as const },
+      rules: strikeOnly,
+    })),
+    editable: [0],
+    solution: [
+      {
+        rules: rules(
+          row(atom({ kind: 'teamAliveCount', side: 'enemy', cmp: 'gte', value: 3 }), 'sweep'),
+          row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'heavyBlow'),
+          row(always, 'strike'),
+        ),
+      },
+    ],
+  },
+  {
+    id: 'cleanse',
+    no: 9,
+    title: '독을 풀어라',
+    brief:
+      '적 독술사 둘이 맹독을 바른다. 중독된 단원은 자기 차례마다 피가 빠진다. 프리스트는 치유로 버티려 하지만 독이 계속 흐르는 한 밑 빠진 독이다. 정화는 디버프에 걸린 아군만 노린다.',
+    goal: '프리스트가 독을 풀게 만들어 이겨라',
+    lesson: '"아군 중 [상태] N명 이상" 조건 — 상태이상을 관측하고 대응한다',
+    hint: '프리스트 1번 조항에 "아군 중 [중독] 1명 이상 → 정화"를 넣어라. 정화는 중독자가 없으면 자동으로 건너뛴다.',
+    seed: 109,
+    player: [
+      { job: 'warrior', guard: { mode: 'never' }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'heavyBlow'), row(always, 'strike')) },
+      { job: 'priest', rules: rules(row(atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 50 }), 'mend'), row(always, 'strike')) },
+    ],
+    enemy: [
+      { job: 'rogue', name: '독술사', skills: ['strike', 'venomStrong'], stats: { maxHp: 420, maxSp: 40, str: 36 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venomStrong'), row(always, 'strike')) },
+      { job: 'rogue', name: '독술사', skills: ['strike', 'venomStrong'], stats: { maxHp: 420, maxSp: 40, str: 36 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venomStrong'), row(always, 'strike')) },
+    ],
+    editable: [1],
+    solution: [
+      {
+        rules: rules(
+          row(atom({ kind: 'teamStatusCount', side: 'ally', status: 'poison', cmp: 'gte', value: 1 }), 'cleanse'),
+          row(atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 50 }), 'mend'),
+          row(always, 'strike'),
+        ),
+      },
+    ],
+  },
+  {
+    id: 'notagain',
+    no: 10,
+    title: '이미 걸린 건 다시 걸지 마라',
+    brief:
+      '갑주 파쇄는 적의 방어를 깎지만 위력은 약하다. 전사의 수칙은 SP만 있으면 갑주 파쇄를 반복한다 — 이미 걸려 있는 적에게 또. 강타 조항은 그 아래에 묻혀 있다. 방어 약화는 한 번이면 충분하고, 그 뒤엔 강타가 제값을 한다.',
+    goal: '방어 약화가 걸려 있지 않을 때만 갑주 파쇄를 쓰게 만들어 이겨라',
+    lesson: '"N명 정확히 0" 조건 = "없을 때". 상태가 없을 때만 거는 법',
+    hint: '갑주 파쇄 조항의 조건을 "적군 중 [방어 약화] 0명 정확히"로 바꿔라. 걸려 있으면 건너뛰고 강타로 간다.',
+    seed: 110,
+    player: [
+      {
+        job: 'warrior',
+        rules: rules(
+          row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'sunder'),
+          row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'heavyBlow'),
+          row(always, 'strike'),
+        ),
+      },
+    ],
+    enemy: [{ job: 'warrior', name: '교관', stats: { maxHp: 760, str: 42, maxSp: 0 }, guard: { mode: 'never' }, rules: strikeOnly }],
+    editable: [0],
+    solution: [
+      {
+        rules: rules(
+          row(atom({ kind: 'teamStatusCount', side: 'enemy', status: 'defDown', cmp: 'eq', value: 0 }), 'sunder'),
+          row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'heavyBlow'),
+          row(always, 'strike'),
+        ),
+      },
+    ],
+  },
+  {
+    id: 'average',
+    no: 11,
+    title: '전체가 아프면 전체를 치료하라',
+    brief:
+      '적 전사 둘이 휩쓸기를 연달아 쓴다. 우리 다섯이 골고루 깎인다. 프리스트의 치유는 한 명씩만 고쳐서 따라가지 못한다. 기원은 아군 전원을 회복하지만 시전이 길고 비싸다 — 전체가 아플 때만 쓸 가치가 있다.',
+    goal: '아군 전체의 상태를 보고 기원을 쓰게 만들어 이겨라',
+    lesson: '"아군 평균 HP" 조건 — 개인이 아니라 전황을 집계해서 판단한다',
+    hint: '프리스트 1번 조항에 "아군 평균 HP 65% 이하 → 기원"을 넣어라. 치유 조항은 그 아래에 남겨둔다.',
+    seed: 111,
+    player: [
+      { job: 'warrior', guard: { mode: 'hpAbove', pct: 30 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'heavyBlow'), row(always, 'strike')) },
+      { job: 'rogue', rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venom'), row(always, 'strike')) },
+      { job: 'elf', rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 12 }), 'pierceShot'), row(always, 'strike')) },
+      { job: 'mage', rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 6 }), 'bolt'), row(always, 'meditate')) },
+      { job: 'priest', rules: rules(row(atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 50 }), 'mend'), row(always, 'strike')) },
+    ],
+    enemy: [
+      { job: 'warrior', name: '돌격대장', stats: { maxHp: 1500, str: 62, maxSp: 140 }, guard: { mode: 'never' }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 14 }), 'sweep'), row(always, 'strike')) },
+      { job: 'warrior', name: '돌격대장', stats: { maxHp: 1500, str: 62, maxSp: 140 }, guard: { mode: 'never' }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 14 }), 'sweep'), row(always, 'strike')) },
+    ],
+    editable: [4],
+    solution: [
+      {
+        rules: rules(
+          row(atom({ kind: 'teamAvgHpPct', side: 'ally', cmp: 'lte', value: 65 }), 'prayer'),
+          row(atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 50 }), 'mend'),
+          row(always, 'strike'),
+        ),
+      },
+    ],
+  },
+  {
+    id: 'nocast',
+    no: 12,
+    title: '끊기는 기술은 버려라',
+    brief:
+      '이번엔 우리가 끊기는 쪽이다. 적 방해꾼은 빠르고, 시전 중인 상대를 보면 어김없이 침묵을 건다. 마법사가 대화염을 준비할 때마다 끊기고, SP 22와 두 차례를 날린다. 마력탄은 시전이 없어 끊기지 않는다 — 약하지만 확실하다.',
+    goal: '마법사가 끊기지 않게 수칙을 짜서 이겨라',
+    lesson: '시전이 있는 기술은 끊긴다. 끊기 전문 상대에겐 강한 기술을 버리고 즉발기로 간다',
+    hint: '대화염 조항을 지우거나 맨 아래로 내려라. "내 SP 6 이상 → 마력탄", "항상 → 명상"이면 충분하다.',
+    seed: 112,
+    player: [
+      { job: 'warrior', guard: { mode: 'always' }, rules: strikeOnly },
+      { job: 'mage', stats: { spd: 45 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 22 }), 'inferno'), row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 6 }), 'bolt'), row(always, 'meditate')) },
+    ],
+    enemy: [
+      { job: 'rogue', name: '방해꾼', stats: { maxHp: 360, maxSp: 120, str: 30, spd: 170 }, rules: rules(row(atom({ kind: 'teamCastingCount', side: 'enemy', cmp: 'gte', value: 1 }), 'hush'), row(always, 'strike')) },
+      { job: 'warrior', name: '교관', stats: { maxHp: 680, str: 36, maxSp: 0 }, guard: { mode: 'always' }, rules: strikeOnly },
+    ],
+    editable: [1],
+    solution: [
+      {
+        rules: rules(
+          row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 6 }), 'bolt'),
+          row(always, 'meditate'),
         ),
       },
     ],

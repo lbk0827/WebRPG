@@ -184,6 +184,18 @@ const list: Skill[] = [
     ],
   },
   {
+    id: 'venomStrong',
+    label: '맹독',
+    spCost: 8,
+    target: { side: 'enemy', scope: 'single', hits: 1 },
+    charge: 0,
+    stiff: 0,
+    effects: [
+      { kind: 'damage', school: 'phys', power: 40 },
+      { kind: 'applyStatus', status: 'poison', duration: 5, magnitude: 10 },
+    ],
+  },
+  {
     id: 'meditate',
     label: '명상',
     spCost: 0,

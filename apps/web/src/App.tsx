@@ -53,7 +53,13 @@ export function App() {
       </header>
 
       <main>
-        {tab === 'missions' && !mission && <MissionList progress={progress} onOpen={(id) => { setMissionId(id); window.scrollTo(0, 0) }} />}
+        {tab === 'missions' && !mission && (
+          <MissionList
+            progress={progress}
+            onOpen={(id) => { setMissionId(id); window.scrollTo(0, 0) }}
+            onFree={() => { setTab('party'); window.scrollTo(0, 0) }}
+          />
+        )}
         {tab === 'missions' && mission && (
           <MissionPlay
             key={mission.id}

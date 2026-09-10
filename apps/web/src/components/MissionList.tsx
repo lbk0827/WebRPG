@@ -5,10 +5,16 @@ import { jobIcon } from '../lib/labels'
 interface Props {
   progress: MissionProgress
   onOpen: (id: string) => void
+  /** 자유 훈련(내 편성)으로 이동 */
+  onFree: () => void
 }
 
-export function MissionList({ progress, onOpen }: Props) {
+/** 이만큼 풀면 자유 훈련을 권한다 */
+const FREE_UNLOCK = 3
+
+export function MissionList({ progress, onOpen, onFree }: Props) {
   const clearedCount = MISSIONS.filter((m) => progress.cleared[m.id]).length
+  const freeOpen = clearedCount >= FREE_UNLOCK
   return (
     <section className="missions">
       <div className="intro">
@@ -46,6 +52,18 @@ export function MissionList({ progress, onOpen }: Props) {
           )
         })}
       </ol>
+
+      <div className={`free-card ${freeOpen ? '' : 'locked'}`}>
+        <div className="body">
+          <span className="title">자유 훈련 — 내 편성으로</span>
+          <span className="lesson">
+            {freeOpen
+              ? '직업 5종 중 5명을 골라 편성하고, 수칙을 전부 직접 짜서 상대 팀과 겨룹니다. 훈련장에서 100회 승률로 검증하세요.'
+              : `과제를 ${FREE_UNLOCK}개 마치면 열립니다. (${clearedCount}/${FREE_UNLOCK})`}
+          </span>
+        </div>
+        <button className="primary" disabled={!freeOpen} onClick={onFree}>편성하러 가기 →</button>
+      </div>
     </section>
   )
 }
