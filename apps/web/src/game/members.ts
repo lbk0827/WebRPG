@@ -23,7 +23,15 @@ export const memberById = (g: GameSave, id: string | null): Member | undefined =
 /** 편성된 단원 (슬롯 순서, 빈 슬롯 제외) */
 export const partyMembers = (g: GameSave): Member[] => g.party.map((id) => memberById(g, id)).filter((m): m is Member => m !== undefined)
 
-export const partyTeam = (g: GameSave): TeamSetup => ({ name: '내 용병단', members: partyMembers(g).map(memberSetup) })
+export const partyTeam = (g: GameSave): TeamSetup => ({ name: g.name, members: partyMembers(g).map(memberSetup) })
+
+/** 편성 요약 (상태줄·비교 카드용) */
+export function partySummary(g: GameSave): { count: number; avgLevel: number; levelSum: number; hpSum: number } {
+  const ms = partyMembers(g)
+  const levelSum = ms.reduce((s, m) => s + m.level, 0)
+  const hpSum = ms.reduce((s, m) => s + memberStats(m).maxHp, 0)
+  return { count: ms.length, avgLevel: ms.length ? Math.round(levelSum / ms.length) : 0, levelSum, hpSum }
+}
 
 export function allocateStat(m: Member, key: StatKey): Member {
   if (m.statPoints <= 0) return m

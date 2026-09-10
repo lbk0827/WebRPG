@@ -39,6 +39,7 @@
 | [docs/08_참고_제로식_유니콘오버로드.md](docs/08_참고_제로식_유니콘오버로드.md) | 참고 게임 분석 — 제로식 15년의 교훈, 유니콘 오버로드(같은 코어로 100만 장) |
 | [docs/09_제로식_매뉴얼_정리.md](docs/09_제로식_매뉴얼_정리.md) | 제로식 공식 매뉴얼·게임데이터 정리 (우리 말로 재정리, 원문은 저장소 밖) |
 | [docs/10_스탯_정의.md](docs/10_스탯_정의.md) | **스탯 정의 확정** — 8항목, 엔진 공식, INT→패턴 수, DEX 선딜·LUK 저항의 쓰임 |
+| [docs/11_제로식_UI_분석_및_UI_개선.md](docs/11_제로식_UI_분석_및_UI_개선.md) | ADR-004. 제로식 사이트 구성 관찰 · 부족한 점 · 우리 UI 개선안 (본부 · 상태줄 · 도감 · 전투 기록) |
 | [assets/README.md](assets/README.md) | **리소스 라이선스 원장** — 모든 에셋의 출처 기록 |
 
 ## 기술 스택 (ADR-001)
@@ -81,7 +82,9 @@ apps/web/               웹 훈련장 — Vite + React, 서버 없음 (엔진을
   src/state.ts          편성 · 슬롯별 수칙 · 시드 (localStorage 보존)
   src/lib/condition.ts  조건 편집 모델 ↔ 엔진 Condition 트리, 한국어 문장화
   src/lib/roster.ts     이벤트 로그를 커서까지 접어 전황 복원 (재생기 핵심)
-  src/components/       MissionList/MissionPlay 훈련 과제 · PartyPanel 편성 · RuleEditor 수칙
+  src/game/             save.ts 저장 스키마(v2) · members.ts 단원 ↔ 전투 편성 변환
+  src/components/       Home 본부 · QuestBoard 의뢰소 · RosterPanel 단원 · Codex 도감
+                        MissionList/MissionPlay 훈련 과제 · RuleEditor 수칙
                         Replay 재생기 · Stage 전투 연출(돌진·피격·팝업·말풍선) · Trainer 훈련장
 ```
 
@@ -91,8 +94,11 @@ apps/web/               웹 훈련장 — Vite + React, 서버 없음 (엔진을
 
 **M2 진행 중** — M2-0 전투 기반 보강 ✅ (장비 항·특성·열 이동·연타 점감·쿨다운·무기 제한 …),
 **M2-1 육성 루프 ✅**: 의뢰소(지역 3곳, 사람 상대 몬스터 10종) → 보상 → 레벨업 → 스탯 분배 → 패턴 수 증가.
-탭: 과제 · 의뢰 · 단원 · 수칙 · 훈련장. 진행은 localStorage + JSON 내보내기/가져오기.
 스탯 5종 확정 (STR·INT·DEX·SPD·LUK, [docs/10](docs/10_스탯_정의.md)).
+**UI 개편 ✅ (ADR-004, [docs/11](docs/11_제로식_UI_분석_및_UI_개선.md))**: 탭 본부 · 의뢰 · 단원 · 수칙 · 훈련장 + 도감.
+본부(할 일 · 과제 진행 · 최근 전투 기록 재생), 헤더 상태줄(용병단 이름·금·단원·Lv·전적), 출전 전 비교 카드,
+패배 진단, 스킬 요약 줄, 스탯 설명, 도감(스킬·상태이상·특성·조건·스탯·지역). 저장 스키마 v2 (기록 12건, 자동 승격).
+진행은 localStorage + JSON 내보내기/가져오기.
 
 훈련 과제는 사람이 플레이하기 전에 테스트로 검증된다 — "기본 수칙은 지고, 정답은 이긴다"를
 고정 시드 + 시드 10개로 확인한 과제만 나간다 (`packages/engine/test/missions.test.ts`).

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { MISSIONS, MISSION_BY_ID, PRESETS } from '@webrpg/engine'
 import type { SlotState } from './state'
 import { loadGame, saveGame, type GameSave } from './game/save'
-import { memberStats, partyMembers, updateMember } from './game/members'
+import { memberStats, partyMembers, partySummary, updateMember } from './game/members'
 import { loadProgress, saveProgress, type MissionProgress } from './missionState'
 import { RuleEditor } from './components/RuleEditor'
 import { MissionList } from './components/MissionList'
@@ -10,27 +10,34 @@ import { MissionPlay } from './components/MissionPlay'
 import { QuestBoard } from './components/QuestBoard'
 import { RosterPanel } from './components/RosterPanel'
 import { TrainingGround } from './components/TrainingGround'
+import { Home, type Tab } from './components/Home'
+import { Codex } from './components/Codex'
 
-type Tab = 'missions' | 'quest' | 'roster' | 'rules' | 'train'
+/** 화면. 탭 5개(폰 하단 바 한계) + 탭 밖 화면(과제 목록·과제·도감)은 본부 탭에 속한다 (ADR-004) */
+type View = Tab | 'missions' | 'codex'
 
 const TABS: { key: Tab; label: string }[] = [
-  { key: 'missions', label: '과제' },
+  { key: 'home', label: '본부' },
   { key: 'quest', label: '의뢰' },
   { key: 'roster', label: '단원' },
   { key: 'rules', label: '수칙' },
   { key: 'train', label: '훈련장' },
 ]
 
+const tabOf = (v: View): Tab | null => (v === 'missions' ? 'home' : v === 'codex' ? null : v)
+
 export function App() {
   const [save, setSave] = useState<GameSave>(loadGame)
   const [progress, setProgress] = useState<MissionProgress>(loadProgress)
-  const [tab, setTab] = useState<Tab>('missions')
+  const [view, setView] = useState<View>('home')
   const [missionId, setMissionId] = useState<string | null>(null)
+  const [rulesInitial, setRulesInitial] = useState(0)
 
   useEffect(() => saveGame(save), [save])
   useEffect(() => saveProgress(progress), [progress])
 
   const party = useMemo(() => partyMembers(save), [save])
+  const summary = useMemo(() => partySummary(save), [save])
   const slots: SlotState[] = useMemo(
     () => party.map((m) => ({ job: m.job, row: m.row, guard: m.guard, rules: m.rules, stats: memberStats(m), skills: PRESETS[m.job].skills })),
     [party],
@@ -41,13 +48,29 @@ export function App() {
     setSave((s) => updateMember(s, { ...m, row: next.row, guard: next.guard, rules: next.rules }))
   }
 
-  const mission = missionId ? MISSION_BY_ID[missionId] : null
+  const go = (v: View) => {
+    setView(v)
+    if (v !== 'missions') setMissionId(null)
+    window.scrollTo(0, 0)
+  }
+  const openMission = (id: string) => {
+    setMissionId(id)
+    setView('missions')
+    window.scrollTo(0, 0)
+  }
+  const editRules = (partyIndex: number) => {
+    setRulesInitial(partyIndex)
+    go('rules')
+  }
+
+  const mission = view === 'missions' && missionId ? MISSION_BY_ID[missionId] : null
   const nextMission = mission ? MISSIONS[mission.no] : undefined
+  const active = tabOf(view)
 
   const nav = (
     <>
       {TABS.map((t) => (
-        <button key={t.key} className={tab === t.key ? 'on' : ''} onClick={() => { setTab(t.key); if (t.key !== 'missions') setMissionId(null) }}>
+        <button key={t.key} className={active === t.key ? 'on' : ''} onClick={() => go(t.key)}>
           {t.label}
         </button>
       ))}
@@ -57,28 +80,42 @@ export function App() {
   return (
     <div className="app">
       <header className="top">
-        <h1>교전 수칙 훈련장 <small>M2</small></h1>
+        <div className="brand">
+          <h1>교전 수칙</h1>
+          <div className="status">
+            <b>{save.name}</b>
+            <span>금 {save.gold}</span>
+            <span>단원 {summary.count}/{save.members.length}</span>
+            {summary.count > 0 && <span>평균 Lv {summary.avgLevel}</span>}
+            <span>{save.battles}전 {save.wins}승</span>
+          </div>
+        </div>
         <nav className="tabs desktop">{nav}</nav>
+        <button className={`codex-btn ${view === 'codex' ? 'on' : ''}`} onClick={() => go('codex')} title="도감">📖<span> 도감</span></button>
       </header>
 
       <main>
-        {tab === 'missions' && !mission && (
-          <MissionList progress={progress} onOpen={(id) => { setMissionId(id); window.scrollTo(0, 0) }} onFree={() => { setTab('quest'); window.scrollTo(0, 0) }} />
+        {view === 'home' && (
+          <Home save={save} progress={progress} onGo={go} onOpenMissions={() => go('missions')} onOpenMission={openMission} onOpenCodex={() => go('codex')} />
         )}
-        {tab === 'missions' && mission && (
+        {view === 'missions' && !mission && (
+          <MissionList progress={progress} onOpen={openMission} onFree={() => go('quest')} onBack={() => go('home')} />
+        )}
+        {view === 'missions' && mission && (
           <MissionPlay
             key={mission.id}
             mission={mission}
             progress={progress}
             onProgress={setProgress}
-            onBack={() => setMissionId(null)}
-            onNext={nextMission ? () => { setMissionId(nextMission.id); window.scrollTo(0, 0) } : null}
+            onBack={() => { setMissionId(null); window.scrollTo(0, 0) }}
+            onNext={nextMission ? () => openMission(nextMission.id) : null}
           />
         )}
-        {tab === 'quest' && <QuestBoard save={save} onSave={setSave} />}
-        {tab === 'roster' && <RosterPanel save={save} onSave={setSave} />}
-        {tab === 'rules' && (slots.length ? <RuleEditor slots={slots} onChange={setSlot} names={party.map((m) => m.name)} /> : <p className="hint">단원 탭에서 편성을 먼저 하세요.</p>)}
-        {tab === 'train' && <TrainingGround save={save} />}
+        {view === 'quest' && <QuestBoard save={save} onSave={setSave} />}
+        {view === 'roster' && <RosterPanel save={save} onSave={setSave} onEditRules={editRules} />}
+        {view === 'rules' && (slots.length ? <RuleEditor key={rulesInitial} slots={slots} onChange={setSlot} names={party.map((m) => m.name)} initial={rulesInitial} /> : <p className="hint">단원 탭에서 편성을 먼저 하세요.</p>)}
+        {view === 'train' && <TrainingGround save={save} />}
+        {view === 'codex' && <Codex onBack={() => go('home')} />}
       </main>
 
       <nav className="tabs mobile">{nav}</nav>

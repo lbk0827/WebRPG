@@ -1,10 +1,12 @@
-// 의뢰소 (M2-1). 지역 선택 → 출전 → 보상·레벨업 → 재생.
+// 의뢰소 (M2-1, ADR-004). 지역 선택 → 출전 전 비교 → 출전 → 보상·레벨업·진단 → 재생. 기록에 저장.
 import { useMemo, useState } from 'react'
-import type { BattleResult, TeamSetup } from '@webrpg/engine'
-import { DEFAULT_CONFIG, MONSTERS, REGIONS, SKILLS, battleRewards, isRegionUnlocked, rollEncounter, simulate, type RegionDef } from '@webrpg/engine'
+import type { Analysis, BattleResult, TeamSetup } from '@webrpg/engine'
+import { DEFAULT_CONFIG, MONSTERS, REGIONS, SKILLS, analyze, battleRewards, isRegionUnlocked, monsterSetup, rollEncounter, simulate, type RegionDef } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
-import { applyExp, partyMembers, partyTeam } from '../game/members'
+import { pushRecord } from '../game/save'
+import { applyExp, partyMembers, partySummary, partyTeam } from '../game/members'
 import { jobIcon, jobOf, outcomeText, type Names } from '../lib/labels'
+import { diagnose } from '../lib/diagnose'
 import { Replay } from './Replay'
 
 interface Props {
@@ -18,6 +20,7 @@ interface Outcome {
   enemy: TeamSetup
   player: TeamSetup
   result: BattleResult
+  analysis: Analysis
   exp: number
   gold: number
   levelUps: { name: string; level: number }[]
@@ -29,12 +32,21 @@ export function QuestBoard({ save, onSave }: Props) {
   const region = REGIONS.find((r) => r.id === sel) ?? REGIONS[0]
   const unlocked = isRegionUnlocked(region, save.regionWins)
   const party = partyMembers(save)
-  const avgLevel = party.length ? Math.round(party.reduce((s, m) => s + m.level, 0) / party.length) : 0
+  const us = partySummary(save)
 
   const preview = useMemo(
     () => region.table.filter((t) => !MONSTERS[t.monsterId].hidden).map((t) => MONSTERS[t.monsterId]),
     [region],
   )
+  // 예상 상대 — 숨김 조우는 빼고, 등장 수 범위 × 보이는 상대의 레벨·HP 범위
+  const them = useMemo(() => {
+    const hps = preview.map((d) => monsterSetup(d, 0).stats.maxHp)
+    const lv = preview.map((d) => d.level)
+    return {
+      lvMin: Math.min(...lv), lvMax: Math.max(...lv),
+      hpMin: Math.min(...hps) * region.count[0], hpMax: Math.max(...hps) * region.count[1],
+    }
+  }, [preview, region])
 
   const depart = () => {
     if (!unlocked || party.length === 0) return
@@ -42,6 +54,7 @@ export function QuestBoard({ save, onSave }: Props) {
     const enemy = rollEncounter(region, seed)
     const player = partyTeam(save)
     const result = simulate({ seed, teams: [player, enemy], config: DEFAULT_CONFIG, skills: SKILLS })
+    const analysis = analyze(result, [player.members.length, enemy.members.length])
     const { exp, gold } = battleRewards(result, enemy)
 
     const levelUps: { name: string; level: number }[] = []
@@ -52,14 +65,16 @@ export function QuestBoard({ save, onSave }: Props) {
       return r.member
     })
     const win = result.outcome === 'team0'
-    onSave({
+    const next: GameSave = {
       ...save,
       members,
       gold: save.gold + gold,
       battles: save.battles + 1,
+      wins: save.wins + (win ? 1 : 0),
       regionWins: win ? { ...save.regionWins, [region.id]: (save.regionWins[region.id] ?? 0) + 1 } : save.regionWins,
-    })
-    setOut({ region, seed, enemy, player, result, exp, gold, levelUps })
+    }
+    onSave(pushRecord(next, { at: Date.now(), regionId: region.id, seed, outcome: result.outcome, exp, gold, actions: result.actionCount, player, enemy }))
+    setOut({ region, seed, enemy, player, result, analysis, exp, gold, levelUps })
     window.scrollTo(0, 0)
   }
 
@@ -78,19 +93,26 @@ export function QuestBoard({ save, onSave }: Props) {
               ))}
             </ul>
           )}
-          <small>시드 {out.seed} · 총 {out.result.actionCount}회 행동</small>
+          {out.result.outcome !== 'team0' && (
+            <ul>
+              {diagnose(out.analysis, names[0]).map((line, i) => (
+                <li key={i}>{line}</li>
+              ))}
+            </ul>
+          )}
+          <small>시드 {out.seed} · 총 {out.result.actionCount}회 행동 · 본부의 최근 전투에 기록됨</small>
         </div>
       )}
       {out && names && jobs && <Replay result={out.result} names={names} jobs={jobs} />}
 
-      <h2>의뢰소 <small>금 {save.gold} · 편성 {party.length}명 · 평균 레벨 {avgLevel}</small></h2>
+      <h2>의뢰소 <small>금 {save.gold} · 편성 {party.length}명 · 평균 레벨 {us.avgLevel}</small></h2>
       <ol className="regions">
         {REGIONS.map((r) => {
           const open = isRegionUnlocked(r, save.regionWins)
           const wins = save.regionWins[r.id] ?? 0
           return (
             <li key={r.id} className={`region ${r.id === sel ? 'on' : ''} ${open ? '' : 'locked'}`}>
-              <button onClick={() => setSel(r.id)}>
+              <button onClick={() => { setSel(r.id); setOut(null) }}>
                 <span className="no">{r.no}</span>
                 <span className="body">
                   <span className="title">{r.name} <small>권장 Lv {r.recommended[0]}–{r.recommended[1]}</small></span>
@@ -104,20 +126,39 @@ export function QuestBoard({ save, onSave }: Props) {
 
       <div className="region-detail">
         <p className="brief">{region.brief}</p>
-        <div className="mission-enemy">
-          <span className="label">출현</span>
-          {preview.map((m) => (
-            <span key={m.id} className="foe">
-              <img src={jobIcon(m.job)} alt="" width={28} height={28} />
-              <span>{m.name}<small> Lv {m.level}</small></span>
-            </span>
-          ))}
-          {region.table.some((t) => MONSTERS[t.monsterId].hidden) && <span className="foe"><small>+ 소문뿐인 상대</small></span>}
+
+        <div className="compare">
+          <div className="side us">
+            <div className="who">
+              {party.map((m) => (
+                <span key={m.id} className="foe">
+                  <img src={jobIcon(m.job)} alt="" width={26} height={26} />
+                  <small>Lv {m.level}</small>
+                </span>
+              ))}
+              {party.length === 0 && <small>편성 없음</small>}
+            </div>
+            <div className="sum"><b>{save.name}</b> · {us.count}명 · Lv 합 {us.levelSum} · HP 합 {us.hpSum}</div>
+          </div>
+          <div className="vs">vs</div>
+          <div className="side them">
+            <div className="who">
+              {preview.map((m) => (
+                <span key={m.id} className="foe">
+                  <img src={jobIcon(m.job)} alt="" width={26} height={26} />
+                  <small>{m.name} Lv {m.level}</small>
+                </span>
+              ))}
+              {region.table.some((t) => MONSTERS[t.monsterId].hidden) && <span className="foe"><small>+ 소문뿐인 상대</small></span>}
+            </div>
+            <div className="sum">예상 · {region.count[0]}~{region.count[1]}명 · Lv {them.lvMin}{them.lvMax !== them.lvMin ? `–${them.lvMax}` : ''} · HP 합 {them.hpMin}~{them.hpMax}</div>
+          </div>
         </div>
+
         <div className="run-bar">
           <button className="primary big" onClick={depart} disabled={!unlocked || party.length === 0}>출전</button>
           {party.length === 0 && <small>단원 탭에서 편성을 먼저 하세요.</small>}
-          {avgLevel > 0 && avgLevel < region.recommended[0] && unlocked && <small>권장 레벨보다 낮습니다. 질 수 있습니다 — 그것도 경험치 30%.</small>}
+          {us.avgLevel > 0 && us.avgLevel < region.recommended[0] && unlocked && <small>권장 레벨보다 낮습니다. 질 수 있습니다 — 그것도 경험치 30%.</small>}
         </div>
       </div>
     </section>

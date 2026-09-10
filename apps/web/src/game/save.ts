@@ -1,5 +1,5 @@
-// 게임 저장 (M2-1). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
-import type { GuardPolicy, Row, RuleSet } from '@webrpg/engine'
+// 게임 저장 (M2-1, v2 는 ADR-004). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
+import type { GuardPolicy, Outcome, Row, RuleSet, TeamSetup } from '@webrpg/engine'
 import { EMPTY_ALLOC, PRESETS, type Alloc } from '@webrpg/engine'
 
 export interface Member {
@@ -16,8 +16,23 @@ export interface Member {
   rules: RuleSet
 }
 
+/** 전투 기록. 결정론이라 시드 + 양 팀 편성만 있으면 그때 그 전투를 그대로 재생한다 */
+export interface BattleRecord {
+  at: number
+  regionId: string
+  seed: number
+  outcome: Outcome
+  exp: number
+  gold: number
+  actions: number
+  player: TeamSetup
+  enemy: TeamSetup
+}
+
 export interface GameSave {
-  version: 1
+  version: 2
+  /** 용병단 이름 */
+  name: string
   gold: number
   members: Member[]
   /** 편성 슬롯 5개 — 단원 id 또는 null */
@@ -25,9 +40,14 @@ export interface GameSave {
   /** 지역별 승리 수 (해금 판정) */
   regionWins: Record<string, number>
   battles: number
+  wins: number
+  /** 최근 전투 (최신이 앞) */
+  log: BattleRecord[]
 }
 
 export const SAVE_KEY = 'webrpg.game.v1'
+export const LOG_MAX = 12
+export const DEFAULT_NAME = '이름 없는 용병단'
 
 const START_JOBS = ['warrior', 'rogue', 'mage', 'priest', 'elf']
 
@@ -48,14 +68,14 @@ export function newGame(): GameSave {
       rules: structuredClone(p.rules),
     }
   })
-  return { version: 1, gold: 200, members, party: members.map((m) => m.id), regionWins: {}, battles: 0 }
+  return { version: 2, name: DEFAULT_NAME, gold: 200, members, party: members.map((m) => m.id), regionWins: {}, battles: 0, wins: 0, log: [] }
 }
 
-/** 형태 검증 + 버전 마이그레이션. 실패하면 null */
+/** 형태 검증 + 버전 마이그레이션 (v1 → v2). 실패하면 null */
 export function migrate(raw: unknown): GameSave | null {
   if (!raw || typeof raw !== 'object') return null
-  const s = raw as Partial<GameSave>
-  if (s.version !== 1) return null
+  const s = raw as Omit<Partial<GameSave>, 'version'> & { version?: number }
+  if (s.version !== 1 && s.version !== 2) return null
   if (!Array.isArray(s.members) || !Array.isArray(s.party)) return null
   for (const m of s.members) {
     if (!PRESETS[m.job]) return null
@@ -66,13 +86,18 @@ export function migrate(raw: unknown): GameSave | null {
     m.level ??= 1
     m.exp ??= 0
   }
+  const regionWins = s.regionWins ?? {}
+  const log = Array.isArray(s.log) ? s.log.filter((r) => r && typeof r.seed === 'number' && r.player && r.enemy).slice(0, LOG_MAX) : []
   return {
-    version: 1,
+    version: 2,
+    name: typeof s.name === 'string' && s.name.trim() ? s.name.trim().slice(0, 20) : DEFAULT_NAME,
     gold: typeof s.gold === 'number' ? s.gold : 0,
     members: s.members,
     party: [...s.party.slice(0, 5), ...Array(Math.max(0, 5 - s.party.length)).fill(null)],
-    regionWins: s.regionWins ?? {},
+    regionWins,
     battles: s.battles ?? 0,
+    wins: typeof s.wins === 'number' ? s.wins : Object.values(regionWins).reduce((a, b) => a + b, 0),
+    log,
   }
 }
 
@@ -106,3 +131,6 @@ export function importGame(text: string): GameSave | null {
     return null
   }
 }
+
+/** 기록 추가 (최신이 앞, LOG_MAX 유지) */
+export const pushRecord = (g: GameSave, r: BattleRecord): GameSave => ({ ...g, log: [r, ...g.log].slice(0, LOG_MAX) })

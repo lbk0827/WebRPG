@@ -301,3 +301,86 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .deaths .bar i { display: block; height: 100%; background: var(--bad); }
 .deaths .ct { width: 36px; text-align: right; }
 .deaths .ex { width: 90px; color: var(--warn); }
+
+/* ───────── ADR-004: 헤더 상태줄 · 본부 · 도감 · 기록 · 비교 카드 */
+.top { gap: 10px; }
+.top .brand { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.top .status { display: flex; gap: 8px; flex-wrap: wrap; font-size: 11px; color: #cfcfd6; }
+.top .status b { color: #fff; font-weight: 700; }
+.top .status span::before { content: '·'; margin-right: 8px; color: #777; }
+.codex-btn { background: transparent; color: #ddd; border-color: #444; padding: 6px 10px; margin-left: auto; }
+.codex-btn.on { background: #fff; color: var(--ink); }
+@media (min-width: 760px) {
+  .top { flex-wrap: nowrap; }
+  .top .status { font-size: 12px; }
+  .top .brand { flex-shrink: 1; }
+  .tabs.desktop { flex-shrink: 0; }
+  .tabs.desktop button { white-space: nowrap; padding: 6px 12px; }
+  .codex-btn { margin-left: 0; flex-shrink: 0; white-space: nowrap; }
+}
+@media (max-width: 900px) { .codex-btn span { display: none; } }
+
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.card h3 { margin: 0 0 6px; color: var(--ink); font-size: 14px; }
+.hq-grid { display: grid; gap: 8px; margin: 10px 0; }
+@media (min-width: 620px) { .hq-grid { grid-template-columns: 1fr 1fr; } }
+.faq { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--team0); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
+.faq h2 { margin: 0 0 8px; }
+.faq dl { margin: 0; }
+.faq dt { font-weight: 700; margin-top: 8px; }
+.faq dd { margin: 2px 0 0; color: var(--muted); }
+.todos { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.todos li { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; }
+.party-mini { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 4px; }
+.party-mini li { display: grid; grid-template-columns: 32px 1fr; column-gap: 8px; align-items: center; padding-left: 6px; border-left: 3px solid var(--team0); }
+.party-mini li.back { border-left-color: var(--team1); }
+.party-mini .nm { font-weight: 600; font-size: 13px; grid-column: 2; }
+.party-mini small { grid-column: 2; font-size: 11px; }
+.party-mini img { grid-row: 1 / span 2; }
+.home .bar.exp { height: 6px; margin: 4px 0; }
+.home .bar.exp i { background: var(--good); }
+
+.records { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.record button { width: 100%; text-align: left; display: grid; grid-template-columns: 44px 1fr auto; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; }
+.record.on button { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.record .res { font-weight: 800; font-size: 12px; text-align: center; border-radius: 8px; padding: 4px 0; color: #fff; background: var(--muted); }
+.record.win .res { background: var(--good); }
+.record.lose .res { background: var(--bad); }
+.record .body { display: grid; gap: 1px; min-width: 0; }
+.record .title { font-weight: 700; }
+.record .lesson { font-size: 12px; color: var(--muted); }
+.record .cast { display: flex; gap: 1px; }
+.record-replay { margin-top: 8px; }
+
+.compare { display: grid; grid-template-columns: 1fr auto 1fr; gap: 6px; align-items: start; margin: 8px 0; padding: 8px; border-radius: 10px; background: var(--paper); }
+.compare .who { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; min-height: 30px; }
+.compare .foe { display: inline-flex; flex-direction: column; align-items: center; gap: 0; font-size: 10px; }
+.compare .foe small { font-size: 10px; white-space: nowrap; }
+.compare .sum { font-size: 11px; color: var(--muted); margin-top: 4px; }
+.compare .vs { align-self: center; font-weight: 800; font-size: 12px; color: var(--muted); }
+.compare .them .who { justify-content: flex-end; }
+.compare .them .sum { text-align: right; }
+
+.subnav { display: flex; gap: 4px; overflow-x: auto; padding-bottom: 6px; margin: 6px 0 10px; }
+.subnav button { white-space: nowrap; }
+.tablewrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.codex-table { width: 100%; border-collapse: collapse; font-size: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; }
+.codex-table th, .codex-table td { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+.codex-table th { font-size: 11px; color: var(--muted); font-weight: 600; white-space: nowrap; background: #faf8f3; }
+.codex-table tr:last-child td { border-bottom: none; }
+.codex-table .nm { font-weight: 700; white-space: nowrap; }
+.codex-table .nm img { vertical-align: middle; }
+.codex-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.codex-table .muted { color: var(--muted); }
+.codex-table.compact th, .codex-table.compact td { padding: 4px 6px; }
+.regions-codex { display: grid; gap: 8px; }
+
+.skill-brief { padding-left: 30px; margin-top: 4px; font-size: 11px; color: var(--muted); }
+.rename { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--muted); margin: 4px 0; }
+.rename input { flex: 1; max-width: 260px; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; min-height: 36px; font-weight: 700; color: var(--ink); }
+.stat-help { font-size: 12px; color: var(--muted); margin: 0 0 8px; }
+.stat-help summary { cursor: pointer; }
+.stat-help ul { margin: 6px 0 0; padding-left: 18px; }
+.stat-help li { margin: 2px 0; }
+.member .skills button.link { margin-left: 8px; font-size: 12px; }
+.slot .controls button.link { font-size: 12px; }

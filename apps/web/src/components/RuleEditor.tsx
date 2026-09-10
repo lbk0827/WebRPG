@@ -2,7 +2,8 @@ import { useState } from 'react'
 import type { MissionLimits, RuleRow } from '@webrpg/engine'
 import { PRESETS, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
 import type { SlotState } from '../state'
-import { jobIcon, jobName, skillLabel } from '../lib/labels'
+import { jobIcon, jobName, skillBrief, skillLabel } from '../lib/labels'
+import { SKILLS } from '@webrpg/engine'
 import { describeCondition, fromCondition, toCondition } from '../lib/condition'
 import { GUARDS, guardByKey, guardKey } from '../lib/guards'
 import { ConditionEditor } from './ConditionEditor'
@@ -125,7 +126,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
                     <span>→</span>
                     <select value={row.skillId} onChange={(e) => updateRow(i, { skillId: e.target.value })}>
                       {skills.map((id) => (
-                        <option key={id} value={id}>{skillLabel(id)}</option>
+                        <option key={id} value={id}>{skillLabel(id)}{SKILLS[id]?.spCost ? ` (SP ${SKILLS[id].spCost})` : ''}</option>
                       ))}
                     </select>
                     <label className="uses">
@@ -143,6 +144,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
                       <span>회만</span>
                     </label>
                   </div>
+                  <div className="skill-brief">{skillBrief(row.skillId)}</div>
                 </>
               )}
             </li>

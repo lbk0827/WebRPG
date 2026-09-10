@@ -7,16 +7,18 @@ interface Props {
   onOpen: (id: string) => void
   /** 자유 훈련(내 편성)으로 이동 */
   onFree: () => void
+  onBack: () => void
 }
 
 /** 이만큼 풀면 자유 훈련을 권한다 */
 const FREE_UNLOCK = 3
 
-export function MissionList({ progress, onOpen, onFree }: Props) {
+export function MissionList({ progress, onOpen, onFree, onBack }: Props) {
   const clearedCount = MISSIONS.filter((m) => progress.cleared[m.id]).length
   const freeOpen = clearedCount >= FREE_UNLOCK
   return (
     <section className="missions">
+      <button className="link" onClick={onBack}>← 본부</button>
       <div className="intro">
         <h2>훈련 과제</h2>
         <p>
