@@ -8,6 +8,7 @@ export { PRESETS, TEAMS, makeTeam } from './data/presets'
 export { MISSIONS, MISSION_BY_ID, missionTeams, missionChar, solutionOverrides, judgeMission } from './data/missions'
 export type { Mission, MissionChar, MissionLimits, MissionObjective, SlotOverride, Verdict } from './data/missions'
 export { analyze } from './analysis'
+export { maxRuleRows, nextRuleRowInt, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS } from './progression'
 export type { Analysis, TeamAnalysis } from './analysis'
 
 import type { BattleConfig } from './types'

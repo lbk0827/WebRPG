@@ -16,6 +16,7 @@ import {
 import { evalCondition } from './conditions'
 import { resolveCover, selectTargets } from './targeting'
 import { applyEffect, kill } from './effects'
+import { maxRuleRows } from './progression'
 
 export function simulate(input: BattleInput): BattleResult {
   const st: BattleState = {
@@ -133,8 +134,10 @@ function takeTurn(actor: CharState, st: BattleState): void {
     return
   }
 
+  // INT 로 정해지는 최대 조항 수를 넘는 조항은 평가하지 않는다 (progression.ts)
   const rows = actor.setup.rules.rows
-  for (let i = 0; i < rows.length; i++) {
+  const limit = Math.min(rows.length, maxRuleRows(actor.setup.stats))
+  for (let i = 0; i < limit; i++) {
     const row = rows[i]
     if (row.maxUses !== undefined && actor.ruleUses[i] >= row.maxUses) continue
     if (!evalCondition(row.condition, actor, st)) continue

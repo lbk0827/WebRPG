@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { MissionLimits, RuleRow } from '@webrpg/engine'
-import { PRESETS } from '@webrpg/engine'
+import { PRESETS, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
 import type { SlotState } from '../state'
 import { jobIcon, jobName, skillLabel } from '../lib/labels'
 import { describeCondition, fromCondition, toCondition } from '../lib/condition'
@@ -45,7 +45,10 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
     setOpen((o) => ({ ...o, [rows.length]: true }))
   }
   const reset = () => onChange(sel, { ...slot, rules: structuredClone(PRESETS[slot.job].rules) })
-  const atMax = limits?.maxRows !== undefined && rows.length >= limits.maxRows
+  const statCap = maxRuleRows(PRESETS[slot.job].stats)
+  const cap = Math.min(statCap, limits?.maxRows ?? statCap)
+  const atMax = rows.length >= cap
+  const nextInt = nextRuleRowInt(PRESETS[slot.job].stats)
 
   return (
     <section className="rules">
@@ -86,7 +89,8 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
       {canEdit && guardOnly && <p className="hint">이 과제에서는 <b>엄호 방침만</b> 바꿀 수 있습니다.</p>}
       {canEdit && reorderOnly && <p className="hint">이 과제에서는 <b>조항의 순서만</b> 바꿀 수 있습니다. ↑↓ 로 옮기세요.</p>}
       {canEdit && !reorderOnly && !guardOnly && (
-        <p className="hint">위에서부터 평가해 <b>처음 참인 조항</b>을 실행합니다. 전부 거짓이면 <b>우물쭈물</b>하며 차례를 넘깁니다. 조항을 누르면 펼쳐집니다.</p>
+        <p className="hint">위에서부터 평가해 <b>처음 참인 조항</b>을 실행합니다. 전부 거짓이면 <b>우물쭈물</b>하며 차례를 넘깁니다. 조항을 누르면 펼쳐집니다.
+          {' '}조항 <b>{rows.length}/{cap}</b>{nextInt !== null && ` · 지능 ${nextInt}에서 +1`}</p>
       )}
 
       <ol className="rows">
@@ -147,7 +151,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
 
       {!rowsLocked && !reorderOnly && (
         <div className="rules-foot">
-          <button className="primary" onClick={add} disabled={atMax}>{atMax ? `조항 ${limits!.maxRows}개까지` : '+ 조항 추가'}</button>
+          <button className="primary" onClick={add} disabled={atMax}>{atMax ? `조항 ${cap}개까지 (지능)` : '+ 조항 추가'}</button>
           {!editable && <button onClick={reset}>기본 수칙으로</button>}
         </div>
       )}
