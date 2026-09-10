@@ -419,3 +419,75 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .multi-list button.lose { border-left-color: var(--bad); }
 .multi-list button.on { background: var(--ink); color: #fff; }
 .multi-list button.on small { color: #ccc; }
+
+/* ───────── 편성 판 (유니콘 오버로드식 6칸) */
+.board { --cell: 96px; display: inline-block; max-width: 100%; }
+.board.compact { --cell: 72px; }
+.board-head { display: grid; grid-template-columns: var(--cell) var(--cell) auto; gap: 6px; font-size: 11px; color: var(--muted); padding: 0 4px 4px; }
+.board-head span { text-align: center; }
+.board-head .foe-mark { text-align: left; color: var(--team1); font-weight: 700; padding-left: 6px; }
+.board-grid {
+  display: grid; grid-template-columns: var(--cell) var(--cell); grid-auto-rows: var(--cell); gap: 6px;
+  padding: 8px; border-radius: 12px;
+  background: linear-gradient(180deg, #5b4a3a, #3f3128); box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.2);
+}
+.cell {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border-radius: 6px; border: 2px solid transparent; padding: 4px; position: relative; text-align: center;
+  font: inherit; color: var(--ink); cursor: default;
+}
+.cell.light { background: #e9dcc4; }
+.cell.dark { background: #c9b48f; }
+.cell.front::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px; background: rgba(178,58,72,0.55); border-radius: 0 6px 6px 0; }
+.cell img { width: 40px; height: 40px; }
+.board.compact .cell img { width: 30px; height: 30px; }
+.cell .nm { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.cell small { font-size: 10px; color: #5a4a3a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.cell .bar { width: 70%; height: 3px; margin-top: 2px; background: rgba(0,0,0,0.15); }
+.cell.empty { opacity: 0.85; }
+.cell .plus { font-size: 22px; color: rgba(0,0,0,0.25); }
+.board.clickable .cell { cursor: pointer; }
+.board.clickable .cell:hover { border-color: rgba(0,0,0,0.35); }
+.cell.sel { border-color: var(--ink); box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--ink); z-index: 1; }
+.cell.moving { border-color: var(--warn); box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--warn); animation: pulse 1s infinite; }
+
+.formation-grid { display: grid; gap: 14px; }
+@media (min-width: 860px) { .formation-grid { grid-template-columns: auto 1fr; align-items: start; } }
+.formation .left h2 { margin-top: 4px; }
+.formation .move-hint { color: var(--warn); }
+.cell-actions { margin: 8px 0; }
+.bench { margin: 8px 0; }
+.bench h3 { margin: 0 0 6px; color: var(--ink); }
+.bench ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.bench li { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; }
+.bench .nm { font-weight: 700; }
+.bench li button { margin-left: auto; padding: 4px 10px; font-size: 12px; }
+.unit-panel { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; min-height: 200px; }
+.unit-panel.empty { display: grid; place-items: center; color: var(--muted); }
+.unit-panel > header { display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; margin-bottom: 6px; }
+.unit-panel .name { font-weight: 700; }
+.unit-panel .subnav { margin: 6px 0 8px; }
+.unit-panel .rules .rows { margin-top: 4px; }
+.gear-slots { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; }
+.gear-slots li { display: flex; gap: 10px; align-items: center; border: 1px dashed var(--line); border-radius: 10px; padding: 8px 10px; }
+.gear-slots li b { width: 56px; }
+.gear-slots .empty { color: var(--muted); font-size: 12px; }
+.unit-info dl { margin: 0; }
+.unit-info dt { font-weight: 700; margin-top: 8px; font-size: 12px; color: var(--muted); }
+.unit-info dd { margin: 2px 0 0; }
+.skill-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; }
+.skill-list small { display: block; font-size: 11px; }
+.growth .line { display: block; margin: 2px 0 4px; }
+.growth .line .badge { margin-left: 6px; }
+.growth .bar.exp { height: 5px; margin: 3px 0 2px; }
+.growth .bar.exp i { background: var(--warn); }
+.growth .stats { display: flex; flex-wrap: wrap; gap: 6px 12px; margin: 6px 0 4px; font-size: 13px; }
+.growth .stat { display: inline-flex; align-items: center; gap: 4px; }
+.growth .stat button { padding: 0 8px; min-height: 26px; line-height: 1; }
+.growth .stat small { color: var(--good); }
+.growth .stat .pm { display: inline-flex; gap: 2px; }
+.growth .stat.pend { color: var(--good); font-weight: 700; }
+.growth .derived { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; color: var(--muted); margin: 2px 0 6px; }
+.growth .derived span { white-space: nowrap; }
+.growth.previewing { outline: 1px solid var(--good); border-radius: 8px; padding: 4px 6px; margin: 0 -6px; }
+.growth .confirm { margin: 4px 0 8px; }

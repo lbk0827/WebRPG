@@ -28,7 +28,8 @@ export function Trainer({ player, enemy, seed }: Props) {
     setBusy(true)
     // 렌더 한 프레임 양보 후 동기 실행 (100회 ≈ 0.2s)
     window.setTimeout(() => {
-      const r: Report = { n, win: 0, lose: 0, draw: 0, avgActions: 0, deaths: [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]], exhausted: [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]], interrupted: 0 }
+      const zeros = (): [number[], number[]] => [Array(player.members.length).fill(0), Array(enemy.members.length).fill(0)]
+      const r: Report = { n, win: 0, lose: 0, draw: 0, avgActions: 0, deaths: zeros(), exhausted: zeros(), interrupted: 0 }
       let actions = 0
       for (let i = 0; i < n; i++) {
         const res = simulate({ seed: seed + i, teams: [player, enemy], config: DEFAULT_CONFIG, skills: SKILLS })

@@ -1,10 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { MISSIONS, MISSION_BY_ID, PRESETS } from '@webrpg/engine'
-import type { SlotState } from './state'
+import { MISSIONS, MISSION_BY_ID } from '@webrpg/engine'
 import { loadGame, saveGame, type GameSave } from './game/save'
-import { memberStats, partyMembers, partySummary, updateMember } from './game/members'
+import { cellOf, partySummary } from './game/members'
 import { loadProgress, saveProgress, type MissionProgress } from './missionState'
-import { RuleEditor } from './components/RuleEditor'
 import { MissionList } from './components/MissionList'
 import { MissionPlay } from './components/MissionPlay'
 import { QuestBoard } from './components/QuestBoard'
@@ -12,10 +10,7 @@ import { RosterPanel } from './components/RosterPanel'
 import { TrainingGround } from './components/TrainingGround'
 import { Home, type Tab } from './components/Home'
 import { Codex } from './components/Codex'
-import { RuleTest } from './components/RuleTest'
-import type { PresetHooks } from './components/RuleEditor'
-import type { RulePreset } from './game/save'
-import { RULE_PRESET_MAX } from './game/save'
+import { Formation } from './components/Formation'
 
 /** 화면. 탭 5개(폰 하단 바 한계) + 탭 밖 화면(과제 목록·과제·도감)은 본부 탭에 속한다 (ADR-004) */
 type View = Tab | 'missions' | 'codex'
@@ -23,8 +18,8 @@ type View = Tab | 'missions' | 'codex'
 const TABS: { key: Tab; label: string }[] = [
   { key: 'home', label: '본부' },
   { key: 'quest', label: '의뢰' },
+  { key: 'formation', label: '편성' },
   { key: 'roster', label: '단원' },
-  { key: 'rules', label: '수칙' },
   { key: 'train', label: '훈련장' },
 ]
 
@@ -35,26 +30,18 @@ export function App() {
   const [progress, setProgress] = useState<MissionProgress>(loadProgress)
   const [view, setView] = useState<View>('home')
   const [missionId, setMissionId] = useState<string | null>(null)
-  const [rulesInitial, setRulesInitial] = useState(0)
+  /** 편성 탭에 들어갈 때 미리 고를 칸 */
+  const [formationCell, setFormationCell] = useState<number | null>(null)
 
   useEffect(() => saveGame(save), [save])
   useEffect(() => saveProgress(progress), [progress])
 
-  const party = useMemo(() => partyMembers(save), [save])
   const summary = useMemo(() => partySummary(save), [save])
-  const slots: SlotState[] = useMemo(
-    () => party.map((m) => ({ job: m.job, row: m.row, guard: m.guard, rules: m.rules, stats: memberStats(m), skills: PRESETS[m.job].skills })),
-    [party],
-  )
-  const setSlot = (i: number, next: SlotState) => {
-    const m = party[i]
-    if (!m) return
-    setSave((s) => updateMember(s, { ...m, row: next.row, guard: next.guard, rules: next.rules }))
-  }
 
   const go = (v: View) => {
     setView(v)
     if (v !== 'missions') setMissionId(null)
+    if (v !== 'formation') setFormationCell(null)
     window.scrollTo(0, 0)
   }
   const openMission = (id: string) => {
@@ -62,27 +49,12 @@ export function App() {
     setView('missions')
     window.scrollTo(0, 0)
   }
-  const editRules = (partyIndex: number) => {
-    setRulesInitial(partyIndex)
-    go('rules')
-  }
-
-  // 수칙 프리셋 — 선택된 편성 단원 기준 (ADR-004 §5 J)
-  const [rulesSel, setRulesSel] = useState(0)
-  const presetHooks: PresetHooks = {
-    list: save.rulePresets,
-    onSave: (name) => {
-      const m = party[rulesSel]
-      if (!m || save.rulePresets.length >= RULE_PRESET_MAX) return
-      const p: RulePreset = { id: `rp${Date.now()}`, name, job: m.job, rules: structuredClone(m.rules), row: m.row, guard: structuredClone(m.guard) }
-      setSave((s) => ({ ...s, rulePresets: [...s.rulePresets, p] }))
-    },
-    onLoad: (p) => {
-      const m = party[rulesSel]
-      if (!m || m.job !== p.job) return
-      setSave((s) => updateMember(s, { ...m, rules: structuredClone(p.rules), row: p.row, guard: structuredClone(p.guard) }))
-    },
-    onDelete: (id) => setSave((s) => ({ ...s, rulePresets: s.rulePresets.filter((p) => p.id !== id) })),
+  /** 단원 카드의 "수칙 편집 →" — 편성 탭에서 그 칸을 골라 둔다 */
+  const editMember = (memberId: string) => {
+    const cell = cellOf(save, memberId)
+    setFormationCell(cell >= 0 ? cell : null)
+    setView('formation')
+    window.scrollTo(0, 0)
   }
 
   const mission = view === 'missions' && missionId ? MISSION_BY_ID[missionId] : null
@@ -107,7 +79,7 @@ export function App() {
           <div className="status">
             <b>{save.name}</b>
             <span>금 {save.gold}</span>
-            <span>단원 {summary.count}/{save.members.length}</span>
+            <span>출전 {summary.count}/{save.members.length}</span>
             {summary.count > 0 && <span>평균 Lv {summary.avgLevel}</span>}
             <span>{save.battles}전 {save.wins}승</span>
           </div>
@@ -134,13 +106,8 @@ export function App() {
           />
         )}
         {view === 'quest' && <QuestBoard save={save} onSave={setSave} />}
-        {view === 'roster' && <RosterPanel save={save} onSave={setSave} onEditRules={editRules} />}
-        {view === 'rules' && (slots.length ? (
-          <>
-            <RuleEditor key={rulesInitial} slots={slots} onChange={setSlot} names={party.map((m) => m.name)} initial={rulesInitial} presets={presetHooks} onSelect={setRulesSel} />
-            <RuleTest save={save} />
-          </>
-        ) : <p className="hint">단원 탭에서 편성을 먼저 하세요.</p>)}
+        {view === 'formation' && <Formation save={save} onSave={setSave} initialCell={formationCell} onGoRoster={() => go('roster')} />}
+        {view === 'roster' && <RosterPanel save={save} onSave={setSave} onEditMember={editMember} onGoFormation={() => go('formation')} />}
         {view === 'train' && <TrainingGround save={save} />}
         {view === 'codex' && <Codex onBack={() => go('home')} />}
       </main>

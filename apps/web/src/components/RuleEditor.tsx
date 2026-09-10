@@ -29,9 +29,11 @@ interface Props {
   presets?: PresetHooks
   /** 선택 슬롯이 바뀔 때 (시험 패널이 같은 단원을 가리키도록) */
   onSelect?: (i: number) => void
+  /** 전열/후열 버튼 숨김 — 편성 판이 열을 정할 때 */
+  noRow?: boolean
 }
 
-export function RuleEditor({ slots, onChange, editable, limits, initial = 0, names, presets, onSelect }: Props) {
+export function RuleEditor({ slots, onChange, editable, limits, initial = 0, names, presets, onSelect, noRow }: Props) {
   const [sel, setSelState] = useState(initial)
   const [open, setOpen] = useState<Record<number, boolean>>({})
   const setSel = (i: number) => { setSelState(i); onSelect?.(i) }
@@ -92,7 +94,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
 
       {canEdit && !reorderOnly && (
         <div className="slot-controls">
-          {!guardOnly && (
+          {!guardOnly && !noRow && (
             <span className="seg">
               <button className={slot.row === 'front' ? 'on' : ''} onClick={() => onChange(sel, { ...slot, row: 'front' })}>전열</button>
               <button className={slot.row === 'back' ? 'on' : ''} onClick={() => onChange(sel, { ...slot, row: 'back' })}>후열</button>

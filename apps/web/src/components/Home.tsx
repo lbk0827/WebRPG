@@ -2,12 +2,14 @@
 import { useMemo, useState } from 'react'
 import { DEFAULT_CONFIG, MISSIONS, REGIONS, REGION_BY_ID, SKILLS, isRegionUnlocked, simulate } from '@webrpg/engine'
 import type { BattleRecord, GameSave } from '../game/save'
+import { PARTY_MAX } from '../game/save'
 import { partyMembers } from '../game/members'
 import type { MissionProgress } from '../missionState'
 import { jobIcon, jobOf, outcomeText, timeAgo, type Names } from '../lib/labels'
 import { Replay } from './Replay'
+import { Board } from './Board'
 
-export type Tab = 'home' | 'quest' | 'roster' | 'rules' | 'train'
+export type Tab = 'home' | 'quest' | 'formation' | 'roster' | 'train'
 
 interface Props {
   save: GameSave
@@ -35,8 +37,7 @@ export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOp
   if (nextMission) todos.push({ text: `훈련 과제 ${nextMission.no}. ${nextMission.title}`, action: clearedCount === 0 ? '시작' : '이어서', go: () => onOpenMission(nextMission.id) })
   const unallocated = save.members.filter((m) => m.statPoints > 0)
   if (unallocated.length) todos.push({ text: `${unallocated.map((m) => m.name).join('·')} — 스탯 포인트 미분배`, action: '단원', go: () => onGo('roster') })
-  const emptySlots = save.party.filter((p) => p === null).length
-  if (emptySlots > 0 && save.members.length > party.length) todos.push({ text: `편성 빈 자리 ${emptySlots}`, action: '단원', go: () => onGo('roster') })
+  if (party.length < PARTY_MAX && save.members.length > party.length) todos.push({ text: `출전 ${party.length}/${PARTY_MAX}명 — 대기 단원 ${save.members.length - party.length}명`, action: '편성', go: () => onGo('formation') })
   const newRegion = REGIONS.find((r) => isRegionUnlocked(r, save.regionWins) && (save.regionWins[r.id] ?? 0) === 0 && r.no > 1)
   if (newRegion) todos.push({ text: `새로 열린 지역 — ${newRegion.name}`, action: '의뢰', go: () => onGo('quest') })
   const lockedRegion = REGIONS.find((r) => r.unlock && !isRegionUnlocked(r, save.regionWins))
@@ -98,23 +99,11 @@ export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOp
         </div>
 
         <div className="card">
-          <h3>편성 <small>{party.length}명</small></h3>
-          {party.length === 0 ? (
-            <p className="hint">편성이 비어 있다.</p>
-          ) : (
-            <ul className="party-mini">
-              {party.map((m) => (
-                <li key={m.id} className={m.row}>
-                  <img src={jobIcon(m.job)} alt="" width={32} height={32} />
-                  <span className="nm">{m.name}</span>
-                  <small>Lv {m.level} · {m.row === 'front' ? '전열' : '후열'} · 패턴 {m.rules.rows.length}</small>
-                </li>
-              ))}
-            </ul>
-          )}
+          <h3>편성 <small>{party.length}/{PARTY_MAX}명 · 판을 누르면 편성 탭</small></h3>
+          <Board save={save} compact onCell={() => onGo('formation')} />
           <div className="run-bar">
+            <button onClick={() => onGo('formation')}>편성</button>
             <button onClick={() => onGo('roster')}>단원</button>
-            <button onClick={() => onGo('rules')}>수칙</button>
             <button onClick={onOpenCodex}>도감</button>
           </div>
         </div>

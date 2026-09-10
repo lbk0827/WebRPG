@@ -1,4 +1,4 @@
-// 게임 저장 (M2-1, v2 는 ADR-004). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
+// 게임 저장 (M2-1, v2 는 ADR-004, v3 는 편성 판). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
 import type { GuardPolicy, Outcome, Row, RuleSet, TeamSetup } from '@webrpg/engine'
 import { EMPTY_ALLOC, PRESETS, type Alloc } from '@webrpg/engine'
 
@@ -11,6 +11,7 @@ export interface Member {
   alloc: Alloc
   statPoints: number
   skillPoints: number
+  /** 편성 칸에서 정해진다 (cellRow). 대기 단원은 마지막 값 유지 */
   row: Row
   guard: GuardPolicy
   rules: RuleSet
@@ -39,7 +40,7 @@ export interface RulePreset {
   guard: GuardPolicy
 }
 
-/** 편성 프리셋 3슬롯 */
+/** 편성 프리셋 3슬롯 — 판 6칸 그대로 */
 export interface PartyPreset {
   name: string
   party: (string | null)[]
@@ -48,15 +49,25 @@ export interface PartyPreset {
 export const PARTY_PRESET_SLOTS = 3
 export const RULE_PRESET_MAX = 20
 
+/**
+ * 편성 판 (유니콘 오버로드식, 단장 요청). 칸 0·1·2 = 전열, 3·4·5 = 후열.
+ * 칸은 6개지만 출전 인원은 PARTY_MAX 까지 — 상대 몬스터 최대 5, 과제·밸런스가 5 기준이라서 (docs/07).
+ * 6명으로 올리려면 PARTY_MAX 만 바꾸고 밸런스를 다시 잰다.
+ */
+export const GRID_CELLS = 6
+export const GRID_COLS = 3
+export const PARTY_MAX = 5
+export const cellRow = (cell: number): Row => (cell < GRID_COLS ? 'front' : 'back')
+
 export interface GameSave {
-  version: 2
+  version: 3
   /** 용병단 이름 */
   name: string
   rulePresets: RulePreset[]
   partyPresets: (PartyPreset | null)[]
   gold: number
   members: Member[]
-  /** 편성 슬롯 5개 — 단원 id 또는 null */
+  /** 편성 판 6칸 — 단원 id 또는 null */
   party: (string | null)[]
   /** 지역별 승리 수 (해금 판정) */
   regionWins: Record<string, number>
@@ -71,6 +82,8 @@ export const LOG_MAX = 12
 export const DEFAULT_NAME = '이름 없는 용병단'
 
 const START_JOBS = ['warrior', 'rogue', 'mage', 'priest', 'elf']
+
+const emptyGrid = (): (string | null)[] => Array(GRID_CELLS).fill(null)
 
 export function newGame(): GameSave {
   const members: Member[] = START_JOBS.map((job, i) => {
@@ -90,16 +103,64 @@ export function newGame(): GameSave {
     }
   })
   return {
-    version: 2, name: DEFAULT_NAME, rulePresets: [], partyPresets: Array(PARTY_PRESET_SLOTS).fill(null),
-    gold: 200, members, party: members.map((m) => m.id), regionWins: {}, battles: 0, wins: 0, log: [],
+    version: 3, name: DEFAULT_NAME, rulePresets: [], partyPresets: Array(PARTY_PRESET_SLOTS).fill(null),
+    gold: 200, members, party: gridFromRows(members.map((m) => m.id), members), regionWins: {}, battles: 0, wins: 0, log: [],
   }
 }
 
-/** 형태 검증 + 버전 마이그레이션 (v1 → v2). 실패하면 null */
+/**
+ * 순서 있는 단원 목록(v1·v2 의 party[5])을 판 6칸에 놓는다. 전열은 0~2, 후열은 3~5.
+ * 한 열이 넘치면 반대 열의 빈 칸으로 — 그 단원의 row 는 놓인 칸을 따른다.
+ */
+export function gridFromRows(ids: (string | null)[], members: Member[]): (string | null)[] {
+  const grid = emptyGrid()
+  const pending: string[] = []
+  const place = (id: string, row: Row): boolean => {
+    const start = row === 'front' ? 0 : GRID_COLS
+    for (let c = start; c < start + GRID_COLS; c++) {
+      if (grid[c] === null) {
+        grid[c] = id
+        return true
+      }
+    }
+    return false
+  }
+  for (const id of ids) {
+    if (!id) continue
+    const m = members.find((x) => x.id === id)
+    if (!m) continue
+    if (!place(id, m.row)) pending.push(id)
+  }
+  for (const id of pending) {
+    const m = members.find((x) => x.id === id)!
+    if (place(id, m.row === 'front' ? 'back' : 'front')) m.row = cellRow(grid.indexOf(id))
+  }
+  return grid
+}
+
+/** 판을 정리한다: 모르는 id 제거, 중복 제거, 인원 상한, 단원 row 를 칸에 맞춤 */
+export function normalizeGrid(raw: unknown, members: Member[]): (string | null)[] {
+  const grid = emptyGrid()
+  if (!Array.isArray(raw)) return grid
+  const seen = new Set<string>()
+  let count = 0
+  raw.slice(0, GRID_CELLS).forEach((id, i) => {
+    if (typeof id !== 'string' || seen.has(id) || count >= PARTY_MAX) return
+    const m = members.find((x) => x.id === id)
+    if (!m) return
+    seen.add(id)
+    count++
+    grid[i] = id
+    m.row = cellRow(i)
+  })
+  return grid
+}
+
+/** 형태 검증 + 버전 마이그레이션 (v1 → v2 → v3). 실패하면 null */
 export function migrate(raw: unknown): GameSave | null {
   if (!raw || typeof raw !== 'object') return null
   const s = raw as Omit<Partial<GameSave>, 'version'> & { version?: number }
-  if (s.version !== 1 && s.version !== 2) return null
+  if (s.version !== 1 && s.version !== 2 && s.version !== 3) return null
   if (!Array.isArray(s.members) || !Array.isArray(s.party)) return null
   for (const m of s.members) {
     if (!PRESETS[m.job]) return null
@@ -109,26 +170,31 @@ export function migrate(raw: unknown): GameSave | null {
     m.skillPoints ??= 0
     m.level ??= 1
     m.exp ??= 0
+    m.row ??= PRESETS[m.job].row
   }
+  const members = s.members
   const regionWins = s.regionWins ?? {}
   const log = Array.isArray(s.log) ? s.log.filter((r) => r && typeof r.seed === 'number' && r.player && r.enemy).slice(0, LOG_MAX) : []
   const rulePresets = Array.isArray(s.rulePresets)
     ? s.rulePresets.filter((p) => p && typeof p.id === 'string' && PRESETS[p.job] && p.rules && Array.isArray(p.rules.rows)).slice(0, RULE_PRESET_MAX)
     : []
+  // v1·v2: 순서 목록 + 단원 row → 판. v3: 판 그대로
+  const party = s.version === 3 ? normalizeGrid(s.party, members) : gridFromRows(s.party, members)
   const partyPresets: (PartyPreset | null)[] = Array(PARTY_PRESET_SLOTS).fill(null)
   if (Array.isArray(s.partyPresets)) {
     s.partyPresets.slice(0, PARTY_PRESET_SLOTS).forEach((p, i) => {
-      if (p && typeof p.name === 'string' && Array.isArray(p.party)) partyPresets[i] = { name: p.name, party: p.party.slice(0, 5) }
+      if (!p || typeof p.name !== 'string' || !Array.isArray(p.party)) return
+      partyPresets[i] = { name: p.name, party: s.version === 3 ? p.party.slice(0, GRID_CELLS) : gridFromRows(p.party, members.map((m) => ({ ...m }))) }
     })
   }
   return {
-    version: 2,
+    version: 3,
     name: typeof s.name === 'string' && s.name.trim() ? s.name.trim().slice(0, 20) : DEFAULT_NAME,
     rulePresets,
     partyPresets,
     gold: typeof s.gold === 'number' ? s.gold : 0,
-    members: s.members,
-    party: [...s.party.slice(0, 5), ...Array(Math.max(0, 5 - s.party.length)).fill(null)],
+    members,
+    party,
     regionWins,
     battles: s.battles ?? 0,
     wins: typeof s.wins === 'number' ? s.wins : Object.values(regionWins).reduce((a, b) => a + b, 0),
