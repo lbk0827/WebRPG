@@ -1,5 +1,7 @@
 # develop 에 푸시할 때마다 웹 훈련장을 GitHub Pages 로 배포한다.
 # https://lbk0827.github.io/WebRPG/
+# 최초 1회: 저장소 Settings → Pages → Build and deployment → Source 를 "GitHub Actions" 로 설정해야 한다.
+# (Actions 토큰으로는 Pages 사이트를 생성할 수 없다 — 관리자 권한 필요)
 name: Deploy to GitHub Pages
 
 on:
@@ -25,10 +27,6 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      # 저장소에 Pages 가 아직 켜져 있지 않으면 켠다 (Source: GitHub Actions)
-      - uses: actions/configure-pages@v5
-        with:
-          enablement: true
       - run: npm ci
       - run: npm test
       - run: npm run build
