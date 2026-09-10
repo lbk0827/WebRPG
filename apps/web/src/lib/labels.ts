@@ -7,8 +7,8 @@ export const jobOf = (charId: string): string => charId.split('#')[0]
 export const skillLabel = (id: string): string => SKILLS[id]?.label ?? id
 export const statusLabel = (id: StatusId): string => STATUS_DEFS[id]?.label ?? id
 
-/** 매니페스트 로드 전에도 동작하도록 관례 경로를 쓴다 (assets/manifest.json 과 일치) */
-export const jobIcon = (job: string): string => `/jobs/${job}.svg`
+/** 관례 경로 (assets/manifest.json 과 일치). BASE_URL 을 붙여 GitHub Pages 같은 하위 경로 배포에서도 동작 */
+export const jobIcon = (job: string): string => `${import.meta.env.BASE_URL}jobs/${job}.svg`
 
 export const failText = (r: SkillFailReason): string =>
   r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : '침묵 상태'
