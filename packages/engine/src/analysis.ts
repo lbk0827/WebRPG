@@ -48,7 +48,7 @@ export function analyze(result: BattleResult, sizes: [number, number]): Analysis
         const t = teams[e.actor.team]
         if (e.reason === 'noSp') t.noSp[e.actor.index]++
         else if (e.reason === 'noRequiredTarget') t.noTarget[e.actor.index]++
-        else t.silenced[e.actor.index]++
+        else if (e.reason === 'silenced') t.silenced[e.actor.index]++
         break
       }
       case 'castInterrupted':

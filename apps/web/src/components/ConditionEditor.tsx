@@ -1,6 +1,6 @@
-import type { ConditionAtom, Row, StatusId } from '@webrpg/engine'
+import type { ConditionAtom, Row, StatKey, StatusId } from '@webrpg/engine'
 import { STATUS_DEFS } from '@webrpg/engine'
-import { KIND_SPECS, PICKER_GROUPS, makeAtom, pickerKey, type EditorAtom, type EditorCondition } from '../lib/condition'
+import { KIND_SPECS, PICKER_GROUPS, STAT_LABEL, makeAtom, pickerKey, type EditorAtom, type EditorCondition } from '../lib/condition'
 
 interface Props {
   value: EditorCondition
@@ -64,6 +64,13 @@ function AtomRow({ ea, onChange, onRemove }: { ea: EditorAtom; onChange: (a: Edi
         <select value={atom.status} onChange={(e) => set({ status: e.target.value as StatusId })}>
           {STATUS_IDS.map((s) => (
             <option key={s} value={s}>[{STATUS_DEFS[s].label}]</option>
+          ))}
+        </select>
+      )}
+      {spec.fields.includes('stat') && 'stat' in atom && (
+        <select value={atom.stat} onChange={(e) => set({ stat: e.target.value as StatKey })}>
+          {(Object.keys(STAT_LABEL) as StatKey[]).map((k) => (
+            <option key={k} value={k}>{STAT_LABEL[k]}</option>
           ))}
         </select>
       )}

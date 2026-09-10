@@ -12,10 +12,11 @@ import {
   hasStatus,
   hpPct,
   snapshotTeams,
+  traitRuleRows,
 } from './state'
 import { evalCondition } from './conditions'
 import { resolveCover, selectTargets } from './targeting'
-import { applyEffect, kill } from './effects'
+import { applyEffect, freshCtx, kill, runTriggers } from './effects'
 import { maxRuleRows } from './progression'
 
 export function simulate(input: BattleInput): BattleResult {
@@ -122,6 +123,7 @@ function takeTurn(actor: CharState, st: BattleState): void {
 
   tickStatuses(actor, st)
   if (!actor.alive) return
+  runTriggers(actor, 'turnStart', st)
 
   // 예약된 시전 발동
   if (actor.pending) {
@@ -136,7 +138,7 @@ function takeTurn(actor: CharState, st: BattleState): void {
 
   // INT 로 정해지는 최대 패턴 수를 넘는 패턴은 평가하지 않는다 (progression.ts)
   const rows = actor.setup.rules.rows
-  const limit = Math.min(rows.length, maxRuleRows(actor.setup.stats))
+  const limit = Math.min(rows.length, maxRuleRows(actor.setup.stats) + traitRuleRows(actor))
   for (let i = 0; i < limit; i++) {
     const row = rows[i]
     if (row.maxUses !== undefined && actor.ruleUses[i] >= row.maxUses) continue
@@ -144,6 +146,18 @@ function takeTurn(actor: CharState, st: BattleState): void {
 
     const skill = st.skills[row.skillId]
     if (!skill) continue
+
+    if (skill.requires?.weaponType && !skill.requires.weaponType.includes(actor.setup.weapon ?? 'none')) {
+      emit(st, { t: 'skillFailed', actor: actor.ref, ruleIndex: i, skillId: skill.id, reason: 'noWeapon' })
+      continue
+    }
+    if (
+      (actor.cooldownUntil[skill.id] ?? 0) > actor.actionCount ||
+      (skill.perBattle !== undefined && (actor.skillUses[skill.id] ?? 0) >= skill.perBattle)
+    ) {
+      emit(st, { t: 'skillFailed', actor: actor.ref, ruleIndex: i, skillId: skill.id, reason: 'cooldown' })
+      continue
+    }
 
     if (skill.spCost > 0 && hasStatus(actor, 'silence')) {
       emit(st, { t: 'skillFailed', actor: actor.ref, ruleIndex: i, skillId: skill.id, reason: 'silenced' })
@@ -171,6 +185,15 @@ function takeTurn(actor: CharState, st: BattleState): void {
       actor.sp -= skill.spCost
       emit(st, { t: 'spChange', target: actor.ref, delta: -skill.spCost })
     }
+    actor.skillUses[skill.id] = (actor.skillUses[skill.id] ?? 0) + 1
+    if (skill.cooldown) actor.cooldownUntil[skill.id] = actor.actionCount + 1 + skill.cooldown
+    if (skill.costHpPct) {
+      const cost = Math.min(actor.hp - 1, pctOf(actor.setup.stats.maxHp, skill.costHpPct))
+      if (cost > 0) {
+        actor.hp -= cost
+        emit(st, { t: 'damage', source: actor.ref, target: actor.ref, amount: cost, school: 'phys' })
+      }
+    }
 
     if (skill.charge > 0) {
       actor.pending = { skillId: skill.id, targets: targets.map((r) => ({ ref: r.target.ref, hits: r.hits })) }
@@ -193,7 +216,8 @@ function takeTurn(actor: CharState, st: BattleState): void {
 
 function finishAction(actor: CharState, skill: Skill): void {
   actor.actionCount++
-  actor.gauge = -skill.stiff
+  // 후딜 음수 = 고속 행동 (다음 차례가 빨리 온다). 즉시 재행동은 막는다
+  actor.gauge = Math.min(900, -skill.stiff)
 }
 
 function resolveSkill(
@@ -210,9 +234,12 @@ function resolveSkill(
   for (const { target, hits } of targets) {
     if (!target.alive && !isRevive) continue
     const actual = coverable && target.ref.team !== actor.ref.team ? resolveCover(target, skill, st) : target
+    const ctx = freshCtx()
+    ctx.viaCover = actual !== target
     for (let h = 0; h < hits; h++) {
       if (!actual.alive && !isRevive) break
-      for (const effect of skill.effects) applyEffect(effect, actor, actual, skill, st)
+      ctx.hitIndex = h
+      for (const effect of skill.effects) applyEffect(effect, actor, actual, st, ctx)
     }
   }
 }

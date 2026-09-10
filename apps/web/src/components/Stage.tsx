@@ -2,7 +2,7 @@
 // 상태(HP/SP/생사)는 roster 에서, 연출(돌진·피격·팝업·말풍선)은 현재 턴의 이벤트 슬라이스에서 나온다.
 import { useMemo, type CSSProperties } from 'react'
 import type { BattleEvent, CharRef } from '@webrpg/engine'
-import { jobIcon, skillLabel, statusLabel } from '../lib/labels'
+import { jobIcon, skillLabel, statusLabel, traitLabel } from '../lib/labels'
 import type { Roster, RosterChar } from '../lib/roster'
 
 interface Props {
@@ -114,6 +114,12 @@ function currentTurnFx(events: BattleEvent[], cursor: number): Fx {
       case 'revive':
         fx.lunge = true
         push(e.target, { text: '소생!', kind: 'revive' })
+        break
+      case 'rowChange':
+        push(e.target, { text: e.row === 'front' ? '전열로' : '후열로', kind: 'status' })
+        break
+      case 'traitTrigger':
+        push(e.target, { text: `✦${traitLabel(e.traitId)}`, kind: 'revive' })
         break
       default:
         break

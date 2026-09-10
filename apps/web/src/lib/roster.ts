@@ -73,6 +73,9 @@ export function rosterAt(events: BattleEvent[], cursor: number): Roster | null {
         c.statuses = c.statuses.filter((s) => s !== e.status)
         break
       }
+      case 'rowChange':
+        get(e.target).row = e.row
+        break
       case 'statusReport':
         // 엔진 스냅샷으로 재동기화 — 누적 오차 방지
         roster[0] = fromSnapshot(e.teams[0])

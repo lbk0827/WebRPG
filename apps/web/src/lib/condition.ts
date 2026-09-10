@@ -1,9 +1,11 @@
 // 수칙 편집기의 조건 모델. 엔진의 Condition 트리를 "AND/OR 로 묶인 원자 목록"으로 단순화해 편집한다.
 // 편집기가 표현 못 하는 깊은 트리는 읽기 전용 설명으로만 보여준다.
-import type { Cmp, Condition, ConditionAtom, Row, Side, StatusId } from '@webrpg/engine'
+import type { Cmp, Condition, ConditionAtom, Row, Side, StatKey, StatusId } from '@webrpg/engine'
 import { STATUS_DEFS } from '@webrpg/engine'
 
-export type Field = 'cmp' | 'value' | 'row' | 'status'
+export type Field = 'cmp' | 'value' | 'row' | 'status' | 'stat'
+
+export const STAT_LABEL: Record<StatKey, string> = { str: '힘', int: '지능', dex: '손재주', spd: '속도', luk: '운' }
 
 export interface KindSpec {
   /** side 가 있는 kind 는 "{side}" 자리에 아군/적군이 들어간다 */
@@ -30,6 +32,7 @@ export const KIND_SPECS: Record<ConditionAtom['kind'], KindSpec> = {
   teamRowCount: { label: '{side}', fields: ['row', 'value', 'cmp'], unit: '명', defaultValue: 2 },
   teamSpPctBelow: { label: '{side} 중 SP가', fields: ['value'], unit: '% 이하인 자 있음', defaultValue: 20 },
   chance: { label: '확률', fields: ['value'], unit: '%', defaultValue: 50 },
+  selfStat: { label: '내 능력치', fields: ['stat', 'value', 'cmp'], unit: '', defaultValue: 30 },
 }
 
 export interface PickerItem {
@@ -39,7 +42,7 @@ export interface PickerItem {
   label: string
 }
 
-const SELF_KINDS: ConditionAtom['kind'][] = ['selfHpPct', 'selfHpAbs', 'selfSpPct', 'selfSpAbs', 'selfRow', 'selfHasStatus', 'selfActionCount']
+const SELF_KINDS: ConditionAtom['kind'][] = ['selfHpPct', 'selfHpAbs', 'selfSpPct', 'selfSpAbs', 'selfRow', 'selfHasStatus', 'selfActionCount', 'selfStat']
 const TEAM_KINDS: ConditionAtom['kind'][] = ['teamAnyHpPctBelow', 'teamAliveCount', 'teamDeadCount', 'teamAvgHpPct', 'teamCastingCount', 'teamStatusCount', 'teamRowCount', 'teamSpPctBelow']
 
 export const PICKER_GROUPS: { group: string; items: PickerItem[] }[] = [
@@ -81,6 +84,8 @@ export function makeAtom(kind: ConditionAtom['kind'], side: Side = 'ally'): Cond
       return { kind, side, row: 'back', cmp: 'gte', value: v }
     case 'chance':
       return { kind, percent: v }
+    case 'selfStat':
+      return { kind, stat: 'str', cmp: 'gte', value: v }
   }
 }
 
@@ -162,6 +167,8 @@ export function describeAtom(a: ConditionAtom): string {
       return `${sideText(a.side)} 중 SP ${a.value}% 이하인 자 있음`
     case 'chance':
       return `${a.percent}% 확률`
+    case 'selfStat':
+      return `내 ${STAT_LABEL[a.stat]} ${a.value} ${cmpText(a.cmp)}`
   }
 }
 

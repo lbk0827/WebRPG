@@ -35,7 +35,9 @@ function evalAtom(atom: ConditionAtom, actor: CharState, st: BattleState): boole
     case 'selfSpAbs':
       return cmp(actor.sp, atom.cmp, atom.value)
     case 'selfRow':
-      return actor.setup.row === atom.row
+      return actor.row === atom.row
+    case 'selfStat':
+      return cmp(actor.setup.stats[atom.stat], atom.cmp, atom.value)
     case 'selfHasStatus':
       return hasStatus(actor, atom.status)
     case 'selfActionCount':
@@ -66,7 +68,7 @@ function evalAtom(atom: ConditionAtom, actor: CharState, st: BattleState): boole
       )
     case 'teamRowCount':
       return cmp(
-        alive(sideOf(st, actor, atom.side)).filter((c) => c.setup.row === atom.row).length,
+        alive(sideOf(st, actor, atom.side)).filter((c) => c.row === atom.row).length,
         atom.cmp,
         atom.value,
       )

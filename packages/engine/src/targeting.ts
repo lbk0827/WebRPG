@@ -71,7 +71,7 @@ function pickOne(candidates: CharState[], skill: Skill, st: BattleState): CharSt
       return best[st.rng.int(best.length)]
     }
     case 'backRow': {
-      const back = living.filter((c) => c.setup.row === 'back')
+      const back = living.filter((c) => c.row === 'back')
       const list = back.length ? back : living
       return list[st.rng.int(list.length)]
     }
@@ -110,10 +110,10 @@ export function selectTargets(skill: Skill, actor: CharState, st: BattleState): 
  */
 export function resolveCover(target: CharState, skill: Skill, st: BattleState): CharState {
   if (skill.ignoreCover || skill.isSupport) return target
-  if (target.setup.row !== 'back') return target
+  if (target.row !== 'back') return target
 
   const fore = teamOf(st, target).filter(
-    (c) => c !== target && c.alive && c.setup.row === 'front' && c.hp > 1,
+    (c) => c !== target && c.alive && c.row === 'front' && c.hp > 1,
   )
   if (fore.length === 0) return target
   st.rng.shuffle(fore)

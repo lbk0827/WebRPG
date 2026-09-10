@@ -1,6 +1,8 @@
 // 전투 런타임 상태. 외부에 노출되지 않는 내부 구조.
 import type {
   BattleConfig,
+  Row,
+  TraitEffect,
   BattleEvent,
   CharRef,
   CharSetup,
@@ -13,6 +15,7 @@ import type {
 import type { Rng } from './rng'
 import { clamp, isqrt, pctOf } from './fixed'
 import { STATUS_DEFS } from './data/statuses'
+import { TRAITS } from './data/traits'
 
 export interface StatusInstance {
   id: StatusId
@@ -33,12 +36,25 @@ export interface CharState {
   hp: number
   sp: number
   alive: boolean
+  /** 현재 열. 전투 중 moveRow 로 바뀔 수 있다 (초기값 = setup.row) */
+  row: Row
   gauge: number
   actionCount: number
   pending?: PendingCast
   statuses: StatusInstance[]
   ruleUses: number[]
+  /** 스킬별 사용 횟수 (perBattle) */
+  skillUses: Record<string, number>
+  /** 스킬별 재사용 가능 시점 (자신의 actionCount 기준) */
+  cooldownUntil: Record<string, number>
+  /** 트리거 특성별 발동 횟수 (perBattle). key = traitId:index */
+  traitUses: Record<string, number>
+  /** 이번 전투에서 받은 게이지 지연 누적 (딜밀기 상한용) */
+  delayTaken: number
 }
+
+/** 한 전투에서 한 단원이 받을 수 있는 게이지 지연 총량 — 제로식 "딜밀기" 붕괴 사례 대응 */
+export const DELAY_TAKEN_CAP = 1500
 
 export interface BattleState {
   rng: Rng
@@ -65,17 +81,53 @@ const SPD_MOD_MIN = -75
 const SPD_MOD_MAX = 300
 
 export function createCharState(setup: CharSetup, ref: CharRef): CharState {
-  return {
+  const c: CharState = {
     ref,
     setup,
     hp: setup.stats.maxHp,
     sp: setup.stats.maxSp,
     alive: true,
+    row: setup.row,
     gauge: 0,
     actionCount: 0,
     statuses: [],
     ruleUses: setup.rules.rows.map(() => 0),
+    skillUses: {},
+    cooldownUntil: {},
+    traitUses: {},
+    delayTaken: 0,
   }
+  c.gauge = Math.min(900, sumTrait(c, 'startGauge'))
+  return c
+}
+
+// ───────────────────────────── 특성 (M2-0)
+
+export function traitEffects(c: CharState): TraitEffect[] {
+  const out: TraitEffect[] = []
+  for (const id of c.setup.traits ?? []) {
+    const t = TRAITS[id]
+    if (t) out.push(...t.effects)
+  }
+  return out
+}
+
+function sumTrait(c: CharState, kind: 'castTimePct' | 'coverDamagePct' | 'startGauge' | 'ruleRows' | 'resistPct'): number {
+  let n = 0
+  for (const e of traitEffects(c)) {
+    if (e.kind !== kind) continue
+    n += e.kind === 'startGauge' ? e.amount : e.kind === 'ruleRows' ? e.add : e.pct
+  }
+  return n
+}
+
+export const castTimePct = (c: CharState): number => sumTrait(c, 'castTimePct')
+export const coverDamagePct = (c: CharState): number => sumTrait(c, 'coverDamagePct')
+export const traitRuleRows = (c: CharState): number => sumTrait(c, 'ruleRows')
+export function damageVsRowPct(c: CharState, row: Row): number {
+  let n = 0
+  for (const e of traitEffects(c)) if (e.kind === 'damageVsRowPct' && e.row === row) n += e.pct
+  return n
 }
 
 export function getChar(st: BattleState, ref: CharRef): CharState {
@@ -132,7 +184,8 @@ export function effectiveSpd(c: CharState): number {
 
 /** 상태이상 저항 %. (대상 LUK − 시전자 LUK) / 4, 0~30. 디버프에만 적용. */
 export function resistPct(target: CharState, source: CharState): number {
-  return clamp(Math.floor((target.setup.stats.luk - source.setup.stats.luk) / 4), 0, 30)
+  const fromLuk = clamp(Math.floor((target.setup.stats.luk - source.setup.stats.luk) / 4), 0, 30)
+  return clamp(fromLuk + sumTrait(target, 'resistPct'), 0, 50)
 }
 
 /** DEX 에 의한 시전(선딜) 단축 %. dex/4, 최대 25 — dex 100 에서 상한. */
@@ -140,9 +193,9 @@ export function chargeReductionPct(c: CharState): number {
   return Math.min(25, Math.floor(c.setup.stats.dex / 4))
 }
 
-/** 스킬의 실제 선딜. DEX 로 단축된다. */
+/** 스킬의 실제 선딜. DEX 와 특성(castTimePct)으로 단축된다. 하한 30% */
 export function effectiveCharge(charge: number, c: CharState): number {
-  return pctOf(charge, 100 - chargeReductionPct(c))
+  return pctOf(charge, clamp(100 - chargeReductionPct(c) + castTimePct(c), 30, 200))
 }
 
 /** 한 틱당 게이지 충전량. 제곱근이므로 속도 투자에 수확 체감. */
@@ -168,7 +221,7 @@ export function snapshotChar(c: CharState): CharSnapshot {
     sp: c.sp,
     maxSp: c.setup.stats.maxSp,
     alive: c.alive,
-    row: c.setup.row,
+    row: c.row,
     gauge: c.gauge,
     casting: c.pending?.skillId,
     statuses: c.statuses.map((s) => ({ id: s.id, remaining: s.remaining })),

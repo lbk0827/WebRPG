@@ -5,6 +5,8 @@ export type Side = 'ally' | 'enemy'
 export type Row = 'front' | 'back'
 export type Cmp = 'gte' | 'lte' | 'eq'
 export type SkillId = string
+export type WeaponType = 'sword' | 'dagger' | 'staff' | 'relic' | 'bow' | 'none'
+export type StatKey = 'str' | 'int' | 'dex' | 'spd' | 'luk'
 
 export type StatusId =
   | 'poison'
@@ -36,6 +38,7 @@ export type ConditionAtom =
   | { kind: 'teamRowCount'; side: Side; row: Row; cmp: Cmp; value: number }
   | { kind: 'teamSpPctBelow'; side: Side; value: number }
   | { kind: 'chance'; percent: number }
+  | { kind: 'selfStat'; stat: StatKey; cmp: Cmp; value: number }
 
 export type Condition =
   | { op: 'always' }
@@ -87,6 +90,14 @@ export interface CharSetup {
   stats: Stats
   skills: SkillId[]
   rules: RuleSet
+  /** 장비·특성이 합산한 가산치 (M2-4 에서 장비가 채운다). atk: [물리, 마법] / def: [물리%, 물리 고정, 마법%, 마법 고정] */
+  bonus?: { atk?: [number, number]; def?: [number, number, number, number] }
+  /** 보유 특성 id (data/traits.ts) */
+  traits?: string[]
+  /** 장착 무기 타입. 스킬 requires.weaponType 검사용. 생략 = none */
+  weapon?: WeaponType
+  /** 몬스터 전용 훅 (M2-1 의뢰 보상) */
+  monster?: { exp: number; gold: number; drops?: { itemId: string; permyriad: number }[] }
 }
 
 export interface TeamSetup {
@@ -108,7 +119,21 @@ export type TargetPriority =
   | { mode: 'require'; by: 'hasStatus'; status: StatusId }
 
 export type Effect =
-  | { kind: 'damage'; school: 'phys' | 'magic'; power: number; pierce?: boolean; /** 물리 위력 스탯. 기본 str */ scaleBy?: 'str' | 'dex' }
+  | {
+      kind: 'damage'
+      school: 'phys' | 'magic'
+      power: number
+      pierce?: boolean
+      /** 물리 위력 스탯. 기본 str */
+      scaleBy?: 'str' | 'dex'
+      /** 연타 점감: 2타부터 타수마다 위력 −N%p (하한 10%) */
+      falloff?: number
+      /** 열 조건부 위력: 조건이 맞으면 power 대신 이 위력 */
+      rowBonus?: { selfRow?: Row; targetRow?: Row; power: number }
+    }
+  | { kind: 'moveRow'; who: 'self' | 'target'; to: Row | 'swap' }
+  | { kind: 'damageSp'; power: number }
+  | { kind: 'drain'; resource: 'hp' | 'sp'; pct: number }
   | { kind: 'heal'; power: number }
   | { kind: 'restoreSp'; power: number }
   | { kind: 'applyStatus'; status: StatusId; duration: number; magnitude?: number }
@@ -130,7 +155,32 @@ export interface Skill {
   stiff: number
   ignoreCover?: boolean
   isSupport?: boolean
+  /** 재사용 대기: 사용 후 자신의 행동 N회 동안 사용 불가 */
+  cooldown?: number
+  /** 전투당 사용 횟수 상한 */
+  perBattle?: number
+  /** 사용 조건 */
+  requires?: { weaponType?: WeaponType[] }
+  /** 사용 시 최대 HP 의 N% 를 지불 (1 은 남긴다) */
+  costHpPct?: number
   effects: Effect[]
+}
+
+// ───────────────────────────── 특성 (M2-0)
+
+export type TraitEffect =
+  | { kind: 'castTimePct'; pct: number }
+  | { kind: 'coverDamagePct'; pct: number }
+  | { kind: 'damageVsRowPct'; row: Row; pct: number }
+  | { kind: 'startGauge'; amount: number }
+  | { kind: 'ruleRows'; add: number }
+  | { kind: 'resistPct'; pct: number }
+  | { kind: 'trigger'; on: 'turnStart' | 'damaged' | 'lowHp'; hpPct?: number; perBattle?: number; effect: Effect }
+
+export interface TraitDef {
+  id: string
+  label: string
+  effects: TraitEffect[]
 }
 
 export type SkillBook = Record<SkillId, Skill>
@@ -182,7 +232,7 @@ export interface CharSnapshot {
 
 export type TeamSnapshot = CharSnapshot[]
 
-export type SkillFailReason = 'noSp' | 'noRequiredTarget' | 'silenced'
+export type SkillFailReason = 'noSp' | 'noRequiredTarget' | 'silenced' | 'cooldown' | 'noWeapon'
 
 export type BattleEvent =
   | { t: 'battleStart'; teams: [TeamSnapshot, TeamSnapshot] }
@@ -202,6 +252,8 @@ export type BattleEvent =
   | { t: 'statusTick'; target: CharRef; status: StatusId; amount: number }
   | { t: 'statusExpire'; target: CharRef; status: StatusId }
   | { t: 'gaugeShift'; target: CharRef; delta: number }
+  | { t: 'rowChange'; target: CharRef; row: Row }
+  | { t: 'traitTrigger'; target: CharRef; traitId: string }
   | { t: 'death'; target: CharRef }
   | { t: 'revive'; target: CharRef; hp: number }
   | { t: 'statusReport'; actionCount: number; teams: [TeamSnapshot, TeamSnapshot] }

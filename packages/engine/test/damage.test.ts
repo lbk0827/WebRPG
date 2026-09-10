@@ -31,25 +31,25 @@ describe('isqrt', () => {
 describe('데미지 공식 (§4.3)', () => {
   it('sqrt 기반 — STR 4배가 데미지 2배', () => {
     const t = ch({})
-    const d1 = calcDamage('phys', 100, false, ch({ str: 25 }), t)
-    const d2 = calcDamage('phys', 100, false, ch({ str: 100 }), t)
+    const d1 = calcDamage({ school: 'phys', power: 100 }, ch({ str: 25 }), t)
+    const d2 = calcDamage({ school: 'phys', power: 100 }, ch({ str: 100 }), t)
     expect(d2).toBe(d1 * 2)
   })
 
   it('최소 보장: 방어가 아무리 높아도 위력의 1/10 은 들어간다', () => {
     const atk = ch({ str: 100 }) // base 100
     const wall = ch({ def: 9999 })
-    expect(calcDamage('phys', 100, false, atk, wall)).toBe(10)
+    expect(calcDamage({ school: 'phys', power: 100 }, atk, wall)).toBe(10)
   })
 
   it('pierce 는 방어를 무시한다', () => {
     const atk = ch({ str: 100 })
     const wall = ch({ def: 9999 })
-    expect(calcDamage('phys', 100, true, atk, wall)).toBe(100)
+    expect(calcDamage({ school: 'phys', power: 100, pierce: true }, atk, wall)).toBe(100)
   })
 
   it('고정 방어는 그대로 차감된다', () => {
     const atk = ch({ str: 100 })
-    expect(calcDamage('phys', 100, false, atk, ch({ def: 30 }))).toBe(70)
+    expect(calcDamage({ school: 'phys', power: 100 }, atk, ch({ def: 30 }))).toBe(70)
   })
 })

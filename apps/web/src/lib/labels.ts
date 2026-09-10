@@ -1,6 +1,6 @@
 // 한국어 표시 문자열. 엔진은 id 만 다루고, 사람이 읽는 말은 전부 여기서 만든다.
 import type { BattleEvent, CharRef, SkillFailReason, StatusId } from '@webrpg/engine'
-import { PRESETS, SKILLS, STATUS_DEFS } from '@webrpg/engine'
+import { PRESETS, SKILLS, STATUS_DEFS, TRAITS } from '@webrpg/engine'
 
 export const jobName = (job: string): string => PRESETS[job]?.name ?? job
 export const jobOf = (charId: string): string => charId.split('#')[0]
@@ -11,7 +11,8 @@ export const statusLabel = (id: StatusId): string => STATUS_DEFS[id]?.label ?? i
 export const jobIcon = (job: string): string => `${import.meta.env.BASE_URL}jobs/${job}.svg`
 
 export const failText = (r: SkillFailReason): string =>
-  r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : '침묵 상태'
+  r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : r === 'silenced' ? '침묵 상태' : r === 'cooldown' ? '재사용 대기' : '무기 불일치'
+export const traitLabel = (id: string): string => TRAITS[id]?.label ?? id
 
 export const outcomeText = (o: string): string =>
   o === 'team0' ? '승리' : o === 'team1' ? '패배' : '무승부'
@@ -58,6 +59,10 @@ export function describeEvent(e: BattleEvent, names: Names): Line | null {
       return { kind: 'status', text: `${who(e.target)} [${statusLabel(e.status)}] 해제` }
     case 'gaugeShift':
       return { kind: 'status', text: `${who(e.target)} 행동 게이지 ${e.delta > 0 ? '+' : ''}${e.delta}` }
+    case 'rowChange':
+      return { kind: 'status', text: `${who(e.target)} ${e.row === 'front' ? '전열' : '후열'}로 이동` }
+    case 'traitTrigger':
+      return { kind: 'revive', text: `${who(e.target)} 특성 [${traitLabel(e.traitId)}] 발동` }
     case 'death':
       return { kind: 'death', text: `${who(e.target)} 쓰러짐` }
     case 'revive':

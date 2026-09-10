@@ -69,6 +69,10 @@ function render(e: BattleEvent): string {
       return `      ${who(e.target)} [${e.status}] 해제`
     case 'gaugeShift':
       return `      → ${who(e.target)} 행동 게이지 ${e.delta > 0 ? '+' : ''}${e.delta}`
+    case 'rowChange':
+      return `      → ${who(e.target)} ${e.row === 'front' ? '전열' : '후열'}로 이동`
+    case 'traitTrigger':
+      return `      ✦ ${who(e.target)} 특성 [${e.traitId}] 발동`
     case 'death':
       return `      ☠ ${who(e.target)} 쓰러짐`
     case 'revive':
@@ -93,8 +97,8 @@ function roster(teams: [TeamSnapshot, TeamSnapshot]): string {
   return `${line(teams[0], '◆')}\n${line(teams[1], '◇')}`
 }
 
-function failText(r: 'noSp' | 'noRequiredTarget' | 'silenced'): string {
-  return r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : '침묵 상태'
+function failText(r: 'noSp' | 'noRequiredTarget' | 'silenced' | 'cooldown' | 'noWeapon'): string {
+  return r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : r === 'silenced' ? '침묵 상태' : r === 'cooldown' ? '재사용 대기' : '무기 불일치'
 }
 
 function outcomeText(o: string): string {
