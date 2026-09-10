@@ -491,3 +491,21 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .growth .derived span { white-space: nowrap; }
 .growth.previewing { outline: 1px solid var(--good); border-radius: 8px; padding: 4px 6px; margin: 0 -6px; }
 .growth .confirm { margin: 4px 0 8px; }
+
+/* ───────── M2-2 스킬 습득 */
+.learn h4 { margin: 10px 0 6px; font-size: 13px; }
+.learn h4 small { font-weight: normal; }
+.learn .skill-list li .tag { margin-left: 4px; background: var(--good); color: #fff; }
+.learn-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.learn-list li { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.learn-list li.far { opacity: 0.6; }
+.learn-list .body { flex: 1; min-width: 0; font-size: 13px; }
+.learn-list .body small { display: block; font-size: 11px; }
+.learn-list .cost { font-size: 11px; font-weight: 700; color: #fff; background: var(--team1); border-radius: 6px; padding: 0 6px; margin-left: 4px; }
+.learn-list .cost.free { background: var(--good); }
+.learn-list li button { white-space: nowrap; }
+.learn .reset { margin-top: 10px; }
+.learn-box { font-size: 12px; color: var(--muted); margin: 6px 0; }
+.learn-box summary { cursor: pointer; }
+.learn-box summary .badge { margin-left: 6px; }
+.badge.dim { background: var(--muted); }

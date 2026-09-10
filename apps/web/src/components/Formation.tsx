@@ -4,14 +4,15 @@ import { useEffect, useState } from 'react'
 import { PRESETS } from '@webrpg/engine'
 import type { GameSave, Member, PartyPreset, RulePreset } from '../game/save'
 import { PARTY_MAX, PARTY_PRESET_SLOTS, RULE_PRESET_MAX, cellRow } from '../game/save'
-import { benchMembers, clearCell, memberById, memberStats, partyMembers, placeMember, setGrid, swapCells, updateMember } from '../game/members'
+import { benchMembers, clearCell, learnSkill, memberById, memberStats, partyMembers, placeMember, resetSkills, setGrid, swapCells, updateMember } from '../game/members'
 import type { SlotState } from '../state'
-import { jobIcon, jobName, skillBrief, skillLabel } from '../lib/labels'
+import { jobIcon, jobName, skillLabel } from '../lib/labels'
 import { GUARDS, guardByKey, guardKey } from '../lib/guards'
 import { Board } from './Board'
 import { RuleEditor, type PresetHooks } from './RuleEditor'
 import { MemberGrowth } from './MemberGrowth'
 import { RuleTest } from './RuleTest'
+import { SkillLearn } from './SkillLearn'
 
 interface Props {
   save: GameSave
@@ -21,10 +22,11 @@ interface Props {
   onGoRoster: () => void
 }
 
-type Panel = 'rules' | 'stats' | 'gear' | 'info'
+type Panel = 'rules' | 'stats' | 'skills' | 'gear' | 'info'
 const PANELS: { key: Panel; label: string }[] = [
   { key: 'rules', label: '수칙' },
   { key: 'stats', label: '스탯' },
+  { key: 'skills', label: '스킬' },
   { key: 'gear', label: '장비' },
   { key: 'info', label: '정보' },
 ]
@@ -75,7 +77,7 @@ export function Formation({ save, onSave, initialCell = null, onGoRoster }: Prop
 
   // 수칙 편집 — 선택 단원 한 명짜리 슬롯
   const slot: SlotState | null = member
-    ? { job: member.job, row: member.row, guard: member.guard, rules: member.rules, stats: memberStats(member), skills: PRESETS[member.job].skills }
+    ? { job: member.job, row: member.row, guard: member.guard, rules: member.rules, stats: memberStats(member), skills: member.skills }
     : null
   const setSlot = (_: number, next: SlotState) => {
     if (!member) return
@@ -168,16 +170,26 @@ export function Formation({ save, onSave, initialCell = null, onGoRoster }: Prop
                 <img src={jobIcon(member.job)} alt="" width={40} height={40} />
                 <div>
                   <div className="name">{member.name} <small>{jobName(member.job)} · Lv {member.level} · {member.row === 'front' ? '전열' : '후열'}</small></div>
-                  <small>{PRESETS[member.job].skills.map(skillLabel).join(' · ')}</small>
+                  <small>{member.skills.map(skillLabel).join(' · ')}</small>
                 </div>
               </header>
               <nav className="subnav">
                 {PANELS.map((p) => (
                   <button key={p.key} className={panel === p.key ? 'on' : ''} onClick={() => setPanel(p.key)}>
-                    {p.label}{p.key === 'stats' && member.statPoints > 0 ? ` (${member.statPoints})` : ''}
+                    {p.label}
+                    {p.key === 'stats' && member.statPoints > 0 ? ` (${member.statPoints})` : ''}
+                    {p.key === 'skills' && member.skillPoints > 0 ? ` (${member.skillPoints})` : ''}
                   </button>
                 ))}
               </nav>
+              {panel === 'skills' && (
+                <SkillLearn
+                  member={member}
+                  gold={save.gold}
+                  onLearn={(id) => onSave(updateMember(save, learnSkill(member, id)))}
+                  onReset={() => onSave(resetSkills(save, member))}
+                />
+              )}
 
               {panel === 'rules' && (
                 <RuleEditor key={member.id} slots={[slot]} onChange={setSlot} presets={presetHooks} noRow />
@@ -206,14 +218,7 @@ export function Formation({ save, onSave, initialCell = null, onGoRoster }: Prop
                       </select>
                     </dd>
                     <dt>보유 스킬</dt>
-                    <dd>
-                      <ul className="skill-list">
-                        {PRESETS[member.job].skills.map((id) => (
-                          <li key={id}><b>{skillLabel(id)}</b> <small>{skillBrief(id)}</small></li>
-                        ))}
-                      </ul>
-                      {member.skillPoints > 0 && <small>스킬 포인트 {member.skillPoints} — 새 스킬은 M2-2 에서 배웁니다.</small>}
-                    </dd>
+                    <dd>{member.skills.map(skillLabel).join(' · ')} — <button className="link" onClick={() => setPanel('skills')}>스킬 탭에서 배우기</button></dd>
                   </dl>
                 </div>
               )}

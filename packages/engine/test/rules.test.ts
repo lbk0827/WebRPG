@@ -6,7 +6,7 @@ import type { BattleEvent, BattleInput, CharSetup, Condition } from '../src'
 const always: Condition = { op: 'always' }
 
 function dummy(over: Partial<CharSetup> & { id: string }): CharSetup {
-  return {
+  const c: CharSetup = {
     name: over.id,
     row: 'front',
     guard: { mode: 'never' },
@@ -15,6 +15,9 @@ function dummy(over: Partial<CharSetup> & { id: string }): CharSetup {
     rules: { rows: [{ condition: always, skillId: 'strike' }] },
     ...over,
   }
+  // M2-2: 수칙이 참조하는 스킬은 배운 것으로 (이 파일은 수칙 평가를 검증하지 습득을 검증하지 않는다)
+  c.skills = Array.from(new Set([...c.skills, ...c.rules.rows.map((r) => r.skillId)]))
+  return c
 }
 
 function run(a: CharSetup[], b: CharSetup[], seed = 1): BattleEvent[] {

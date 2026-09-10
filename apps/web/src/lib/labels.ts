@@ -1,6 +1,6 @@
 // 한국어 표시 문자열. 엔진은 id 만 다루고, 사람이 읽는 말은 전부 여기서 만든다.
 import type { BattleEvent, CharRef, Effect, Row, SkillFailReason, StatKey, StatusId, TargetPriority, TargetSpec, TraitDef } from '@webrpg/engine'
-import { PRESETS, SKILLS, STATUS_DEFS, TRAITS } from '@webrpg/engine'
+import { COMMON_LEARNABLE, LEARNABLE, PRESETS, SKILLS, STARTER_SKILLS, STATUS_DEFS, TRAITS, jobSkillPool } from '@webrpg/engine'
 
 // ───────────────────────────── 도감 · 요약 문장 (ADR-004)
 
@@ -99,8 +99,20 @@ export function skillBrief(id: string): string {
   return [p.cost, p.target, p.timing, p.effects, p.notes].filter(Boolean).join(' · ')
 }
 
-/** 이 스킬을 기본 보유한 직업들 */
-export const skillJobs = (id: string): string[] => Object.values(PRESETS).filter((p) => p.skills.includes(id)).map((p) => p.name)
+/** 이 스킬을 가질 수 있는 직업들 (시작 또는 습득) */
+export const skillJobs = (id: string): string[] => Object.keys(PRESETS).filter((job) => jobSkillPool(job).includes(id)).map((job) => PRESETS[job].name)
+
+/** 도감용: "전사 기본 · 엘프 2pt · 공용 공짜" */
+export function skillSources(id: string): string {
+  const out: string[] = []
+  if (COMMON_LEARNABLE.some((l) => l.skillId === id)) out.push('공용 공짜')
+  for (const job of Object.keys(PRESETS)) {
+    if (STARTER_SKILLS[job]?.includes(id)) out.push(`${PRESETS[job].name} 기본`)
+    const l = LEARNABLE[job]?.find((x) => x.skillId === id)
+    if (l) out.push(`${PRESETS[job].name} ${l.cost}pt`)
+  }
+  return out.join(' · ') || '—'
+}
 
 export function traitText(t: TraitDef): string {
   return t.effects
@@ -146,7 +158,7 @@ export const statusLabel = (id: StatusId): string => STATUS_DEFS[id]?.label ?? i
 export const jobIcon = (job: string): string => `${import.meta.env.BASE_URL}jobs/${job}.svg`
 
 export const failText = (r: SkillFailReason): string =>
-  r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : r === 'silenced' ? '침묵 상태' : r === 'cooldown' ? '재사용 대기' : '무기 불일치'
+  r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : r === 'silenced' ? '침묵 상태' : r === 'cooldown' ? '재사용 대기' : r === 'notLearned' ? '미습득' : '무기 불일치'
 export const traitLabel = (id: string): string => TRAITS[id]?.label ?? id
 
 export const outcomeText = (o: string): string =>

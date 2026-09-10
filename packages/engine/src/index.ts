@@ -16,6 +16,8 @@ export {
 } from './progression'
 export type { Alloc, ExpResult } from './progression'
 export { derivedStats } from './derived'
+export { STARTER_SKILLS, COMMON_LEARNABLE, LEARNABLE, SKILL_RESET_GOLD, learnableFor, learnCost, jobSkillPool } from './data/learning'
+export type { Learnable } from './data/learning'
 export type { DerivedStats } from './derived'
 export { MONSTERS, monsterSetup } from './data/monsters'
 export type { MonsterDef } from './data/monsters'

@@ -3,7 +3,7 @@ import { useMemo, useState } from 'react'
 import { DEFAULT_CONFIG, MISSIONS, REGIONS, REGION_BY_ID, SKILLS, isRegionUnlocked, simulate } from '@webrpg/engine'
 import type { BattleRecord, GameSave } from '../game/save'
 import { PARTY_MAX } from '../game/save'
-import { partyMembers } from '../game/members'
+import { canLearnSomething, partyMembers } from '../game/members'
 import type { MissionProgress } from '../missionState'
 import { jobIcon, jobOf, outcomeText, timeAgo, type Names } from '../lib/labels'
 import { Replay } from './Replay'
@@ -37,6 +37,8 @@ export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOp
   if (nextMission) todos.push({ text: `훈련 과제 ${nextMission.no}. ${nextMission.title}`, action: clearedCount === 0 ? '시작' : '이어서', go: () => onOpenMission(nextMission.id) })
   const unallocated = save.members.filter((m) => m.statPoints > 0)
   if (unallocated.length) todos.push({ text: `${unallocated.map((m) => m.name).join('·')} — 스탯 포인트 미분배`, action: '단원', go: () => onGo('roster') })
+  const learners = save.members.filter(canLearnSomething)
+  if (learners.length) todos.push({ text: `${learners.map((m) => m.name).join('·')} — 배울 수 있는 스킬 있음`, action: '단원', go: () => onGo('roster') })
   if (party.length < PARTY_MAX && save.members.length > party.length) todos.push({ text: `출전 ${party.length}/${PARTY_MAX}명 — 대기 단원 ${save.members.length - party.length}명`, action: '편성', go: () => onGo('formation') })
   const newRegion = REGIONS.find((r) => isRegionUnlocked(r, save.regionWins) && (save.regionWins[r.id] ?? 0) === 0 && r.no > 1)
   if (newRegion) todos.push({ text: `새로 열린 지역 — ${newRegion.name}`, action: '의뢰', go: () => onGo('quest') })

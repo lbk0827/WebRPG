@@ -130,6 +130,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
                   {describeCondition(row.condition)} → <b>{skillLabel(row.skillId)}</b>
                   {row.maxUses !== undefined && <small> · {row.maxUses}회만</small>}
                   {row.disabled && <small className="offmark"> · 꺼짐</small>}
+                  {!skills.includes(row.skillId) && <small className="offmark"> · 미습득 — 발동하지 않음</small>}
                 </span>
                 {!rowsLocked && (
                   <span className="tools" onClick={(e) => e.stopPropagation()}>
@@ -153,6 +154,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
                       {skills.map((id) => (
                         <option key={id} value={id}>{skillLabel(id)}{SKILLS[id]?.spCost ? ` (SP ${SKILLS[id].spCost})` : ''}</option>
                       ))}
+                      {!skills.includes(row.skillId) && <option value={row.skillId}>{skillLabel(row.skillId)} (미습득)</option>}
                     </select>
                     <label className="uses">
                       <input

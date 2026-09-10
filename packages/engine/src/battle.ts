@@ -147,6 +147,11 @@ function takeTurn(actor: CharState, st: BattleState): void {
 
     const skill = st.skills[row.skillId]
     if (!skill) continue
+    // 배우지 않은 스킬 (M2-2). 수칙에 남아 있어도 쓸 수 없다 — 다음 패턴으로
+    if (!actor.setup.skills.includes(skill.id)) {
+      emit(st, { t: 'skillFailed', actor: actor.ref, ruleIndex: i, skillId: skill.id, reason: 'notLearned' })
+      continue
+    }
 
     if (skill.requires?.weaponType && !skill.requires.weaponType.includes(actor.setup.weapon ?? 'none')) {
       emit(st, { t: 'skillFailed', actor: actor.ref, ruleIndex: i, skillId: skill.id, reason: 'noWeapon' })

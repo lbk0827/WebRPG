@@ -1,13 +1,13 @@
 // 단원 (M2-1, ADR-004). 단원 전원의 성장(레벨·경험치·스탯 분배)과 용병단 이름, 저장 관리. 편성은 편성 탭에서.
 import { useState } from 'react'
 import type { StatKey } from '@webrpg/engine'
-import { PRESETS } from '@webrpg/engine'
 import type { GameSave, Member } from '../game/save'
 import { DEFAULT_NAME, PARTY_MAX, exportGame, importGame, newGame } from '../game/save'
-import { cellOf, partyMembers, updateMember } from '../game/members'
+import { canLearnSomething, cellOf, learnSkill, partyMembers, resetSkills, updateMember } from '../game/members'
 import { STAT_HELP, jobIcon, jobName, skillLabel } from '../lib/labels'
 import { STAT_LABEL } from '../lib/condition'
 import { MemberGrowth } from './MemberGrowth'
+import { SkillLearn } from './SkillLearn'
 
 interface Props {
   save: GameSave
@@ -50,7 +50,6 @@ export function RosterPanel({ save, onSave, onEditMember, onGoFormation }: Props
       <ul className="members">
         {save.members.map((m) => {
           const cell = cellOf(save, m.id)
-          const p = PRESETS[m.job]
           return (
             <li key={m.id} className="member">
               <header>
@@ -61,8 +60,14 @@ export function RosterPanel({ save, onSave, onEditMember, onGoFormation }: Props
                 {m.statPoints > 0 && <span className="badge">포인트 {m.statPoints}</span>}
               </header>
               <MemberGrowth member={m} onChange={setMember} />
+              <details className="learn-box">
+                <summary>
+                  스킬 {m.skills.length}종 — {m.skills.map(skillLabel).join(' · ')}
+                  {m.skillPoints > 0 && <span className={`badge ${canLearnSomething(m) ? '' : 'dim'}`}>포인트 {m.skillPoints}</span>}
+                </summary>
+                <SkillLearn member={m} gold={save.gold} onLearn={(id) => setMember(learnSkill(m, id))} onReset={() => onSave(resetSkills(save, m))} />
+              </details>
               <div className="skills">
-                {p.skills.map(skillLabel).join(' · ')}{m.skillPoints > 0 && <small> · 스킬 포인트 {m.skillPoints} (스킬트리는 M2-2)</small>}
                 {cell >= 0 ? (
                   <button className="link" onClick={() => onEditMember(m.id)}>수칙 편집 →</button>
                 ) : (

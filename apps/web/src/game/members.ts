@@ -1,6 +1,6 @@
 // 단원 ↔ 전투 CharSetup 변환, 성장 처리, 편성 판 조작.
-import type { Alloc, CharSetup, StatKey, Stats, TeamSetup } from '@webrpg/engine'
-import { PRESETS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, grantExp, growthStats } from '@webrpg/engine'
+import type { Alloc, CharSetup, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
+import { PRESETS, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, grantExp, growthStats, learnCost, learnableFor } from '@webrpg/engine'
 import { PARTY_MAX, cellRow, type GameSave, type Member } from './save'
 
 export const memberStats = (m: Member): Stats => growthStats(PRESETS[m.job].stats, m.level, m.alloc)
@@ -13,9 +13,37 @@ export function memberSetup(m: Member, idx: number): CharSetup {
     row: m.row,
     guard: structuredClone(m.guard),
     stats: memberStats(m),
-    skills: [...p.skills],
+    skills: [...(m.skills ?? p.skills)],
     rules: structuredClone(m.rules),
   }
+}
+
+// ───────────────────────────── 스킬 습득 (M2-2, 제로식 방식)
+
+/** 아직 안 배운, 이 직업이 배울 수 있는 스킬 */
+export const unlearned = (m: Member) => learnableFor(m.job).filter((l) => !m.skills.includes(l.skillId))
+
+/** 지금 포인트로 살 수 있는 게 있는가 */
+export const canLearnSomething = (m: Member): boolean => unlearned(m).some((l) => l.cost <= m.skillPoints)
+
+export function learnSkill(m: Member, skillId: string): Member {
+  const cost = learnCost(m.job, skillId)
+  if (cost === null || m.skills.includes(skillId) || m.skillPoints < cost) return m
+  return { ...m, skills: [...m.skills, skillId], skillPoints: m.skillPoints - cost, spentSkillPoints: m.spentSkillPoints + cost }
+}
+
+/** 배우지 않은 스킬을 참조하는 패턴을 지운다. 전부 지워지면 "항상 → 기본 공격" 하나를 남긴다 */
+export function pruneRules(rules: RuleSet, skills: string[]): RuleSet {
+  const rows = rules.rows.filter((r) => skills.includes(r.skillId))
+  return { rows: rows.length ? rows : [{ condition: { op: 'always' }, skillId: 'strike' }] }
+}
+
+/** 스킬 초기화 — 시작 스킬로 되돌리고 쓴 포인트를 돌려준다. 금이 든다 */
+export function resetSkills(g: GameSave, m: Member): GameSave {
+  if (g.gold < SKILL_RESET_GOLD) return g
+  const skills = [...(STARTER_SKILLS[m.job] ?? PRESETS[m.job].skills)]
+  const next: Member = { ...m, skills, skillPoints: m.skillPoints + m.spentSkillPoints, spentSkillPoints: 0, rules: pruneRules(m.rules, skills) }
+  return { ...updateMember(g, next), gold: g.gold - SKILL_RESET_GOLD }
 }
 
 export const memberById = (g: GameSave, id: string | null): Member | undefined => (id ? g.members.find((m) => m.id === id) : undefined)

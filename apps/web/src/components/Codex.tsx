@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { StatKey, StatusId } from '@webrpg/engine'
 import { MONSTERS, PRESETS, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, STATUS_DEFS, TRAITS, monsterSetup } from '@webrpg/engine'
 import { KIND_SPECS, PICKER_GROUPS, STAT_LABEL } from '../lib/condition'
-import { STAT_HELP, STATUS_HELP, jobIcon, jobName, skillJobs, skillParts, traitText } from '../lib/labels'
+import { STAT_HELP, STATUS_HELP, jobIcon, jobName, skillParts, skillSources, traitText } from '../lib/labels'
 
 type Section = 'skills' | 'status' | 'traits' | 'conditions' | 'stats' | 'regions'
 
@@ -36,7 +36,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
         <div className="tablewrap">
           <table className="codex-table">
             <thead>
-              <tr><th>스킬</th><th>직업</th><th>SP</th><th>대상</th><th>준비 · 경직</th><th>효과</th><th>비고</th></tr>
+              <tr><th>스킬</th><th>누가 · 값</th><th>SP</th><th>대상</th><th>준비 · 경직</th><th>효과</th><th>비고</th></tr>
             </thead>
             <tbody>
               {Object.values(SKILLS).map((s) => {
@@ -44,7 +44,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
                 return (
                   <tr key={s.id}>
                     <td className="nm">{s.label}</td>
-                    <td>{skillJobs(s.id).join('·') || '—'}</td>
+                    <td>{skillSources(s.id)}</td>
                     <td className="num">{s.spCost}</td>
                     <td>{p.target}</td>
                     <td>{p.timing}</td>
@@ -55,7 +55,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
               })}
             </tbody>
           </table>
-          <p className="hint">준비(선딜)가 있는 기술은 시전 중에 <b>끊길 수 있다</b>. 위력 % 는 힘(또는 손재주·지능) 기본치에 곱한다.</p>
+          <p className="hint">준비(선딜)가 있는 기술은 시전 중에 <b>끊길 수 있다</b>. 위력 % 는 힘(또는 손재주·지능) 기본치에 곱한다. "N pt" 는 스킬 포인트 값 — 레벨업마다 1 을 받는다.</p>
         </div>
       )}
 

@@ -248,7 +248,7 @@ export interface CharSnapshot {
 
 export type TeamSnapshot = CharSnapshot[]
 
-export type SkillFailReason = 'noSp' | 'noRequiredTarget' | 'silenced' | 'cooldown' | 'noWeapon'
+export type SkillFailReason = 'noSp' | 'noRequiredTarget' | 'silenced' | 'cooldown' | 'noWeapon' | 'notLearned'
 
 export type BattleEvent =
   | { t: 'battleStart'; teams: [TeamSnapshot, TeamSnapshot] }

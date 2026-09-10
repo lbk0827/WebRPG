@@ -23,7 +23,8 @@ export function nextRuleRowInt(stats: Stats): number | null {
 
 export const MAX_LEVEL = 30
 export const STAT_POINTS_PER_LEVEL = 5
-export const SKILL_POINTS_PER_LEVEL = 2
+/** M2-2: 1 — 직업 목록 총액 9~13 이라 Lv 10~14 에 다 배운다. 2차 목록이 열리면 모자라기 시작한다 */
+export const SKILL_POINTS_PER_LEVEL = 1
 /** 분배 스탯 개별 상한 (M2) */
 export const STAT_CAP = 150
 

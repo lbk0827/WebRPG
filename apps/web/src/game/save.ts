@@ -1,6 +1,6 @@
 // 게임 저장 (M2-1, v2 는 ADR-004, v3 는 편성 판). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
 import type { GuardPolicy, Outcome, Row, RuleSet, TeamSetup } from '@webrpg/engine'
-import { EMPTY_ALLOC, PRESETS, type Alloc } from '@webrpg/engine'
+import { EMPTY_ALLOC, PRESETS, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, type Alloc } from '@webrpg/engine'
 
 export interface Member {
   id: string
@@ -11,6 +11,10 @@ export interface Member {
   alloc: Alloc
   statPoints: number
   skillPoints: number
+  /** 배운 스킬 (M2-2). 시작 스킬 + 포인트로 산 것 */
+  skills: string[]
+  /** 지금까지 쓴 스킬 포인트 — 초기화 때 돌려준다 */
+  spentSkillPoints: number
   /** 편성 칸에서 정해진다 (cellRow). 대기 단원은 마지막 값 유지 */
   row: Row
   guard: GuardPolicy
@@ -97,6 +101,8 @@ export function newGame(): GameSave {
       alloc: { ...EMPTY_ALLOC },
       statPoints: 0,
       skillPoints: 0,
+      skills: [...(STARTER_SKILLS[job] ?? p.skills)],
+      spentSkillPoints: 0,
       row: p.row,
       guard: structuredClone(p.guard),
       rules: structuredClone(p.rules),
@@ -171,6 +177,12 @@ export function migrate(raw: unknown): GameSave | null {
     m.level ??= 1
     m.exp ??= 0
     m.row ??= PRESETS[m.job].row
+    // M2-2 이전 저장: 프리셋 스킬 전부를 가진 채로 승격 (빼앗지 않는다). 포인트는 새 비율(레벨당 1)로 다시 센다
+    if (!Array.isArray(m.skills)) m.skills = [...PRESETS[m.job].skills]
+    m.skills = m.skills.filter((id, i, arr) => typeof id === 'string' && arr.indexOf(id) === i)
+    if (!m.skills.includes('strike')) m.skills.unshift('strike')
+    m.spentSkillPoints = typeof m.spentSkillPoints === 'number' ? m.spentSkillPoints : 0
+    m.skillPoints = Math.max(0, (m.level - 1) * SKILL_POINTS_PER_LEVEL - m.spentSkillPoints)
   }
   const members = s.members
   const regionWins = s.regionWins ?? {}
