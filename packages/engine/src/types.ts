@@ -52,6 +52,8 @@ export interface RuleRow {
   skillId: SkillId
   /** 전투당 발동 횟수 상한 ("N회만") */
   maxUses?: number
+  /** 꺼 둔 패턴 — 평가하지 않지만 칸은 차지한다 (지우지 않고 실험하기 위한 것, ADR-004 §5) */
+  disabled?: boolean
 }
 
 export interface RuleSet {

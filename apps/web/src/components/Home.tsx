@@ -39,6 +39,12 @@ export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOp
   if (emptySlots > 0 && save.members.length > party.length) todos.push({ text: `편성 빈 자리 ${emptySlots}`, action: '단원', go: () => onGo('roster') })
   const newRegion = REGIONS.find((r) => isRegionUnlocked(r, save.regionWins) && (save.regionWins[r.id] ?? 0) === 0 && r.no > 1)
   if (newRegion) todos.push({ text: `새로 열린 지역 — ${newRegion.name}`, action: '의뢰', go: () => onGo('quest') })
+  const lockedRegion = REGIONS.find((r) => r.unlock && !isRegionUnlocked(r, save.regionWins))
+  if (lockedRegion && lockedRegion.unlock && (clearedCount >= 3 || save.battles > 0)) {
+    const from = REGION_BY_ID[lockedRegion.unlock.regionId]
+    const have = save.regionWins[lockedRegion.unlock.regionId] ?? 0
+    todos.push({ text: `${from?.name ?? ''} ${have}/${lockedRegion.unlock.wins}승 → ${lockedRegion.name} 해금`, action: '의뢰', go: () => onGo('quest') })
+  }
   if (todos.length === 0 && clearedCount >= 3) todos.push({ text: '의뢰를 돌아 단원을 키운다', action: '의뢰', go: () => onGo('quest') })
 
   const record = replayAt !== null ? save.log.find((r) => r.at === replayAt) ?? null : null

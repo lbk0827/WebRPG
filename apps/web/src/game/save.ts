@@ -29,10 +29,31 @@ export interface BattleRecord {
   enemy: TeamSetup
 }
 
+/** 저장해 둔 수칙 세트 (제로식의 "상태 저장 슬롯"에서 착안). 같은 직업 단원끼리 공유 */
+export interface RulePreset {
+  id: string
+  name: string
+  job: string
+  rules: RuleSet
+  row: Row
+  guard: GuardPolicy
+}
+
+/** 편성 프리셋 3슬롯 */
+export interface PartyPreset {
+  name: string
+  party: (string | null)[]
+}
+
+export const PARTY_PRESET_SLOTS = 3
+export const RULE_PRESET_MAX = 20
+
 export interface GameSave {
   version: 2
   /** 용병단 이름 */
   name: string
+  rulePresets: RulePreset[]
+  partyPresets: (PartyPreset | null)[]
   gold: number
   members: Member[]
   /** 편성 슬롯 5개 — 단원 id 또는 null */
@@ -68,7 +89,10 @@ export function newGame(): GameSave {
       rules: structuredClone(p.rules),
     }
   })
-  return { version: 2, name: DEFAULT_NAME, gold: 200, members, party: members.map((m) => m.id), regionWins: {}, battles: 0, wins: 0, log: [] }
+  return {
+    version: 2, name: DEFAULT_NAME, rulePresets: [], partyPresets: Array(PARTY_PRESET_SLOTS).fill(null),
+    gold: 200, members, party: members.map((m) => m.id), regionWins: {}, battles: 0, wins: 0, log: [],
+  }
 }
 
 /** 형태 검증 + 버전 마이그레이션 (v1 → v2). 실패하면 null */
@@ -88,9 +112,20 @@ export function migrate(raw: unknown): GameSave | null {
   }
   const regionWins = s.regionWins ?? {}
   const log = Array.isArray(s.log) ? s.log.filter((r) => r && typeof r.seed === 'number' && r.player && r.enemy).slice(0, LOG_MAX) : []
+  const rulePresets = Array.isArray(s.rulePresets)
+    ? s.rulePresets.filter((p) => p && typeof p.id === 'string' && PRESETS[p.job] && p.rules && Array.isArray(p.rules.rows)).slice(0, RULE_PRESET_MAX)
+    : []
+  const partyPresets: (PartyPreset | null)[] = Array(PARTY_PRESET_SLOTS).fill(null)
+  if (Array.isArray(s.partyPresets)) {
+    s.partyPresets.slice(0, PARTY_PRESET_SLOTS).forEach((p, i) => {
+      if (p && typeof p.name === 'string' && Array.isArray(p.party)) partyPresets[i] = { name: p.name, party: p.party.slice(0, 5) }
+    })
+  }
   return {
     version: 2,
     name: typeof s.name === 'string' && s.name.trim() ? s.name.trim().slice(0, 20) : DEFAULT_NAME,
+    rulePresets,
+    partyPresets,
     gold: typeof s.gold === 'number' ? s.gold : 0,
     members: s.members,
     party: [...s.party.slice(0, 5), ...Array(Math.max(0, 5 - s.party.length)).fill(null)],

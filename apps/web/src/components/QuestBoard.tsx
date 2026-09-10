@@ -1,4 +1,4 @@
-// 의뢰소 (M2-1, ADR-004). 지역 선택 → 출전 전 비교 → 출전 → 보상·레벨업·진단 → 재생. 기록에 저장.
+// 의뢰소 (M2-1, ADR-004). 지역 선택 → 출전 전 비교 → 출전(1판 / 3판 연속) → 보상·레벨업·진단 → 재생. 기록에 저장.
 import { useMemo, useState } from 'react'
 import type { Analysis, BattleResult, TeamSetup } from '@webrpg/engine'
 import { DEFAULT_CONFIG, MONSTERS, REGIONS, SKILLS, analyze, battleRewards, isRegionUnlocked, monsterSetup, rollEncounter, simulate, type RegionDef } from '@webrpg/engine'
@@ -26,9 +26,41 @@ interface Outcome {
   levelUps: { name: string; level: number }[]
 }
 
+/** 한 판 — 저장본을 받아 갱신된 저장본과 결과를 돌려준다 (연속 출전은 이걸 이어 붙인다) */
+function runOne(save: GameSave, region: RegionDef, at: number): { save: GameSave; out: Outcome } {
+  const seed = (at % 1_000_000_007) + save.battles
+  const enemy = rollEncounter(region, seed)
+  const player = partyTeam(save)
+  const result = simulate({ seed, teams: [player, enemy], config: DEFAULT_CONFIG, skills: SKILLS })
+  const analysis = analyze(result, [player.members.length, enemy.members.length])
+  const { exp, gold } = battleRewards(result, enemy)
+
+  const levelUps: { name: string; level: number }[] = []
+  const members = save.members.map((m) => {
+    if (!save.party.includes(m.id)) return m
+    const r = applyExp(m, exp)
+    if (r.levelsGained > 0) levelUps.push({ name: m.name, level: r.member.level })
+    return r.member
+  })
+  const win = result.outcome === 'team0'
+  const next: GameSave = pushRecord(
+    {
+      ...save,
+      members,
+      gold: save.gold + gold,
+      battles: save.battles + 1,
+      wins: save.wins + (win ? 1 : 0),
+      regionWins: win ? { ...save.regionWins, [region.id]: (save.regionWins[region.id] ?? 0) + 1 } : save.regionWins,
+    },
+    { at, regionId: region.id, seed, outcome: result.outcome, exp, gold, actions: result.actionCount, player, enemy },
+  )
+  return { save: next, out: { region, seed, enemy, player, result, analysis, exp, gold, levelUps } }
+}
+
 export function QuestBoard({ save, onSave }: Props) {
   const [sel, setSel] = useState<string>(REGIONS[0].id)
-  const [out, setOut] = useState<Outcome | null>(null)
+  const [outs, setOuts] = useState<Outcome[]>([])
+  const [view, setView] = useState(0)
   const region = REGIONS.find((r) => r.id === sel) ?? REGIONS[0]
   const unlocked = isRegionUnlocked(region, save.regionWins)
   const party = partyMembers(save)
@@ -48,47 +80,49 @@ export function QuestBoard({ save, onSave }: Props) {
     }
   }, [preview, region])
 
-  const depart = () => {
+  const depart = (n: 1 | 3) => {
     if (!unlocked || party.length === 0) return
-    const seed = (Date.now() % 1_000_000_007) + save.battles
-    const enemy = rollEncounter(region, seed)
-    const player = partyTeam(save)
-    const result = simulate({ seed, teams: [player, enemy], config: DEFAULT_CONFIG, skills: SKILLS })
-    const analysis = analyze(result, [player.members.length, enemy.members.length])
-    const { exp, gold } = battleRewards(result, enemy)
-
-    const levelUps: { name: string; level: number }[] = []
-    const members = save.members.map((m) => {
-      if (!save.party.includes(m.id)) return m
-      const r = applyExp(m, exp)
-      if (r.levelsGained > 0) levelUps.push({ name: m.name, level: r.member.level })
-      return r.member
-    })
-    const win = result.outcome === 'team0'
-    const next: GameSave = {
-      ...save,
-      members,
-      gold: save.gold + gold,
-      battles: save.battles + 1,
-      wins: save.wins + (win ? 1 : 0),
-      regionWins: win ? { ...save.regionWins, [region.id]: (save.regionWins[region.id] ?? 0) + 1 } : save.regionWins,
+    let cur = save
+    const list: Outcome[] = []
+    const base = Date.now()
+    for (let i = 0; i < n; i++) {
+      const r = runOne(cur, region, base + i)
+      cur = r.save
+      list.push(r.out)
     }
-    onSave(pushRecord(next, { at: Date.now(), regionId: region.id, seed, outcome: result.outcome, exp, gold, actions: result.actionCount, player, enemy }))
-    setOut({ region, seed, enemy, player, result, analysis, exp, gold, levelUps })
+    onSave(cur)
+    setOuts(list)
+    setView(list.length - 1)
     window.scrollTo(0, 0)
   }
 
+  const out = outs[view]
   const names: Names | null = out ? [out.player.members.map((m) => m.name), out.enemy.members.map((m) => m.name)] : null
   const jobs: [string[], string[]] | null = out ? [out.player.members.map((m) => jobOf(m.id)), out.enemy.members.map((m) => jobOf(m.id))] : null
+  const totalExp = outs.reduce((s, o) => s + o.exp, 0)
+  const totalGold = outs.reduce((s, o) => s + o.gold, 0)
+  const allLevelUps = outs.flatMap((o) => o.levelUps)
 
   return (
     <section className="quest">
+      {outs.length > 1 && (
+        <div className="verdict multi">
+          <b>{outs[0].region.name} — {outs.length}판 연속</b> · {outs.filter((o) => o.result.outcome === 'team0').length}승 · 경험치 +{totalExp} · 금 +{totalGold}
+          <div className="multi-list">
+            {outs.map((o, i) => (
+              <button key={i} className={`${i === view ? 'on' : ''} ${o.result.outcome === 'team0' ? 'win' : 'lose'}`} onClick={() => setView(i)}>
+                {i + 1}판 {outcomeText(o.result.outcome)} <small>+{o.exp}</small>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
       {out && names && jobs && (
         <div className={`verdict ${out.result.outcome === 'team0' ? 'ok' : 'fail'}`}>
           <b>{out.region.name} — {outcomeText(out.result.outcome)}</b> · 경험치 +{out.exp} · 금 +{out.gold}
-          {out.levelUps.length > 0 && (
+          {(outs.length > 1 ? allLevelUps : out.levelUps).length > 0 && (
             <ul>
-              {out.levelUps.map((l, i) => (
+              {(outs.length > 1 ? allLevelUps : out.levelUps).map((l, i) => (
                 <li key={i}>🎉 {l.name} 레벨 {l.level}! 단원 탭에서 스탯 포인트를 분배하세요.</li>
               ))}
             </ul>
@@ -103,20 +137,21 @@ export function QuestBoard({ save, onSave }: Props) {
           <small>시드 {out.seed} · 총 {out.result.actionCount}회 행동 · 본부의 최근 전투에 기록됨</small>
         </div>
       )}
-      {out && names && jobs && <Replay result={out.result} names={names} jobs={jobs} />}
+      {out && names && jobs && <Replay key={out.seed} result={out.result} names={names} jobs={jobs} />}
 
       <h2>의뢰소 <small>금 {save.gold} · 편성 {party.length}명 · 평균 레벨 {us.avgLevel}</small></h2>
       <ol className="regions">
         {REGIONS.map((r) => {
           const open = isRegionUnlocked(r, save.regionWins)
           const wins = save.regionWins[r.id] ?? 0
+          const need = r.unlock ? save.regionWins[r.unlock.regionId] ?? 0 : 0
           return (
             <li key={r.id} className={`region ${r.id === sel ? 'on' : ''} ${open ? '' : 'locked'}`}>
-              <button onClick={() => { setSel(r.id); setOut(null) }}>
+              <button onClick={() => { setSel(r.id); setOuts([]) }}>
                 <span className="no">{r.no}</span>
                 <span className="body">
                   <span className="title">{r.name} <small>권장 Lv {r.recommended[0]}–{r.recommended[1]}</small></span>
-                  <span className="lesson">{open ? `${wins}승` : `${r.unlock ? REGIONS.find((x) => x.id === r.unlock!.regionId)?.name : ''}에서 ${r.unlock?.wins}승 하면 열림`}</span>
+                  <span className="lesson">{open ? `${wins}승` : `${r.unlock ? REGIONS.find((x) => x.id === r.unlock!.regionId)?.name : ''} ${need}/${r.unlock?.wins}승 — ${r.unlock!.wins - need}승 더 하면 열림`}</span>
                 </span>
               </button>
             </li>
@@ -156,7 +191,8 @@ export function QuestBoard({ save, onSave }: Props) {
         </div>
 
         <div className="run-bar">
-          <button className="primary big" onClick={depart} disabled={!unlocked || party.length === 0}>출전</button>
+          <button className="primary big" onClick={() => depart(1)} disabled={!unlocked || party.length === 0}>출전</button>
+          <button className="big" onClick={() => depart(3)} disabled={!unlocked || party.length === 0} title="3판을 연달아 치르고 결과를 한꺼번에 본다">3판 연속</button>
           {party.length === 0 && <small>단원 탭에서 편성을 먼저 하세요.</small>}
           {us.avgLevel > 0 && us.avgLevel < region.recommended[0] && unlocked && <small>권장 레벨보다 낮습니다. 질 수 있습니다 — 그것도 경험치 30%.</small>}
         </div>

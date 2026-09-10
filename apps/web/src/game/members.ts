@@ -1,5 +1,5 @@
 // 단원 ↔ 전투 CharSetup 변환, 성장 처리.
-import type { CharSetup, StatKey, Stats, TeamSetup } from '@webrpg/engine'
+import type { Alloc, CharSetup, StatKey, Stats, TeamSetup } from '@webrpg/engine'
 import { PRESETS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, grantExp, growthStats } from '@webrpg/engine'
 import type { GameSave, Member } from './save'
 
@@ -37,6 +37,15 @@ export function allocateStat(m: Member, key: StatKey): Member {
   if (m.statPoints <= 0) return m
   if (memberStats(m)[key] >= STAT_CAP) return m
   return { ...m, statPoints: m.statPoints - 1, alloc: { ...m.alloc, [key]: m.alloc[key] + 1 } }
+}
+
+/** 여러 포인트를 한 번에 분배 (미리보기 → 확정). 포인트·상한을 넘는 요청은 무시 */
+export function allocateMany(m: Member, add: Alloc): Member {
+  let cur = m
+  for (const k of Object.keys(add) as StatKey[]) {
+    for (let i = 0; i < add[k]; i++) cur = allocateStat(cur, k)
+  }
+  return cur
 }
 
 export interface ExpApplied {

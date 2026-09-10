@@ -15,6 +15,8 @@ export {
   expToNext, grantExp, growthStats, scaleByLevel,
 } from './progression'
 export type { Alloc, ExpResult } from './progression'
+export { derivedStats } from './derived'
+export type { DerivedStats } from './derived'
 export { MONSTERS, monsterSetup } from './data/monsters'
 export type { MonsterDef } from './data/monsters'
 export { REGIONS, REGION_BY_ID, isRegionUnlocked, rollEncounter, battleRewards } from './data/regions'

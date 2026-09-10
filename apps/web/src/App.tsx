@@ -12,6 +12,10 @@ import { RosterPanel } from './components/RosterPanel'
 import { TrainingGround } from './components/TrainingGround'
 import { Home, type Tab } from './components/Home'
 import { Codex } from './components/Codex'
+import { RuleTest } from './components/RuleTest'
+import type { PresetHooks } from './components/RuleEditor'
+import type { RulePreset } from './game/save'
+import { RULE_PRESET_MAX } from './game/save'
 
 /** 화면. 탭 5개(폰 하단 바 한계) + 탭 밖 화면(과제 목록·과제·도감)은 본부 탭에 속한다 (ADR-004) */
 type View = Tab | 'missions' | 'codex'
@@ -61,6 +65,24 @@ export function App() {
   const editRules = (partyIndex: number) => {
     setRulesInitial(partyIndex)
     go('rules')
+  }
+
+  // 수칙 프리셋 — 선택된 편성 단원 기준 (ADR-004 §5 J)
+  const [rulesSel, setRulesSel] = useState(0)
+  const presetHooks: PresetHooks = {
+    list: save.rulePresets,
+    onSave: (name) => {
+      const m = party[rulesSel]
+      if (!m || save.rulePresets.length >= RULE_PRESET_MAX) return
+      const p: RulePreset = { id: `rp${Date.now()}`, name, job: m.job, rules: structuredClone(m.rules), row: m.row, guard: structuredClone(m.guard) }
+      setSave((s) => ({ ...s, rulePresets: [...s.rulePresets, p] }))
+    },
+    onLoad: (p) => {
+      const m = party[rulesSel]
+      if (!m || m.job !== p.job) return
+      setSave((s) => updateMember(s, { ...m, rules: structuredClone(p.rules), row: p.row, guard: structuredClone(p.guard) }))
+    },
+    onDelete: (id) => setSave((s) => ({ ...s, rulePresets: s.rulePresets.filter((p) => p.id !== id) })),
   }
 
   const mission = view === 'missions' && missionId ? MISSION_BY_ID[missionId] : null
@@ -113,7 +135,12 @@ export function App() {
         )}
         {view === 'quest' && <QuestBoard save={save} onSave={setSave} />}
         {view === 'roster' && <RosterPanel save={save} onSave={setSave} onEditRules={editRules} />}
-        {view === 'rules' && (slots.length ? <RuleEditor key={rulesInitial} slots={slots} onChange={setSlot} names={party.map((m) => m.name)} initial={rulesInitial} /> : <p className="hint">단원 탭에서 편성을 먼저 하세요.</p>)}
+        {view === 'rules' && (slots.length ? (
+          <>
+            <RuleEditor key={rulesInitial} slots={slots} onChange={setSlot} names={party.map((m) => m.name)} initial={rulesInitial} presets={presetHooks} onSelect={setRulesSel} />
+            <RuleTest save={save} />
+          </>
+        ) : <p className="hint">단원 탭에서 편성을 먼저 하세요.</p>)}
         {view === 'train' && <TrainingGround save={save} />}
         {view === 'codex' && <Codex onBack={() => go('home')} />}
       </main>

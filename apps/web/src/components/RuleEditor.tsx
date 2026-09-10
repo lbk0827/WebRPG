@@ -1,12 +1,20 @@
 import { useState } from 'react'
 import type { MissionLimits, RuleRow } from '@webrpg/engine'
-import { PRESETS, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
+import { PRESETS, SKILLS, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
 import type { SlotState } from '../state'
+import type { RulePreset } from '../game/save'
 import { jobIcon, jobName, skillBrief, skillLabel } from '../lib/labels'
-import { SKILLS } from '@webrpg/engine'
 import { describeCondition, fromCondition, toCondition } from '../lib/condition'
 import { GUARDS, guardByKey, guardKey } from '../lib/guards'
 import { ConditionEditor } from './ConditionEditor'
+
+/** 수칙 프리셋 (ADR-004 §5 J). 훈련 과제에서는 쓰지 않는다 */
+export interface PresetHooks {
+  list: RulePreset[]
+  onSave: (name: string) => void
+  onLoad: (p: RulePreset) => void
+  onDelete: (id: string) => void
+}
 
 interface Props {
   slots: SlotState[]
@@ -18,11 +26,15 @@ interface Props {
   initial?: number
   /** 단원 이름 표시 덮어쓰기 (과제용) */
   names?: string[]
+  presets?: PresetHooks
+  /** 선택 슬롯이 바뀔 때 (시험 패널이 같은 단원을 가리키도록) */
+  onSelect?: (i: number) => void
 }
 
-export function RuleEditor({ slots, onChange, editable, limits, initial = 0, names }: Props) {
-  const [sel, setSel] = useState(initial)
+export function RuleEditor({ slots, onChange, editable, limits, initial = 0, names, presets, onSelect }: Props) {
+  const [sel, setSelState] = useState(initial)
   const [open, setOpen] = useState<Record<number, boolean>>({})
+  const setSel = (i: number) => { setSelState(i); onSelect?.(i) }
   const slot = slots[sel]
   const canEdit = !editable || editable.includes(sel)
   const reorderOnly = limits?.reorderOnly === true
@@ -42,6 +54,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
     setRows(next)
   }
   const remove = (i: number) => setRows(rows.filter((_, j) => j !== i))
+  const toggle = (i: number) => updateRow(i, { disabled: rows[i].disabled ? undefined : true })
   const add = () => {
     setRows([...rows, { condition: { op: 'always' }, skillId: skills[0] }])
     setOpen((o) => ({ ...o, [rows.length]: true }))
@@ -51,6 +64,14 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
   const cap = Math.min(statCap, limits?.maxRows ?? statCap)
   const atMax = rows.length >= cap
   const nextInt = nextRuleRowInt(stats)
+  const offCount = rows.filter((r) => r.disabled).length
+  const myPresets = presets ? presets.list.filter((p) => p.job === slot.job) : []
+
+  const savePreset = () => {
+    if (!presets) return
+    const name = window.prompt('이 수칙 세트의 이름', `${jobName(slot.job)} 수칙 ${myPresets.length + 1}`)
+    if (name && name.trim()) presets.onSave(name.trim().slice(0, 20))
+  }
 
   return (
     <section className="rules">
@@ -92,7 +113,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
       {canEdit && reorderOnly && <p className="hint">이 과제에서는 <b>패턴의 순서만</b> 바꿀 수 있습니다. ↑↓ 로 옮기세요.</p>}
       {canEdit && !reorderOnly && !guardOnly && (
         <p className="hint">위에서부터 평가해 <b>처음 참인 패턴</b>을 실행합니다. 전부 거짓이면 <b>우물쭈물</b>하며 차례를 넘깁니다. 패턴을 누르면 펼쳐집니다.
-          {' '}패턴 <b>{rows.length}/{cap}</b>{nextInt !== null && ` · 지능 ${nextInt}에서 +1`}</p>
+          {' '}패턴 <b>{rows.length}/{cap}</b>{nextInt !== null && ` · 지능 ${nextInt}에서 +1`}{offCount > 0 && ` · 꺼 둔 패턴 ${offCount}`}</p>
       )}
 
       <ol className="rows">
@@ -100,15 +121,17 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
           const ec = fromCondition(row.condition)
           const expanded = !rowsLocked && !reorderOnly && open[i] === true
           return (
-            <li key={i} className={`row ${expanded ? 'open' : ''}`}>
+            <li key={i} className={`row ${expanded ? 'open' : ''} ${row.disabled ? 'off' : ''}`}>
               <header onClick={() => !rowsLocked && !reorderOnly && setOpen((o) => ({ ...o, [i]: !o[i] }))}>
                 <span className="idx">{i + 1}</span>
                 <span className="summary">
                   {describeCondition(row.condition)} → <b>{skillLabel(row.skillId)}</b>
                   {row.maxUses !== undefined && <small> · {row.maxUses}회만</small>}
+                  {row.disabled && <small className="offmark"> · 꺼짐</small>}
                 </span>
                 {!rowsLocked && (
                   <span className="tools" onClick={(e) => e.stopPropagation()}>
+                    {!reorderOnly && <button className={row.disabled ? 'on' : ''} onClick={() => toggle(i)} title={row.disabled ? '켜기' : '끄기 — 지우지 않고 건너뜀'}>{row.disabled ? '켜기' : '끄기'}</button>}
                     <button onClick={() => move(i, -1)} disabled={i === 0} title="위로">↑</button>
                     <button onClick={() => move(i, 1)} disabled={i === rows.length - 1} title="아래로">↓</button>
                     {!reorderOnly && <button onClick={() => remove(i)} title="삭제">×</button>}
@@ -156,6 +179,23 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
         <div className="rules-foot">
           <button className="primary" onClick={add} disabled={atMax}>{atMax ? `패턴 ${cap}개까지 (지능)` : '+ 패턴 추가'}</button>
           {!editable && <button onClick={reset}>기본 수칙으로</button>}
+          {presets && <button onClick={savePreset} disabled={presets.list.length >= 20}>수칙 저장</button>}
+        </div>
+      )}
+
+      {presets && myPresets.length > 0 && (
+        <div className="presets">
+          <h3>저장된 수칙 <small>{jobName(slot.job)} 용 · 불러오면 현재 수칙을 덮어씁니다</small></h3>
+          <ul>
+            {myPresets.map((p) => (
+              <li key={p.id}>
+                <span className="nm">{p.name}</span>
+                <small>{p.rules.rows.length}패턴 · {p.row === 'front' ? '전열' : '후열'}</small>
+                <button onClick={() => presets.onLoad(p)}>불러오기</button>
+                <button onClick={() => { if (window.confirm(`"${p.name}" 을 지울까요?`)) presets.onDelete(p.id) }} title="삭제">×</button>
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </section>

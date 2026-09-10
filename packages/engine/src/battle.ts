@@ -141,6 +141,7 @@ function takeTurn(actor: CharState, st: BattleState): void {
   const limit = Math.min(rows.length, maxRuleRows(actor.setup.stats) + traitRuleRows(actor))
   for (let i = 0; i < limit; i++) {
     const row = rows[i]
+    if (row.disabled) continue
     if (row.maxUses !== undefined && actor.ruleUses[i] >= row.maxUses) continue
     if (!evalCondition(row.condition, actor, st)) continue
 

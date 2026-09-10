@@ -384,3 +384,38 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .stat-help li { margin: 2px 0; }
 .member .skills button.link { margin-left: 8px; font-size: 12px; }
 .slot .controls button.link { font-size: 12px; }
+
+/* ───────── ADR-004 §5: 행 끄기 · 프리셋 · 한 판 시험 · 파생 수치 · 분배 미리보기 · 3판 연속 */
+.row.off { opacity: 0.55; background: repeating-linear-gradient(135deg, var(--card), var(--card) 8px, #f4f1ea 8px, #f4f1ea 16px); }
+.row.off .idx { background: var(--muted); }
+.row .offmark { color: var(--warn); font-weight: 600; }
+.row .tools button.on { background: var(--warn); border-color: var(--warn); color: #fff; }
+.presets { margin-top: 12px; }
+.presets h3 { margin: 0 0 6px; }
+.presets ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.presets li { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 6px 10px; font-size: 13px; }
+.presets .nm { font-weight: 700; flex: 1; }
+.presets li button { padding: 3px 8px; font-size: 12px; }
+.rule-test { margin-top: 18px; padding-top: 10px; border-top: 1px dashed var(--line); }
+.rule-test h3 { margin: 0 0 8px; color: var(--ink); }
+.rule-test .run-bar label { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
+.party-presets { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 4px; font-size: 12px; }
+.party-presets .label { color: var(--muted); }
+.party-presets .pp { display: inline-flex; gap: 2px; }
+.party-presets .pp > button:first-child { font-weight: 600; font-size: 12px; padding: 4px 10px; }
+.party-presets .pp.empty > button { color: var(--muted); font-weight: normal; border-style: dashed; }
+.party-presets button.mini { padding: 4px 6px; font-size: 11px; }
+.member .derived { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; color: var(--muted); margin: 2px 0 6px; }
+.member .derived span { white-space: nowrap; }
+.member .stat .pm { display: inline-flex; gap: 2px; }
+.member .stat.pend { color: var(--good); font-weight: 700; }
+.member .stat .delta { color: var(--good); font-weight: 700; }
+.member.previewing { border-color: var(--good); }
+.member .confirm { margin: 4px 0 8px; }
+.verdict.multi { background: var(--card); border: 1px solid var(--line); }
+.multi-list { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.multi-list button { font-size: 12px; padding: 4px 10px; border-left: 4px solid var(--muted); }
+.multi-list button.win { border-left-color: var(--good); }
+.multi-list button.lose { border-left-color: var(--bad); }
+.multi-list button.on { background: var(--ink); color: #fff; }
+.multi-list button.on small { color: #ccc; }

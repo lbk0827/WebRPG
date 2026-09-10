@@ -31,6 +31,18 @@ function run(a: CharSetup[], b: CharSetup[], seed = 1): BattleEvent[] {
 }
 
 describe('수칙 평가', () => {
+  it('꺼 둔 패턴(disabled)은 평가하지 않는다 — 다음 패턴으로 넘어간다', () => {
+    const c = dummy({
+      id: 'c',
+      skills: ['strike', 'heavyBlow'],
+      rules: { rows: [{ condition: always, skillId: 'heavyBlow', disabled: true }, { condition: always, skillId: 'strike' }] },
+    })
+    const ev = run([c], [dummy({ id: 'foe' })])
+    const fired = ev.filter((e): e is Extract<BattleEvent, { t: 'ruleFired' }> => e.t === 'ruleFired' && e.actor.team === 0)
+    expect(fired.length).toBeGreaterThan(0)
+    expect(fired.every((e) => e.ruleIndex === 1 && e.skillId === 'strike')).toBe(true)
+  })
+
   it('조건이 전부 거짓이면 ruleExhausted 가 발생하고 아무것도 하지 않는다', () => {
     const idle = dummy({
       id: 'idle',
