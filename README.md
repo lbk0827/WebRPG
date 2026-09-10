@@ -46,6 +46,7 @@
 
 ```bash
 npm install
+npm run dev                                 # 웹 훈련장 → http://localhost:5173
 npm test                                    # 엔진 테스트 (결정론 골든 테스트 포함)
 npm run lint                                # Math.random / Date 사용 금지 검사
 npm run report -- --a balanced --b rush --seed 7   # 전황 보고서 (콘솔)
@@ -69,12 +70,17 @@ assets/                 리소스 (전부 자체 제작 — README.md 가 라이
   jobs/*.svg            직업 아이콘 5종
   manifest.json         preset id → 아이콘/색상 매핑, 팔레트
   preview.html          아이콘 미리보기
-apps/                   (예정) 웹 클라이언트
+apps/web/               웹 훈련장 — Vite + React, 서버 없음 (엔진을 브라우저에서 직접 실행)
+  src/state.ts          편성 · 슬롯별 수칙 · 시드 (localStorage 보존)
+  src/lib/condition.ts  조건 편집 모델 ↔ 엔진 Condition 트리, 한국어 문장화
+  src/lib/roster.ts     이벤트 로그를 커서까지 접어 전황 복원 (재생기 핵심)
+  src/components/       PartyPanel 편성 · RuleEditor 수칙 · BattleView 재생기+타임라인 · Trainer 훈련장
 ```
 
 ## 현재 상태
 
-M1 구현 중. 엔진 코어 완료, 웹 클라이언트 착수 전.
+M1 구현 중. 엔진 코어 완료, 웹 훈련장 1차 완료 (편성 · 수칙 편집 · 전투 재생 · 훈련장).
+375px 폰 폭에서 수칙 편집기 성립 확인. 남은 것: 퍼즐 스테이지.
 
 | 항목 | 상태 |
 |---|---|
