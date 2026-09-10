@@ -1,11 +1,11 @@
-// INT → 최대 조항 수 (스탯 정의 확정, 2026-09-10)
+// INT → 최대 패턴 수 (스탯 정의 확정, 2026-09-10)
 import { describe, expect, it } from 'vitest'
 import { DEFAULT_CONFIG, MISSIONS, PRESETS, SKILLS, maxRuleRows, missionChar, simulate, solutionOverrides } from '../src'
 import type { CharSetup, Condition } from '../src'
 
 const always: Condition = { op: 'always' }
 
-describe('INT → 최대 조항 수', () => {
+describe('INT → 최대 패턴 수', () => {
   it('기본 4, INT 10/20/35/50/70 마다 +1', () => {
     const st = (int: number) => ({ maxHp: 1, maxSp: 1, str: 1, int, dex: 1, spd: 1, luk: 1, def: 0, mdef: 0 })
     expect(maxRuleRows(st(5))).toBe(4)
@@ -15,7 +15,7 @@ describe('INT → 최대 조항 수', () => {
     expect(maxRuleRows(st(99))).toBe(9)
   })
 
-  it('한도를 넘는 조항은 전투에서 평가되지 않는다', () => {
+  it('한도를 넘는 패턴은 전투에서 평가되지 않는다', () => {
     const c: CharSetup = {
       id: 'c', name: 'c', row: 'front', guard: { mode: 'never' },
       stats: { maxHp: 9999, maxSp: 999, str: 30, int: 5, dex: 10, spd: 40, luk: 10, def: 0, mdef: 0 },

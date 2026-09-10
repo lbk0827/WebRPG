@@ -27,11 +27,11 @@ export function describeEvent(e: BattleEvent, names: Names): Line | null {
   const who = (r: CharRef): string => `${r.team === 0 ? '' : '적 '}${names[r.team][r.index]}`
   switch (e.t) {
     case 'ruleFired':
-      return { kind: 'fired', text: `${e.ruleIndex + 1}번 조항 발동 → ${skillLabel(e.skillId)}` }
+      return { kind: 'fired', text: `${e.ruleIndex + 1}번 패턴 발동 → ${skillLabel(e.skillId)}` }
     case 'ruleExhausted':
       return { kind: 'exhausted', text: '수칙에 없는 상황이라 우물쭈물했다' }
     case 'skillFailed':
-      return { kind: 'failed', text: `${e.ruleIndex + 1}번 조항 ${skillLabel(e.skillId)} 불가 — ${failText(e.reason)}` }
+      return { kind: 'failed', text: `${e.ruleIndex + 1}번 패턴 ${skillLabel(e.skillId)} 불가 — ${failText(e.reason)}` }
     case 'castStart':
       return { kind: 'cast', text: `${skillLabel(e.skillId)} 시전 시작…` }
     case 'castResolve':

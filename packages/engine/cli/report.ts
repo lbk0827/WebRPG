@@ -38,11 +38,11 @@ function render(e: BattleEvent): string {
       step++
       return `\n[${String(step).padStart(3)}] ${who(e.actor)} 의 차례`
     case 'ruleFired':
-      return `      ${e.ruleIndex + 1}번 조항 발동 → ${sk(e.skillId)}`
+      return `      ${e.ruleIndex + 1}번 패턴 발동 → ${sk(e.skillId)}`
     case 'ruleExhausted':
       return `      ✗ 수칙에 없는 상황이라 우물쭈물했다`
     case 'skillFailed':
-      return `      · ${e.ruleIndex + 1}번 조항 ${sk(e.skillId)} 불가 (${failText(e.reason)})`
+      return `      · ${e.ruleIndex + 1}번 패턴 ${sk(e.skillId)} 불가 (${failText(e.reason)})`
     case 'castStart':
       return `      ${sk(e.skillId)} 시전 시작…`
     case 'castResolve':

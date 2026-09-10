@@ -60,7 +60,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
               <button key={i} className={`${i === sel ? 'on' : ''} ${locked ? 'locked' : ''}`} onClick={() => setSel(i)}>
                 <img src={jobIcon(s.job)} alt="" width={28} height={28} />
                 <span>{names?.[i] ?? jobName(s.job)}</span>
-                <small>{locked ? '고정' : `${s.rules.rows.length}조항`}</small>
+                <small>{locked ? '고정' : `${s.rules.rows.length}패턴`}</small>
               </button>
             )
           })}
@@ -87,10 +87,10 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
 
       {!canEdit && <p className="hint">이 단원의 수칙은 이 과제에서 고정입니다.</p>}
       {canEdit && guardOnly && <p className="hint">이 과제에서는 <b>엄호 방침만</b> 바꿀 수 있습니다.</p>}
-      {canEdit && reorderOnly && <p className="hint">이 과제에서는 <b>조항의 순서만</b> 바꿀 수 있습니다. ↑↓ 로 옮기세요.</p>}
+      {canEdit && reorderOnly && <p className="hint">이 과제에서는 <b>패턴의 순서만</b> 바꿀 수 있습니다. ↑↓ 로 옮기세요.</p>}
       {canEdit && !reorderOnly && !guardOnly && (
-        <p className="hint">위에서부터 평가해 <b>처음 참인 조항</b>을 실행합니다. 전부 거짓이면 <b>우물쭈물</b>하며 차례를 넘깁니다. 조항을 누르면 펼쳐집니다.
-          {' '}조항 <b>{rows.length}/{cap}</b>{nextInt !== null && ` · 지능 ${nextInt}에서 +1`}</p>
+        <p className="hint">위에서부터 평가해 <b>처음 참인 패턴</b>을 실행합니다. 전부 거짓이면 <b>우물쭈물</b>하며 차례를 넘깁니다. 패턴을 누르면 펼쳐집니다.
+          {' '}패턴 <b>{rows.length}/{cap}</b>{nextInt !== null && ` · 지능 ${nextInt}에서 +1`}</p>
       )}
 
       <ol className="rows">
@@ -151,7 +151,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
 
       {!rowsLocked && !reorderOnly && (
         <div className="rules-foot">
-          <button className="primary" onClick={add} disabled={atMax}>{atMax ? `조항 ${cap}개까지 (지능)` : '+ 조항 추가'}</button>
+          <button className="primary" onClick={add} disabled={atMax}>{atMax ? `패턴 ${cap}개까지 (지능)` : '+ 패턴 추가'}</button>
           {!editable && <button onClick={reset}>기본 수칙으로</button>}
         </div>
       )}

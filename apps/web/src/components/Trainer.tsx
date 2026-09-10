@@ -70,7 +70,7 @@ export function Trainer({ player, enemy, seed }: Props) {
           <DeathTable team={player} counts={report.deaths[0]} exhausted={report.exhausted[0]} n={report.n} />
           <h3>상대 <small>사망 빈도</small></h3>
           <DeathTable team={enemy} counts={report.deaths[1]} exhausted={report.exhausted[1]} n={report.n} />
-          <p className="hint">시전 끊김 {report.interrupted}회. <b>우물쭈물</b>이 많은 단원은 fallback 조항(항상 → 기본 공격)이 없거나 SP 게이팅이 잘못된 것입니다.</p>
+          <p className="hint">시전 끊김 {report.interrupted}회. <b>우물쭈물</b>이 많은 단원은 fallback 패턴(항상 → 기본 공격)이 없거나 SP 게이팅이 잘못된 것입니다.</p>
         </div>
       )}
     </section>

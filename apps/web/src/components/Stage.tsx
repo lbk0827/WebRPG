@@ -56,7 +56,7 @@ function currentTurnFx(events: BattleEvent[], cursor: number): Fx {
         fx.actor = e.actor
         break
       case 'ruleFired':
-        fx.bubble = { text: `${e.ruleIndex + 1}번 조항 · ${skillLabel(e.skillId)}`, kind: 'fired' }
+        fx.bubble = { text: `${e.ruleIndex + 1}번 패턴 · ${skillLabel(e.skillId)}`, kind: 'fired' }
         break
       case 'ruleExhausted':
         fx.bubble = { text: '…우물쭈물', kind: 'exhausted' }

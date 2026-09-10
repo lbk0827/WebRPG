@@ -9,15 +9,15 @@ export function diagnose(a: Analysis, names: string[]): string[] {
   const maxIdx = (arr: number[]): number => arr.reduce((best, v, i) => (v > arr[best] ? i : best), 0)
 
   const ex = maxIdx(t.exhausted)
-  if (t.exhausted[ex] > 0) out.push(`${names[ex]}가 ${t.exhausted[ex]}번 우물쭈물했다 — 맞는 조항이 없는 상황이 있다.`)
+  if (t.exhausted[ex] > 0) out.push(`${names[ex]}가 ${t.exhausted[ex]}번 우물쭈물했다 — 맞는 패턴이 없는 상황이 있다.`)
 
   if (t.firstDeath >= 0) out.push(`${names[t.firstDeath]}가 가장 먼저 쓰러졌다.`)
 
   const sp = maxIdx(t.noSp)
-  if (t.noSp[sp] >= 3) out.push(`${names[sp]}의 조항이 SP 부족으로 ${t.noSp[sp]}번 불발했다.`)
+  if (t.noSp[sp] >= 3) out.push(`${names[sp]}의 패턴이 SP 부족으로 ${t.noSp[sp]}번 불발했다.`)
 
   const nt = maxIdx(t.noTarget)
-  if (t.noTarget[nt] >= 3 && out.length < 2) out.push(`${names[nt]}의 조항이 대상이 없어 ${t.noTarget[nt]}번 넘어갔다.`)
+  if (t.noTarget[nt] >= 3 && out.length < 2) out.push(`${names[nt]}의 패턴이 대상이 없어 ${t.noTarget[nt]}번 넘어갔다.`)
 
   if (foe.interruptsMade > 0 && out.length < 2) out.push(`적이 우리 시전을 ${foe.interruptsMade}번 끊었다.`)
   if (t.interruptsMade > 0 && out.length < 2) out.push(`우리가 적 시전을 ${t.interruptsMade}번 끊었다.`)
