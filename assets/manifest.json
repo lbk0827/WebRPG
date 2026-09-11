@@ -20,7 +20,11 @@
   },
   "$unitsComment": "전투 리그 스프라이트 (docs/15). 키는 직업 id 또는 몬스터 아이콘 id 와 같다. 없는 키는 화면이 엠블럼 아이콘으로 물러선다",
   "units": {
-    "warrior": { "name": "전사", "sprite": "units/warrior.svg" }
+    "warrior": { "name": "전사", "sprite": "units/warrior.svg" },
+    "rogue":   { "name": "도적", "sprite": "units/rogue.svg" },
+    "mage":    { "name": "마법사", "sprite": "units/mage.svg" },
+    "priest":  { "name": "프리스트", "sprite": "units/priest.svg" },
+    "elf":     { "name": "엘프", "sprite": "units/elf.svg" }
   },
   "palette": {
     "ink": "#1d1d24",

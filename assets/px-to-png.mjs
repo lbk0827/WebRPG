@@ -34,6 +34,7 @@ function parse(text) {
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.replace(/\s+$/, '')
     if (!line || line.startsWith('#')) continue
+    if (line.startsWith('@canvas') || line.startsWith('@origin')) continue // 시트는 격자 전체를 그린다
     if (line.startsWith('@palette')) {
       mode = 'palette'
       continue
