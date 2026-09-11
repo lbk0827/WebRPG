@@ -41,6 +41,8 @@
 | `units/warrior.svg` | 생성물 (`node assets/build-units.mjs`) | 자체 제작 | 저장소 소유 | 2026-09-11 |
 | `build-units.mjs` | 도구 (`.px` → `.svg` 컴파일러) | 자체 제작 | 저장소 소유 | 2026-09-11 |
 | `png-to-px.mjs` | 도구 (AI 가 그린 PNG 시트 → `.px` 초안) | 자체 제작 | 저장소 소유 | 2026-09-11 |
+| `px-to-png.mjs` | 도구 (`.px` → PNG 시트. AI 에게 올릴 레퍼런스) | 자체 제작 | 저장소 소유 | 2026-09-11 |
+| `units/warrior-sheet.png` | 생성물 (`node assets/px-to-png.mjs warrior 10`) | 자체 제작 | 저장소 소유 | 2026-09-11 |
 | `manifest.json` | 매니페스트 | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `build-preview.mjs` | 도구 (SVG 인라인 프리뷰 생성) | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `preview.html` | 생성물 (`node assets/build-preview.mjs`) | 자체 제작 | 저장소 소유 | 2026-09-10 |
