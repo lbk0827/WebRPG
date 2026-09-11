@@ -1,6 +1,6 @@
 // 게임 저장 (M2-1, v2 는 ADR-004, v3 는 편성 판). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
 import type { GearSlot, GuardPolicy, ItemInstance, Outcome, Quirk, Row, RuleSet, TeamSetup } from '@webrpg/engine'
-import { EMPTY_ALLOC, ITEMS, MATERIALS, MEMBER_MAX, PRESETS, REFINE_MAX, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, TRAITS, type Alloc } from '@webrpg/engine'
+import { ADVENTURE_BY_ID, EMPTY_ALLOC, ITEMS, MATERIALS, MEMBER_MAX, PRESETS, REFINE_MAX, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, TRAITS, type Alloc } from '@webrpg/engine'
 
 export type Gear = Partial<Record<GearSlot, ItemInstance>>
 
@@ -98,6 +98,25 @@ export interface GameSave {
   inventory: ItemInstance[]
   /** 재료 (M2-4b) — id → 수량 */
   materials: Record<string, number>
+  /** 모험 진행 (탭 개편) — 모험 id → 재도전 시각·오늘 도전 횟수 */
+  adventures: Record<string, AdventureState>
+}
+
+/** 모험 한 곳의 상태. 시각은 epoch ms (웹만 다룬다 — 엔진은 시간을 모른다) */
+export interface AdventureState {
+  /** 이 시각 전에는 다시 못 간다 */
+  nextAt: number
+  /** 오늘 날짜 키 (YYYY-MM-DD, 로컬) */
+  day: string
+  /** 그 날 도전 횟수 */
+  count: number
+  /** 클리어한 적이 있는가 */
+  cleared?: boolean
+}
+
+export const dayKey = (now = Date.now()): string => {
+  const d = new Date(now)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
 
 export const SAVE_KEY = 'webrpg.game.v1'
@@ -130,7 +149,7 @@ export function newGame(): GameSave {
   })
   return {
     version: 3, name: DEFAULT_NAME, rulePresets: [], partyPresets: Array(PARTY_PRESET_SLOTS).fill(null),
-    gold: 200, members, party: gridFromRows(members.map((m) => m.id), members), regionWins: {}, battles: 0, wins: 0, log: [], inventory: [], materials: {},
+    gold: 200, members, party: gridFromRows(members.map((m) => m.id), members), regionWins: {}, battles: 0, wins: 0, log: [], inventory: [], materials: {}, adventures: {},
   }
 }
 
@@ -218,6 +237,18 @@ export function migrate(raw: unknown): GameSave | null {
   if (s.materials && typeof s.materials === 'object') {
     for (const [k, v] of Object.entries(s.materials)) if (MATERIALS[k] && typeof v === 'number' && v > 0) materials[k] = Math.floor(v)
   }
+  const adventures: Record<string, AdventureState> = {}
+  if (s.adventures && typeof s.adventures === 'object') {
+    for (const [k, v] of Object.entries(s.adventures)) {
+      if (!ADVENTURE_BY_ID[k] || !v || typeof v !== 'object') continue
+      adventures[k] = {
+        nextAt: typeof v.nextAt === 'number' ? v.nextAt : 0,
+        day: typeof v.day === 'string' ? v.day : '',
+        count: typeof v.count === 'number' ? Math.max(0, Math.floor(v.count)) : 0,
+        cleared: v.cleared === true,
+      }
+    }
+  }
   const members = s.members
   const regionWins = s.regionWins ?? {}
   const log = Array.isArray(s.log) ? s.log.filter((r) => r && typeof r.seed === 'number' && r.player && r.enemy).slice(0, LOG_MAX) : []
@@ -247,6 +278,7 @@ export function migrate(raw: unknown): GameSave | null {
     log,
     inventory,
     materials,
+    adventures,
   }
 }
 

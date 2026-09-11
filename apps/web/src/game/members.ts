@@ -1,10 +1,10 @@
 // 단원 ↔ 전투 CharSetup 변환, 성장 처리, 편성 판 조작.
-import type { Alloc, CharSetup, GearSlot, GearSummary, ItemDef, ItemInstance, Recipe, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
+import type { Alloc, Analysis, AdventureDef, BattleResult, CharSetup, GearSlot, GearSummary, ItemDef, ItemInstance, Recipe, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
 import {
-  DISMISS_REFUND_PCT, ITEMS, ITEM_LIST, MEMBER_MAX, PRESETS, RECIPE_BY_ID, REFINE_MAX, REGIONS, RENAME_GOLD, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL,
-  applyGearStats, applyQuirk, canCraft, canEquip, createRng, grantExp, growthStats, hireLevel, hirePrice, isRegionUnlocked, learnCost, learnableFor, refineCost, rollCraftTrait, rollQuirk, sellPrice, summarizeGear, tryRefine,
+  DEFAULT_CONFIG, DISMISS_REFUND_PCT, ITEMS, ITEM_LIST, MATERIALS, MEMBER_MAX, PRESETS, RECIPE_BY_ID, REFINE_MAX, REGIONS, RENAME_GOLD, SKILLS, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, WEEKDAY_LABEL,
+  adventureRewards, adventureTeam, analyze, applyGearStats, applyQuirk, canCraft, canEquip, createRng, grantExp, growthStats, hireLevel, hirePrice, isRegionUnlocked, learnCost, learnableFor, refineCost, rollCraftTrait, rollQuirk, sellPrice, simulate, summarizeGear, tryRefine,
 } from '@webrpg/engine'
-import { PARTY_MAX, cellRow, type GameSave, type Gear, type Member } from './save'
+import { PARTY_MAX, cellRow, dayKey, pushRecord, type GameSave, type Gear, type Member } from './save'
 
 export const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'trinket']
 export const gearItems = (gear: Gear): (ItemInstance | undefined)[] => GEAR_SLOTS.map((s) => gear[s])
@@ -164,6 +164,113 @@ export function craftItem(g: GameSave, recipeId: string, seed: number): CraftOut
 }
 
 export const craftableNow = (g: GameSave): Recipe[] => Object.values(RECIPE_BY_ID).filter((r) => canCraft(r, g.materials, g.gold))
+
+// ───────────────────────────── 모험 (탭 개편). 시간 판정은 웹에서만 — 엔진은 시간을 모른다
+
+/** "철 조각 ×6 · 가죽 ×2" — 없으면 빈 문자열 */
+export const materialsText = (g: GameSave): string =>
+  Object.entries(g.materials).filter(([, v]) => v > 0).map(([id, v]) => `${MATERIALS[id]?.label ?? id} ×${v}`).join(' · ')
+
+export interface AdvGate {
+  unlocked: boolean
+  /** 지금 갈 수 있는가 */
+  ready: boolean
+  /** 못 가는 이유 (한 줄) */
+  reason?: string
+  /** 재도전까지 남은 ms */
+  waitMs: number
+  /** 오늘 남은 횟수. 제한 없으면 null */
+  todayLeft: number | null
+  cleared: boolean
+}
+
+export function adventureGate(g: GameSave, def: AdventureDef, now = Date.now()): AdvGate {
+  const region = REGIONS.find((r) => r.id === def.unlock.regionId)
+  const unlocked = (g.regionWins[def.unlock.regionId] ?? 0) >= def.unlock.wins
+  const st = g.adventures[def.id]
+  const today = dayKey(now)
+  const count = st && st.day === today ? st.count : 0
+  const todayLeft = def.dailyLimit === undefined ? null : Math.max(0, def.dailyLimit - count)
+  const waitMs = Math.max(0, (st?.nextAt ?? 0) - now)
+  const cleared = st?.cleared === true
+  const base: AdvGate = { unlocked, ready: false, waitMs, todayLeft, cleared }
+
+  if (!unlocked) return { ...base, reason: `${region?.name ?? def.unlock.regionId}에서 ${def.unlock.wins}승 하면 열립니다` }
+  if (def.weekdays && !def.weekdays.includes(new Date(now).getDay())) {
+    return { ...base, reason: `${def.weekdays.map((d) => WEEKDAY_LABEL[d]).join('·')}요일에만 열립니다` }
+  }
+  if (waitMs > 0) return { ...base, reason: '재도전 대기 중' }
+  if (todayLeft !== null && todayLeft <= 0) return { ...base, reason: '오늘 도전 횟수를 다 썼습니다' }
+  if (def.entry && (g.materials[def.entry.itemId] ?? 0) < def.entry.qty) {
+    return { ...base, reason: `입장에 ${MATERIALS[def.entry.itemId]?.label ?? def.entry.itemId} ${def.entry.qty}개가 필요합니다` }
+  }
+  if (partyMembers(g).length === 0) return { ...base, reason: '편성이 비어 있습니다' }
+  return { ...base, ready: true }
+}
+
+export interface AdventureRun {
+  save: GameSave
+  def: AdventureDef
+  seed: number
+  player: TeamSetup
+  enemy: TeamSetup
+  result: BattleResult
+  analysis: Analysis
+  exp: number
+  gold: number
+  drops: { itemId: string; qty: number }[]
+  levelUps: { name: string; level: number }[]
+}
+
+/** 모험 도전. 입장 재료·횟수·대기는 성패와 무관하게 소모된다 */
+export function runAdventure(g: GameSave, def: AdventureDef, now = Date.now()): AdventureRun | null {
+  if (!adventureGate(g, def, now).ready) return null
+  const seed = (now % 1_000_000_007) + g.battles
+  const enemy = adventureTeam(def)
+  const player = partyTeam(g)
+  const result = simulate({ seed, teams: [player, enemy], config: DEFAULT_CONFIG, skills: SKILLS })
+  const analysis = analyze(result, [player.members.length, enemy.members.length])
+  const win = result.outcome === 'team0'
+  const base = adventureRewards(def)
+  const exp = win ? base.exp : Math.floor(base.exp * 0.3)
+  const gold = win ? base.gold : 0
+  const drops = win ? def.clearDrops : []
+
+  const levelUps: { name: string; level: number }[] = []
+  const members = g.members.map((m) => {
+    if (!g.party.includes(m.id)) return m
+    const r = applyExp(m, exp)
+    if (r.levelsGained > 0) levelUps.push({ name: m.name, level: r.member.level })
+    return r.member
+  })
+
+  // 입장 재료 소모
+  const materials = { ...g.materials }
+  if (def.entry) {
+    materials[def.entry.itemId] = (materials[def.entry.itemId] ?? 0) - def.entry.qty
+    if (materials[def.entry.itemId] <= 0) delete materials[def.entry.itemId]
+  }
+  for (const d of drops) materials[d.itemId] = (materials[d.itemId] ?? 0) + d.qty
+
+  const today = dayKey(now)
+  const prev = g.adventures[def.id]
+  const count = (prev && prev.day === today ? prev.count : 0) + 1
+  const cooldown = (win ? def.cooldownMin.win : def.cooldownMin.lose) * 60_000
+
+  const next: GameSave = pushRecord(
+    {
+      ...g,
+      members,
+      materials,
+      gold: g.gold + gold,
+      battles: g.battles + 1,
+      wins: g.wins + (win ? 1 : 0),
+      adventures: { ...g.adventures, [def.id]: { nextAt: now + cooldown, day: today, count, cleared: prev?.cleared === true || win } },
+    },
+    { at: now, regionId: `adv:${def.id}`, seed, outcome: result.outcome, exp, gold, actions: result.actionCount, player, enemy },
+  )
+  return { save: next, def, seed, player, enemy, result, analysis, exp, gold, drops, levelUps }
+}
 
 // ───────────────────────────── 스킬 습득 (M2-2, 제로식 방식)
 

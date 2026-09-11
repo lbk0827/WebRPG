@@ -32,6 +32,8 @@ export { MONSTERS, MONSTER_LIST, MONSTER_ICONS, ARCHETYPE_LABEL, isMonsterIcon, 
 export type { MonsterDef, MonsterIcon, Archetype } from './data/monsters'
 export { REGIONS, REGION_BY_ID, isRegionUnlocked, rollEncounter, battleRewards } from './data/regions'
 export type { RegionDef, Rewards } from './data/regions'
+export { ADVENTURES, ADVENTURE_BY_ID, WEEKDAY_LABEL, adventureTeam, adventureRewards } from './data/adventures'
+export type { AdventureDef } from './data/adventures'
 export type { Analysis, TeamAnalysis } from './analysis'
 
 import type { BattleConfig } from './types'

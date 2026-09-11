@@ -556,3 +556,43 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .stock .cost-line .have { color: var(--good); }
 .stock .cost-line .lack { color: var(--bad); }
 .workshop .verdict { margin-top: 8px; }
+
+/* ───────── 탭 개편 (2026-09-11): 캐릭터 · 마을 · 모험 */
+.tabs.mobile button { font-size: 12px; padding: 10px 0; min-width: 0; }
+@media (max-width: 420px) { .tabs.mobile { gap: 2px; padding-left: 6px; padding-right: 6px; } .tabs.mobile button { font-size: 11px; padding: 10px 1px; } }
+
+.characters h2 button.link { margin-left: 8px; font-size: 12px; }
+.char-grid { display: grid; gap: 12px; align-items: start; }
+@media (min-width: 860px) { .char-grid { grid-template-columns: minmax(240px, 320px) 1fr; } }
+.char-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; max-height: 70vh; overflow-y: auto; }
+@media (max-width: 859px) { .char-list { max-height: none; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); } }
+.char-card button { width: 100%; text-align: left; display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; padding: 8px 10px; border-radius: 12px; }
+.char-card.on button { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.char-card.out button { border-left: 4px solid var(--team0); }
+.char-card .body { display: grid; gap: 1px; min-width: 0; }
+.char-card .nm { font-weight: 700; display: flex; align-items: center; gap: 4px; }
+.char-card small { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.char-card .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--warn); display: inline-block; }
+.char-detail .unit-panel { min-height: 260px; }
+/* 헤더 3열: 아이콘 · 이름 · 도구 (기본 2열이라 도구가 눌린다) */
+.unit-panel > header { grid-template-columns: 40px 1fr auto; }
+.char-detail .member-tools { flex-wrap: nowrap; }
+
+.town h2 small { font-weight: normal; }
+.facilities { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+@media (min-width: 700px) { .facilities { grid-template-columns: 1fr 1fr; } }
+.facility button { width: 100%; text-align: left; display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: center; padding: 12px; border-radius: 12px; }
+.facility .ico { font-size: 30px; line-height: 1; text-align: center; }
+.facility .body { display: grid; gap: 2px; min-width: 0; }
+.facility .body b { font-size: 15px; }
+.facility .body small { font-size: 11px; color: var(--muted); }
+.facility .body .state { color: var(--team1); }
+.town-facility .mission-head h2 { margin: 4px 0; }
+
+.adv-terms { list-style: none; margin: 8px 0; padding: 0; display: grid; gap: 4px; font-size: 12px; }
+.adv-terms li { padding: 5px 8px; border-radius: 8px; background: var(--paper); }
+.adv-terms li b { display: inline-block; min-width: 50px; color: var(--muted); font-weight: 600; }
+.adv-terms li small { color: var(--muted); }
+.adv-terms li.have { outline: 1px solid var(--good); }
+.adv-terms li.lack { outline: 1px solid var(--bad); }
+.region .title .badge { margin-left: 6px; }
