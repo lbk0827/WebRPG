@@ -4,8 +4,8 @@ import type { Analysis, BattleResult, TeamSetup } from '@webrpg/engine'
 import { DEFAULT_CONFIG, MONSTERS, REGIONS, SKILLS, analyze, battleRewards, isRegionUnlocked, monsterSetup, rollEncounter, simulate, type RegionDef } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { pushRecord } from '../game/save'
-import { applyExp, partyMembers, partySummary, partyTeam } from '../game/members'
-import { jobIcon, jobOf, outcomeText, type Names } from '../lib/labels'
+import { addMaterials, applyExp, partyMembers, partySummary, partyTeam } from '../game/members'
+import { jobIcon, jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
 import { diagnose } from '../lib/diagnose'
 import { Replay } from './Replay'
 
@@ -23,7 +23,15 @@ interface Outcome {
   analysis: Analysis
   exp: number
   gold: number
+  drops: string[]
   levelUps: { name: string; level: number }[]
+}
+
+/** "철 조각 ×2 · 가죽 ×1" */
+const dropsText = (drops: string[]): string => {
+  const c: Record<string, number> = {}
+  for (const d of drops) c[d] = (c[d] ?? 0) + 1
+  return Object.entries(c).map(([id, n]) => `${materialLabel(id)} ×${n}`).join(' · ')
 }
 
 /** 한 판 — 저장본을 받아 갱신된 저장본과 결과를 돌려준다 (연속 출전은 이걸 이어 붙인다) */
@@ -33,7 +41,7 @@ function runOne(save: GameSave, region: RegionDef, at: number): { save: GameSave
   const player = partyTeam(save)
   const result = simulate({ seed, teams: [player, enemy], config: DEFAULT_CONFIG, skills: SKILLS })
   const analysis = analyze(result, [player.members.length, enemy.members.length])
-  const { exp, gold } = battleRewards(result, enemy)
+  const { exp, gold, drops } = battleRewards(result, enemy, seed)
 
   const levelUps: { name: string; level: number }[] = []
   const members = save.members.map((m) => {
@@ -44,17 +52,20 @@ function runOne(save: GameSave, region: RegionDef, at: number): { save: GameSave
   })
   const win = result.outcome === 'team0'
   const next: GameSave = pushRecord(
-    {
-      ...save,
-      members,
-      gold: save.gold + gold,
-      battles: save.battles + 1,
-      wins: save.wins + (win ? 1 : 0),
-      regionWins: win ? { ...save.regionWins, [region.id]: (save.regionWins[region.id] ?? 0) + 1 } : save.regionWins,
-    },
+    addMaterials(
+      {
+        ...save,
+        members,
+        gold: save.gold + gold,
+        battles: save.battles + 1,
+        wins: save.wins + (win ? 1 : 0),
+        regionWins: win ? { ...save.regionWins, [region.id]: (save.regionWins[region.id] ?? 0) + 1 } : save.regionWins,
+      },
+      drops,
+    ),
     { at, regionId: region.id, seed, outcome: result.outcome, exp, gold, actions: result.actionCount, player, enemy },
   )
-  return { save: next, out: { region, seed, enemy, player, result, analysis, exp, gold, levelUps } }
+  return { save: next, out: { region, seed, enemy, player, result, analysis, exp, gold, drops, levelUps } }
 }
 
 export function QuestBoard({ save, onSave }: Props) {
@@ -101,13 +112,14 @@ export function QuestBoard({ save, onSave }: Props) {
   const jobs: [string[], string[]] | null = out ? [out.player.members.map((m) => jobOf(m.id)), out.enemy.members.map((m) => jobOf(m.id))] : null
   const totalExp = outs.reduce((s, o) => s + o.exp, 0)
   const totalGold = outs.reduce((s, o) => s + o.gold, 0)
+  const totalDrops = outs.flatMap((o) => o.drops)
   const allLevelUps = outs.flatMap((o) => o.levelUps)
 
   return (
     <section className="quest">
       {outs.length > 1 && (
         <div className="verdict multi">
-          <b>{outs[0].region.name} — {outs.length}판 연속</b> · {outs.filter((o) => o.result.outcome === 'team0').length}승 · 경험치 +{totalExp} · 금 +{totalGold}
+          <b>{outs[0].region.name} — {outs.length}판 연속</b> · {outs.filter((o) => o.result.outcome === 'team0').length}승 · 경험치 +{totalExp} · 금 +{totalGold}{totalDrops.length > 0 && ` · 재료 ${dropsText(totalDrops)}`}
           <div className="multi-list">
             {outs.map((o, i) => (
               <button key={i} className={`${i === view ? 'on' : ''} ${o.result.outcome === 'team0' ? 'win' : 'lose'}`} onClick={() => setView(i)}>
@@ -119,7 +131,7 @@ export function QuestBoard({ save, onSave }: Props) {
       )}
       {out && names && jobs && (
         <div className={`verdict ${out.result.outcome === 'team0' ? 'ok' : 'fail'}`}>
-          <b>{out.region.name} — {outcomeText(out.result.outcome)}</b> · 경험치 +{out.exp} · 금 +{out.gold}
+          <b>{out.region.name} — {outcomeText(out.result.outcome)}</b> · 경험치 +{out.exp} · 금 +{out.gold}{out.drops.length > 0 && ` · 재료 ${dropsText(out.drops)}`}
           {(outs.length > 1 ? allLevelUps : out.levelUps).length > 0 && (
             <ul>
               {(outs.length > 1 ? allLevelUps : out.levelUps).map((l, i) => (

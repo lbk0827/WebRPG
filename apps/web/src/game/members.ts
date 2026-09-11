@@ -1,13 +1,14 @@
 // 단원 ↔ 전투 CharSetup 변환, 성장 처리, 편성 판 조작.
-import type { Alloc, CharSetup, GearSlot, GearSummary, ItemDef, ItemInstance, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
+import type { Alloc, CharSetup, GearSlot, GearSummary, ItemDef, ItemInstance, Recipe, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
 import {
-  DISMISS_REFUND_PCT, ITEMS, ITEM_LIST, MEMBER_MAX, PRESETS, REGIONS, RENAME_GOLD, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL,
-  applyGearStats, applyQuirk, canEquip, createRng, grantExp, growthStats, hireLevel, hirePrice, isRegionUnlocked, learnCost, learnableFor, rollQuirk, sellPrice, summarizeGear,
+  DISMISS_REFUND_PCT, ITEMS, ITEM_LIST, MEMBER_MAX, PRESETS, RECIPE_BY_ID, REFINE_MAX, REGIONS, RENAME_GOLD, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL,
+  applyGearStats, applyQuirk, canCraft, canEquip, createRng, grantExp, growthStats, hireLevel, hirePrice, isRegionUnlocked, learnCost, learnableFor, refineCost, rollCraftTrait, rollQuirk, sellPrice, summarizeGear, tryRefine,
 } from '@webrpg/engine'
 import { PARTY_MAX, cellRow, type GameSave, type Gear, type Member } from './save'
 
-export const gearDefs = (gear: Gear): (ItemDef | undefined)[] => (['weapon', 'armor', 'trinket'] as GearSlot[]).map((s) => (gear[s] ? ITEMS[gear[s]!.itemId] : undefined))
-export const gearSummary = (m: Member): GearSummary => summarizeGear(gearDefs(m.gear ?? {}))
+export const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'trinket']
+export const gearItems = (gear: Gear): (ItemInstance | undefined)[] => GEAR_SLOTS.map((s) => gear[s])
+export const gearSummary = (m: Member): GearSummary => summarizeGear(gearItems(m.gear ?? {}))
 
 /** 성장 + 편차 + 장비 스탯 가산 */
 export const memberStats = (m: Member): Stats =>
@@ -79,6 +80,90 @@ export function unequipItem(g: GameSave, memberId: string, slot: GearSlot): Game
 /** 이 단원이 이 슬롯에 낄 수 있는 창고 장비 */
 export const equippableFor = (g: GameSave, m: Member, slot: GearSlot): ItemInstance[] =>
   g.inventory.filter((it) => ITEMS[it.itemId].slot === slot && canEquip(m.job, ITEMS[it.itemId]))
+
+// ───────────────────────────── 공방 (M2-4b)
+
+export interface OwnedItem {
+  it: ItemInstance
+  /** 착용 중이면 단원 */
+  owner?: Member
+}
+
+/** 창고 + 착용 중인 장비 전부 */
+export function allItems(g: GameSave): OwnedItem[] {
+  const out: OwnedItem[] = g.inventory.map((it) => ({ it }))
+  for (const m of g.members) for (const it of gearItems(m.gear ?? {})) if (it) out.push({ it, owner: m })
+  return out
+}
+
+function replaceItem(g: GameSave, uid: string, next: ItemInstance): GameSave {
+  if (g.inventory.some((x) => x.uid === uid)) return { ...g, inventory: g.inventory.map((x) => (x.uid === uid ? next : x)) }
+  return {
+    ...g,
+    members: g.members.map((m) => {
+      const gear = m.gear ?? {}
+      const slot = GEAR_SLOTS.find((s) => gear[s]?.uid === uid)
+      return slot ? { ...m, gear: { ...gear, [slot]: next } } : m
+    }),
+  }
+}
+
+export function addMaterials(g: GameSave, ids: string[]): GameSave {
+  if (ids.length === 0) return g
+  const materials = { ...g.materials }
+  for (const id of ids) materials[id] = (materials[id] ?? 0) + 1
+  return { ...g, materials }
+}
+
+export function canRefine(g: GameSave, it: ItemInstance): boolean {
+  if (it.refine >= REFINE_MAX) return false
+  const c = refineCost(ITEMS[it.itemId], it.refine)
+  return g.gold >= c.gold && (g.materials[c.material] ?? 0) >= c.qty
+}
+
+export interface RefineOutcome {
+  save: GameSave
+  success: boolean
+  item: ItemInstance
+}
+
+/** 강화 시도. 비용은 성공·실패 모두 소모. 실패해도 파괴·하락 없음 (§3.5) */
+export function refineItem(g: GameSave, uid: string, seed: number): RefineOutcome | null {
+  const found = allItems(g).find((o) => o.it.uid === uid)
+  if (!found || !canRefine(g, found.it)) return null
+  const it = found.it
+  const c = refineCost(ITEMS[it.itemId], it.refine)
+  const success = tryRefine(it.refine, createRng(seed))
+  const next: ItemInstance = success ? { ...it, refine: it.refine + 1 } : it
+  const materials = { ...g.materials, [c.material]: (g.materials[c.material] ?? 0) - c.qty }
+  if (materials[c.material] <= 0) delete materials[c.material]
+  let save: GameSave = { ...g, gold: g.gold - c.gold, materials }
+  if (success) save = replaceItem(save, uid, next)
+  return { save, success, item: next }
+}
+
+export interface CraftOutcome {
+  save: GameSave
+  item: ItemInstance
+  recipe: Recipe
+}
+
+/** 제작. 재료·금 소모, 창고에 새 장비. 30% 로 보너스 특성 (§3.6) */
+export function craftItem(g: GameSave, recipeId: string, seed: number): CraftOutcome | null {
+  const r = RECIPE_BY_ID[recipeId]
+  if (!r || !canCraft(r, g.materials, g.gold)) return null
+  const materials = { ...g.materials }
+  for (const m of r.materials) {
+    materials[m.id] -= m.qty
+    if (materials[m.id] <= 0) delete materials[m.id]
+  }
+  const item: ItemInstance = { uid: newUid(), itemId: r.itemId, refine: 0 }
+  const trait = rollCraftTrait(r.itemId, createRng(seed))
+  if (trait) item.trait = trait
+  return { save: { ...g, gold: g.gold - r.gold, materials, inventory: [...g.inventory, item] }, item, recipe: r }
+}
+
+export const craftableNow = (g: GameSave): Recipe[] => Object.values(RECIPE_BY_ID).filter((r) => canCraft(r, g.materials, g.gold))
 
 // ───────────────────────────── 스킬 습득 (M2-2, 제로식 방식)
 

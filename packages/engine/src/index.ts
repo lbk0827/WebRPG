@@ -20,7 +20,12 @@ export { STARTER_SKILLS, COMMON_LEARNABLE, LEARNABLE, SKILL_RESET_GOLD, learnabl
 export type { Learnable } from './data/learning'
 export { HIRE, MEMBER_MAX, RENAME_GOLD, DISMISS_REFUND_PCT, HIRE_LEVEL_STEP, hireLevel, hirePrice, rollQuirk, applyQuirk } from './data/recruit'
 export type { HireDef, Quirk } from './data/recruit'
-export { ITEMS, ITEM_LIST, JOB_WEAPONS, WEAPON_TYPE_LABEL, SLOT_LABEL, SELL_PCT, sellPrice, canEquip, summarizeGear, applyGearStats } from './data/items'
+export { ITEMS, ITEM_LIST, JOB_WEAPONS, WEAPON_TYPE_LABEL, SLOT_LABEL, SELL_PCT, sellPrice, canEquip, summarizeGear, applyGearStats, refinedNumbers } from './data/items'
+export {
+  MATERIALS, REFINE_MAX, REFINE_RATE, REFINE_PCT_PER_LEVEL, REFINE_MATERIAL, refineCost, refineRate, tryRefine, refineMult,
+  RECIPES, RECIPE_BY_ID, CRAFT_TRAIT_PCT, CRAFT_TRAIT_POOL, rollCraftTrait, canCraft,
+} from './data/crafting'
+export type { MaterialDef, RefineCost, Recipe } from './data/crafting'
 export type { GearSlot, ItemDef, ItemInstance, GearSummary } from './data/items'
 export type { DerivedStats } from './derived'
 export { MONSTERS, monsterSetup } from './data/monsters'

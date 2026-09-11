@@ -90,8 +90,10 @@ export function canEquip(job: string, def: ItemDef): boolean {
 export interface ItemInstance {
   uid: string
   itemId: string
-  /** 강화 단계 (M2-4b). 지금은 0 */
+  /** 강화 단계 0~5 (M2-4b). 공격·방어 고정치 +10%/단계 */
   refine: number
+  /** 제작 시 붙은 보너스 특성 (M2-4b, 30%) */
+  trait?: string
 }
 
 export interface GearSummary {
@@ -102,15 +104,28 @@ export interface GearSummary {
   weapon: WeaponType
 }
 
-/** 착용 장비 합산 — CharSetup.bonus / traits / weapon 으로 들어간다 */
-export function summarizeGear(defs: (ItemDef | undefined)[]): GearSummary {
+/** 강화 반영 가산치. 공격 둘과 방어 고정치(1·3번)만 오른다 — % 와 스탯은 그대로 */
+export function refinedNumbers(def: ItemDef, refine: number): { atk: [number, number]; def: [number, number, number, number] } {
+  const mult = 100 + 10 * Math.max(0, refine)
+  const up = (v: number) => Math.floor((v * mult) / 100)
+  const atk: [number, number] = def.atk ? [up(def.atk[0]), up(def.atk[1])] : [0, 0]
+  const d: [number, number, number, number] = def.def ? [def.def[0], up(def.def[1]), def.def[2], up(def.def[3])] : [0, 0, 0, 0]
+  return { atk, def: d }
+}
+
+/** 착용 장비 합산 — CharSetup.bonus / traits / weapon 으로 들어간다. 인스턴스의 강화·보너스 특성 포함 */
+export function summarizeGear(items: (ItemInstance | undefined)[]): GearSummary {
   const out: GearSummary = { atk: [0, 0], def: [0, 0, 0, 0], stats: {}, traits: [], weapon: 'none' }
-  for (const d of defs) {
+  for (const it of items) {
+    if (!it) continue
+    const d = ITEMS[it.itemId]
     if (!d) continue
-    if (d.atk) { out.atk[0] += d.atk[0]; out.atk[1] += d.atk[1] }
-    if (d.def) for (let i = 0; i < 4; i++) out.def[i] += d.def[i]
+    const r = refinedNumbers(d, it.refine)
+    out.atk[0] += r.atk[0]
+    out.atk[1] += r.atk[1]
+    for (let i = 0; i < 4; i++) out.def[i] += r.def[i]
     if (d.stats) for (const k of Object.keys(d.stats) as (keyof Stats)[]) out.stats[k] = (out.stats[k] ?? 0) + (d.stats[k] ?? 0)
-    if (d.trait && TRAITS[d.trait] && !out.traits.includes(d.trait)) out.traits.push(d.trait)
+    for (const t of [d.trait, it.trait]) if (t && TRAITS[t] && !out.traits.includes(t)) out.traits.push(t)
     if (d.slot === 'weapon' && d.weaponType) out.weapon = d.weaponType
   }
   return out

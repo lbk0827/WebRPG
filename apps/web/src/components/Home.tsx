@@ -1,9 +1,9 @@
 // 본부 (ADR-004). 시작 화면 — 처음이면 3문답 소개, 할 일, 훈련 과제 진행, 최근 전투 기록(재생).
 import { useMemo, useState } from 'react'
-import { DEFAULT_CONFIG, MEMBER_MAX, MISSIONS, PRESETS, REGIONS, REGION_BY_ID, SKILLS, isRegionUnlocked, simulate } from '@webrpg/engine'
+import { DEFAULT_CONFIG, ITEMS, MEMBER_MAX, MISSIONS, PRESETS, REGIONS, REGION_BY_ID, SKILLS, isRegionUnlocked, simulate } from '@webrpg/engine'
 import type { BattleRecord, GameSave } from '../game/save'
 import { PARTY_MAX } from '../game/save'
-import { canHire, canLearnSomething, partyMembers } from '../game/members'
+import { canHire, canLearnSomething, craftableNow, partyMembers } from '../game/members'
 import type { MissionProgress } from '../missionState'
 import { jobIcon, jobOf, outcomeText, timeAgo, type Names } from '../lib/labels'
 import { Replay } from './Replay'
@@ -19,6 +19,7 @@ interface Props {
   onOpenMission: (id: string) => void
   onOpenCodex: () => void
   onOpenShop: () => void
+  onOpenWorkshop: () => void
 }
 
 interface Todo {
@@ -27,7 +28,7 @@ interface Todo {
   go: () => void
 }
 
-export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOpenCodex, onOpenShop }: Props) {
+export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOpenCodex, onOpenShop, onOpenWorkshop }: Props) {
   const [replayAt, setReplayAt] = useState<number | null>(null)
   const party = partyMembers(save)
   const clearedCount = MISSIONS.filter((m) => progress.cleared[m.id]).length
@@ -45,6 +46,8 @@ export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOp
   const unarmed = party.filter((m) => !m.gear?.weapon)
   if (unarmed.length && save.gold >= 60) todos.push({ text: `${unarmed.map((m) => m.name).join('·')} — 무기 없음. 상점에서 살 수 있음 (금 ${save.gold})`, action: '상점', go: onOpenShop })
   if (save.inventory.length > 0) todos.push({ text: `창고에 장비 ${save.inventory.length}개 — 착용은 편성 탭 장비 칸`, action: '편성', go: () => onGo('formation') })
+  const craftable = craftableNow(save)
+  if (craftable.length > 0) todos.push({ text: `공방에서 만들 수 있는 것 ${craftable.length}가지 — ${craftable.map((r) => ITEMS[r.itemId].label).join('·')}`, action: '공방', go: onOpenWorkshop })
   if (party.length < PARTY_MAX && save.members.length > party.length) todos.push({ text: `출전 ${party.length}/${PARTY_MAX}명 — 대기 단원 ${save.members.length - party.length}명`, action: '편성', go: () => onGo('formation') })
   const newRegion = REGIONS.find((r) => isRegionUnlocked(r, save.regionWins) && (save.regionWins[r.id] ?? 0) === 0 && r.no > 1)
   if (newRegion) todos.push({ text: `새로 열린 지역 — ${newRegion.name}`, action: '의뢰', go: () => onGo('quest') })
@@ -113,6 +116,7 @@ export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOp
             <button onClick={() => onGo('formation')}>편성</button>
             <button onClick={() => onGo('roster')}>단원</button>
             <button onClick={onOpenShop}>상점</button>
+            <button onClick={onOpenWorkshop}>공방</button>
             <button onClick={onOpenCodex}>도감</button>
           </div>
         </div>

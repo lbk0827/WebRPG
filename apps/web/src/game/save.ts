@@ -1,11 +1,15 @@
 // 게임 저장 (M2-1, v2 는 ADR-004, v3 는 편성 판). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
 import type { GearSlot, GuardPolicy, ItemInstance, Outcome, Quirk, Row, RuleSet, TeamSetup } from '@webrpg/engine'
-import { EMPTY_ALLOC, ITEMS, MEMBER_MAX, PRESETS, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, type Alloc } from '@webrpg/engine'
+import { EMPTY_ALLOC, ITEMS, MATERIALS, MEMBER_MAX, PRESETS, REFINE_MAX, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, TRAITS, type Alloc } from '@webrpg/engine'
 
 export type Gear = Partial<Record<GearSlot, ItemInstance>>
 
 const validItem = (x: unknown): x is ItemInstance => !!x && typeof x === 'object' && typeof (x as ItemInstance).uid === 'string' && !!ITEMS[(x as ItemInstance).itemId]
-const fixItem = (x: ItemInstance): ItemInstance => ({ uid: x.uid, itemId: x.itemId, refine: typeof x.refine === 'number' ? x.refine : 0 })
+const fixItem = (x: ItemInstance): ItemInstance => {
+  const it: ItemInstance = { uid: x.uid, itemId: x.itemId, refine: typeof x.refine === 'number' ? Math.max(0, Math.min(REFINE_MAX, Math.floor(x.refine))) : 0 }
+  if (typeof x.trait === 'string' && TRAITS[x.trait]) it.trait = x.trait
+  return it
+}
 
 export interface Member {
   id: string
@@ -92,6 +96,8 @@ export interface GameSave {
   log: BattleRecord[]
   /** 착용하지 않은 장비 (M2-4a) */
   inventory: ItemInstance[]
+  /** 재료 (M2-4b) — id → 수량 */
+  materials: Record<string, number>
 }
 
 export const SAVE_KEY = 'webrpg.game.v1'
@@ -124,7 +130,7 @@ export function newGame(): GameSave {
   })
   return {
     version: 3, name: DEFAULT_NAME, rulePresets: [], partyPresets: Array(PARTY_PRESET_SLOTS).fill(null),
-    gold: 200, members, party: gridFromRows(members.map((m) => m.id), members), regionWins: {}, battles: 0, wins: 0, log: [], inventory: [],
+    gold: 200, members, party: gridFromRows(members.map((m) => m.id), members), regionWins: {}, battles: 0, wins: 0, log: [], inventory: [], materials: {},
   }
 }
 
@@ -208,6 +214,10 @@ export function migrate(raw: unknown): GameSave | null {
     m.gear = gear
   }
   const inventory: ItemInstance[] = Array.isArray(s.inventory) ? s.inventory.filter(validItem).map(fixItem) : []
+  const materials: Record<string, number> = {}
+  if (s.materials && typeof s.materials === 'object') {
+    for (const [k, v] of Object.entries(s.materials)) if (MATERIALS[k] && typeof v === 'number' && v > 0) materials[k] = Math.floor(v)
+  }
   const members = s.members
   const regionWins = s.regionWins ?? {}
   const log = Array.isArray(s.log) ? s.log.filter((r) => r && typeof r.seed === 'number' && r.player && r.enemy).slice(0, LOG_MAX) : []
@@ -236,6 +246,7 @@ export function migrate(raw: unknown): GameSave | null {
     wins: typeof s.wins === 'number' ? s.wins : Object.values(regionWins).reduce((a, b) => a + b, 0),
     log,
     inventory,
+    materials,
   }
 }
 

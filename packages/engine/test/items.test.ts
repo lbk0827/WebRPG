@@ -28,7 +28,8 @@ describe('장비 데이터', () => {
     expect(canEquip('mage', ITEMS.armorPlate)).toBe(true)
   })
   it('합산: 공격·방어·스탯·특성·무기 타입', () => {
-    const g = summarizeGear([ITEMS.swordSteel, ITEMS.armorPlate, ITEMS.amuletIron])
+    const inst = (itemId: string, refine = 0) => ({ uid: itemId, itemId, refine })
+    const g = summarizeGear([inst('swordSteel'), inst('armorPlate'), inst('amuletIron')])
     expect(g.atk).toEqual([18, 0])
     expect(g.def).toEqual([10, 18, 0, 5])
     expect(g.stats.luk).toBe(10)
@@ -47,7 +48,7 @@ describe('장비가 전투에 반영된다', () => {
     return first && first.t === 'damage' ? first.amount : 0
   }
   it('무기 공격 가산만큼 첫 타가 세진다', () => {
-    const g = summarizeGear([ITEMS.swordLong])
+    const g = summarizeGear([{ uid: 'x', itemId: 'swordLong', refine: 0 }])
     expect(dmgOf({ atk: g.atk })).toBeGreaterThan(dmgOf())
   })
 })

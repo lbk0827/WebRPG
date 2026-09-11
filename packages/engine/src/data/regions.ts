@@ -106,14 +106,32 @@ export function rollEncounter(region: RegionDef, seed: number): TeamSetup {
 }
 
 export interface Rewards {
+  /** 드롭된 재료 id 목록 (몬스터당 최대 1) */
+  drops: string[]
   exp: number
   gold: number
 }
 
 /** 승리: 전부 / 패배·무승부: 경험치 30%, 금 0 */
-export function battleRewards(result: BattleResult, enemy: TeamSetup): Rewards {
+/**
+ * 보상. 승리면 전액 + 드롭, 패배면 경험치 30%·금 0·드롭 없음.
+ * 드롭은 몬스터마다 테이블을 위에서부터 굴려 처음 당첨된 것 하나 (S12). seed 를 주면 결정론 — 같은 전투는 같은 드롭.
+ */
+export function battleRewards(result: BattleResult, enemy: TeamSetup, seed?: number): Rewards {
   const exp = enemy.members.reduce((s, m) => s + (m.monster?.exp ?? 0), 0)
   const gold = enemy.members.reduce((s, m) => s + (m.monster?.gold ?? 0), 0)
-  if (result.outcome === 'team0') return { exp, gold }
-  return { exp: Math.floor(exp * 0.3), gold: 0 }
+  if (result.outcome !== 'team0') return { exp: Math.floor(exp * 0.3), gold: 0, drops: [] }
+  const drops: string[] = []
+  if (seed !== undefined) {
+    const rng = createRng(seed ^ 0xd201)
+    for (const m of enemy.members) {
+      for (const d of m.monster?.drops ?? []) {
+        if (rng.int(10000) < d.permyriad) {
+          drops.push(d.itemId)
+          break
+        }
+      }
+    }
+  }
+  return { exp, gold, drops }
 }

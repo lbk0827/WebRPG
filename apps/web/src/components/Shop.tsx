@@ -1,10 +1,10 @@
 // 상점 (M2-4a, docs/07 §3.7). 본부에서 들어온다. 사기 · 창고 · 팔기(20%). 등급은 지역 해금을 따른다.
 import { useState } from 'react'
-import type { GearSlot } from '@webrpg/engine'
+import type { GearSlot, WeaponType } from '@webrpg/engine'
 import { ITEMS, JOB_WEAPONS, PRESETS, REGIONS, SLOT_LABEL, WEAPON_TYPE_LABEL, sellPrice } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { buyItem, sellItem, shopStock, shopTier } from '../game/members'
-import { itemBrief } from '../lib/labels'
+import { itemBrief, itemName } from '../lib/labels'
 
 interface Props {
   save: GameSave
@@ -44,7 +44,7 @@ export function Shop({ save, onSave, onBack, onGoFormation }: Props) {
             <li key={i.id} className={`item ${ok ? '' : 'far'}`}>
               <div className="body">
                 <b>{i.label}</b> <span className="tier">{i.tier}등급</span>
-                {i.weaponType && <small className="who">{whoUses(i.weaponType)} 용 {WEAPON_TYPE_LABEL[i.weaponType]}</small>}
+                {i.weaponType && <small className="who">{whoUses(i.weaponType)} 용 {WEAPON_TYPE_LABEL[i.weaponType as WeaponType]}</small>}
                 <small>{itemBrief(i)}</small>
                 <small className="blurb">{i.blurb}</small>
               </div>
@@ -65,8 +65,8 @@ export function Shop({ save, onSave, onBack, onGoFormation }: Props) {
             return (
               <li key={it.uid} className="item">
                 <div className="body">
-                  <b>{d.label}</b> <span className="tier">{SLOT_LABEL[d.slot]}</span>
-                  <small>{itemBrief(d)}</small>
+                  <b>{itemName(it)}</b> <span className="tier">{SLOT_LABEL[d.slot]}</span>
+                  <small>{itemBrief(d, it)}</small>
                 </div>
                 <button onClick={() => { if (window.confirm(`${d.label} 을(를) 금 ${sellPrice(d)} 에 팝니다.`)) onSave(sellItem(save, it.uid)) }}>팔기 금 {sellPrice(d)}</button>
               </li>

@@ -8,7 +8,7 @@ import type { GearSlot } from '@webrpg/engine'
 import { ITEMS, SLOT_LABEL } from '@webrpg/engine'
 import { benchMembers, clearCell, equipItem, equippableFor, learnSkill, memberById, memberStats, partyMembers, placeMember, resetSkills, setGrid, swapCells, unequipItem, updateMember } from '../game/members'
 import type { SlotState } from '../state'
-import { itemBrief, jobIcon, jobName, skillLabel } from '../lib/labels'
+import { itemBrief, itemName, jobIcon, jobName, skillLabel } from '../lib/labels'
 import { GUARDS, guardByKey, guardKey } from '../lib/guards'
 import { Board } from './Board'
 import { RuleEditor, type PresetHooks } from './RuleEditor'
@@ -210,10 +210,10 @@ export function Formation({ save, onSave, initialCell = null, onGoRoster, onGoSh
                       return (
                         <li key={slot}>
                           <b>{SLOT_LABEL[slot]}</b>
-                          {d ? (
+                          {d && it ? (
                             <span className="worn">
-                              <span className="nm">{d.label}</span>
-                              <small>{itemBrief(d)}</small>
+                              <span className="nm">{itemName(it)}</span>
+                              <small>{itemBrief(d, it)}</small>
                             </span>
                           ) : (
                             <span className="empty">— 비어 있음</span>
@@ -223,7 +223,7 @@ export function Formation({ save, onSave, initialCell = null, onGoRoster, onGoSh
                               <select value="" onChange={(e) => { if (e.target.value) onSave(equipItem(save, member.id, e.target.value)) }}>
                                 <option value="">{d ? '바꾸기…' : '착용…'}</option>
                                 {options.map((o) => (
-                                  <option key={o.uid} value={o.uid}>{ITEMS[o.itemId].label} — {itemBrief(ITEMS[o.itemId])}</option>
+                                  <option key={o.uid} value={o.uid}>{itemName(o)} — {itemBrief(ITEMS[o.itemId], o)}</option>
                                 ))}
                               </select>
                             )}

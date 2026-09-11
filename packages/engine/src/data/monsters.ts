@@ -22,6 +22,8 @@ export interface MonsterDef {
   gold: number
   /** 지역 목록에 표시하지 않는 희귀 조우 (S12 채택) */
   hidden?: boolean
+  /** 드롭 테이블 (만분율). 한 몬스터당 최대 1개 — 위에서부터 굴려 처음 당첨된 것 (S12 채택) */
+  drops?: { itemId: string; permyriad: number }[]
 }
 
 const always: Condition = { op: 'always' }
@@ -46,30 +48,30 @@ export function monsterSetup(def: MonsterDef, idx: number): CharSetup {
     stats,
     skills: [...(def.skills ?? p.skills)],
     rules: structuredClone(def.rules),
-    monster: { exp: def.exp, gold: def.gold },
+    monster: { exp: def.exp, gold: def.gold, drops: def.drops ? def.drops.map((d) => ({ ...d })) : undefined },
   }
 }
 
 const list: MonsterDef[] = [
   // ── 마을 외곽: 탈영병. 훈련 안 된 전사. 수칙 1줄
-  { id: 'deserter', name: '탈영병', job: 'warrior', level: 1, stats: { maxHp: 320, str: 32, def: 10 }, guard: { mode: 'never' }, rules: strikeOnly, exp: 14, gold: 8 },
-  { id: 'deserterArcher', name: '탈영 궁수', job: 'elf', level: 2, stats: { maxHp: 240 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 12 }), 'pierceShot'), row(always, 'strike')), exp: 18, gold: 10 },
+  { id: 'deserter', name: '탈영병', job: 'warrior', level: 1, stats: { maxHp: 320, str: 32, def: 10 }, guard: { mode: 'never' }, rules: strikeOnly, drops: [{ itemId: 'ironScrap', permyriad: 3000 }, { itemId: 'leather', permyriad: 2000 }], exp: 14, gold: 8 },
+  { id: 'deserterArcher', name: '탈영 궁수', job: 'elf', level: 2, stats: { maxHp: 240 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 12 }), 'pierceShot'), row(always, 'strike')), drops: [{ itemId: 'feather', permyriad: 3500 }, { itemId: 'leather', permyriad: 1500 }], exp: 18, gold: 10 },
 
   // ── 가도: 도적단. 독과 저격. 수칙 2줄
-  { id: 'banditKnife', name: '도적단 단검수', job: 'rogue', level: 4, growth: { dex: 2, spd: 1 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venom'), row(always, 'strike')), exp: 30, gold: 18 },
-  { id: 'banditArcher', name: '도적단 궁수', job: 'elf', level: 4, growth: { dex: 2 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 12 }), 'pierceShot'), row(always, 'strike')), exp: 30, gold: 16 },
+  { id: 'banditKnife', name: '도적단 단검수', job: 'rogue', level: 4, growth: { dex: 2, spd: 1 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'venom'), row(always, 'strike')), drops: [{ itemId: 'leather', permyriad: 3500 }, { itemId: 'ironScrap', permyriad: 2000 }], exp: 30, gold: 18 },
+  { id: 'banditArcher', name: '도적단 궁수', job: 'elf', level: 4, growth: { dex: 2 }, rules: rules(row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 12 }), 'pierceShot'), row(always, 'strike')), drops: [{ itemId: 'feather', permyriad: 4000 }, { itemId: 'leather', permyriad: 1500 }], exp: 30, gold: 16 },
   {
     id: 'banditBoss', name: '도적 두목', job: 'warrior', level: 6, growth: { str: 3, spd: 1 }, guard: { mode: 'always' }, hidden: true,
     rules: rules(row(atom({ kind: 'selfActionCount', cmp: 'eq', value: 1 }), 'warCry', 1), row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'heavyBlow'), row(always, 'strike')),
-    exp: 90, gold: 60,
+    drops: [{ itemId: 'bossSeal', permyriad: 10000 }], exp: 90, gold: 60,
   },
 
   // ── 폐허 요새: 경쟁 용병단. 우리와 같은 직업, 제대로 된 수칙 (프리셋 기본 수칙)
-  { id: 'rivalWarrior', name: '경쟁 용병 전사', job: 'warrior', level: 8, growth: { str: 3, spd: 1, luk: 1 }, rules: structuredClone(PRESETS.warrior.rules), exp: 55, gold: 30 },
-  { id: 'rivalRogue', name: '경쟁 용병 도적', job: 'rogue', level: 8, growth: { dex: 3, spd: 2 }, rules: structuredClone(PRESETS.rogue.rules), exp: 55, gold: 30 },
-  { id: 'rivalMage', name: '경쟁 용병 마법사', job: 'mage', level: 8, growth: { int: 4, dex: 1 }, rules: structuredClone(PRESETS.mage.rules), exp: 55, gold: 30 },
-  { id: 'rivalPriest', name: '경쟁 용병 프리스트', job: 'priest', level: 8, growth: { int: 3, luk: 2 }, rules: structuredClone(PRESETS.priest.rules), exp: 55, gold: 30 },
-  { id: 'rivalElf', name: '경쟁 용병 엘프', job: 'elf', level: 8, growth: { dex: 4, spd: 1 }, rules: structuredClone(PRESETS.elf.rules), exp: 55, gold: 30 },
+  { id: 'rivalWarrior', name: '경쟁 용병 전사', job: 'warrior', level: 8, growth: { str: 3, spd: 1, luk: 1 }, rules: structuredClone(PRESETS.warrior.rules), drops: [{ itemId: 'ironScrap', permyriad: 4500 }, { itemId: 'leather', permyriad: 2000 }], exp: 55, gold: 30 },
+  { id: 'rivalRogue', name: '경쟁 용병 도적', job: 'rogue', level: 8, growth: { dex: 3, spd: 2 }, rules: structuredClone(PRESETS.rogue.rules), drops: [{ itemId: 'leather', permyriad: 4500 }, { itemId: 'ironScrap', permyriad: 2000 }], exp: 55, gold: 30 },
+  { id: 'rivalMage', name: '경쟁 용병 마법사', job: 'mage', level: 8, growth: { int: 4, dex: 1 }, rules: structuredClone(PRESETS.mage.rules), drops: [{ itemId: 'manaCrystal', permyriad: 4500 }], exp: 55, gold: 30 },
+  { id: 'rivalPriest', name: '경쟁 용병 프리스트', job: 'priest', level: 8, growth: { int: 3, luk: 2 }, rules: structuredClone(PRESETS.priest.rules), drops: [{ itemId: 'holyWater', permyriad: 4500 }, { itemId: 'manaCrystal', permyriad: 1500 }], exp: 55, gold: 30 },
+  { id: 'rivalElf', name: '경쟁 용병 엘프', job: 'elf', level: 8, growth: { dex: 4, spd: 1 }, rules: structuredClone(PRESETS.elf.rules), drops: [{ itemId: 'feather', permyriad: 4500 }, { itemId: 'leather', permyriad: 2000 }], exp: 55, gold: 30 },
 ]
 
 export const MONSTERS: Record<string, MonsterDef> = Object.fromEntries(list.map((m) => [m.id, m]))

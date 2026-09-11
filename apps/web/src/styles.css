@@ -546,3 +546,13 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .gear-slots .gear-tools select { max-width: 220px; }
 .gear-slots button.mini { padding: 4px 8px; font-size: 11px; }
 .growth .derived i { font-style: normal; color: var(--team1); font-weight: 700; }
+
+/* ───────── M2-4b 공방 */
+.materials { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; margin: 8px 0; font-size: 13px; }
+.materials .label { color: var(--muted); font-size: 12px; }
+.materials .mat { white-space: nowrap; }
+.stock .item.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.stock .cost-line { color: var(--ink); }
+.stock .cost-line .have { color: var(--good); }
+.stock .cost-line .lack { color: var(--bad); }
+.workshop .verdict { margin-top: 8px; }

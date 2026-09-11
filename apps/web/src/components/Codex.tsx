@@ -1,7 +1,7 @@
 // 도감 (ADR-004). 제로식의 "게임의 데이터" 페이지에서 착안 — 다만 전부 엔진 데이터에서 생성되어 어긋나지 않는다.
 import { useState } from 'react'
 import type { StatKey, StatusId } from '@webrpg/engine'
-import { ITEM_LIST, MONSTERS, PRESETS, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, SLOT_LABEL, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, monsterSetup } from '@webrpg/engine'
+import { CRAFT_TRAIT_PCT, ITEMS, ITEM_LIST, MATERIALS, MONSTERS, PRESETS, RECIPES, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, SLOT_LABEL, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, monsterSetup } from '@webrpg/engine'
 import { KIND_SPECS, PICKER_GROUPS, STAT_LABEL } from '../lib/condition'
 import { STAT_HELP, STATUS_HELP, itemBrief, jobIcon, jobName, skillParts, skillSources, traitText } from '../lib/labels'
 
@@ -76,7 +76,33 @@ export function Codex({ onBack }: { onBack: () => void }) {
               ))}
             </tbody>
           </table>
-          <p className="hint">등급 1 은 처음부터, 2 는 가도, 3 은 폐허 요새가 열리면 상점에 나온다. 무기 종류: 전사 검 · 도적 단검 · 마법사 지팡이 · 프리스트 성물 · 엘프 활.</p>
+          <p className="hint">등급 1 은 처음부터, 2 는 가도, 3 은 폐허 요새가 열리면 상점에 나온다. 무기 종류: 전사 검 · 도적 단검 · 마법사 지팡이 · 프리스트 성물 · 엘프 활. 강화는 +5 까지, 단계마다 공격·방어 고정치 +10%.</p>
+          <h3>재료 <small>의뢰에서 이긴 상대가 떨어뜨린다 (몬스터당 최대 1개)</small></h3>
+          <table className="codex-table compact">
+            <thead><tr><th>재료</th><th>누가 떨어뜨리나</th><th>설명</th></tr></thead>
+            <tbody>
+              {Object.values(MATERIALS).map((m) => (
+                <tr key={m.id}>
+                  <td className="nm">{m.label}</td>
+                  <td>{Object.values(MONSTERS).filter((x) => x.drops?.some((d) => d.itemId === m.id)).map((x) => `${x.name}${x.hidden ? '(?)' : ''} ${(x.drops!.find((d) => d.itemId === m.id)!.permyriad / 100).toFixed(0)}%`).join(' · ') || '—'}</td>
+                  <td className="muted">{m.blurb}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <h3>제작 <small>공방. 완성품에 {CRAFT_TRAIT_PCT}% 로 보너스 특성</small></h3>
+          <table className="codex-table compact">
+            <thead><tr><th>만드는 것</th><th>금</th><th>재료</th></tr></thead>
+            <tbody>
+              {RECIPES.map((r) => (
+                <tr key={r.id}>
+                  <td className="nm">{ITEMS[r.itemId].label}</td>
+                  <td className="num">{r.gold}</td>
+                  <td>{r.materials.map((m) => `${MATERIALS[m.id].label} ×${m.qty}`).join(' · ')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
