@@ -1,9 +1,9 @@
 // 본부 (ADR-004). 시작 화면 — 처음이면 3문답 소개, 할 일, 훈련 과제 진행, 최근 전투 기록(재생).
 import { useMemo, useState } from 'react'
-import { DEFAULT_CONFIG, MISSIONS, REGIONS, REGION_BY_ID, SKILLS, isRegionUnlocked, simulate } from '@webrpg/engine'
+import { DEFAULT_CONFIG, MEMBER_MAX, MISSIONS, PRESETS, REGIONS, REGION_BY_ID, SKILLS, isRegionUnlocked, simulate } from '@webrpg/engine'
 import type { BattleRecord, GameSave } from '../game/save'
 import { PARTY_MAX } from '../game/save'
-import { canLearnSomething, partyMembers } from '../game/members'
+import { canHire, canLearnSomething, partyMembers } from '../game/members'
 import type { MissionProgress } from '../missionState'
 import { jobIcon, jobOf, outcomeText, timeAgo, type Names } from '../lib/labels'
 import { Replay } from './Replay'
@@ -39,6 +39,8 @@ export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOp
   if (unallocated.length) todos.push({ text: `${unallocated.map((m) => m.name).join('·')} — 스탯 포인트 미분배`, action: '단원', go: () => onGo('roster') })
   const learners = save.members.filter(canLearnSomething)
   if (learners.length) todos.push({ text: `${learners.map((m) => m.name).join('·')} — 배울 수 있는 스킬 있음`, action: '단원', go: () => onGo('roster') })
+  if (party.length < PARTY_MAX && save.members.length === party.length && save.members.length < MEMBER_MAX && Object.keys(PRESETS).some((j) => canHire(save, j)))
+    todos.push({ text: `출전 자리가 남았고 금 ${save.gold} — 모집소에서 고용 가능`, action: '단원', go: () => onGo('roster') })
   if (party.length < PARTY_MAX && save.members.length > party.length) todos.push({ text: `출전 ${party.length}/${PARTY_MAX}명 — 대기 단원 ${save.members.length - party.length}명`, action: '편성', go: () => onGo('formation') })
   const newRegion = REGIONS.find((r) => isRegionUnlocked(r, save.regionWins) && (save.regionWins[r.id] ?? 0) === 0 && r.no > 1)
   if (newRegion) todos.push({ text: `새로 열린 지역 — ${newRegion.name}`, action: '의뢰', go: () => onGo('quest') })

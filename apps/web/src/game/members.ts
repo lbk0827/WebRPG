@@ -1,9 +1,12 @@
 // 단원 ↔ 전투 CharSetup 변환, 성장 처리, 편성 판 조작.
 import type { Alloc, CharSetup, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
-import { PRESETS, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, grantExp, growthStats, learnCost, learnableFor } from '@webrpg/engine'
+import {
+  DISMISS_REFUND_PCT, MEMBER_MAX, PRESETS, RENAME_GOLD, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL,
+  applyQuirk, createRng, grantExp, growthStats, hireLevel, hirePrice, learnCost, learnableFor, rollQuirk,
+} from '@webrpg/engine'
 import { PARTY_MAX, cellRow, type GameSave, type Member } from './save'
 
-export const memberStats = (m: Member): Stats => growthStats(PRESETS[m.job].stats, m.level, m.alloc)
+export const memberStats = (m: Member): Stats => growthStats(applyQuirk(PRESETS[m.job].stats, m.quirk), m.level, m.alloc)
 
 export function memberSetup(m: Member, idx: number): CharSetup {
   const p = PRESETS[m.job]
@@ -114,6 +117,64 @@ export function setGrid(g: GameSave, grid: (string | null)[]): GameSave {
   })
   const members = g.members.map((m) => (party.includes(m.id) ? { ...m, row: cellRow(party.indexOf(m.id)) } : m))
   return { ...g, party, members }
+}
+
+// ───────────────────────────── 모집소 (M2-3)
+
+/** 지금 고용하면 몇 레벨로 오는가 */
+export const currentHireLevel = (g: GameSave): number => hireLevel(partySummary(g).avgLevel || 1)
+
+export const currentHirePrice = (g: GameSave, job: string): number => hirePrice(job, currentHireLevel(g))
+
+export function canHire(g: GameSave, job: string): boolean {
+  return g.members.length < MEMBER_MAX && !!PRESETS[job] && g.gold >= currentHirePrice(g, job)
+}
+
+/** 고용. 이름은 플레이어가 짓는다. 편차는 seed 로 굴린다 (웹은 시각) */
+export function hireMember(g: GameSave, job: string, name: string, seed: number): GameSave {
+  if (!canHire(g, job)) return g
+  const p = PRESETS[job]
+  const level = currentHireLevel(g)
+  const price = currentHirePrice(g, job)
+  const m: Member = {
+    id: `m${seed.toString(36)}${g.members.length}`,
+    name: name.trim().slice(0, 12) || p.name,
+    job,
+    level,
+    exp: 0,
+    alloc: { str: 0, int: 0, dex: 0, spd: 0, luk: 0 },
+    statPoints: (level - 1) * STAT_POINTS_PER_LEVEL,
+    skillPoints: (level - 1) * SKILL_POINTS_PER_LEVEL,
+    skills: [...(STARTER_SKILLS[job] ?? p.skills)],
+    spentSkillPoints: 0,
+    quirk: rollQuirk(job, createRng(seed)),
+    hiredFor: price,
+    row: p.row,
+    guard: structuredClone(p.guard),
+    rules: structuredClone(p.rules),
+  }
+  return { ...g, gold: g.gold - price, members: [...g.members, m] }
+}
+
+export const dismissRefund = (m: Member): number => Math.floor(((m.hiredFor ?? 0) * DISMISS_REFUND_PCT) / 100)
+
+/** 해고 = 삭제. 편성 판에서도 빠진다. 고용가의 일부 환급. 마지막 한 명은 못 보낸다 */
+export function dismissMember(g: GameSave, id: string): GameSave {
+  const m = g.members.find((x) => x.id === id)
+  if (!m || g.members.length <= 1) return g
+  return {
+    ...g,
+    gold: g.gold + dismissRefund(m),
+    members: g.members.filter((x) => x.id !== id),
+    party: g.party.map((p) => (p === id ? null : p)),
+    partyPresets: g.partyPresets.map((p) => (p ? { ...p, party: p.party.map((x) => (x === id ? null : x)) } : p)),
+  }
+}
+
+export function renameMember(g: GameSave, m: Member, name: string): GameSave {
+  const n = name.trim().slice(0, 12)
+  if (!n || n === m.name || g.gold < RENAME_GOLD) return g
+  return { ...updateMember(g, { ...m, name: n }), gold: g.gold - RENAME_GOLD }
 }
 
 export function allocateStat(m: Member, key: StatKey): Member {

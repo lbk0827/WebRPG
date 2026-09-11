@@ -509,3 +509,20 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .learn-box summary { cursor: pointer; }
 .learn-box summary .badge { margin-left: 6px; }
 .badge.dim { background: var(--muted); }
+
+/* ───────── M2-3 모집소 */
+.recruit { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; margin: 10px 0 4px; }
+.recruit h3 { margin: 0 0 8px; color: var(--ink); }
+.hire-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 6px; }
+.hire-card button { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 6px; border-radius: 12px; text-align: center; }
+.hire-card button small { font-size: 10px; line-height: 1.3; color: var(--muted); }
+.hire-card .price { font-size: 12px; font-weight: 700; color: var(--team1); }
+.hire-card.on button { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.hire-card.far button { opacity: 0.6; }
+.hire-form { margin-top: 8px; }
+.hire-form label { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
+.hire-form input { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; min-height: 36px; width: 140px; }
+.member-tools { display: inline-flex; gap: 4px; align-items: center; }
+.member-tools button.mini { padding: 3px 8px; font-size: 11px; }
+.member-tools button.danger { color: var(--bad); border-color: #e3b7bd; }
+.member .quirk { display: block; color: var(--team1); font-size: 11px; }

@@ -1,6 +1,6 @@
 // 게임 저장 (M2-1, v2 는 ADR-004, v3 는 편성 판). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
-import type { GuardPolicy, Outcome, Row, RuleSet, TeamSetup } from '@webrpg/engine'
-import { EMPTY_ALLOC, PRESETS, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, type Alloc } from '@webrpg/engine'
+import type { GuardPolicy, Outcome, Quirk, Row, RuleSet, TeamSetup } from '@webrpg/engine'
+import { EMPTY_ALLOC, MEMBER_MAX, PRESETS, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, type Alloc } from '@webrpg/engine'
 
 export interface Member {
   id: string
@@ -15,6 +15,10 @@ export interface Member {
   skills: string[]
   /** 지금까지 쓴 스킬 포인트 — 초기화 때 돌려준다 */
   spentSkillPoints: number
+  /** 고용 시 굴린 소폭 편차 (M2-3). 초기 단원은 없음 */
+  quirk?: Quirk
+  /** 고용가 (해고 환급 계산용). 초기 단원은 0 */
+  hiredFor?: number
   /** 편성 칸에서 정해진다 (cellRow). 대기 단원은 마지막 값 유지 */
   row: Row
   guard: GuardPolicy
@@ -168,6 +172,7 @@ export function migrate(raw: unknown): GameSave | null {
   const s = raw as Omit<Partial<GameSave>, 'version'> & { version?: number }
   if (s.version !== 1 && s.version !== 2 && s.version !== 3) return null
   if (!Array.isArray(s.members) || !Array.isArray(s.party)) return null
+  s.members = s.members.slice(0, MEMBER_MAX)
   for (const m of s.members) {
     if (!PRESETS[m.job]) return null
     if (!m.rules || !Array.isArray(m.rules.rows)) return null

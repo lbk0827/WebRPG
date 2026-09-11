@@ -1,13 +1,17 @@
 // 단원 (M2-1, ADR-004). 단원 전원의 성장(레벨·경험치·스탯 분배)과 용병단 이름, 저장 관리. 편성은 편성 탭에서.
 import { useState } from 'react'
 import type { StatKey } from '@webrpg/engine'
+import { MEMBER_MAX, RENAME_GOLD } from '@webrpg/engine'
 import type { GameSave, Member } from '../game/save'
 import { DEFAULT_NAME, PARTY_MAX, exportGame, importGame, newGame } from '../game/save'
-import { canLearnSomething, cellOf, learnSkill, partyMembers, resetSkills, updateMember } from '../game/members'
+import { canLearnSomething, cellOf, dismissMember, dismissRefund, learnSkill, partyMembers, renameMember, resetSkills, updateMember } from '../game/members'
 import { STAT_HELP, jobIcon, jobName, skillLabel } from '../lib/labels'
 import { STAT_LABEL } from '../lib/condition'
 import { MemberGrowth } from './MemberGrowth'
 import { SkillLearn } from './SkillLearn'
+import { Recruit } from './Recruit'
+
+const QUIRK_LABEL: Record<string, string> = { ...STAT_LABEL, maxHp: 'HP', maxSp: 'SP' }
 
 interface Props {
   save: GameSave
@@ -38,7 +42,9 @@ export function RosterPanel({ save, onSave, onEditMember, onGoFormation }: Props
         />
       </label>
 
-      <h2>단원 <small>{save.members.length}명 · 출전 {party.length}/{PARTY_MAX} · 금 {save.gold}</small> <button className="link" onClick={onGoFormation}>편성 판 →</button></h2>
+      <Recruit save={save} onSave={onSave} />
+
+      <h2>단원 <small>{save.members.length}/{MEMBER_MAX}명 · 출전 {party.length}/{PARTY_MAX} · 금 {save.gold}</small> <button className="link" onClick={onGoFormation}>편성 판 →</button></h2>
       <details className="stat-help">
         <summary>스탯은 무엇을 하나</summary>
         <ul>
@@ -56,8 +62,22 @@ export function RosterPanel({ save, onSave, onEditMember, onGoFormation }: Props
                 <img src={jobIcon(m.job)} alt="" width={40} height={40} />
                 <div>
                   <div className="name">{m.name} <small>{jobName(m.job)} · Lv {m.level}{cell >= 0 ? ` · ${m.row === 'front' ? '전열' : '후열'} 출전` : ' · 대기'}</small></div>
+                  {m.quirk && Object.keys(m.quirk).length > 0 && (
+                    <small className="quirk">특징: {Object.entries(m.quirk).map(([k, v]) => `${QUIRK_LABEL[k] ?? k} ${v > 0 ? '+' : ''}${v}`).join(' · ')}</small>
+                  )}
                 </div>
-                {m.statPoints > 0 && <span className="badge">포인트 {m.statPoints}</span>}
+                <span className="member-tools">
+                  {m.statPoints > 0 && <span className="badge">포인트 {m.statPoints}</span>}
+                  <button className="mini" title={`이름 변경 (금 ${RENAME_GOLD})`} onClick={() => { const n = window.prompt(`새 이름 (금 ${RENAME_GOLD})`, m.name); if (n) onSave(renameMember(save, m, n)) }}>이름</button>
+                  <button
+                    className="mini danger"
+                    disabled={save.members.length <= 1}
+                    title="해고 — 되돌릴 수 없음"
+                    onClick={() => { if (window.confirm(`${m.name}(Lv ${m.level}) 을(를) 보냅니다. 되돌릴 수 없고, 환급은 금 ${dismissRefund(m)} 입니다.`)) onSave(dismissMember(save, m.id)) }}
+                  >
+                    해고
+                  </button>
+                </span>
               </header>
               <MemberGrowth member={m} onChange={setMember} />
               <details className="learn-box">
