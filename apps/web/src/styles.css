@@ -29,11 +29,26 @@ h3 { font-size: 13px; margin: 14px 0 6px; color: var(--muted); }
 small { color: var(--muted); font-weight: normal; }
 .hint { color: var(--muted); font-size: 12px; margin: 8px 0; }
 
-.app { min-height: 100dvh; display: flex; flex-direction: column; }
+/*
+ * 페이지 전체를 가운데 고정폭 "틀"로 묶는다 (제로식처럼). 헤더의 검은 띠도 이 틀 안에서 끝나야
+ * 넓은 모니터에서 띠만 화면 끝까지 늘어나 보이지 않는다. 틀보다 좁은 화면에서는 그냥 꽉 찬다.
+ */
+:root { --frame: 960px; --desk: #dcd5c5; }
+body { background: var(--desk); }
+.app {
+  min-height: 100dvh; display: flex; flex-direction: column;
+  max-width: var(--frame); width: 100%; margin: 0 auto;
+  background: var(--paper);
+}
+@media (min-width: 961px) {
+  .app { box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.12), 0 4px 24px rgba(0, 0, 0, 0.10); }
+}
 .top { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--ink); color: #fff; }
 .top h1 { font-size: 15px; margin: 0; }
 .top h1 small { color: #aaa; margin-left: 6px; }
-main { flex: 1; padding: 10px 12px 76px; max-width: 960px; width: 100%; margin: 0 auto; }
+main { flex: 1; padding: 10px 12px 76px; width: 100%; }
+/* 폰 하단 고정 탭도 틀 안에 머문다 */
+.tabs.mobile { max-width: var(--frame); margin: 0 auto; }
 
 .tabs { display: flex; gap: 4px; }
 .tabs button { flex: 1; border-radius: 8px; }
