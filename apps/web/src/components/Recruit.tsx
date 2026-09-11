@@ -57,7 +57,7 @@ export function Recruit({ save, onSave, onHired }: Props) {
             {jobName(job)} 고용 — 금 {currentHirePrice(save, job)}
           </button>
           {!canHire(save, job) && !full && <small>금이 모자랍니다.</small>}
-          <small>스탯은 직업 기본값에서 ±5% 안팎으로 조금씩 다릅니다. 같은 전사가 둘이 되지 않게.</small>
+          <small>같은 직업을 몇 명이든 둘 수 있습니다. 다만 스탯이 직업 기본값에서 ±5% 안팎으로 조금씩 달라 전사 둘이 똑같지는 않습니다.</small>
         </div>
       )}
     </div>

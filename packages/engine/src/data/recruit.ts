@@ -21,7 +21,7 @@ export const HIRE: Record<string, HireDef> = {
 }
 
 /** 최대 보유 단원 */
-export const MEMBER_MAX = 8
+export const MEMBER_MAX = 30
 /** 이름 변경비 (금 소각처, §4) */
 export const RENAME_GOLD = 20
 /** 해고 환급 비율 % */

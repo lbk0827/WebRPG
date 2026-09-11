@@ -5,7 +5,7 @@ import { HIRE, MEMBER_MAX, PRESETS, applyQuirk, createRng, hireLevel, hirePrice,
 describe('모집소', () => {
   it('직업 5종 전부 고용가가 있고 양수', () => {
     for (const job of Object.keys(PRESETS)) expect(HIRE[job]?.price, job).toBeGreaterThan(0)
-    expect(MEMBER_MAX).toBe(8)
+    expect(MEMBER_MAX).toBeGreaterThanOrEqual(30)
   })
   it('고용 레벨은 편성 평균 −2, 최소 1. 가격은 레벨에 따라 오른다', () => {
     expect(hireLevel(1)).toBe(1)

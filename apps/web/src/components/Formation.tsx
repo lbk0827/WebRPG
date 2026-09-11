@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react'
 import { PRESETS } from '@webrpg/engine'
 import type { GameSave, Member, PartyPreset, RulePreset } from '../game/save'
 import { PARTY_MAX, PARTY_PRESET_SLOTS, RULE_PRESET_MAX, cellRow } from '../game/save'
-import { benchMembers, clearCell, learnSkill, memberById, memberStats, partyMembers, placeMember, resetSkills, setGrid, swapCells, updateMember } from '../game/members'
+import type { GearSlot } from '@webrpg/engine'
+import { ITEMS, SLOT_LABEL } from '@webrpg/engine'
+import { benchMembers, clearCell, equipItem, equippableFor, learnSkill, memberById, memberStats, partyMembers, placeMember, resetSkills, setGrid, swapCells, unequipItem, updateMember } from '../game/members'
 import type { SlotState } from '../state'
-import { jobIcon, jobName, skillLabel } from '../lib/labels'
+import { itemBrief, jobIcon, jobName, skillLabel } from '../lib/labels'
 import { GUARDS, guardByKey, guardKey } from '../lib/guards'
 import { Board } from './Board'
 import { RuleEditor, type PresetHooks } from './RuleEditor'
@@ -20,7 +22,10 @@ interface Props {
   /** 처음 선택할 칸 (다른 화면에서 "수칙 →" 로 들어올 때) */
   initialCell?: number | null
   onGoRoster: () => void
+  onGoShop: () => void
 }
+
+const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'trinket']
 
 type Panel = 'rules' | 'stats' | 'skills' | 'gear' | 'info'
 const PANELS: { key: Panel; label: string }[] = [
@@ -31,7 +36,7 @@ const PANELS: { key: Panel; label: string }[] = [
   { key: 'info', label: '정보' },
 ]
 
-export function Formation({ save, onSave, initialCell = null, onGoRoster }: Props) {
+export function Formation({ save, onSave, initialCell = null, onGoRoster, onGoShop }: Props) {
   const [sel, setSel] = useState<number | null>(initialCell)
   const [moveFrom, setMoveFrom] = useState<number | null>(null)
   const [panel, setPanel] = useState<Panel>('rules')
@@ -195,14 +200,43 @@ export function Formation({ save, onSave, initialCell = null, onGoRoster }: Prop
                 <RuleEditor key={member.id} slots={[slot]} onChange={setSlot} presets={presetHooks} noRow />
               )}
               {panel === 'stats' && <MemberGrowth key={member.id} member={member} onChange={(m) => onSave(updateMember(save, m))} />}
-              {panel === 'gear' && (
+{panel === 'gear' && (
                 <div className="gear">
                   <ul className="gear-slots">
-                    {['무기', '방어구', '장신구'].map((k) => (
-                      <li key={k}><b>{k}</b><span className="empty">— 비어 있음</span></li>
-                    ))}
+                    {GEAR_SLOTS.map((slot) => {
+                      const it = member.gear[slot]
+                      const d = it ? ITEMS[it.itemId] : undefined
+                      const options = equippableFor(save, member, slot)
+                      return (
+                        <li key={slot}>
+                          <b>{SLOT_LABEL[slot]}</b>
+                          {d ? (
+                            <span className="worn">
+                              <span className="nm">{d.label}</span>
+                              <small>{itemBrief(d)}</small>
+                            </span>
+                          ) : (
+                            <span className="empty">— 비어 있음</span>
+                          )}
+                          <span className="gear-tools">
+                            {options.length > 0 && (
+                              <select value="" onChange={(e) => { if (e.target.value) onSave(equipItem(save, member.id, e.target.value)) }}>
+                                <option value="">{d ? '바꾸기…' : '착용…'}</option>
+                                {options.map((o) => (
+                                  <option key={o.uid} value={o.uid}>{ITEMS[o.itemId].label} — {itemBrief(ITEMS[o.itemId])}</option>
+                                ))}
+                              </select>
+                            )}
+                            {d && <button className="mini" onClick={() => onSave(unequipItem(save, member.id, slot))}>해제</button>}
+                          </span>
+                        </li>
+                      )
+                    })}
                   </ul>
-                  <p className="hint">장비는 M2-4(장비·상점·공방)에서 들어옵니다. 슬롯 세 개와 착용/해제는 여기서 합니다. 지금은 자리만 잡아 뒀습니다.</p>
+                  <p className="hint">
+                    무기는 직업에 맞는 종류만. 창고에 낄 게 없으면 <button className="link" onClick={onGoShop}>상점 →</button>
+                    {save.inventory.length > 0 && ` (창고 ${save.inventory.length}개)`}
+                  </p>
                 </div>
               )}
               {panel === 'info' && (

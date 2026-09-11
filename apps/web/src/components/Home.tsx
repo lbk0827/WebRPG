@@ -18,6 +18,7 @@ interface Props {
   onOpenMissions: () => void
   onOpenMission: (id: string) => void
   onOpenCodex: () => void
+  onOpenShop: () => void
 }
 
 interface Todo {
@@ -26,7 +27,7 @@ interface Todo {
   go: () => void
 }
 
-export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOpenCodex }: Props) {
+export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOpenCodex, onOpenShop }: Props) {
   const [replayAt, setReplayAt] = useState<number | null>(null)
   const party = partyMembers(save)
   const clearedCount = MISSIONS.filter((m) => progress.cleared[m.id]).length
@@ -41,6 +42,9 @@ export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOp
   if (learners.length) todos.push({ text: `${learners.map((m) => m.name).join('·')} — 배울 수 있는 스킬 있음`, action: '단원', go: () => onGo('roster') })
   if (party.length < PARTY_MAX && save.members.length === party.length && save.members.length < MEMBER_MAX && Object.keys(PRESETS).some((j) => canHire(save, j)))
     todos.push({ text: `출전 자리가 남았고 금 ${save.gold} — 모집소에서 고용 가능`, action: '단원', go: () => onGo('roster') })
+  const unarmed = party.filter((m) => !m.gear?.weapon)
+  if (unarmed.length && save.gold >= 60) todos.push({ text: `${unarmed.map((m) => m.name).join('·')} — 무기 없음. 상점에서 살 수 있음 (금 ${save.gold})`, action: '상점', go: onOpenShop })
+  if (save.inventory.length > 0) todos.push({ text: `창고에 장비 ${save.inventory.length}개 — 착용은 편성 탭 장비 칸`, action: '편성', go: () => onGo('formation') })
   if (party.length < PARTY_MAX && save.members.length > party.length) todos.push({ text: `출전 ${party.length}/${PARTY_MAX}명 — 대기 단원 ${save.members.length - party.length}명`, action: '편성', go: () => onGo('formation') })
   const newRegion = REGIONS.find((r) => isRegionUnlocked(r, save.regionWins) && (save.regionWins[r.id] ?? 0) === 0 && r.no > 1)
   if (newRegion) todos.push({ text: `새로 열린 지역 — ${newRegion.name}`, action: '의뢰', go: () => onGo('quest') })
@@ -108,6 +112,7 @@ export function Home({ save, progress, onGo, onOpenMissions, onOpenMission, onOp
           <div className="run-bar">
             <button onClick={() => onGo('formation')}>편성</button>
             <button onClick={() => onGo('roster')}>단원</button>
+            <button onClick={onOpenShop}>상점</button>
             <button onClick={onOpenCodex}>도감</button>
           </div>
         </div>

@@ -1,14 +1,15 @@
 // 도감 (ADR-004). 제로식의 "게임의 데이터" 페이지에서 착안 — 다만 전부 엔진 데이터에서 생성되어 어긋나지 않는다.
 import { useState } from 'react'
 import type { StatKey, StatusId } from '@webrpg/engine'
-import { MONSTERS, PRESETS, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, STATUS_DEFS, TRAITS, monsterSetup } from '@webrpg/engine'
+import { ITEM_LIST, MONSTERS, PRESETS, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, SLOT_LABEL, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, monsterSetup } from '@webrpg/engine'
 import { KIND_SPECS, PICKER_GROUPS, STAT_LABEL } from '../lib/condition'
-import { STAT_HELP, STATUS_HELP, jobIcon, jobName, skillParts, skillSources, traitText } from '../lib/labels'
+import { STAT_HELP, STATUS_HELP, itemBrief, jobIcon, jobName, skillParts, skillSources, traitText } from '../lib/labels'
 
-type Section = 'skills' | 'status' | 'traits' | 'conditions' | 'stats' | 'regions'
+type Section = 'skills' | 'items' | 'status' | 'traits' | 'conditions' | 'stats' | 'regions'
 
 const SECTIONS: { key: Section; label: string }[] = [
   { key: 'skills', label: '스킬' },
+  { key: 'items', label: '장비' },
   { key: 'status', label: '상태이상' },
   { key: 'traits', label: '특성' },
   { key: 'conditions', label: '조건' },
@@ -56,6 +57,26 @@ export function Codex({ onBack }: { onBack: () => void }) {
             </tbody>
           </table>
           <p className="hint">준비(선딜)가 있는 기술은 시전 중에 <b>끊길 수 있다</b>. 위력 % 는 힘(또는 손재주·지능) 기본치에 곱한다. "N pt" 는 스킬 포인트 값 — 레벨업마다 1 을 받는다.</p>
+        </div>
+      )}
+
+      {sec === 'items' && (
+        <div className="tablewrap">
+          <table className="codex-table">
+            <thead><tr><th>장비</th><th>종류</th><th>등급</th><th>값</th><th>효과</th></tr></thead>
+            <tbody>
+              {ITEM_LIST.map((i) => (
+                <tr key={i.id}>
+                  <td className="nm">{i.label}</td>
+                  <td>{SLOT_LABEL[i.slot]}{i.weaponType ? ` (${WEAPON_TYPE_LABEL[i.weaponType]})` : ''}</td>
+                  <td className="num">{i.tier}</td>
+                  <td className="num">{i.price}</td>
+                  <td>{itemBrief(i)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <p className="hint">등급 1 은 처음부터, 2 는 가도, 3 은 폐허 요새가 열리면 상점에 나온다. 무기 종류: 전사 검 · 도적 단검 · 마법사 지팡이 · 프리스트 성물 · 엘프 활.</p>
         </div>
       )}
 

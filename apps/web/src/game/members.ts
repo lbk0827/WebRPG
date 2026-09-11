@@ -1,15 +1,21 @@
 // 단원 ↔ 전투 CharSetup 변환, 성장 처리, 편성 판 조작.
-import type { Alloc, CharSetup, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
+import type { Alloc, CharSetup, GearSlot, GearSummary, ItemDef, ItemInstance, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
 import {
-  DISMISS_REFUND_PCT, MEMBER_MAX, PRESETS, RENAME_GOLD, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL,
-  applyQuirk, createRng, grantExp, growthStats, hireLevel, hirePrice, learnCost, learnableFor, rollQuirk,
+  DISMISS_REFUND_PCT, ITEMS, ITEM_LIST, MEMBER_MAX, PRESETS, REGIONS, RENAME_GOLD, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL,
+  applyGearStats, applyQuirk, canEquip, createRng, grantExp, growthStats, hireLevel, hirePrice, isRegionUnlocked, learnCost, learnableFor, rollQuirk, sellPrice, summarizeGear,
 } from '@webrpg/engine'
-import { PARTY_MAX, cellRow, type GameSave, type Member } from './save'
+import { PARTY_MAX, cellRow, type GameSave, type Gear, type Member } from './save'
 
-export const memberStats = (m: Member): Stats => growthStats(applyQuirk(PRESETS[m.job].stats, m.quirk), m.level, m.alloc)
+export const gearDefs = (gear: Gear): (ItemDef | undefined)[] => (['weapon', 'armor', 'trinket'] as GearSlot[]).map((s) => (gear[s] ? ITEMS[gear[s]!.itemId] : undefined))
+export const gearSummary = (m: Member): GearSummary => summarizeGear(gearDefs(m.gear ?? {}))
+
+/** 성장 + 편차 + 장비 스탯 가산 */
+export const memberStats = (m: Member): Stats =>
+  applyGearStats(growthStats(applyQuirk(PRESETS[m.job].stats, m.quirk), m.level, m.alloc), gearSummary(m).stats)
 
 export function memberSetup(m: Member, idx: number): CharSetup {
   const p = PRESETS[m.job]
+  const g = gearSummary(m)
   return {
     id: `${m.job}#${idx}`,
     name: m.name,
@@ -18,8 +24,61 @@ export function memberSetup(m: Member, idx: number): CharSetup {
     stats: memberStats(m),
     skills: [...(m.skills ?? p.skills)],
     rules: structuredClone(m.rules),
+    bonus: { atk: g.atk, def: g.def },
+    traits: g.traits,
+    weapon: g.weapon,
   }
 }
+
+// ───────────────────────────── 장비 · 상점 (M2-4a)
+
+/** 상점 등급: 1 항상, 2 는 2번 지역 해금, 3 은 3번 지역 해금 */
+export function shopTier(g: GameSave): 1 | 2 | 3 {
+  const open = (no: number) => { const r = REGIONS.find((x) => x.no === no); return !!r && isRegionUnlocked(r, g.regionWins) }
+  return open(3) ? 3 : open(2) ? 2 : 1
+}
+
+export const shopStock = (g: GameSave): ItemDef[] => { const t = shopTier(g); return ITEM_LIST.filter((i) => i.tier <= t) }
+
+const newUid = (): string => `i${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`
+
+export function buyItem(g: GameSave, itemId: string): GameSave {
+  const def = ITEMS[itemId]
+  if (!def || def.tier > shopTier(g) || g.gold < def.price) return g
+  return { ...g, gold: g.gold - def.price, inventory: [...g.inventory, { uid: newUid(), itemId, refine: 0 }] }
+}
+
+export function sellItem(g: GameSave, uid: string): GameSave {
+  const it = g.inventory.find((x) => x.uid === uid)
+  if (!it) return g
+  return { ...g, gold: g.gold + sellPrice(ITEMS[it.itemId]), inventory: g.inventory.filter((x) => x.uid !== uid) }
+}
+
+/** 창고의 장비를 단원에게. 그 슬롯에 있던 것은 창고로 */
+export function equipItem(g: GameSave, memberId: string, uid: string): GameSave {
+  const m = g.members.find((x) => x.id === memberId)
+  const it = g.inventory.find((x) => x.uid === uid)
+  if (!m || !it) return g
+  const def = ITEMS[it.itemId]
+  if (!canEquip(m.job, def)) return g
+  const prev = m.gear[def.slot]
+  const inventory = g.inventory.filter((x) => x.uid !== uid)
+  if (prev) inventory.push(prev)
+  return { ...updateMember(g, { ...m, gear: { ...m.gear, [def.slot]: it } }), inventory }
+}
+
+export function unequipItem(g: GameSave, memberId: string, slot: GearSlot): GameSave {
+  const m = g.members.find((x) => x.id === memberId)
+  const it = m?.gear[slot]
+  if (!m || !it) return g
+  const gear = { ...m.gear }
+  delete gear[slot]
+  return { ...updateMember(g, { ...m, gear }), inventory: [...g.inventory, it] }
+}
+
+/** 이 단원이 이 슬롯에 낄 수 있는 창고 장비 */
+export const equippableFor = (g: GameSave, m: Member, slot: GearSlot): ItemInstance[] =>
+  g.inventory.filter((it) => ITEMS[it.itemId].slot === slot && canEquip(m.job, ITEMS[it.itemId]))
 
 // ───────────────────────────── 스킬 습득 (M2-2, 제로식 방식)
 
@@ -149,6 +208,7 @@ export function hireMember(g: GameSave, job: string, name: string, seed: number)
     spentSkillPoints: 0,
     quirk: rollQuirk(job, createRng(seed)),
     hiredFor: price,
+    gear: {},
     row: p.row,
     guard: structuredClone(p.guard),
     rules: structuredClone(p.rules),
@@ -158,12 +218,13 @@ export function hireMember(g: GameSave, job: string, name: string, seed: number)
 
 export const dismissRefund = (m: Member): number => Math.floor(((m.hiredFor ?? 0) * DISMISS_REFUND_PCT) / 100)
 
-/** 해고 = 삭제. 편성 판에서도 빠진다. 고용가의 일부 환급. 마지막 한 명은 못 보낸다 */
+/** 해고 = 삭제. 편성 판에서도 빠진다. 고용가의 일부 환급. 장비는 창고로. 마지막 한 명은 못 보낸다 */
 export function dismissMember(g: GameSave, id: string): GameSave {
   const m = g.members.find((x) => x.id === id)
   if (!m || g.members.length <= 1) return g
   return {
     ...g,
+    inventory: [...g.inventory, ...Object.values(m.gear ?? {}).filter((x): x is ItemInstance => !!x)],
     gold: g.gold + dismissRefund(m),
     members: g.members.filter((x) => x.id !== id),
     party: g.party.map((p) => (p === id ? null : p)),

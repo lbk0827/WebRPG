@@ -1,6 +1,6 @@
 // 한국어 표시 문자열. 엔진은 id 만 다루고, 사람이 읽는 말은 전부 여기서 만든다.
-import type { BattleEvent, CharRef, Effect, Row, SkillFailReason, StatKey, StatusId, TargetPriority, TargetSpec, TraitDef } from '@webrpg/engine'
-import { COMMON_LEARNABLE, LEARNABLE, PRESETS, SKILLS, STARTER_SKILLS, STATUS_DEFS, TRAITS, jobSkillPool } from '@webrpg/engine'
+import type { BattleEvent, CharRef, Effect, ItemDef, Row, SkillFailReason, StatKey, StatusId, TargetPriority, TargetSpec, TraitDef } from '@webrpg/engine'
+import { COMMON_LEARNABLE, LEARNABLE, PRESETS, SKILLS, STARTER_SKILLS, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, jobSkillPool } from '@webrpg/engine'
 
 // ───────────────────────────── 도감 · 요약 문장 (ADR-004)
 
@@ -138,6 +138,25 @@ export function traitText(t: TraitDef): string {
     })
     .join(', ')
 }
+
+/** 장비 한 줄: "물리 +18 · 방어 5% +10 · 마방 +5 · 운 +10 · [방벽]" */
+export function itemBrief(def: ItemDef): string {
+  const out: string[] = []
+  if (def.atk) {
+    if (def.atk[0]) out.push(`물리 +${def.atk[0]}`)
+    if (def.atk[1]) out.push(`마법 +${def.atk[1]}`)
+  }
+  if (def.def) {
+    const [pp, pf, mp, mf] = def.def
+    if (pp || pf) out.push(`방어${pp ? ` ${pp}%` : ''}${pf ? ` +${pf}` : ''}`)
+    if (mp || mf) out.push(`마방${mp ? ` ${mp}%` : ''}${mf ? ` +${mf}` : ''}`)
+  }
+  if (def.stats) for (const [k, v] of Object.entries(def.stats)) out.push(`${GEAR_STAT_LABEL[k] ?? k} ${v > 0 ? '+' : ''}${v}`)
+  if (def.trait) out.push(`[${traitLabel(def.trait)}] ${TRAITS[def.trait] ? traitText(TRAITS[def.trait]) : ''}`)
+  if (def.weaponType) out.unshift(WEAPON_TYPE_LABEL[def.weaponType])
+  return out.join(' · ')
+}
+const GEAR_STAT_LABEL: Record<string, string> = { str: '힘', int: '지능', dex: '손재주', spd: '속도', luk: '운', maxHp: 'HP', maxSp: 'SP', def: '방어', mdef: '마방' }
 
 export function timeAgo(ms: number, now = Date.now()): string {
   const d = Math.max(0, now - ms)

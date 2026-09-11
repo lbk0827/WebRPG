@@ -11,9 +11,10 @@ import { TrainingGround } from './components/TrainingGround'
 import { Home, type Tab } from './components/Home'
 import { Codex } from './components/Codex'
 import { Formation } from './components/Formation'
+import { Shop } from './components/Shop'
 
-/** 화면. 탭 5개(폰 하단 바 한계) + 탭 밖 화면(과제 목록·과제·도감)은 본부 탭에 속한다 (ADR-004) */
-type View = Tab | 'missions' | 'codex'
+/** 화면. 탭 5개(폰 하단 바 한계) + 탭 밖 화면(과제 목록·과제·도감·상점)은 본부 탭에 속한다 (ADR-004) */
+type View = Tab | 'missions' | 'codex' | 'shop'
 
 const TABS: { key: Tab; label: string }[] = [
   { key: 'home', label: '본부' },
@@ -23,7 +24,7 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'train', label: '훈련장' },
 ]
 
-const tabOf = (v: View): Tab | null => (v === 'missions' ? 'home' : v === 'codex' ? null : v)
+const tabOf = (v: View): Tab | null => (v === 'missions' || v === 'shop' ? 'home' : v === 'codex' ? null : v)
 
 export function App() {
   const [save, setSave] = useState<GameSave>(loadGame)
@@ -90,8 +91,9 @@ export function App() {
 
       <main>
         {view === 'home' && (
-          <Home save={save} progress={progress} onGo={go} onOpenMissions={() => go('missions')} onOpenMission={openMission} onOpenCodex={() => go('codex')} />
+          <Home save={save} progress={progress} onGo={go} onOpenMissions={() => go('missions')} onOpenMission={openMission} onOpenCodex={() => go('codex')} onOpenShop={() => go('shop')} />
         )}
+        {view === 'shop' && <Shop save={save} onSave={setSave} onBack={() => go('home')} onGoFormation={() => go('formation')} />}
         {view === 'missions' && !mission && (
           <MissionList progress={progress} onOpen={openMission} onFree={() => go('quest')} onBack={() => go('home')} />
         )}
@@ -106,7 +108,7 @@ export function App() {
           />
         )}
         {view === 'quest' && <QuestBoard save={save} onSave={setSave} />}
-        {view === 'formation' && <Formation save={save} onSave={setSave} initialCell={formationCell} onGoRoster={() => go('roster')} />}
+        {view === 'formation' && <Formation save={save} onSave={setSave} initialCell={formationCell} onGoRoster={() => go('roster')} onGoShop={() => go('shop')} />}
         {view === 'roster' && <RosterPanel save={save} onSave={setSave} onEditMember={editMember} onGoFormation={() => go('formation')} />}
         {view === 'train' && <TrainingGround save={save} />}
         {view === 'codex' && <Codex onBack={() => go('home')} />}

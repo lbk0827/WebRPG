@@ -526,3 +526,23 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .member-tools button.mini { padding: 3px 8px; font-size: 11px; }
 .member-tools button.danger { color: var(--bad); border-color: #e3b7bd; }
 .member .quirk { display: block; color: var(--team1); font-size: 11px; }
+
+/* ───────── M2-4a 장비 · 상점 */
+.stock { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.stock .item { display: flex; align-items: center; gap: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.stock .item.far { opacity: 0.6; }
+.stock .body { flex: 1; min-width: 0; font-size: 13px; }
+.stock .body small { display: block; font-size: 11px; }
+.stock .body .blurb { color: var(--muted); font-style: italic; }
+.stock .body .who { color: var(--team1); }
+.stock .tier { font-size: 10px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 0 5px; margin-left: 4px; }
+.stock li button { white-space: nowrap; }
+.shop h3 { margin: 16px 0 6px; color: var(--ink); }
+.gear-slots li { flex-wrap: wrap; }
+.gear-slots .worn { flex: 1; min-width: 0; display: grid; }
+.gear-slots .worn .nm { font-weight: 700; }
+.gear-slots .worn small { font-size: 11px; color: var(--muted); }
+.gear-slots .gear-tools { display: inline-flex; gap: 4px; align-items: center; margin-left: auto; }
+.gear-slots .gear-tools select { max-width: 220px; }
+.gear-slots button.mini { padding: 4px 8px; font-size: 11px; }
+.growth .derived i { font-style: normal; color: var(--team1); font-weight: 700; }

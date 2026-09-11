@@ -20,6 +20,8 @@ export { STARTER_SKILLS, COMMON_LEARNABLE, LEARNABLE, SKILL_RESET_GOLD, learnabl
 export type { Learnable } from './data/learning'
 export { HIRE, MEMBER_MAX, RENAME_GOLD, DISMISS_REFUND_PCT, HIRE_LEVEL_STEP, hireLevel, hirePrice, rollQuirk, applyQuirk } from './data/recruit'
 export type { HireDef, Quirk } from './data/recruit'
+export { ITEMS, ITEM_LIST, JOB_WEAPONS, WEAPON_TYPE_LABEL, SLOT_LABEL, SELL_PCT, sellPrice, canEquip, summarizeGear, applyGearStats } from './data/items'
+export type { GearSlot, ItemDef, ItemInstance, GearSummary } from './data/items'
 export type { DerivedStats } from './derived'
 export { MONSTERS, monsterSetup } from './data/monsters'
 export type { MonsterDef } from './data/monsters'

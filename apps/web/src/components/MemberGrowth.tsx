@@ -3,7 +3,7 @@ import { useState } from 'react'
 import type { Alloc, StatKey } from '@webrpg/engine'
 import { EMPTY_ALLOC, STAT_CAP, derivedStats, expToNext, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
 import type { Member } from '../game/save'
-import { allocateMany, memberStats } from '../game/members'
+import { allocateMany, gearSummary, memberStats } from '../game/members'
 import { STAT_HELP } from '../lib/labels'
 import { STAT_LABEL } from '../lib/condition'
 
@@ -26,6 +26,7 @@ export function MemberGrowth({ member: m, onChange, compact }: Props) {
   const s = memberStats(previewMember)
   const base = memberStats(m)
   const d = derivedStats(s)
+  const gear = gearSummary(m)
   const next = expToNext(m.level)
 
   const bump = (k: StatKey, dir: 1 | -1) => {
@@ -59,9 +60,11 @@ export function MemberGrowth({ member: m, onChange, compact }: Props) {
         ))}
       </div>
       <div className="derived">
-        <span title="힘 기술의 기본 위력">물리 {d.physBase}</span>
-        <span title="손재주 기술의 기본 위력">손재주 {d.dexBase}</span>
-        <span title="마법·회복의 기본 위력">마법 {d.magicBase}</span>
+        <span title="힘 기술의 기본 위력 (+ 무기 가산)">물리 {d.physBase}{gear.atk[0] ? <i> +{gear.atk[0]}</i> : null}</span>
+        <span title="손재주 기술의 기본 위력 (+ 무기 가산)">손재주 {d.dexBase}{gear.atk[0] ? <i> +{gear.atk[0]}</i> : null}</span>
+        <span title="마법·회복의 기본 위력 (+ 무기 가산)">마법 {d.magicBase}{gear.atk[1] ? <i> +{gear.atk[1]}</i> : null}</span>
+        {(gear.def[0] || gear.def[1]) ? <span title="장비 물리 방어">방어 {gear.def[0] ? `${gear.def[0]}%` : ''}{gear.def[1] ? ` +${gear.def[1]}` : ''}</span> : null}
+        {(gear.def[2] || gear.def[3]) ? <span title="장비 마법 방어">마방 {gear.def[2] ? `${gear.def[2]}%` : ''}{gear.def[3] ? ` +${gear.def[3]}` : ''}</span> : null}
         <span title="틱당 행동 게이지 충전량 (1000 이면 행동)">충전 {d.chargePerTick}/틱</span>
         <span title="시전 준비 시간 단축">선딜 −{d.castReductionPct}%</span>
         <span title="운 0 인 상대의 상태이상을 막을 확률">저항 ≤{d.resistMaxPct}%</span>
