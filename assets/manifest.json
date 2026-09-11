@@ -18,6 +18,10 @@
     "swarm":   { "name": "박쥐 떼",  "icon": "monsters/swarm.svg",   "color": "#3a3450", "archetype": "다수" },
     "ogre":    { "name": "오우거",   "icon": "monsters/ogre.svg",    "color": "#7a3b2e", "archetype": "보스" }
   },
+  "$unitsComment": "전투 리그 스프라이트 (docs/15). 키는 직업 id 또는 몬스터 아이콘 id 와 같다. 없는 키는 화면이 엠블럼 아이콘으로 물러선다",
+  "units": {
+    "warrior": { "name": "전사", "sprite": "units/warrior.svg" }
+  },
   "palette": {
     "ink": "#1d1d24",
     "paper": "#e9e4d8",

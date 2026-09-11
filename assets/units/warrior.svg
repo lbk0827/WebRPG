@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 128" width="96" height="128">
+  <title>전사</title>
+  <!--
+    전투용 리그 스프라이트 (docs/15 규격). 오른쪽을 본다. 발바닥 y=126.
+    관절은 전 캐릭터 공통 좌표: 엉덩이(48,86) 어깨(48,58) 목(48,48) 앞손(66,74) 뒷손(32,74)
+    애니메이션은 파일에 넣지 않는다 — 웹의 CSS 가 .p-* 클래스를 돌린다.
+  -->
+  <ellipse class="p-shadow" cx="48" cy="124" rx="24" ry="5" fill="#1d1d24" opacity="0.18"/>
+
+  <g class="p-leg-back">
+    <path d="M38 78 L33 112 L27 121 L43 121 L43 112 L48 78 Z" fill="#6b4b2a" stroke="#1d1d24" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+
+  <g class="p-arm-back">
+    <path d="M46 58 L29 74" stroke="#1d1d24" stroke-width="11" stroke-linecap="round"/>
+    <path d="M46 58 L29 74" stroke="#b23a48" stroke-width="6" stroke-linecap="round"/>
+    <g class="p-offhand">
+      <circle cx="21" cy="82" r="16" fill="#cfd6e0" stroke="#1d1d24" stroke-width="3"/>
+      <circle cx="21" cy="82" r="7" fill="#b23a48" stroke="#1d1d24" stroke-width="2.5"/>
+    </g>
+  </g>
+
+  <g class="p-torso">
+    <path d="M35 50 L61 50 L65 87 L31 87 Z" fill="#b23a48" stroke="#1d1d24" stroke-width="3" stroke-linejoin="round"/>
+    <path d="M37 52 L59 52 L61 71 L35 71 Z" fill="#cfd6e0" stroke="#1d1d24" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M48 52 L48 71" stroke="#1d1d24" stroke-width="2" opacity="0.5"/>
+    <g class="p-head">
+      <ellipse cx="48" cy="34" rx="14" ry="15" fill="#e8c39e" stroke="#1d1d24" stroke-width="3"/>
+      <path d="M34 32 C34 19 41 14 48 14 C55 14 62 19 62 32 Z" fill="#cfd6e0" stroke="#1d1d24" stroke-width="3" stroke-linejoin="round"/>
+      <rect x="45.5" y="29" width="5" height="12" rx="2" fill="#cfd6e0" stroke="#1d1d24" stroke-width="2"/>
+      <circle cx="42" cy="36" r="2.2" fill="#1d1d24"/>
+      <circle cx="55" cy="36" r="2.2" fill="#1d1d24"/>
+    </g>
+  </g>
+
+  <g class="p-leg-front">
+    <path d="M50 78 L55 112 L51 121 L67 121 L65 112 L60 78 Z" fill="#8a7550" stroke="#1d1d24" stroke-width="3" stroke-linejoin="round"/>
+  </g>
+
+  <g class="p-arm-front">
+    <path d="M50 58 L66 73" stroke="#1d1d24" stroke-width="11" stroke-linecap="round"/>
+    <path d="M50 58 L66 73" stroke="#e8c39e" stroke-width="6" stroke-linecap="round"/>
+    <g class="p-weapon">
+      <rect x="58" y="64" width="7" height="18" rx="2" fill="#3a2f2f" stroke="#1d1d24" stroke-width="2.5"/>
+      <rect x="54" y="60" width="16" height="6" rx="2" fill="#8a7550" stroke="#1d1d24" stroke-width="2.5"/>
+      <polygon points="58,60 68,60 68,22 63,14 58,22" fill="#cfd6e0" stroke="#1d1d24" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M63 24 L63 58" stroke="#1d1d24" stroke-width="1.5" opacity="0.4"/>
+    </g>
+  </g>
+</svg>

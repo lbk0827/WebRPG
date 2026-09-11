@@ -37,6 +37,7 @@
 | `monsters/spider.svg` | 몬스터 아이콘 (독) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
 | `monsters/swarm.svg` | 몬스터 아이콘 (다수) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
 | `monsters/ogre.svg` | 몬스터 아이콘 (보스) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
+| `units/warrior.svg` | **전투 리그 스프라이트** (전사, 참조 구현) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
 | `manifest.json` | 매니페스트 | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `build-preview.mjs` | 도구 (SVG 인라인 프리뷰 생성) | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `preview.html` | 생성물 (`node assets/build-preview.mjs`) | 자체 제작 | 저장소 소유 | 2026-09-10 |
@@ -45,4 +46,5 @@
 
 - 파일명은 영문 소문자 + 하이픈. 엔진 preset id / skill id / status id 와 **동일한 키**를 쓴다
 - SVG 는 `viewBox="0 0 128 128"`, 외곽선 `#1d1d24`, 배경 원 반지름 60 — 한 세트로 보이도록
+- **전투 리그 스프라이트**(`units/*.svg`)는 규격이 다르다 — `viewBox="0 0 96 128"`, 배경 없음, 부위를 `.p-*` 클래스로 나눈다. [docs/15](../docs/15_전투_스프라이트_규격.md) 참조
 - 팔레트는 `manifest.json` 의 `palette` 를 따른다

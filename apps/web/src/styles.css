@@ -255,6 +255,50 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .popup.interrupt { color: var(--cast); font-size: 13px; }
 .popup.revive { color: var(--good); font-size: 13px; }
 .popup.cover { color: var(--team1); font-size: 10px; }
+/* ───────── 전투 리그 스프라이트 (docs/15). 부위(.p-*)를 돌려서 움직인다 — 유니콘 오버로드와 같은 방식 */
+.char .unit { display: block; }
+.char .unit svg { display: block; margin: 0 auto; width: 52px; height: 69px; overflow: visible; }
+.side.t1 .char .unit svg { transform: scaleX(-1); }
+/* 관절 좌표는 전 캐릭터 공통 — 그래서 애니메이션을 한 번만 쓰고 모두가 나눠 쓴다 */
+.unit .p-torso, .unit .p-head, .unit .p-arm-front, .unit .p-arm-back, .unit .p-leg-front, .unit .p-leg-back, .unit .p-weapon, .unit .p-offhand { transform-box: view-box; }
+.unit .p-torso { transform-origin: 48px 86px; }
+.unit .p-head { transform-origin: 48px 48px; }
+.unit .p-arm-front, .unit .p-arm-back { transform-origin: 48px 58px; }
+.unit .p-leg-front, .unit .p-leg-back { transform-origin: 48px 84px; }
+.unit .p-weapon { transform-origin: 62px 62px; }
+
+/* 대기 — 숨을 쉰다 */
+.char .unit .p-torso { animation: u-breathe 2.6s ease-in-out infinite; }
+.char .unit .p-head { animation: u-head 2.6s ease-in-out infinite; }
+.char .unit .p-arm-back { animation: u-armidle 2.6s ease-in-out infinite; }
+@keyframes u-breathe { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-1.6px) rotate(-0.8deg); } }
+@keyframes u-head { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-1px) rotate(1.2deg); } }
+@keyframes u-armidle { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(2.5deg); } }
+
+/* 공격 — 앞팔을 휘두르고 몸이 따라간다 */
+.side.t0 .char.acting .unit { animation: lunge-r var(--lunge) ease-out; }
+.side.t1 .char.acting .unit { animation: lunge-l var(--lunge) ease-out; }
+.char.acting .unit .p-arm-front { animation: u-swing var(--lunge) ease-out; }
+.char.acting .unit .p-torso { animation: u-lean var(--lunge) ease-out; }
+@keyframes u-swing { 0% { transform: rotate(0); } 28% { transform: rotate(-78deg); } 55% { transform: rotate(42deg); } 100% { transform: rotate(0); } }
+@keyframes u-lean { 0%, 100% { transform: rotate(0); } 40% { transform: rotate(7deg); } }
+
+/* 피격 — 흔들리고 한 번 번쩍 */
+.char.hit .unit { animation: shake 360ms ease-in-out; }
+.char.acting.hit .unit { animation: shake 360ms ease-in-out; }
+.char.hit .unit svg { animation: u-flash 360ms ease-out; }
+@keyframes u-flash { 0%, 100% { filter: none; } 30% { filter: brightness(1.9) saturate(0.3); } }
+
+/* 시전 — 무기를 들고 빛난다 */
+.char.casting .unit svg { filter: drop-shadow(0 0 6px var(--cast)); }
+.char.casting .unit .p-arm-front { animation: u-cast 1.3s ease-in-out infinite; }
+@keyframes u-cast { 0%, 100% { transform: rotate(-38deg); } 50% { transform: rotate(-54deg); } }
+
+/* 전사 — 쓰러진다 */
+.char.dead .unit svg { transform: rotate(72deg) translateY(6px); opacity: 0.45; filter: grayscale(1) brightness(0.7); }
+.side.t1 .char.dead .unit svg { transform: scaleX(-1) rotate(72deg) translateY(6px); }
+.char.dead .unit .p-torso, .char.dead .unit .p-head, .char.dead .unit .p-arm-back, .char.dead .unit .p-arm-front { animation: none; }
+
 @keyframes lunge-r { 0% { transform: translateX(0); } 40% { transform: translateX(22px) scale(1.08); } 100% { transform: translateX(0); } }
 @keyframes lunge-l { 0% { transform: translateX(0); } 40% { transform: translateX(-22px) scale(1.08); } 100% { transform: translateX(0); } }
 @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
@@ -265,6 +309,7 @@ button.big { padding: 10px 22px; font-size: 15px; }
   .arena { grid-template-columns: 1fr 90px 1fr; padding: 16px 12px; min-height: 300px; }
   .arena .headline { font-size: 16px; }
   .char img { width: 60px; height: 60px; }
+  .char .unit svg { width: 72px; height: 96px; }
   .char .nm { font-size: 12px; }
   .char .bar { margin: 3px 10px 0; }
   .bubble { font-size: 12px; }
@@ -273,7 +318,7 @@ button.big { padding: 10px 22px; font-size: 15px; }
   @keyframes lunge-l { 0% { transform: translateX(0); } 40% { transform: translateX(-36px) scale(1.1); } 100% { transform: translateX(0); } }
 }
 @media (prefers-reduced-motion: reduce) {
-  .char img, .popup, .bubble, .castmark { animation: none !important; }
+  .char img, .popup, .bubble, .castmark, .char .unit, .char .unit * { animation: none !important; }
 }
 .player-bar button.on { background: var(--ink); color: #fff; }
 

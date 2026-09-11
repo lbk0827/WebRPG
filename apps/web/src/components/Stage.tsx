@@ -2,8 +2,9 @@
 // 상태(HP/SP/생사)는 roster 에서, 연출(돌진·피격·팝업·말풍선)은 현재 턴의 이벤트 슬라이스에서 나온다.
 import { useMemo, type CSSProperties } from 'react'
 import type { BattleEvent, CharRef } from '@webrpg/engine'
-import { jobIcon, skillLabel, statusLabel, traitLabel } from '../lib/labels'
+import { skillLabel, statusLabel, traitLabel } from '../lib/labels'
 import type { Roster, RosterChar } from '../lib/roster'
+import { UnitSprite } from './UnitSprite'
 
 interface Props {
   events: BattleEvent[]
@@ -174,7 +175,7 @@ function Char({ team, index, c, job, fx, cursor }: { team: 0 | 1; index: number;
         <div key={`b${cursor}`} className={`bubble ${fx.bubble.kind}`}>{fx.bubble.text}</div>
       )}
       <div className="sprite">
-        <img src={jobIcon(job)} alt="" />
+        <UnitSprite icon={job} />
         {c.casting && c.alive && <span className="castmark">{skillLabel(c.casting)}</span>}
       </div>
       <div className="nm">{c.name}</div>
