@@ -29,6 +29,14 @@
 | `jobs/mage.svg` | 직업 아이콘 | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-10 |
 | `jobs/priest.svg` | 직업 아이콘 | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-10 |
 | `jobs/elf.svg` | 직업 아이콘 | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-10 |
+| `monsters/goblin.svg` | 몬스터 아이콘 (잡몹) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
+| `monsters/beast.svg` | 몬스터 아이콘 (돌격) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
+| `monsters/turtle.svg` | 몬스터 아이콘 (방벽) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
+| `monsters/harpy.svg` | 몬스터 아이콘 (사격) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
+| `monsters/shaman.svg` | 몬스터 아이콘 (주술) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
+| `monsters/spider.svg` | 몬스터 아이콘 (독) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
+| `monsters/swarm.svg` | 몬스터 아이콘 (다수) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
+| `monsters/ogre.svg` | 몬스터 아이콘 (보스) | 자체 제작 (수작업 SVG) | 저장소 소유 | 2026-09-11 |
 | `manifest.json` | 매니페스트 | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `build-preview.mjs` | 도구 (SVG 인라인 프리뷰 생성) | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `preview.html` | 생성물 (`node assets/build-preview.mjs`) | 자체 제작 | 저장소 소유 | 2026-09-10 |

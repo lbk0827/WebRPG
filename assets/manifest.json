@@ -7,6 +7,17 @@
     "priest":  { "name": "프리스트", "icon": "jobs/priest.svg", "color": "#d4a017", "role": "회복 · 소생 · 보호" },
     "elf":     { "name": "엘프", "icon": "jobs/elf.svg",     "color": "#3e8e5a", "role": "후열 관통 사격" }
   },
+  "$monsterComment": "몬스터 아이콘. 키는 엔진 MonsterDef.icon (원형 8종). 여러 몬스터가 한 아이콘을 공유한다",
+  "monsters": {
+    "goblin":  { "name": "고블린",   "icon": "monsters/goblin.svg",  "color": "#5c8d3f", "archetype": "잡몹" },
+    "beast":   { "name": "들개",     "icon": "monsters/beast.svg",   "color": "#6b4b2a", "archetype": "돌격" },
+    "turtle":  { "name": "바위 거북", "icon": "monsters/turtle.svg",  "color": "#4e6b5a", "archetype": "방벽" },
+    "harpy":   { "name": "하피",     "icon": "monsters/harpy.svg",   "color": "#3f6f8f", "archetype": "사격" },
+    "shaman":  { "name": "주술사",   "icon": "monsters/shaman.svg",  "color": "#5b4b8a", "archetype": "주술" },
+    "spider":  { "name": "독거미",   "icon": "monsters/spider.svg",  "color": "#2f4a37", "archetype": "독" },
+    "swarm":   { "name": "박쥐 떼",  "icon": "monsters/swarm.svg",   "color": "#3a3450", "archetype": "다수" },
+    "ogre":    { "name": "오우거",   "icon": "monsters/ogre.svg",    "color": "#7a3b2e", "archetype": "보스" }
+  },
   "palette": {
     "ink": "#1d1d24",
     "paper": "#e9e4d8",

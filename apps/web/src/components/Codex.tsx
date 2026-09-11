@@ -1,7 +1,7 @@
 // 도감 (ADR-004). 제로식의 "게임의 데이터" 페이지에서 착안 — 다만 전부 엔진 데이터에서 생성되어 어긋나지 않는다.
 import { useState } from 'react'
 import type { StatKey, StatusId } from '@webrpg/engine'
-import { CRAFT_TRAIT_PCT, ITEMS, ITEM_LIST, MATERIALS, MONSTERS, PRESETS, RECIPES, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, SLOT_LABEL, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, monsterSetup } from '@webrpg/engine'
+import { ARCHETYPE_LABEL, CRAFT_TRAIT_PCT, ITEMS, ITEM_LIST, MATERIALS, MONSTERS, PRESETS, RECIPES, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, SLOT_LABEL, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, monsterSetup } from '@webrpg/engine'
 import { KIND_SPECS, PICKER_GROUPS, STAT_LABEL } from '../lib/condition'
 import { STAT_HELP, STATUS_HELP, itemBrief, jobIcon, jobName, skillParts, skillSources, traitText } from '../lib/labels'
 
@@ -206,14 +206,15 @@ export function Codex({ onBack }: { onBack: () => void }) {
               <p className="hint">{r.brief}</p>
               <div className="tablewrap">
                 <table className="codex-table compact">
-                  <thead><tr><th>상대</th><th>Lv</th><th>HP</th><th>패턴</th><th>경험치</th><th>금</th></tr></thead>
+                  <thead><tr><th>상대</th><th>원형</th><th>Lv</th><th>HP</th><th>패턴</th><th>경험치</th><th>금</th></tr></thead>
                   <tbody>
                     {r.table.filter((t) => !MONSTERS[t.monsterId].hidden).map((t) => {
                       const d = MONSTERS[t.monsterId]
                       const s = monsterSetup(d, 0)
                       return (
                         <tr key={d.id}>
-                          <td className="nm"><img src={jobIcon(d.job)} alt="" width={18} height={18} /> {d.name} <small>({jobName(d.job)})</small></td>
+                          <td className="nm"><img src={jobIcon(d.icon ?? d.job)} alt="" width={18} height={18} /> {d.name} <small>({d.icon ? ARCHETYPE_LABEL[d.archetype] : jobName(d.job)})</small></td>
+                          <td>{ARCHETYPE_LABEL[d.archetype]}</td>
                           <td className="num">{d.level}</td>
                           <td className="num">{s.stats.maxHp}</td>
                           <td className="num">{d.rules.rows.length}줄</td>
@@ -223,7 +224,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
                       )
                     })}
                     {r.table.some((t) => MONSTERS[t.monsterId].hidden) && (
-                      <tr><td colSpan={6} className="muted">+ 소문뿐인 상대. 목록에 없다.</td></tr>
+                      <tr><td colSpan={7} className="muted">+ 소문뿐인 상대. 목록에 없다.</td></tr>
                     )}
                   </tbody>
                 </table>

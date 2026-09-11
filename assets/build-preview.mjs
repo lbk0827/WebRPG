@@ -1,4 +1,4 @@
-// assets/jobs/*.svg 를 인라인한 자기완결형 preview.html 을 생성한다.
+// assets/jobs/*.svg + assets/monsters/*.svg 를 인라인한 자기완결형 preview.html 을 생성한다.
 // 사용: node assets/build-preview.mjs
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
@@ -7,15 +7,16 @@ import { fileURLToPath } from 'node:url'
 const here = dirname(fileURLToPath(import.meta.url))
 const manifest = JSON.parse(readFileSync(join(here, 'manifest.json'), 'utf8'))
 
+const ALL = { ...manifest.jobs, ...(manifest.monsters ?? {}) }
 const svg = Object.fromEntries(
-  Object.entries(manifest.jobs).map(([id, j]) => [
+  Object.entries(ALL).map(([id, j]) => [
     id,
     readFileSync(join(here, j.icon), 'utf8').replace(/<\?xml[^>]*>\s*/, '').replace(/\s+width="128"\s+height="128"/, ''),
   ]),
 )
 
 const jobCard = (id) => {
-  const j = manifest.jobs[id]
+  const j = ALL[id]
   return `
     <div class="job">
       <div class="sizes">
@@ -23,20 +24,24 @@ const jobCard = (id) => {
         <span class="i48">${svg[id]}</span>
         <span class="i24">${svg[id]}</span>
       </div>
-      <div class="name">${j.name}</div><div class="role">${j.role}</div>
+      <div class="name">${j.name}</div><div class="role">${j.role ?? j.archetype}</div>
     </div>`
 }
 
 const partySlot = (id, pct) =>
-  `<div class="slot"><span class="i36">${svg[id]}</span><span>${manifest.jobs[id].name}</span><div class="hp"><i style="width:${pct}%"></i></div></div>`
+  `<div class="slot"><span class="i36">${svg[id]}</span><span>${ALL[id].name}</span><div class="hp"><i style="width:${pct}%"></i></div></div>`
 
 const party = ['warrior', 'warrior', 'elf', 'mage', 'priest']
 const pcts = [92, 61, 45, 100, 78]
+const foes = ['ogre', 'turtle', 'goblin', 'shaman', 'swarm']
+const foePcts = [100, 84, 30, 66, 12]
 
 const section = (cls) => `
   <section class="${cls}">
     <div class="row">${Object.keys(manifest.jobs).map(jobCard).join('')}</div>
+    <div class="row" style="margin-top:20px">${Object.keys(manifest.monsters ?? {}).map(jobCard).join('')}</div>
     <div class="party">${party.map((id, i) => partySlot(id, pcts[i])).join('')}</div>
+    <div class="party">${foes.map((id, i) => partySlot(id, foePcts[i])).join('')}</div>
   </section>`
 
 const html = `<!doctype html>
@@ -44,7 +49,7 @@ const html = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>직업 아이콘 미리보기</title>
+<title>아이콘 미리보기 — 직업 5 · 몬스터 8</title>
 <style>
   body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", sans-serif; background: #f3f0ea; color: #1d1d24; }
   h1 { font-size: 18px; margin: 0; padding: 16px 20px; }

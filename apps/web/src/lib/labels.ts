@@ -1,6 +1,6 @@
 // 한국어 표시 문자열. 엔진은 id 만 다루고, 사람이 읽는 말은 전부 여기서 만든다.
 import type { BattleEvent, CharRef, Effect, ItemDef, ItemInstance, Row, SkillFailReason, StatKey, StatusId, TargetPriority, TargetSpec, TraitDef } from '@webrpg/engine'
-import { COMMON_LEARNABLE, ITEMS, LEARNABLE, MATERIALS, PRESETS, SKILLS, STARTER_SKILLS, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, jobSkillPool, refinedNumbers } from '@webrpg/engine'
+import { COMMON_LEARNABLE, ITEMS, LEARNABLE, MATERIALS, PRESETS, SKILLS, STARTER_SKILLS, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, isMonsterIcon, jobSkillPool, refinedNumbers } from '@webrpg/engine'
 
 // ───────────────────────────── 도감 · 요약 문장 (ADR-004)
 
@@ -175,8 +175,11 @@ export const jobOf = (charId: string): string => charId.split('#')[0]
 export const skillLabel = (id: string): string => SKILLS[id]?.label ?? id
 export const statusLabel = (id: StatusId): string => STATUS_DEFS[id]?.label ?? id
 
-/** 관례 경로 (assets/manifest.json 과 일치). BASE_URL 을 붙여 GitHub Pages 같은 하위 경로 배포에서도 동작 */
-export const jobIcon = (job: string): string => `${import.meta.env.BASE_URL}jobs/${job}.svg`
+/**
+ * 아이콘 경로 (assets/manifest.json 과 일치). BASE_URL 을 붙여 GitHub Pages 같은 하위 경로 배포에서도 동작.
+ * 키는 직업 id 또는 몬스터 아이콘 id — 전투 CharSetup.id 의 `키#번호` 앞부분이 그대로 들어온다.
+ */
+export const jobIcon = (key: string): string => `${import.meta.env.BASE_URL}${isMonsterIcon(key) ? 'monsters' : 'jobs'}/${key}.svg`
 
 export const failText = (r: SkillFailReason): string =>
   r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : r === 'silenced' ? '침묵 상태' : r === 'cooldown' ? '재사용 대기' : r === 'notLearned' ? '미습득' : '무기 불일치'

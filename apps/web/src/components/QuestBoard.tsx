@@ -192,7 +192,7 @@ export function QuestBoard({ save, onSave }: Props) {
             <div className="who">
               {preview.map((m) => (
                 <span key={m.id} className="foe">
-                  <img src={jobIcon(m.job)} alt="" width={26} height={26} />
+                  <img src={jobIcon(m.icon ?? m.job)} alt="" width={26} height={26} />
                   <small>{m.name} Lv {m.level}</small>
                 </span>
               ))}

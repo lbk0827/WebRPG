@@ -22,13 +22,13 @@ export function Shop({ save, onSave, onBack, onGoFormation }: Props) {
   const [slot, setSlot] = useState<GearSlot>('weapon')
   const tier = shopTier(save)
   const stock = shopStock(save).filter((i) => i.slot === slot)
-  const nextRegion = REGIONS.find((r) => r.no === tier + 1)
+  const nextRegion = REGIONS.find((r) => r.no === (tier === 1 ? 3 : 5))
 
   return (
     <section className="shop">
       <div className="mission-head">
         <button className="link" onClick={onBack}>← 본부</button>
-        <h2>상점 <small>금 {save.gold} · 등급 {tier}{nextRegion ? ` · 다음 등급은 "${nextRegion.name}" 해금 후` : ' · 전부 열림'}</small></h2>
+        <h2>상점 <small>금 {save.gold} · 등급 {tier}{tier < 3 && nextRegion ? ` · 다음 등급은 "${nextRegion.name}" 해금 후` : ' · 전부 열림'}</small></h2>
         <p className="hint">산 장비는 창고로 갑니다. 착용은 <button className="link" onClick={onGoFormation}>편성 탭</button>의 장비 칸에서. 판매는 산 값의 20%.</p>
       </div>
 

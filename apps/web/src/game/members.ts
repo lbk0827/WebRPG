@@ -33,10 +33,10 @@ export function memberSetup(m: Member, idx: number): CharSetup {
 
 // ───────────────────────────── 장비 · 상점 (M2-4a)
 
-/** 상점 등급: 1 항상, 2 는 2번 지역 해금, 3 은 3번 지역 해금 */
+/** 상점 등급: 1 항상, 2 는 폐허 요새(3) 해금, 3 은 고블린 부락(5) 해금 */
 export function shopTier(g: GameSave): 1 | 2 | 3 {
   const open = (no: number) => { const r = REGIONS.find((x) => x.no === no); return !!r && isRegionUnlocked(r, g.regionWins) }
-  return open(3) ? 3 : open(2) ? 2 : 1
+  return open(5) ? 3 : open(3) ? 2 : 1
 }
 
 export const shopStock = (g: GameSave): ItemDef[] => { const t = shopTier(g); return ITEM_LIST.filter((i) => i.tier <= t) }

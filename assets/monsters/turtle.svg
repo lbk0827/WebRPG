@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>바위 거북</title>
+  <circle cx="64" cy="64" r="60" fill="#4e6b5a"/>
+  <circle cx="64" cy="64" r="60" fill="none" stroke="#1d1d24" stroke-width="4"/>
+  <!-- head -->
+  <path d="M64 18 C74 18 80 26 80 34 C80 42 74 48 64 48 C54 48 48 42 48 34 C48 26 54 18 64 18 Z" fill="#8aa08f" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="56" cy="32" r="3.5" fill="#1d1d24"/>
+  <circle cx="72" cy="32" r="3.5" fill="#1d1d24"/>
+  <!-- legs -->
+  <rect x="16" y="62" width="22" height="16" rx="7" fill="#8aa08f" stroke="#1d1d24" stroke-width="4"/>
+  <rect x="90" y="62" width="22" height="16" rx="7" fill="#8aa08f" stroke="#1d1d24" stroke-width="4"/>
+  <!-- shell -->
+  <path d="M64 40 L102 62 L88 102 H40 L26 62 Z" fill="#cfd6e0" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M64 54 L84 66 L77 88 H51 L44 66 Z" fill="#8fa3b8" stroke="#1d1d24" stroke-width="3" stroke-linejoin="round"/>
+  <line x1="64" y1="40" x2="64" y2="54" stroke="#1d1d24" stroke-width="3"/>
+  <line x1="26" y1="62" x2="44" y2="66" stroke="#1d1d24" stroke-width="3"/>
+  <line x1="102" y1="62" x2="84" y2="66" stroke="#1d1d24" stroke-width="3"/>
+  <line x1="40" y1="102" x2="51" y2="88" stroke="#1d1d24" stroke-width="3"/>
+  <line x1="88" y1="102" x2="77" y2="88" stroke="#1d1d24" stroke-width="3"/>
+</svg>
