@@ -6,11 +6,13 @@
 //
 // 하는 일:
 //   1. PNG 를 읽는다 (외부 라이브러리 없이. node:zlib 만 쓴다)
-//   2. 가로로 <칸수> 등분해 포즈 칸을 나눈다
-//   3. 각 칸에서 캐릭터만 잘라내고, 48×64 격자로 최근접 축소한다
-//   4. 모든 색을 우리 팔레트 12색 중 가장 가까운 색으로 스냅한다 (안티앨리어싱 제거)
-//   5. 발바닥을 y=59, 좌우 중심을 x=24 에 맞춰 세 포즈를 정렬한다
-//   6. pose0 / pose1 / pose2 레이어로 .px 를 쓴다
+//   2. 비어 있는 열에서 포즈 칸을 나눈다 (가로 등분이 아니다 — AI 는 포즈를 균등하게 놓지 않는다)
+//   3. 각 칸에서 캐릭터만 잘라낸다. 발 아래 잡티는 침식 마스크로 거른다
+//   4. 배율은 대기 포즈(1칸)의 키 = 52줄로 정한다. 세 포즈, 열세 캐릭터가 같은 몸 크기가 된다
+//   5. 발의 가로 중심을 x=24, 발바닥을 y=59 에 놓는다
+//   6. 뻗은 무기가 48×64 상자를 넘치면 격자를 넓히고 @origin 에 상자 위치를 적는다 (자르지 않는다)
+//   7. 모든 색을 우리 팔레트 12색 중 가장 가까운 색으로 스냅한다 (안티앨리어싱 제거)
+//   8. pose0 / pose1 / pose2 레이어로 .px 를 쓴다
 //
 // 나온 .px 는 "초안"이다. 사람이 열어서 손으로 고치는 것이 정상이다.
 import { readFileSync, writeFileSync } from 'node:fs'
@@ -24,7 +26,8 @@ const W = 48
 const H = 64
 const FOOT = 59 // 발바닥이 놓일 줄
 const CENTER = 24 // 좌우 중심
-const DRAW_H = 60 // y=0..59. 아래 4칸은 그림자/화면 여유
+const BODY_H = 52 // 대기 포즈의 키. 머리 꼭대기 y=8, 발바닥 y=59. 캐릭터 열셋이 이 키로 맞는다
+// 위 8줄은 치켜든 무기의 여유다. 그래도 넘치면 격자를 위로 넓힌다 (@origin 의 y)
 
 /** docs/15 공통 팔레트. r/R 은 manifest 의 캐릭터 대표색으로 뒤에서 붙인다. */
 const BASE_PALETTE = [
@@ -315,19 +318,19 @@ function cellBounds(mask, w, h, cx0, cx1) {
   return { x0: x0 - 1, x1: x1 + 1, y0: y0 - 1, y1: y1 + 1, feet, sw: x1 - x0 + 3, sh: y1 - y0 + 3 }
 }
 
-function cellToGrid(img, bg, bounds, scale, origin, gridW) {
+function cellToGrid(img, bg, bounds, scale, origin, gridW, gridH) {
   const { x0, y0, sw, sh, feet } = bounds
   const dw = Math.max(1, Math.round(sw / scale))
   const dh = Math.max(1, Math.round(sh / scale))
   // 발의 가로 중심을 상자의 x=24 에 놓는다. 무기가 뻗어도 몸은 제자리다
-  const left = origin + CENTER - Math.round((feet - x0) / scale)
-  const top = FOOT - dh + 1
-  const grid = Array.from({ length: H }, () => Array(gridW).fill('.'))
+  const left = origin.x + CENTER - Math.round((feet - x0) / scale)
+  const top = origin.y + FOOT - dh + 1
+  const grid = Array.from({ length: gridH }, () => Array(gridW).fill('.'))
   for (let dy = 0; dy < dh; dy++) {
     for (let dx = 0; dx < dw; dx++) {
       const gx = left + dx
       const gy = top + dy
-      if (gx < 0 || gx >= gridW || gy < 0 || gy >= H) continue
+      if (gx < 0 || gx >= gridW || gy < 0 || gy >= gridH) continue
       // 원본의 해당 블록에서 가장 많이 나온 색을 고른다 (최근접보다 덜 튄다)
       const rx = Math.floor((dx * sw) / dw)
       const ry = Math.floor((dy * sh) / dh)
@@ -388,32 +391,41 @@ const bounds = cells.map((c, i) => {
   return found
 })
 
-// 배율은 **키로만** 정한다. 세 포즈가 같은 배율이어야 전환 때 몸이 튀지 않고,
-// 캐릭터 열셋이 같은 배율이어야 나란히 섰을 때 키가 맞는다.
-// 찌르기처럼 멀리 뻗는 포즈는 48칸 상자를 넘친다. 잘라 내지도, 줄이지도 않는다 —
-// 격자를 넓히고 @origin 으로 "상자의 x=0 이 격자 몇 번째 칸인지"를 적어 둔다.
+// 배율은 **대기 포즈(1칸)의 키**로만 정한다. 몸 크기의 기준이 대기 포즈다.
+//  · 세 포즈가 같은 배율이어야 전환 때 몸이 튀지 않는다
+//  · 캐릭터 열셋의 대기 포즈가 같은 키여야 나란히 섰을 때 크기가 맞는다
+//    (가장 높은 포즈로 정하면, 지팡이를 높이 든 캐릭터만 몸이 작아진다)
+// 치켜든 무기·찌르기는 상자를 넘친다. 잘라 내지도, 줄이지도 않는다 —
+// 격자를 넓히고 @origin 으로 "상자의 (0,0) 이 격자 어느 칸인지"를 적어 둔다.
 // 화면은 상자(48×64)로 배치하고 그림은 상자 밖까지 그린다 (CSS overflow: visible).
-const scale = Math.max(...bounds.map(({ sh }) => sh / DRAW_H))
+const scale = bounds[0].sh / BODY_H
 const reach = bounds.map((b) => ({
   left: Math.ceil((b.feet - b.x0) / scale),
   right: Math.ceil((b.x1 - b.feet) / scale),
+  up: Math.ceil(b.sh / scale), // 발바닥에서 꼭대기까지
 }))
 const overL = Math.max(0, ...reach.map((r) => r.left - CENTER)) // 상자 왼쪽으로 넘치는 칸
 const overR = Math.max(0, ...reach.map((r) => r.right - (W - 1 - CENTER))) // 오른쪽으로
-const origin = overL
+const overT = Math.max(0, ...reach.map((r) => r.up - (FOOT + 1))) // 위로
+const origin = { x: overL, y: overT }
 const gridW = W + overL + overR
-const grids = bounds.map((box) => cellToGrid(img, bg, box, scale, origin, gridW))
+const gridH = H + overT
+const grids = bounds.map((box) => cellToGrid(img, bg, box, scale, origin, gridW, gridH))
 bounds.forEach((b, i) => {
   const r = reach[i]
-  const spill = [r.left > CENTER ? `왼쪽 ${r.left - CENTER}` : '', r.right > W - 1 - CENTER ? `오른쪽 ${r.right - (W - 1 - CENTER)}` : '']
+  const spill = [
+    r.left > CENTER ? `왼쪽 ${r.left - CENTER}` : '',
+    r.right > W - 1 - CENTER ? `오른쪽 ${r.right - (W - 1 - CENTER)}` : '',
+    r.up > FOOT + 1 ? `위 ${r.up - (FOOT + 1)}` : '',
+  ]
     .filter(Boolean)
     .join(' · ')
   console.log(
-    `pose${i}: 원본 ${b.sw}×${b.sh} → 키 ${Math.round(b.sh / scale)}줄, 발에서 왼쪽 ${r.left} · 오른쪽 ${r.right}칸` +
+    `pose${i}: 원본 ${b.sw}×${b.sh} → 키 ${r.up}줄, 발에서 왼쪽 ${r.left} · 오른쪽 ${r.right}칸` +
       (spill ? `  (상자 밖으로 ${spill}칸)` : ''),
   )
 })
-if (gridW > W) console.log(`격자 ${gridW}×${H}, 상자 x=0 은 격자 ${origin}번 칸 (@origin ${origin})`)
+if (gridW > W || gridH > H) console.log(`격자 ${gridW}×${gridH}, 상자 (0,0) 은 격자 (${origin.x}, ${origin.y}) (@origin ${origin.x} ${origin.y})`)
 
 const used = new Set()
 for (const grid of grids) for (const row of grid) for (const ch of row) if (ch !== '.') used.add(ch)
@@ -421,14 +433,14 @@ for (const grid of grids) for (const row of grid) for (const ch of row) if (ch !
 const lines = []
 lines.push(`# ${entry.name || key}`)
 lines.push(`# ${src} 에서 node assets/png-to-px.mjs 로 뽑은 초안이다. 손으로 다듬을 것 (docs/16)`)
-lines.push('# 48x64 상자. 3/4 반측면. 발바닥 y=59, 발 중심은 상자의 x=24')
+lines.push(`# 48x64 상자. 3/4 반측면. 발바닥 y=59, 발 중심은 상자의 x=24. 대기 포즈 키 ${BODY_H}줄 (전원 공통)`)
 lines.push('# pose0 대기 / pose1 치켜듦 / pose2 내리침 — 전신을 통째로 갈아 끼운다')
-if (gridW > W) {
-  lines.push(`# 뻗은 무기 때문에 격자가 상자보다 넓다 (${gridW}칸). 상자 밖은 화면에서 그대로 삐져나온다`)
+if (gridW > W || gridH > H) {
+  lines.push(`# 뻗은 무기 때문에 격자가 상자보다 크다 (${gridW}×${gridH}). 상자 밖은 화면에서 그대로 삐져나온다`)
 }
 lines.push('')
 lines.push(`@canvas ${W}x${H}`)
-lines.push(`@origin ${origin}`)
+lines.push(`@origin ${origin.x} ${origin.y}`)
 lines.push('@palette')
 lines.push('. none')
 for (const [ch, r, g, b] of PALETTE) {

@@ -29,7 +29,7 @@ function parse(text) {
   // 상자(화면이 배치에 쓰는 크기)와 원점(상자의 x=0 이 격자 몇 번째 칸인지).
   // 격자가 상자보다 넓으면 그 바깥은 화면에서 삐져나와 그려진다 — 뻗은 무기용
   let canvas = null
-  let origin = 0
+  let origin = { x: 0, y: 0 }
   for (const rawLine of text.split(/\r?\n/)) {
     const line = rawLine.replace(/\s+$/, '')
     if (!line || line.startsWith('#')) continue
@@ -39,7 +39,11 @@ function parse(text) {
       canvas = { w: Number(m[1]), h: Number(m[2]) }
       continue
     }
-    if (line.startsWith('@origin')) { origin = Number(line.slice(7).trim()); continue }
+    if (line.startsWith('@origin')) {
+      const [ox, oy] = line.slice(7).trim().split(/\s+/).map(Number)
+      origin = { x: ox || 0, y: oy || 0 }
+      continue
+    }
     if (line.startsWith('@palette')) { mode = 'palette'; continue }
     if (line.startsWith('@layer')) {
       const name = line.slice(6).trim()
@@ -97,9 +101,9 @@ function toRects(rows, palette) {
   return out
 }
 
-const rectsXml = (rects, indent, origin = 0) =>
+const rectsXml = (rects, indent, origin = { x: 0, y: 0 }) =>
   rects
-    .map((r) => `${indent}<rect x="${r.x - origin}" y="${r.y}" width="${r.w}" height="${r.h}" fill="${r.color}"/>`)
+    .map((r) => `${indent}<rect x="${r.x - origin.x}" y="${r.y - origin.y}" width="${r.w}" height="${r.h}" fill="${r.color}"/>`)
     .join('\n')
 
 function build(file) {
@@ -117,11 +121,11 @@ function build(file) {
   if (hasParts && fullPoses.length) throw new Error(`${file}: 부위 레이어와 전신 포즈 레이어를 섞을 수 없다`)
   if (fullPoses.length && fullPoses.length !== 3) throw new Error(`${file}: pose0/pose1/pose2 세 레이어가 모두 필요하다`)
   if (box.w !== 48 || box.h !== 64) throw new Error(`${file}: 상자는 48×64 여야 한다 (현재 ${box.w}×${box.h})`)
-  if (height !== 64) throw new Error(`${file}: 64줄이어야 한다 (현재 ${height}줄)`)
-  if (width < box.w + origin) throw new Error(`${file}: 격자(${width}칸)가 원점 ${origin} + 상자 48칸보다 좁다`)
+  if (height < box.h + origin.y) throw new Error(`${file}: 격자(${height}줄)가 원점 ${origin.y} + 상자 64줄보다 짧다`)
+  if (width < box.w + origin.x) throw new Error(`${file}: 격자(${width}칸)가 원점 ${origin.x} + 상자 48칸보다 좁다`)
   for (const name of fullPoses) {
     const rows = layers.get(name)
-    if (rows.length !== 64) throw new Error(`${file}: ${name} 레이어는 64줄이어야 한다 (현재 ${rows.length}줄)`)
+    if (rows.length !== height) throw new Error(`${file}: ${name} 레이어는 ${height}줄이어야 한다 (현재 ${rows.length}줄)`)
   }
 
   const head = R('head', '      ')
@@ -158,7 +162,9 @@ ${parts.join('\n')}
   const outName = basename(file, '.px') + '.svg'
   writeFileSync(join(dir, outName), svg, 'utf8')
   const rectCount = (svg.match(/<rect/g) || []).length
-  const spill = width > box.w ? `  (격자 ${width}칸, 상자 밖 왼쪽 ${origin} · 오른쪽 ${width - box.w - origin})` : ''
+  const spill = width > box.w || height > box.h
+    ? `  (격자 ${width}×${height}, 상자 밖 왼쪽 ${origin.x} · 오른쪽 ${width - box.w - origin.x} · 위 ${origin.y})`
+    : ''
   return `${outName}  ${box.w}×${box.h}  rect ${rectCount}  ${(svg.length / 1024).toFixed(1)}KB${spill}`
 }
 
