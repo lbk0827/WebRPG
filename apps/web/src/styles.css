@@ -344,6 +344,13 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .faq dl { margin: 0; }
 .faq dt { font-weight: 700; margin-top: 8px; }
 .faq dd { margin: 2px 0 0; color: var(--muted); }
+/* 할 일 — 접이식 (기본 접힘). 요약 줄에 개수와 첫 항목 */
+.todo-box { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 12px; margin: 10px 0; }
+.todo-box > summary { cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.todo-box > summary small { font-weight: normal; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.todo-box > summary .badge { background: var(--team0); }
+.todo-box[open] > summary { margin-bottom: 8px; border-bottom: 1px dashed var(--line); padding-bottom: 6px; }
+.todo-box[open] > summary small { display: none; }
 .todos { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .todos li { display: flex; align-items: center; justify-content: space-between; gap: 8px; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 10px; }
 .party-mini { list-style: none; margin: 0 0 6px; padding: 0; display: grid; gap: 4px; }
@@ -414,6 +421,31 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .rule-test { margin-top: 18px; padding-top: 10px; border-top: 1px dashed var(--line); }
 .rule-test h3 { margin: 0 0 8px; color: var(--ink); }
 .rule-test .run-bar label { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
+/* 편성 프리셋 선반 — 슬롯마다 판 미리보기 (유니콘 오버로드식) */
+.board.mini { --cell: 30px; }
+.board.mini .board-grid { gap: 2px; padding: 3px; border-radius: 6px; }
+.board.mini .cell { border-radius: 3px; border-width: 1px; padding: 0; }
+.board.mini .cell img { width: 22px; height: 22px; }
+.board.mini .cell.front::after { width: 2px; }
+.preset-shelf { margin: 12px 0 4px; }
+.preset-shelf h3 { margin: 0 0 6px; color: var(--ink); }
+/* 슬롯 6개가 넓은 화면에서 한 줄에 들어가도록 (136px × 6 + 여백) */
+.preset-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(136px, 1fr)); gap: 8px; }
+.preset { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px; display: grid; gap: 4px; justify-items: center; }
+.preset.on { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+.preset-head { display: flex; align-items: center; gap: 5px; justify-self: stretch; }
+.preset-head b { font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.preset-head .badge { margin-left: auto; background: var(--team1); }
+.preset-board { padding: 2px; border: none; background: none; cursor: pointer; border-radius: 8px; }
+.preset-board:hover { background: rgba(0, 0, 0, 0.05); }
+.preset-who { font-size: 10px; text-align: center; line-height: 1.3; max-height: 2.6em; overflow: hidden; }
+.preset-tools { display: flex; gap: 3px; justify-self: stretch; }
+.preset-tools > button:first-child { flex: 1; font-size: 11px; padding: 4px 6px; }
+.preset-tools button.mini { padding: 4px 6px; font-size: 11px; }
+.preset .slot-empty { width: 100%; min-height: 132px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border-style: dashed; border-radius: 10px; color: var(--muted); }
+.preset .slot-empty .plus { font-size: 22px; line-height: 1; }
+.preset .slot-empty .sub { font-size: 10px; }
+
 .party-presets { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 8px 0 4px; font-size: 12px; }
 .party-presets .label { color: var(--muted); }
 .party-presets .pp { display: inline-flex; gap: 2px; }

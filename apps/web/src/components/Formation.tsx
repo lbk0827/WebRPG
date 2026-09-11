@@ -2,12 +2,13 @@
 // 스탯·스킬·장비는 캐릭터 탭으로 갈라졌다 (탭 개편 2026-09-11) — 여기는 "누가 어디 서서 무엇을 하는가"만 다룬다.
 import { useEffect, useState } from 'react'
 import { PRESETS } from '@webrpg/engine'
-import type { GameSave, Member, PartyPreset, RulePreset } from '../game/save'
-import { PARTY_MAX, PARTY_PRESET_SLOTS, RULE_PRESET_MAX, cellRow } from '../game/save'
-import { benchMembers, clearCell, memberById, memberStats, partyMembers, placeMember, setGrid, swapCells, updateMember } from '../game/members'
+import type { GameSave, Member, RulePreset } from '../game/save'
+import { PARTY_MAX, RULE_PRESET_MAX, cellRow } from '../game/save'
+import { benchMembers, clearCell, memberById, memberStats, partyMembers, placeMember, swapCells, updateMember } from '../game/members'
 import type { SlotState } from '../state'
 import { jobIcon, jobName, skillLabel } from '../lib/labels'
 import { Board } from './Board'
+import { PartyPresets } from './PartyPresets'
 import { RuleEditor, type PresetHooks } from './RuleEditor'
 import { RuleTest } from './RuleTest'
 
@@ -45,21 +46,6 @@ export function Formation({ save, onSave, initialCell = null, onGoCharacters }: 
   const remove = () => {
     if (sel === null) return
     onSave(clearCell(save, sel))
-  }
-
-  // 편성 프리셋
-  const savePreset = (i: number) => {
-    const name = window.prompt('이 편성의 이름', save.partyPresets[i]?.name ?? `편성 ${i + 1}`)
-    if (!name || !name.trim()) return
-    const presets = save.partyPresets.slice()
-    presets[i] = { name: name.trim().slice(0, 12), party: [...save.party] }
-    onSave({ ...save, partyPresets: presets })
-  }
-  const loadPreset = (p: PartyPreset) => onSave(setGrid(save, p.party))
-  const clearPreset = (i: number) => {
-    const presets = save.partyPresets.slice()
-    presets[i] = null
-    onSave({ ...save, partyPresets: presets })
   }
 
   // 수칙 편집 — 선택 단원 한 명짜리 슬롯
@@ -129,25 +115,6 @@ export function Formation({ save, onSave, initialCell = null, onGoCharacters }: 
             </div>
           )}
 
-          <div className="party-presets">
-            <span className="label">편성 저장</span>
-            {Array.from({ length: PARTY_PRESET_SLOTS }, (_, i) => {
-              const p = save.partyPresets[i]
-              return (
-                <span key={i} className={`pp ${p ? '' : 'empty'}`}>
-                  {p ? (
-                    <>
-                      <button onClick={() => loadPreset(p)} title={`불러오기: ${p.party.map((id) => memberById(save, id)?.name ?? '—').join(' · ')}`}>{p.name}</button>
-                      <button className="mini" onClick={() => savePreset(i)} title="현재 편성으로 덮어쓰기">↻</button>
-                      <button className="mini" onClick={() => clearPreset(i)} title="비우기">×</button>
-                    </>
-                  ) : (
-                    <button onClick={() => savePreset(i)}>빈 슬롯 {i + 1} — 저장</button>
-                  )}
-                </span>
-              )
-            })}
-          </div>
         </div>
 
         <div className="right">
@@ -174,6 +141,7 @@ export function Formation({ save, onSave, initialCell = null, onGoCharacters }: 
         </div>
       </div>
 
+      <PartyPresets save={save} onSave={onSave} />
       <RuleTest save={save} />
     </section>
   )

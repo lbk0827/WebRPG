@@ -65,7 +65,8 @@ export interface PartyPreset {
   party: (string | null)[]
 }
 
-export const PARTY_PRESET_SLOTS = 3
+/** 편성 프리셋 슬롯 수 (단장 요청으로 3 → 6). 늘려도 옛 저장은 뒤가 빈 슬롯으로 채워진다 */
+export const PARTY_PRESET_SLOTS = 6
 export const RULE_PRESET_MAX = 20
 
 /**

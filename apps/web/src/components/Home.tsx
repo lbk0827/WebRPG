@@ -88,31 +88,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
         </div>
       )}
 
-      <h2>할 일</h2>
-      {todos.length === 0 ? (
-        <p className="hint">지금은 급한 게 없다. 훈련장에서 수칙을 다듬거나, 마을 자료실을 읽어 두자.</p>
-      ) : (
-        <ul className="todos">
-          {todos.map((t, i) => (
-            <li key={i}>
-              <span>{t.text}</span>
-              <button className={i === 0 ? 'primary' : ''} onClick={t.go}>{t.action} →</button>
-            </li>
-          ))}
-        </ul>
-      )}
-
       <div className="hq-grid">
-        <div className="card">
-          <h3>훈련 과제 <small>{clearedCount}/{MISSIONS.length}</small></h3>
-          <div className="bar exp"><i style={{ width: `${(clearedCount / MISSIONS.length) * 100}%` }} /></div>
-          <p className="hint">{nextMission ? `다음: ${nextMission.no}. ${nextMission.title}` : '전부 마쳤다. 수칙 체계를 다 익힌 상태.'}</p>
-          <div className="run-bar">
-            <button className="primary" onClick={() => onGoTown('missions')}>훈련소 →</button>
-            <button onClick={() => onGoTown()}>마을</button>
-          </div>
-        </div>
-
         <div className="card">
           <h3>편성 <small>{party.length}/{PARTY_MAX}명 · 판을 누르면 편성 탭</small></h3>
           <Board save={save} compact onCell={() => onGo('formation')} />
@@ -122,7 +98,37 @@ export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
             <button onClick={() => onGoTown('codex')}>자료실</button>
           </div>
         </div>
+
+        <div className="card">
+          <h3>훈련 과제 <small>{clearedCount}/{MISSIONS.length}</small></h3>
+          <div className="bar exp"><i style={{ width: `${(clearedCount / MISSIONS.length) * 100}%` }} /></div>
+          <p className="hint">{nextMission ? `다음: ${nextMission.no}. ${nextMission.title}` : '전부 마쳤다. 수칙 체계를 다 익힌 상태.'}</p>
+          <div className="run-bar">
+            <button className="primary" onClick={() => onGoTown('missions')}>훈련소 →</button>
+            <button onClick={() => onGoTown()}>마을</button>
+          </div>
+        </div>
       </div>
+
+      {/* 할 일은 길어지기 쉬워서 기본으로 접어 둔다 (단장 지시). 요약 줄에 개수와 첫 항목을 남긴다 */}
+      <details className="todo-box">
+        <summary>
+          할 일 {todos.length > 0 && <span className="badge">{todos.length}</span>}
+          <small>{todos.length === 0 ? '지금은 급한 게 없다' : `${todos[0].text}${todos.length > 1 ? ` 외 ${todos.length - 1}` : ''}`}</small>
+        </summary>
+        {todos.length === 0 ? (
+          <p className="hint">훈련장에서 수칙을 다듬거나, 마을 자료실을 읽어 두자.</p>
+        ) : (
+          <ul className="todos">
+            {todos.map((t, i) => (
+              <li key={i}>
+                <span>{t.text}</span>
+                <button className={i === 0 ? 'primary' : ''} onClick={t.go}>{t.action} →</button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </details>
 
       <h2>최근 전투 <small>{save.battles}전 {save.wins}승 · 기록 {save.log.length}건</small></h2>
       {save.log.length === 0 ? (
