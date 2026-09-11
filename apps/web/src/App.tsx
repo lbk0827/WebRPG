@@ -84,7 +84,7 @@ export function App() {
 
       <main>
         {tab === 'home' && <Home save={save} onSave={setSave} progress={progress} onGo={go} onGoTown={goTown} />}
-        {tab === 'formation' && <Formation save={save} onSave={setSave} initialCell={formationCell} onGoCharacters={() => go('characters')} />}
+        {tab === 'formation' && <Formation save={save} onSave={setSave} initialCell={formationCell} onGoShop={() => goTown('shop')} />}
         {tab === 'characters' && (
           <Characters
             save={save}
