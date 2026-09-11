@@ -88,25 +88,32 @@ export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
         </div>
       )}
 
-      <div className="hq-grid">
-        <div className="card">
-          <h3>편성 <small>{party.length}/{PARTY_MAX}명 · 판을 누르면 편성 탭</small></h3>
+      {/* 편성이 맨 위 (단장 지시). 훈련 과제 카드는 없앴다 — 할 일과 마을 훈련소로 충분하다 */}
+      <div className="card hq-formation">
+        <h3>편성 <small>{party.length}/{PARTY_MAX}명 · 판이나 이름을 누르면 편성 탭</small></h3>
+        <div className="hq-formation-body">
           <Board save={save} compact onCell={() => onGo('formation')} />
-          <div className="run-bar">
-            <button onClick={() => onGo('formation')}>편성</button>
-            <button onClick={() => onGo('characters')}>캐릭터</button>
-            <button onClick={() => onGoTown('codex')}>자료실</button>
-          </div>
+          {party.length === 0 ? (
+            <p className="hint">아직 아무도 세우지 않았다. 편성 탭에서 단원을 판에 올리자.</p>
+          ) : (
+            <ul className="party-lineup">
+              {party.map((m) => (
+                <li key={m.id} className={m.row}>
+                  <button onClick={() => onGo('formation')}>
+                    <img src={jobIcon(m.job)} alt="" width={24} height={24} />
+                    <span className="nm">{m.name}</span>
+                    <small>Lv {m.level} · {m.row === 'front' ? '전열' : '후열'} · 패턴 {m.rules.rows.length}{m.gear?.weapon ? '' : ' · 무기 없음'}</small>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
-
-        <div className="card">
-          <h3>훈련 과제 <small>{clearedCount}/{MISSIONS.length}</small></h3>
-          <div className="bar exp"><i style={{ width: `${(clearedCount / MISSIONS.length) * 100}%` }} /></div>
-          <p className="hint">{nextMission ? `다음: ${nextMission.no}. ${nextMission.title}` : '전부 마쳤다. 수칙 체계를 다 익힌 상태.'}</p>
-          <div className="run-bar">
-            <button className="primary" onClick={() => onGoTown('missions')}>훈련소 →</button>
-            <button onClick={() => onGoTown()}>마을</button>
-          </div>
+        <div className="run-bar">
+          <button onClick={() => onGo('formation')}>편성</button>
+          <button onClick={() => onGo('characters')}>캐릭터</button>
+          <button onClick={() => onGo('battle')}>전투</button>
+          <button onClick={() => onGoTown()}>마을</button>
         </div>
       </div>
 

@@ -339,6 +339,16 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .card h3 { margin: 0 0 6px; color: var(--ink); font-size: 14px; }
 .hq-grid { display: grid; gap: 8px; margin: 10px 0; }
 @media (min-width: 620px) { .hq-grid { grid-template-columns: 1fr 1fr; } }
+/* 본부 맨 위 편성 카드 — 판 + 출전 명단 */
+.hq-formation { margin: 10px 0; }
+.hq-formation-body { display: grid; gap: 12px; align-items: start; }
+@media (min-width: 560px) { .hq-formation-body { grid-template-columns: auto 1fr; } }
+.party-lineup { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; align-content: start; }
+.party-lineup li button { width: 100%; text-align: left; display: grid; grid-template-columns: 24px 1fr; column-gap: 8px; align-items: center; padding: 5px 8px; border-radius: 10px; border-left-width: 3px; border-left-color: var(--team0); }
+.party-lineup li.back button { border-left-color: var(--team1); }
+.party-lineup .nm { font-weight: 600; font-size: 13px; }
+.party-lineup small { grid-column: 2; font-size: 11px; }
+.party-lineup img { grid-row: 1 / span 2; }
 .faq { background: var(--card); border: 1px solid var(--line); border-left: 4px solid var(--team0); border-radius: 12px; padding: 12px 14px; margin-bottom: 8px; }
 .faq h2 { margin: 0 0 8px; }
 .faq dl { margin: 0; }
