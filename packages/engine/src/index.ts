@@ -25,14 +25,14 @@ export type { HireDef, Quirk } from './data/recruit'
 export { ITEMS, ITEM_LIST, JOB_WEAPONS, WEAPON_TYPE_LABEL, SLOT_LABEL, SELL_PCT, sellPrice, canEquip, summarizeGear, applyGearStats, refinedNumbers } from './data/items'
 export {
   MATERIALS, REFINE_MAX, REFINE_RATE, REFINE_PCT_PER_LEVEL, REFINE_MATERIAL, refineCost, refineRate, tryRefine, refineMult,
-  RECIPES, RECIPE_BY_ID, CRAFT_TRAIT_PCT, CRAFT_TRAIT_POOL, rollCraftTrait, canCraft,
+  RECIPES, RECIPE_BY_ID, CRAFT_TRAIT_PCT, CRAFT_TRAIT_POOL, rollCraftTrait, craftLukBonusPct, canCraft,
 } from './data/crafting'
 export type { MaterialDef, RefineCost, Recipe } from './data/crafting'
 export type { GearSlot, ItemDef, ItemInstance, GearSummary } from './data/items'
 export type { DerivedStats } from './derived'
 export { MONSTERS, MONSTER_LIST, MONSTER_ICONS, ARCHETYPE_LABEL, isMonsterIcon, monsterSetup } from './data/monsters'
 export type { MonsterDef, MonsterIcon, Archetype } from './data/monsters'
-export { REGIONS, REGION_BY_ID, isRegionUnlocked, rollEncounter, battleRewards } from './data/regions'
+export { REGIONS, REGION_BY_ID, isRegionUnlocked, rollEncounter, battleRewards, lootBonusPct } from './data/regions'
 export type { RegionDef, Rewards } from './data/regions'
 export { ADVENTURES, ADVENTURE_BY_ID, WEEKDAY_LABEL, adventureTeam, adventureRewards } from './data/adventures'
 export type { AdventureDef } from './data/adventures'

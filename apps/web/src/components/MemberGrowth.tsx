@@ -1,7 +1,7 @@
 // 단원 성장 카드의 알맹이 — 레벨·경험치·스탯 분배(미리보기→확정)·파생 수치. 단원 탭과 편성 패널이 같이 쓴다.
 import { useState } from 'react'
 import type { Alloc, StatKey } from '@webrpg/engine'
-import { EMPTY_ALLOC, STAT_CAP, derivedStats, expToNext, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
+import { CRAFT_TRAIT_PCT, EMPTY_ALLOC, STAT_CAP, craftLukBonusPct, derivedStats, expToNext, lootBonusPct, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
 import type { Member } from '../game/save'
 import { allocateMany, gearSummary, memberStats } from '../game/members'
 import { STAT_HELP } from '../lib/labels'
@@ -68,6 +68,9 @@ export function MemberGrowth({ member: m, onChange, compact }: Props) {
         <span title="틱당 행동 게이지 충전량 (1000 이면 행동)">충전 {d.chargePerTick}/틱</span>
         <span title="시전 준비 시간 단축">선딜 −{d.castReductionPct}%</span>
         <span title="운 0 인 상대의 상태이상을 막을 확률">저항 ≤{d.resistMaxPct}%</span>
+        {/* 운의 값은 전투보다 전투 밖에 있다 — 2026-09-13 까지 화면에 없었다 (docs/18 §14) */}
+        <span title="단원 중 가장 높은 운이 출전 드롭 확률에 붙는다">드롭 +{lootBonusPct(s.luk)}%</span>
+        <span title="제작 시 보너스 특성이 붙을 확률. 단원 중 가장 높은 운이 쓰인다">제작 특성 {CRAFT_TRAIT_PCT + craftLukBonusPct(s.luk)}%</span>
       </div>
       {used > 0 && (
         <div className="run-bar confirm">

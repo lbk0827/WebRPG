@@ -191,17 +191,29 @@ export interface Rewards {
 /**
  * 보상. 승리면 전액 + 드롭, 패배면 경험치 30%·금 0·드롭 없음.
  * 드롭은 몬스터마다 테이블을 위에서부터 굴려 처음 당첨된 것 하나 (S12). seed 를 주면 결정론 — 같은 전투는 같은 드롭.
+ *
+ * `partyLuk` 은 **출전 단원 중 가장 높은 운**이다. 운 2 마다 드롭 확률 +1%, 최대 +60%
+ * (docs/07 §5: 운은 전투 밖에서 드롭·제작에 붙는다 — 2026-09-13 까지 연결되지 않고 있었다).
+ * 한 명만 운에 투자해도 값이 나오게 **최고값**을 쓴다. "운 좋은 놈이 주워 온다."
+ * rng 소비 횟수는 바뀌지 않는다 — 문턱만 오른다 (결정론 유지).
  */
-export function battleRewards(result: BattleResult, enemy: TeamSetup, seed?: number): Rewards {
+/**
+ * 운이 드롭 확률에 주는 보정 % — **운 2 마다 +1%, 최대 +60%**.
+ * 4 로 나눴을 때는 40% 를 운에 넣어도 판당 드롭이 3.5% 밖에 안 늘어 선택지가 되지 못했다 (2026-09-13 실측).
+ */
+export const lootBonusPct = (luk: number): number => Math.min(60, Math.floor(Math.max(0, luk) / 2))
+
+export function battleRewards(result: BattleResult, enemy: TeamSetup, seed?: number, partyLuk = 0): Rewards {
   const exp = enemy.members.reduce((s, m) => s + (m.monster?.exp ?? 0), 0)
   const gold = enemy.members.reduce((s, m) => s + (m.monster?.gold ?? 0), 0)
   if (result.outcome !== 'team0') return { exp: Math.floor(exp * 0.3), gold: 0, drops: [] }
   const drops: string[] = []
   if (seed !== undefined) {
     const rng = createRng(seed ^ 0xd201)
+    const boost = 100 + lootBonusPct(partyLuk)
     for (const m of enemy.members) {
       for (const d of m.monster?.drops ?? []) {
-        if (rng.int(10000) < d.permyriad) {
+        if (rng.int(10000) < Math.floor((d.permyriad * boost) / 100)) {
           drops.push(d.itemId)
           break
         }

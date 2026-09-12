@@ -240,7 +240,7 @@ export function craftItem(g: GameSave, recipeId: string, seed: number): CraftOut
     if (materials[m.id] <= 0) delete materials[m.id]
   }
   const item: ItemInstance = { uid: newUid(), itemId: r.itemId, refine: 0 }
-  const trait = rollCraftTrait(r.itemId, createRng(seed))
+  const trait = rollCraftTrait(r.itemId, createRng(seed), rosterLuk(g))
   if (trait) item.trait = trait
   return { save: { ...g, gold: g.gold - r.gold, materials, inventory: [...g.inventory, item] }, item, recipe: r }
 }
@@ -390,6 +390,17 @@ export const memberById = (g: GameSave, id: string | null): Member | undefined =
 export const partyMembers = (g: GameSave): Member[] => g.party.map((id) => memberById(g, id)).filter((m): m is Member => m !== undefined)
 
 export const partyTeam = (g: GameSave): TeamSetup => ({ name: g.name, members: partyMembers(g).map(memberSetup) })
+
+/**
+ * 드롭·제작에 쓰는 운 — **출전 단원 중 가장 높은 값**. 장비 보정까지 포함한다.
+ * 한 명만 운에 투자해도 값이 나오게 최고값을 쓴다 ("운 좋은 놈이 주워 온다", docs/07 §5).
+ */
+export const partyLuk = (g: GameSave): number =>
+  partyMembers(g).reduce((best, m) => Math.max(best, memberStats(m).luk), 0)
+
+/** 제작에 쓰는 운 — 출전 여부와 무관하게 **단원 전체** 중 최고값 (대장간은 마을에 있다) */
+export const rosterLuk = (g: GameSave): number =>
+  g.members.reduce((best, m) => Math.max(best, memberStats(m).luk), 0)
 
 /** 편성 요약 (상태줄·비교 카드용) */
 export function partySummary(g: GameSave): { count: number; avgLevel: number; levelSum: number; hpSum: number } {

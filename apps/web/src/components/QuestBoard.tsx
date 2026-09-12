@@ -17,7 +17,7 @@ import type { Analysis, BattleResult, TeamSetup } from '@webrpg/engine'
 import { ARCHETYPE_LABEL, DEFAULT_CONFIG, MONSTERS, REGIONS, SKILLS, analyze, battleRewards, isRegionUnlocked, monsterSetup, rollEncounter, simulate, type RegionDef } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { pushRecord } from '../game/save'
-import { addMaterials, applyExp, partyMembers, partySummary, partyTeam } from '../game/members'
+import { addMaterials, applyExp, partyLuk, partyMembers, partySummary, partyTeam } from '../game/members'
 import { jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
 import { diagnose } from '../lib/diagnose'
 import { Replay } from './Replay'
@@ -56,7 +56,7 @@ function runOne(save: GameSave, region: RegionDef, at: number): { save: GameSave
   const player = partyTeam(save)
   const result = simulate({ seed, teams: [player, enemy], config: DEFAULT_CONFIG, skills: SKILLS })
   const analysis = analyze(result, [player.members.length, enemy.members.length])
-  const { exp, gold, drops } = battleRewards(result, enemy, seed)
+  const { exp, gold, drops } = battleRewards(result, enemy, seed, partyLuk(save))
 
   const levelUps: { name: string; level: number }[] = []
   const members = save.members.map((m) => {

@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   ITEMS, MATERIALS, MONSTERS, RECIPES, REFINE_MAX, REGIONS, TRAITS, battleRewards, canCraft, createRng, refineCost, refineRate, refinedNumbers,
-  rollCraftTrait, rollEncounter, summarizeGear, tryRefine,
+  craftLukBonusPct, lootBonusPct, rollCraftTrait, rollEncounter, summarizeGear, tryRefine,
 } from '../src'
 
 describe('재료와 드롭', () => {
@@ -75,5 +75,52 @@ describe('제작', () => {
     expect(hits).toBeLessThan(80)
     // 제작 특성이 붙은 인스턴스는 합산에 들어간다
     expect(summarizeGear([{ uid: 'a', itemId: 'swordSteel', refine: 0, trait: 'eager' }]).traits).toContain('eager')
+  })
+})
+
+// ── 운이 전투 밖에서 일한다 (docs/18 §14) ──────────────────────
+//
+// 2026-09-13 측정: 운의 유일한 효과(상태이상 저항)가 기본 분배에서 **판당 0.0회** 발동했다.
+// docs/07 §5 는 운이 드롭·제작에도 붙는다고 적어 두었는데 연결되지 않고 있었다. 연결했다.
+describe('운 — 드롭과 제작', () => {
+  it('보정식: 드롭은 운 2 당 +1% (최대 60), 제작 특성은 운 5 당 +1%p (최대 25)', () => {
+    expect(lootBonusPct(0)).toBe(0)
+    expect(lootBonusPct(46)).toBe(23)
+    expect(lootBonusPct(400), '상한').toBe(60)
+    expect(lootBonusPct(-5), '음수는 0').toBe(0)
+    expect(craftLukBonusPct(40)).toBe(8)
+    expect(craftLukBonusPct(999), '상한').toBe(25)
+  })
+
+  it('운이 높으면 같은 전투에서 드롭이 더 나온다', () => {
+    const region = REGIONS[5]
+    let low = 0, high = 0
+    for (let s = 1; s <= 300; s++) {
+      const enemy = rollEncounter(region, s)
+      // 승패와 무관하게 드롭 판정만 비교하려고 승리 결과를 하나 만들어 쓴다
+      const win = { outcome: 'team0', events: [], ticks: 0 } as unknown as Parameters<typeof battleRewards>[0]
+      low += battleRewards(win, enemy, s, 0).drops.length
+      high += battleRewards(win, enemy, s, 120).drops.length
+    }
+    expect(high, `운 0 → ${low}개 / 운 120 → ${high}개`).toBeGreaterThan(low)
+  })
+
+  it('운이 높으면 제작에 특성이 더 자주 붙는다', () => {
+    const count = (luk: number) => {
+      let n = 0
+      for (let s = 1; s <= 1200; s++) if (rollCraftTrait('ironSword', createRng(s), luk)) n++
+      return n
+    }
+    const low = count(0)
+    const high = count(130)
+    expect(high, `운 0 → ${low}/1200 · 운 130 → ${high}/1200`).toBeGreaterThan(low)
+  })
+
+  it('운은 rng 소비 횟수를 바꾸지 않는다 — 문턱만 올린다 (결정론)', () => {
+    // 같은 시드로 굴리면, 운이 낮을 때 당첨된 것은 운이 높을 때도 당첨돼야 한다
+    for (let s = 1; s <= 200; s++) {
+      const lowHit = rollCraftTrait('ironSword', createRng(s), 0)
+      if (lowHit) expect(rollCraftTrait('ironSword', createRng(s), 130), `시드 ${s}`).toBe(lowHit)
+    }
   })
 })

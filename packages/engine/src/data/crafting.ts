@@ -88,12 +88,17 @@ export const CRAFT_TRAIT_PCT = 30
 /** 제작 특성 후보 — 수칙과 맞물리는 것만 (traits.ts 전부) */
 export const CRAFT_TRAIT_POOL: string[] = Object.keys(TRAITS)
 
+/** 운이 제작 특성 확률에 주는 보정 %p — 운 5 마다 +1%p, 최대 +25%p */
+export const craftLukBonusPct = (luk: number): number => Math.min(25, Math.floor(Math.max(0, luk) / 5))
+
 /**
- * 제작 결과의 보너스 특성. 30% 로 후보 중 하나. 장비 자체 특성과 같으면 다시 뽑지 않고 없음 처리 (단순함 우선).
- * rng 를 소비한다 (확률 1회 + 당첨 시 1회).
+ * 제작 결과의 보너스 특성. 기본 30% 로 후보 중 하나. 장비 자체 특성과 같으면 다시 뽑지 않고 없음 처리 (단순함 우선).
+ * rng 를 소비한다 (확률 1회 + 당첨 시 1회) — `luk` 은 문턱만 올리므로 소비 횟수가 그대로다.
+ *
+ * `luk` 은 **단원 중 가장 높은 운**. 대장간에 운 좋은 단원을 붙이는 셈이다 (docs/07 §5).
  */
-export function rollCraftTrait(itemId: string, rng: Rng): string | undefined {
-  if (rng.pct() >= CRAFT_TRAIT_PCT) return undefined
+export function rollCraftTrait(itemId: string, rng: Rng, luk = 0): string | undefined {
+  if (rng.pct() >= CRAFT_TRAIT_PCT + craftLukBonusPct(luk)) return undefined
   const pick = CRAFT_TRAIT_POOL[rng.int(CRAFT_TRAIT_POOL.length)]
   return ITEMS[itemId]?.trait === pick ? undefined : pick
 }
