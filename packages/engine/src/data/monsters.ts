@@ -121,7 +121,14 @@ const list: MonsterDef[] = [
   },
   {
     id: 'rivalPriest', name: '경쟁 용병 프리스트', job: 'priest', archetype: 'caster', level: 8, growth: { int: 3, luk: 2 },
-    rules: structuredClone(PRESETS.priest.rules),
+    row: 'back', skills: ['strike', 'mendChant', 'mend', 'resurrect'],
+    // 교재: 후열에서 계속 되돌린다. 앞만 때리면 끝나지 않는다 — 뒤를 치거나 시전을 끊어라 (docs/18 §6 B)
+    rules: rules(
+      row(atom({ kind: 'teamDeadCount', side: 'ally', cmp: 'gte', value: 1 }), 'resurrect'),
+      row(and(sp(12), atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 70 })), 'mendChant'),
+      row(and(sp(10), atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 45 })), 'mend'),
+      row(always, 'strike'),
+    ),
     drops: [{ itemId: 'holyWater', permyriad: 4500 }, { itemId: 'manaCrystal', permyriad: 1500 }], exp: 55, gold: 30,
   },
   {
@@ -169,9 +176,14 @@ const list: MonsterDef[] = [
   },
   {
     id: 'goblinShaman', name: '고블린 주술사', job: 'mage', icon: 'shaman', archetype: 'caster', level: 15, growth: { int: 5 },
-    stats: { maxHp: 720 }, row: 'back', skills: ['strike', 'bolt', 'fireball', 'meditate'],
-    // 교재: 준비가 긴 기술을 쓴다 — 끊으면 아무것도 못 한다
-    rules: rules(row(sp(14), 'fireball'), row(sp(6), 'bolt'), row(always, 'meditate')),
+    stats: { maxHp: 720 }, row: 'back', skills: ['strike', 'bolt', 'fireball', 'mendChant', 'meditate'],
+    // 교재: 준비가 긴 기술을 쓴다 — 끊으면 아무것도 못 한다. 놔두면 동료를 되돌리기까지 한다
+    rules: rules(
+      row(and(sp(12), atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 55 })), 'mendChant'),
+      row(sp(14), 'fireball'),
+      row(sp(6), 'bolt'),
+      row(always, 'meditate'),
+    ),
     drops: [{ itemId: 'manaCrystal', permyriad: 4500 }], exp: 110, gold: 60,
   },
   {
@@ -198,6 +210,13 @@ const list: MonsterDef[] = [
     drops: [{ itemId: 'venomSac', permyriad: 5000 }], exp: 145, gold: 75,
   },
   {
+    id: 'broodMother', name: '거미 어미', job: 'mage', icon: 'spider', archetype: 'caster', level: 18, growth: { int: 5 },
+    stats: { maxHp: 1150, def: 18, mdef: 22 }, row: 'back', skills: ['strike', 'hex', 'bolt', 'meditate'],
+    // 교재: 준비가 아주 긴 광역기. 끊으면 아무 일도 없고, 놔두면 전원이 독까지 뒤집어쓴다
+    rules: rules(row(sp(20), 'hex'), row(sp(6), 'bolt'), row(always, 'meditate')),
+    drops: [{ itemId: 'venomSac', permyriad: 5500 }, { itemId: 'manaCrystal', permyriad: 2000 }], exp: 150, gold: 80,
+  },
+  {
     id: 'harpy', name: '하피', job: 'elf', icon: 'harpy', archetype: 'shooter', level: 17, growth: { dex: 4, spd: 2 },
     stats: { maxHp: 950, def: 14 }, row: 'back',
     skills: ['strike', 'pierceShot'],
@@ -213,6 +232,14 @@ const list: MonsterDef[] = [
     // 교재: 엄호 + 방어 강화. 전열을 때려서는 답이 없다 — 엄호 무시 기술이나 후열 저격이 필요하다
     rules: rules(row(atom({ kind: 'selfHasStatus', status: 'defUp' }), 'strike'), row(sp(8), 'ironSkin', 2), row(always, 'strike')),
     drops: [{ itemId: 'ironScrap', permyriad: 5000 }], exp: 165, gold: 85,
+  },
+  {
+    id: 'stoneChanter', name: '돌의 창자', job: 'priest', icon: 'shaman', archetype: 'caster', level: 21, growth: { int: 4, luk: 1 },
+    stats: { maxHp: 1050, def: 16, mdef: 24 }, row: 'back', guard: { mode: 'never' },
+    skills: ['strike', 'mendChant', 'bolt'],
+    // 교재: 후열에서 계속 되돌린다. 엄호를 무시하는 기술이나 후열 저격이 없으면 전열이 죽지 않는다
+    rules: rules(row(and(sp(12), atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 75 })), 'mendChant'), row(sp(6), 'bolt'), row(always, 'strike')),
+    drops: [{ itemId: 'holyWater', permyriad: 5000 }, { itemId: 'manaCrystal', permyriad: 2000 }], exp: 175, gold: 90,
   },
   {
     id: 'harpyFlock', name: '하피 무리', job: 'elf', icon: 'harpy', archetype: 'shooter', level: 21, growth: { dex: 1, spd: 1 },

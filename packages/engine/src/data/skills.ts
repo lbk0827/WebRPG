@@ -83,12 +83,13 @@ const list: Skill[] = [
   {
     id: 'prayer',
     label: '기원',
-    spCost: 24,
+    spCost: 20,
     target: { side: 'ally', scope: 'all', hits: 1 },
-    charge: 400,
+    charge: 300,
     stiff: 50,
     isSupport: true,
-    effects: [{ kind: 'heal', power: 75 }],
+    // 셋 이상이 다쳤을 때만 치유 세 번보다 낫다. 한 명만 다쳤으면 낭비다
+    effects: [{ kind: 'heal', power: 95 }],
   },
   {
     id: 'resurrect',
@@ -114,14 +115,16 @@ const list: Skill[] = [
   {
     id: 'sunder',
     label: '갑주 파쇄',
-    spCost: 8,
+    spCost: 6,
     target: { side: 'enemy', scope: 'single', hits: 1 },
     priority: { mode: 'prefer', by: 'highestHpPct' },
     charge: 0,
     stiff: 0,
+    // 피해가 아니라 판을 까는 기술이다. 단단한 상대에게 먼저 쓰면 뒤의 모든 타격이 값싸진다.
+    // 물렁한 상대에게는 그냥 때리는 것만 못하다 — 그래서 "언제 쓰나"가 선택이 된다 (docs/18)
     effects: [
-      { kind: 'damage', school: 'phys', power: 70 },
-      { kind: 'applyStatus', status: 'defDown', duration: 3, magnitude: 30 },
+      { kind: 'damage', school: 'phys', power: 55 },
+      { kind: 'applyStatus', status: 'defDown', duration: 5, magnitude: 45 },
     ],
   },
   {
@@ -341,6 +344,32 @@ const list: Skill[] = [
       { kind: 'damage', school: 'phys', power: 70, scaleBy: 'dex' },
       { kind: 'applyStatus', status: 'poison', duration: 4, magnitude: 6 },
     ],
+  },
+  {
+    // 적 전용 대형 시전. 끊지 않으면 전열이 통째로 무너진다 (docs/18 §6 B)
+    id: 'hex',
+    label: '주박',
+    spCost: 20,
+    target: { side: 'enemy', scope: 'all', hits: 1 },
+    charge: 700,
+    stiff: 150,
+    ignoreCover: true,
+    effects: [
+      { kind: 'damage', school: 'magic', power: 105 },
+      { kind: 'applyStatus', status: 'poison', duration: 4, magnitude: 8 },
+    ],
+  },
+  {
+    // 적 전용 회복. 후열에 서서 계속 되돌린다 — 뒤를 치지 않으면 앞이 안 죽는다
+    id: 'mendChant',
+    label: '치유 주문',
+    spCost: 12,
+    target: { side: 'ally', scope: 'single', hits: 1 },
+    priority: { mode: 'prefer', by: 'lowestHpPct' },
+    charge: 150,
+    stiff: 50,
+    isSupport: true,
+    effects: [{ kind: 'heal', power: 150 }],
   },
   {
     id: 'snipe',
