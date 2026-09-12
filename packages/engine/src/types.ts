@@ -269,7 +269,7 @@ export type BattleEvent =
   | { t: 'damage'; source: CharRef; target: CharRef; amount: number; school: 'phys' | 'magic'; nullified?: boolean }
   | { t: 'heal'; source: CharRef; target: CharRef; amount: number }
   | { t: 'spChange'; target: CharRef; delta: number }
-  | { t: 'statusApply'; target: CharRef; status: StatusId; duration: number }
+  | { t: 'statusApply'; target: CharRef; status: StatusId; duration: number; magnitude: number }
   | { t: 'statusResisted'; target: CharRef; status: StatusId }
   | { t: 'statusTick'; target: CharRef; status: StatusId; amount: number }
   | { t: 'statusExpire'; target: CharRef; status: StatusId }

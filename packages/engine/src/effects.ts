@@ -122,7 +122,7 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
       } else {
         target.statuses.push({ id: effect.status, remaining: effect.duration, magnitude })
       }
-      emit(st, { t: 'statusApply', target: target.ref, status: effect.status, duration: effect.duration })
+      emit(st, { t: 'statusApply', target: target.ref, status: effect.status, duration: effect.duration, magnitude })
       // 침묵은 진행 중인 시전을 끊는다 (끊기의 "취소" 계열)
       if (effect.status === 'silence' && target.pending) {
         emit(st, { t: 'castInterrupted', target: target.ref, skillId: target.pending.skillId })
@@ -184,7 +184,7 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
       const existing = findStatus(target, 'barrier')
       if (existing) existing.magnitude = Math.max(existing.magnitude, effect.hits)
       else target.statuses.push({ id: 'barrier', remaining: 99, magnitude: effect.hits })
-      emit(st, { t: 'statusApply', target: target.ref, status: 'barrier', duration: 99 })
+      emit(st, { t: 'statusApply', target: target.ref, status: 'barrier', duration: 99, magnitude: effect.hits })
       return
     }
   }

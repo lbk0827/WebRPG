@@ -5,6 +5,7 @@ import type { BattleEvent, BattleResult } from '@webrpg/engine'
 import { describeEvent, outcomeText, type Names } from '../lib/labels'
 import { rosterAt, turnStarts } from '../lib/roster'
 import { Stage } from './Stage'
+import { BattleLog } from './BattleLog'
 
 interface Props {
   result: BattleResult
@@ -25,6 +26,8 @@ export function Replay({ result, names, jobs, autoPlay = true }: Props) {
   const [playing, setPlaying] = useState(autoPlay)
   const [speed, setSpeed] = useState(1)
   const [showLog, setShowLog] = useState(false)
+  // 보고서는 기본으로 **전체**를 보여 준다 — 읽으러 여는 것이지 따라가려고 여는 게 아니다
+  const [follow, setFollow] = useState(false)
   const logRef = useRef<HTMLDivElement>(null)
   const len = result.events.length
 
@@ -91,42 +94,19 @@ export function Replay({ result, names, jobs, autoPlay = true }: Props) {
             <option key={i} value={i}>{s.label}</option>
           ))}
         </select>
-        <button className={showLog ? 'on' : ''} onClick={() => setShowLog((v) => !v)} title="전황 보고서">보고서</button>
+        <button className={showLog ? 'on' : ''} onClick={() => setShowLog((v) => !v)} title="전황 보고서 — 숫자가 전부 남는다">보고서</button>
+        {showLog && (
+          <label className="follow">
+            <input type="checkbox" checked={follow} onChange={(e) => setFollow(e.target.checked)} /> 재생 따라가기
+          </label>
+        )}
       </div>
 
       {showLog && (
         <div className="log" ref={logRef}>
-          <Timeline events={result.events} cursor={cursor} names={names} />
+          <BattleLog result={result} names={names} upto={follow ? cursor : undefined} />
         </div>
       )}
     </div>
-  )
-}
-
-function Timeline({ events, cursor, names }: { events: BattleEvent[]; cursor: number; names: Names }) {
-  const blocks: { actor: string; team: 0 | 1; lines: { kind: string; text: string }[] }[] = []
-  for (let i = 1; i < Math.min(cursor, events.length); i++) {
-    const e = events[i]
-    if (e.t === 'turnBegin') {
-      blocks.push({ actor: names[e.actor.team][e.actor.index], team: e.actor.team, lines: [] })
-      continue
-    }
-    if (e.t === 'statusReport' || e.t === 'battleEnd' || e.t === 'battleStart') continue
-    const line = describeEvent(e, names)
-    if (line && blocks.length) blocks[blocks.length - 1].lines.push(line)
-  }
-  return (
-    <ol className="timeline">
-      {blocks.map((b, i) => (
-        <li key={i} className={`t${b.team}`}>
-          <div className="actor">{b.team === 1 ? '적 ' : ''}{b.actor}</div>
-          <ul>
-            {b.lines.map((l, j) => (
-              <li key={j} className={l.kind}>{l.text}</li>
-            ))}
-          </ul>
-        </li>
-      ))}
-    </ol>
   )
 }

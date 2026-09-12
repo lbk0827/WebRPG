@@ -352,6 +352,56 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .player-bar button.on { background: var(--ink); color: #fff; }
 
 /* 의뢰소 · 단원 (M2-1) */
+/* 전황 보고서 — 숫자를 전부 남긴다 (제로식 전투 로그 방식, docs/11 §5.14).
+   그쪽은 200턴이면 세로 13,000px 이라 우리는 필터·행동 번호·합계를 더한다 */
+.blog { font-size: 12px; }
+.blog-head { display: grid; gap: 6px; margin-bottom: 8px; }
+@media (min-width: 640px) { .blog-head { grid-template-columns: 1fr 1fr; } }
+.blog-team { background: var(--paper); border-radius: 9px; padding: 6px 9px; display: grid; gap: 1px; }
+.blog-team.t0 { border-left: 3px solid var(--team0); }
+.blog-team.t1 { border-left: 3px solid var(--team1); }
+.blog-team small { color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.blog-tools { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+.blog-tools .seg button { font-size: 11px; padding: 3px 9px; }
+.blog-tools small { color: var(--muted); margin-left: auto; }
+
+.blog-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.blog-block { border-left: 3px solid var(--team0); background: var(--paper); border-radius: 0 9px 9px 0; padding: 5px 9px; }
+.blog-block.t1 { border-left-color: var(--team1); }
+.blk-head { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.blk-head .no { min-width: 20px; font-size: 10px; color: var(--muted); font-weight: 700; }
+.blk-head .skill { font-size: 11px; color: var(--team1); font-weight: 600; }
+.blog-block ul { list-style: none; margin: 2px 0 0; padding: 0 0 0 26px; display: grid; gap: 1px; }
+.blog-block li { font-size: 11px; color: #4a4640; }
+.blog-block li.damage { color: var(--bad); }
+.blog-block li.heal { color: var(--hp); }
+.blog-block li.death { color: var(--bad); font-weight: 700; }
+.blog-block li.revive { color: var(--good); font-weight: 700; }
+.blog-block li.status { color: var(--cast); }
+.blog-block li.cover, .blog-block li.interrupt { color: var(--team1); }
+.blog-block li.exhausted { color: var(--warn); font-weight: 700; }
+.blog-block li.fired, .blog-block li.failed { color: var(--muted); }
+
+.blog-snap { background: #efeade; border: 1px solid var(--line); border-radius: 9px; padding: 6px 9px; margin: 4px 0; }
+.snap-title { font-size: 11px; font-weight: 700; color: var(--muted); margin-bottom: 3px; }
+.snap-row { display: flex; flex-wrap: wrap; gap: 3px 10px; align-items: baseline; font-size: 11px; }
+.snap-row b { min-width: 30px; }
+.snap-row.t0 b { color: var(--team0); }
+.snap-row.t1 b { color: var(--team1); }
+.snap-row i { font-style: normal; color: var(--muted); }
+.snap-row .dead { opacity: 0.45; text-decoration: line-through; }
+
+.blog-tally { margin-top: 10px; }
+.blog-tally table { width: 100%; border-collapse: collapse; font-size: 11px; }
+.blog-tally th, .blog-tally td { padding: 3px 6px; text-align: right; border-bottom: 1px solid var(--line); }
+.blog-tally th { color: var(--muted); font-weight: 700; }
+.blog-tally .nm { text-align: left; font-weight: 600; }
+.blog-tally tr.t1 .nm { color: var(--team1); }
+.blog-tally td.warn { color: var(--warn); font-weight: 700; }
+.blog-tally .hint { margin: 6px 0 0; }
+.player-bar .follow { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); }
+
 /* 출전 명단 — 전투·모험 맨 위 (제로식 전투 화면의 Party/Teams 자리) */
 .party-bar { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px 12px; margin: 8px 0 10px; }
 .party-bar > h3 {
