@@ -598,6 +598,54 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .unit-panel > header { display: grid; grid-template-columns: 40px 1fr; gap: 10px; align-items: center; margin-bottom: 6px; }
 .unit-panel .name { font-weight: 700; }
 .unit-panel .subnav { margin: 6px 0 8px; }
+
+/* ───────── 단원 상세: 한 페이지 (단장 지시 2026-09-12, 제로식 캐릭터 페이지 방식)
+   전부 펼쳐 두되, 머리와 이동 바가 따라붙어 "어디쯤인지"와 "건너뛰기"를 준다.
+   제로식은 그냥 세로로 길기만 해서 어디인지 모른다 — 그 약점만 뺀다. */
+.unit-panel.onepage { padding: 0; }
+.unit-panel.onepage > header,
+.unit-panel.onepage > .jumpbar { position: sticky; z-index: 3; background: var(--card); }
+.unit-panel.onepage > header { top: 0; padding: 10px 12px 6px; margin: 0; border-radius: 12px 12px 0 0; }
+.unit-panel.onepage > .jumpbar { top: 56px; padding: 0 12px 6px; border-bottom: 1px solid var(--line); }
+
+.jumpbar { display: flex; gap: 3px; overflow-x: auto; }
+.jumpbar button {
+  white-space: nowrap; font-size: 12px; padding: 4px 9px; border-radius: 7px;
+  background: transparent; border-color: transparent; color: var(--muted);
+}
+.jumpbar button:hover { background: rgba(0, 0, 0, 0.04); }
+.jumpbar button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+.jumpbar .tag {
+  display: inline-block; margin-left: 5px; padding: 0 5px; border-radius: 6px;
+  background: rgba(0, 0, 0, 0.12); font-size: 10px; font-style: normal; font-weight: 700;
+}
+.jumpbar button.on .tag { background: rgba(255, 255, 255, 0.25); }
+.jumpbar .tag.alert { background: var(--warn); color: #fff; }
+
+/* 구역 — 제로식의 "▌제목 ?" 을 우리 색으로 */
+.unit-sec { padding: 10px 12px 14px; border-top: 1px solid var(--line); scroll-margin-top: 92px; }
+.unit-sec:first-of-type { border-top: none; }
+.unit-sec > h3 {
+  display: flex; align-items: center; gap: 6px;
+  margin: 0 0 8px; padding-left: 8px; font-size: 13px; color: var(--ink); font-weight: 700;
+  border-left: 3px solid var(--team0);
+}
+.qmark {
+  width: 17px; height: 17px; padding: 0; border-radius: 50%; line-height: 1;
+  font-size: 11px; font-weight: 700; color: var(--muted); border-color: var(--line);
+}
+.qmark:hover { color: var(--ink); border-color: var(--ink); }
+.skill-group { margin-bottom: 8px; }
+.skill-group h5 {
+  margin: 6px 0 3px; font-size: 11px; font-weight: 700; color: var(--muted);
+  text-transform: none; letter-spacing: 0.02em;
+}
+.skill-group h5 small { margin-left: 4px; opacity: 0.8; }
+.sec-help {
+  margin: -2px 0 8px; padding: 6px 9px; border-radius: 8px;
+  background: #f5f1e6; border: 1px solid var(--line);
+  font-size: 12px; line-height: 1.5; color: var(--muted);
+}
 .unit-panel .rules .rows { margin-top: 4px; }
 .gear-slots { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; }
 .gear-slots li { display: flex; gap: 10px; align-items: center; border: 1px dashed var(--line); border-radius: 10px; padding: 8px 10px; }
