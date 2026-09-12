@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>대마법사 로브</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="m22 8 10 8 10-8 9 14-7 8 9 27H11l9-27-7-8Z" fill="#2f6fd6"/><path d="M20 45h24M32 17v35" fill="none" stroke="#8fd3ff"/></g>
+</svg>

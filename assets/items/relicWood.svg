@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>목제 성표</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 8 47 19 42 46 32 56 22 46 17 19Z" fill="#6b4b2a"/><circle cx="32" cy="30" r="8" fill="#e9e4d8"/></g>
+</svg>

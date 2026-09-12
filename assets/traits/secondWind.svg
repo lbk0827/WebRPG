@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>재기</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 3 57 18v28L32 61 7 46V18Z" fill="#e9e4d8"/>
+    <path d="M32 49c-10-5-11-15-3-24 2 6 5 7 7 11 3-4 4-8 3-13 10 10 7 22-7 26Z" fill="#b23a48"/><path d="M12 21q9-10 19-7m-7-6 7 6-7 6" fill="none"/></g>
+</svg>

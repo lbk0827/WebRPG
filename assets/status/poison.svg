@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>중독</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <circle cx="32" cy="32" r="25" fill="#7bd389" stroke-width="4"/>
+    <path d="M32 13c12 14 12 25 0 31-12-6-12-17 0-31Z" fill="#2f4a37"/><circle cx="25" cy="48" r="3" fill="#e9e4d8"/><circle cx="39" cy="50" r="3" fill="#e9e4d8"/></g>
+</svg>

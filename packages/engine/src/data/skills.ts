@@ -394,10 +394,10 @@ const list: Skill[] = [
     effects: [{ kind: 'applyStatus', status: 'atkDown', duration: 3, magnitude: 25 }],
   },
   {
-    id: 'recklessSwing', label: '무모한 일격', spCost: 10,
-    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 100, stiff: 100,
-    // 자신을 깎아 가며 친다. HP 조건 수칙과 맞물린다
-    effects: [{ kind: 'damage', school: 'phys', power: 260 }, { kind: 'drain', resource: 'hp', pct: -12 }],
+    id: 'recklessSwing', label: '무모한 일격', spCost: 12,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 50, stiff: 120,
+    // 분노가 걸린 저체력 구간에서 쓰라고 있는 기술이다. 준비가 짧아 그 짧은 순간을 잡는다
+    effects: [{ kind: 'damage', school: 'phys', power: 300 }],
   },
   {
     id: 'bloodlust', label: '혈갈', spCost: 12,
@@ -444,14 +444,14 @@ const list: Skill[] = [
     effects: [{ kind: 'damage', school: 'magic', power: 95 }],
   },
   {
-    id: 'hasten', label: '가속', spCost: 14,
-    target: { side: 'ally', scope: 'single', hits: 1 }, charge: 100, stiff: 0, isSupport: true,
-    // 아군을 먼저 움직이게 만든다. "누가 먼저인가"를 수칙으로 설계하게 하는 도구
-    effects: [{ kind: 'modifyGauge', delta: 450 }, { kind: 'applyStatus', status: 'spdUp', duration: 3, magnitude: 30 }],
+    id: 'hasten', label: '가속', spCost: 18,
+    target: { side: 'ally', scope: 'all', hits: 1 }, charge: 0, stiff: 50, isSupport: true,
+    // 팀 전체의 박자를 당긴다. 한 명만 밀어서는 한 턴 값을 못 한다
+    effects: [{ kind: 'modifyGauge', delta: 260 }, { kind: 'applyStatus', status: 'spdUp', duration: 4, magnitude: 30 }],
   },
   {
-    id: 'stasis', label: '정지', spCost: 22,
-    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 350, stiff: 100, ignoreCover: true,
+    id: 'stasis', label: '정지', spCost: 16,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 150, stiff: 100, ignoreCover: true,
     effects: [{ kind: 'modifyGauge', delta: -700 }, { kind: 'applyStatus', status: 'spdDown', duration: 4, magnitude: 40 }],
   },
   {
@@ -466,10 +466,10 @@ const list: Skill[] = [
     effects: [{ kind: 'heal', power: 170 }, { kind: 'removeStatus', category: 'debuff' }],
   },
   {
-    id: 'judgment', label: '심판', spCost: 16,
+    id: 'judgment', label: '심판', spCost: 12,
     target: { side: 'enemy', scope: 'single', hits: 1 }, priority: { mode: 'require', by: 'debuffed' },
-    charge: 200, stiff: 100, ignoreCover: true,
-    effects: [{ kind: 'damage', school: 'magic', power: 185 }],
+    charge: 100, stiff: 50, ignoreCover: true,
+    effects: [{ kind: 'damage', school: 'magic', power: 200 }],
   },
   {
     id: 'condemn', label: '단죄', spCost: 12,
@@ -487,11 +487,12 @@ const list: Skill[] = [
   },
   {
     id: 'entangle', label: '얽매기', spCost: 12,
-    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 0, stiff: 50, ignoreCover: true,
+    target: { side: 'enemy', scope: 'multi', hits: 2 }, charge: 0, stiff: 50, ignoreCover: true,
+    // 둘을 한꺼번에 묶는다. 수호자의 훅(독술 25%)이 둔화에도 얹힌다
     effects: [
-      { kind: 'damage', school: 'phys', power: 60, scaleBy: 'dex' },
-      { kind: 'applyStatus', status: 'spdDown', duration: 4, magnitude: 35 },
-      { kind: 'modifyGauge', delta: -250 },
+      { kind: 'damage', school: 'phys', power: 70, scaleBy: 'dex' },
+      { kind: 'applyStatus', status: 'spdDown', duration: 5, magnitude: 40 },
+      { kind: 'modifyGauge', delta: -300 },
     ],
   },
   {

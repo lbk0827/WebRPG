@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>대화염</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="58" height="58" rx="14" fill="#2f6fd6"/>
+    <path d="M18 53c-7-17 5-23 7-39 8 8 7 14 6 20 8-8 11-13 10-21 12 14 9 30 3 40Z" fill="#b23a48"/><path d="M29 51c-4-9 2-14 6-23 6 10 7 16 2 23Z" fill="#fff5cc"/></g>
+</svg>

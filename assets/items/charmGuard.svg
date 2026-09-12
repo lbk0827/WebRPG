@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>수호의 부적</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 8v9M20 18h24l-3 28-9 10-9-10Z" fill="#cfd6e0"/><path d="M32 25v20" fill="none"/></g>
+</svg>

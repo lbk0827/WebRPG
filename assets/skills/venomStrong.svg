@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>맹독</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="58" height="58" rx="14" fill="#b23a48"/>
+    <path d="M14 49 35 24 7 7-22 24Z" fill="#cfd6e0"/><path d="m14 43 7 7M13 49l-5 6" fill="none"/><path d="M39 36c5 6 5 9 0 11-5-2-5-5 0-11Zm10 7c4 5 4 7 0 9-4-2-4-4 0-9Z" fill="#7bd389"/></g>
+</svg>

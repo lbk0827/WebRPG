@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>마력 결정</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="m32 5 17 18-8 31H23l-8-31Z" fill="#8fd3ff"/><path d="m15 23 17 8 17-8M32 31v23" fill="none"/></g>
+</svg>

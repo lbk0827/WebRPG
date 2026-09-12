@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>암기</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 3 57 18v28L32 61 7 46V18Z" fill="#e9e4d8"/>
+    <path d="M16 13h25l7 7v31H16Z" fill="#e9e4d8"/><path d="M41 13v9h8M22 29h20m-20 8h20m-20 8h14" fill="none"/></g>
+</svg>

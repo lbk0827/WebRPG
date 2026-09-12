@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>기원</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="58" height="58" rx="14" fill="#3e8e5a"/>
+    <path d="M16 42c5-9 9-13 14-7V19m18 23c-5-9-9-13-14-7V19M24 49h16" fill="none" stroke="#fff5cc" stroke-width="6"/><path d="M22 12v8m20-8v8M32 8v9" fill="none" stroke="#e9e4d8"/></g>
+</svg>

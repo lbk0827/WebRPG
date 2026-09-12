@@ -1,30 +1,142 @@
 {
   "$comment": "리소스 매니페스트. 엔진의 preset id 를 키로 쓴다. 웹 클라이언트는 이 파일만 읽는다.",
   "jobs": {
-    "warrior": { "name": "전사", "icon": "jobs/warrior.svg", "color": "#b23a48", "role": "전열 방벽 · 타격" },
-    "rogue":   { "name": "도적", "icon": "jobs/rogue.svg",   "color": "#5b4b8a", "role": "끊기 · 독 · 연타" },
-    "mage":    { "name": "마법사", "icon": "jobs/mage.svg",  "color": "#2f6fd6", "role": "후열 광역 마법" },
-    "priest":  { "name": "프리스트", "icon": "jobs/priest.svg", "color": "#d4a017", "role": "회복 · 소생 · 보호" },
-    "elf":     { "name": "엘프", "icon": "jobs/elf.svg",     "color": "#3e8e5a", "role": "후열 관통 사격" }
+    "warrior": {
+      "name": "전사",
+      "icon": "jobs/warrior.svg",
+      "color": "#b23a48",
+      "role": "전열 방벽 · 타격"
+    },
+    "rogue": {
+      "name": "도적",
+      "icon": "jobs/rogue.svg",
+      "color": "#5b4b8a",
+      "role": "끊기 · 독 · 연타"
+    },
+    "mage": {
+      "name": "마법사",
+      "icon": "jobs/mage.svg",
+      "color": "#2f6fd6",
+      "role": "후열 광역 마법"
+    },
+    "priest": {
+      "name": "프리스트",
+      "icon": "jobs/priest.svg",
+      "color": "#d4a017",
+      "role": "회복 · 소생 · 보호"
+    },
+    "elf": {
+      "name": "엘프",
+      "icon": "jobs/elf.svg",
+      "color": "#3e8e5a",
+      "role": "후열 관통 사격"
+    }
   },
   "$monsterComment": "몬스터 아이콘. 키는 엔진 MonsterDef.icon (원형 8종). 여러 몬스터가 한 아이콘을 공유한다",
   "monsters": {
-    "goblin":  { "name": "고블린",   "icon": "monsters/goblin.svg",  "color": "#5c8d3f", "archetype": "잡몹" },
-    "beast":   { "name": "들개",     "icon": "monsters/beast.svg",   "color": "#6b4b2a", "archetype": "돌격" },
-    "turtle":  { "name": "바위 거북", "icon": "monsters/turtle.svg",  "color": "#4e6b5a", "archetype": "방벽" },
-    "harpy":   { "name": "하피",     "icon": "monsters/harpy.svg",   "color": "#3f6f8f", "archetype": "사격" },
-    "shaman":  { "name": "주술사",   "icon": "monsters/shaman.svg",  "color": "#5b4b8a", "archetype": "주술" },
-    "spider":  { "name": "독거미",   "icon": "monsters/spider.svg",  "color": "#2f4a37", "archetype": "독" },
-    "swarm":   { "name": "박쥐 떼",  "icon": "monsters/swarm.svg",   "color": "#3a3450", "archetype": "다수" },
-    "ogre":    { "name": "오우거",   "icon": "monsters/ogre.svg",    "color": "#7a3b2e", "archetype": "보스" }
+    "goblin": {
+      "name": "고블린",
+      "icon": "monsters/goblin.svg",
+      "color": "#5c8d3f",
+      "archetype": "잡몹"
+    },
+    "beast": {
+      "name": "들개",
+      "icon": "monsters/beast.svg",
+      "color": "#6b4b2a",
+      "archetype": "돌격"
+    },
+    "turtle": {
+      "name": "바위 거북",
+      "icon": "monsters/turtle.svg",
+      "color": "#4e6b5a",
+      "archetype": "방벽"
+    },
+    "harpy": {
+      "name": "하피",
+      "icon": "monsters/harpy.svg",
+      "color": "#3f6f8f",
+      "archetype": "사격"
+    },
+    "shaman": {
+      "name": "주술사",
+      "icon": "monsters/shaman.svg",
+      "color": "#5b4b8a",
+      "archetype": "주술"
+    },
+    "spider": {
+      "name": "독거미",
+      "icon": "monsters/spider.svg",
+      "color": "#2f4a37",
+      "archetype": "독"
+    },
+    "swarm": {
+      "name": "박쥐 떼",
+      "icon": "monsters/swarm.svg",
+      "color": "#3a3450",
+      "archetype": "다수"
+    },
+    "ogre": {
+      "name": "오우거",
+      "icon": "monsters/ogre.svg",
+      "color": "#7a3b2e",
+      "archetype": "보스"
+    }
   },
   "$unitsComment": "전투 리그 스프라이트 (docs/15). 키는 직업 id 또는 몬스터 아이콘 id 와 같다. 없는 키는 화면이 엠블럼 아이콘으로 물러선다",
   "units": {
-    "warrior": { "name": "전사", "sprite": "units/warrior.svg" },
-    "rogue":   { "name": "도적", "sprite": "units/rogue.svg" },
-    "mage":    { "name": "마법사", "sprite": "units/mage.svg" },
-    "priest":  { "name": "프리스트", "sprite": "units/priest.svg" },
-    "elf":     { "name": "엘프", "sprite": "units/elf.svg" }
+    "warrior": {
+      "name": "전사",
+      "sprite": "units/warrior.svg"
+    },
+    "rogue": {
+      "name": "도적",
+      "sprite": "units/rogue.svg"
+    },
+    "mage": {
+      "name": "마법사",
+      "sprite": "units/mage.svg"
+    },
+    "priest": {
+      "name": "프리스트",
+      "sprite": "units/priest.svg"
+    },
+    "elf": {
+      "name": "엘프",
+      "sprite": "units/elf.svg"
+    },
+    "goblin": {
+      "name": "고블린",
+      "sprite": "units/goblin.svg"
+    },
+    "beast": {
+      "name": "들개",
+      "sprite": "units/beast.svg"
+    },
+    "turtle": {
+      "name": "바위 거북",
+      "sprite": "units/turtle.svg"
+    },
+    "harpy": {
+      "name": "하피",
+      "sprite": "units/harpy.svg"
+    },
+    "shaman": {
+      "name": "주술사",
+      "sprite": "units/shaman.svg"
+    },
+    "spider": {
+      "name": "독거미",
+      "sprite": "units/spider.svg"
+    },
+    "swarm": {
+      "name": "박쥐 떼",
+      "sprite": "units/swarm.svg"
+    },
+    "ogre": {
+      "name": "오우거",
+      "sprite": "units/ogre.svg"
+    }
   },
   "palette": {
     "ink": "#1d1d24",
@@ -37,5 +149,393 @@
     "venom": "#7bd389",
     "team0": "#b23a48",
     "team1": "#2f6fd6"
+  },
+  "skills": {
+    "strike": {
+      "name": "기본 공격",
+      "icon": "skills/strike.svg",
+      "color": "#b23a48"
+    },
+    "heavyBlow": {
+      "name": "강타",
+      "icon": "skills/heavyBlow.svg",
+      "color": "#b23a48"
+    },
+    "flurry": {
+      "name": "연타",
+      "icon": "skills/flurry.svg",
+      "color": "#b23a48"
+    },
+    "sweep": {
+      "name": "휩쓸기",
+      "icon": "skills/sweep.svg",
+      "color": "#b23a48"
+    },
+    "pierceShot": {
+      "name": "관통 사격",
+      "icon": "skills/pierceShot.svg",
+      "color": "#b23a48"
+    },
+    "sunder": {
+      "name": "갑주 파쇄",
+      "icon": "skills/sunder.svg",
+      "color": "#b23a48"
+    },
+    "shieldBash": {
+      "name": "방패 밀치기",
+      "icon": "skills/shieldBash.svg",
+      "color": "#b23a48"
+    },
+    "ambush": {
+      "name": "급습",
+      "icon": "skills/ambush.svg",
+      "color": "#b23a48"
+    },
+    "snipe": {
+      "name": "저격",
+      "icon": "skills/snipe.svg",
+      "color": "#b23a48"
+    },
+    "venom": {
+      "name": "독 바르기",
+      "icon": "skills/venom.svg",
+      "color": "#b23a48"
+    },
+    "venomStrong": {
+      "name": "맹독",
+      "icon": "skills/venomStrong.svg",
+      "color": "#b23a48"
+    },
+    "poisonArrow": {
+      "name": "독화살",
+      "icon": "skills/poisonArrow.svg",
+      "color": "#b23a48"
+    },
+    "stagger": {
+      "name": "흔들기",
+      "icon": "skills/stagger.svg",
+      "color": "#b23a48"
+    },
+    "bolt": {
+      "name": "마력탄",
+      "icon": "skills/bolt.svg",
+      "color": "#2f6fd6"
+    },
+    "fireball": {
+      "name": "화염구",
+      "icon": "skills/fireball.svg",
+      "color": "#2f6fd6"
+    },
+    "inferno": {
+      "name": "대화염",
+      "icon": "skills/inferno.svg",
+      "color": "#2f6fd6"
+    },
+    "smite": {
+      "name": "응징",
+      "icon": "skills/smite.svg",
+      "color": "#2f6fd6"
+    },
+    "frostbind": {
+      "name": "얼음 결박",
+      "icon": "skills/frostbind.svg",
+      "color": "#2f6fd6"
+    },
+    "manaBurn": {
+      "name": "마력 소진",
+      "icon": "skills/manaBurn.svg",
+      "color": "#2f6fd6"
+    },
+    "mend": {
+      "name": "치유",
+      "icon": "skills/mend.svg",
+      "color": "#3e8e5a"
+    },
+    "prayer": {
+      "name": "기원",
+      "icon": "skills/prayer.svg",
+      "color": "#3e8e5a"
+    },
+    "resurrect": {
+      "name": "소생",
+      "icon": "skills/resurrect.svg",
+      "color": "#3e8e5a"
+    },
+    "ward": {
+      "name": "보호막",
+      "icon": "skills/ward.svg",
+      "color": "#3e8e5a"
+    },
+    "cleanse": {
+      "name": "정화",
+      "icon": "skills/cleanse.svg",
+      "color": "#3e8e5a"
+    },
+    "bless": {
+      "name": "축복",
+      "icon": "skills/bless.svg",
+      "color": "#3e8e5a"
+    },
+    "warCry": {
+      "name": "전의 고양",
+      "icon": "skills/warCry.svg",
+      "color": "#3e8e5a"
+    },
+    "meditate": {
+      "name": "명상",
+      "icon": "skills/meditate.svg",
+      "color": "#3e8e5a"
+    },
+    "catchBreath": {
+      "name": "숨 고르기",
+      "icon": "skills/catchBreath.svg",
+      "color": "#3e8e5a"
+    },
+    "guardStance": {
+      "name": "방어 자세",
+      "icon": "skills/guardStance.svg",
+      "color": "#3e8e5a"
+    },
+    "ironSkin": {
+      "name": "굳히기",
+      "icon": "skills/ironSkin.svg",
+      "color": "#3e8e5a"
+    },
+    "backstep": {
+      "name": "물러서기",
+      "icon": "skills/backstep.svg",
+      "color": "#3e8e5a"
+    },
+    "hush": {
+      "name": "침묵",
+      "icon": "skills/hush.svg",
+      "color": "#5b4b8a"
+    }
+  },
+  "items": {
+    "swordTraining": {
+      "name": "훈련용 검",
+      "icon": "items/swordTraining.svg"
+    },
+    "swordSteel": {
+      "name": "강철 검",
+      "icon": "items/swordSteel.svg"
+    },
+    "swordLong": {
+      "name": "장검",
+      "icon": "items/swordLong.svg"
+    },
+    "daggerPlain": {
+      "name": "단도",
+      "icon": "items/daggerPlain.svg"
+    },
+    "daggerCurved": {
+      "name": "곡도",
+      "icon": "items/daggerCurved.svg"
+    },
+    "daggerAssassin": {
+      "name": "비수",
+      "icon": "items/daggerAssassin.svg"
+    },
+    "staffOak": {
+      "name": "참나무 지팡이",
+      "icon": "items/staffOak.svg"
+    },
+    "staffRune": {
+      "name": "룬 지팡이",
+      "icon": "items/staffRune.svg"
+    },
+    "staffSage": {
+      "name": "현자의 지팡이",
+      "icon": "items/staffSage.svg"
+    },
+    "relicWood": {
+      "name": "목제 성표",
+      "icon": "items/relicWood.svg"
+    },
+    "relicSilver": {
+      "name": "은 성표",
+      "icon": "items/relicSilver.svg"
+    },
+    "relicHoly": {
+      "name": "성유물",
+      "icon": "items/relicHoly.svg"
+    },
+    "bowHunting": {
+      "name": "사냥활",
+      "icon": "items/bowHunting.svg"
+    },
+    "bowLong": {
+      "name": "장궁",
+      "icon": "items/bowLong.svg"
+    },
+    "bowHorn": {
+      "name": "각궁",
+      "icon": "items/bowHorn.svg"
+    },
+    "armorLeather": {
+      "name": "가죽 조끼",
+      "icon": "items/armorLeather.svg"
+    },
+    "armorChain": {
+      "name": "사슬 갑옷",
+      "icon": "items/armorChain.svg"
+    },
+    "armorPlate": {
+      "name": "판금 갑옷",
+      "icon": "items/armorPlate.svg"
+    },
+    "robeCloth": {
+      "name": "천 로브",
+      "icon": "items/robeCloth.svg"
+    },
+    "robeEnchanted": {
+      "name": "마법 로브",
+      "icon": "items/robeEnchanted.svg"
+    },
+    "robeArch": {
+      "name": "대마법사 로브",
+      "icon": "items/robeArch.svg"
+    },
+    "ringSwift": {
+      "name": "신속의 반지",
+      "icon": "items/ringSwift.svg"
+    },
+    "charmGuard": {
+      "name": "수호의 부적",
+      "icon": "items/charmGuard.svg"
+    },
+    "hornVanguard": {
+      "name": "선봉의 뿔피리",
+      "icon": "items/hornVanguard.svg"
+    },
+    "amuletIron": {
+      "name": "철의 의지",
+      "icon": "items/amuletIron.svg"
+    },
+    "coinLucky": {
+      "name": "행운의 동전",
+      "icon": "items/coinLucky.svg"
+    },
+    "braceletVigor": {
+      "name": "활력 팔찌",
+      "icon": "items/braceletVigor.svg"
+    },
+    "necklaceMemory": {
+      "name": "기억의 목걸이",
+      "icon": "items/necklaceMemory.svg"
+    },
+    "pendantRegen": {
+      "name": "재생의 펜던트",
+      "icon": "items/pendantRegen.svg"
+    },
+    "ironScrap": {
+      "name": "철 조각",
+      "icon": "items/ironScrap.svg"
+    },
+    "leather": {
+      "name": "가죽",
+      "icon": "items/leather.svg"
+    },
+    "feather": {
+      "name": "깃털",
+      "icon": "items/feather.svg"
+    },
+    "manaCrystal": {
+      "name": "마력 결정",
+      "icon": "items/manaCrystal.svg"
+    },
+    "holyWater": {
+      "name": "성수",
+      "icon": "items/holyWater.svg"
+    },
+    "bossSeal": {
+      "name": "두목의 인장",
+      "icon": "items/bossSeal.svg"
+    },
+    "beastFang": {
+      "name": "짐승 송곳니",
+      "icon": "items/beastFang.svg"
+    },
+    "venomSac": {
+      "name": "독주머니",
+      "icon": "items/venomSac.svg"
+    },
+    "ogreCore": {
+      "name": "오우거의 핵",
+      "icon": "items/ogreCore.svg"
+    }
+  },
+  "status": {
+    "poison": {
+      "name": "중독",
+      "icon": "status/poison.svg"
+    },
+    "atkUp": {
+      "name": "공격 강화",
+      "icon": "status/atkUp.svg"
+    },
+    "atkDown": {
+      "name": "공격 약화",
+      "icon": "status/atkDown.svg"
+    },
+    "defUp": {
+      "name": "방어 강화",
+      "icon": "status/defUp.svg"
+    },
+    "defDown": {
+      "name": "방어 약화",
+      "icon": "status/defDown.svg"
+    },
+    "spdUp": {
+      "name": "가속",
+      "icon": "status/spdUp.svg"
+    },
+    "spdDown": {
+      "name": "둔화",
+      "icon": "status/spdDown.svg"
+    },
+    "silence": {
+      "name": "침묵",
+      "icon": "status/silence.svg"
+    },
+    "barrier": {
+      "name": "보호막",
+      "icon": "status/barrier.svg"
+    }
+  },
+  "traits": {
+    "quickCast": {
+      "name": "속영창",
+      "icon": "traits/quickCast.svg"
+    },
+    "bulwark": {
+      "name": "방벽",
+      "icon": "traits/bulwark.svg"
+    },
+    "sniperEye": {
+      "name": "저격안",
+      "icon": "traits/sniperEye.svg"
+    },
+    "eager": {
+      "name": "선봉",
+      "icon": "traits/eager.svg"
+    },
+    "extraPattern": {
+      "name": "암기",
+      "icon": "traits/extraPattern.svg"
+    },
+    "ironWill": {
+      "name": "굳은 의지",
+      "icon": "traits/ironWill.svg"
+    },
+    "secondWind": {
+      "name": "재기",
+      "icon": "traits/secondWind.svg"
+    },
+    "regen": {
+      "name": "재생",
+      "icon": "traits/regen.svg"
+    }
   }
 }

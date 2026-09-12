@@ -11,14 +11,20 @@ export const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'trinket']
 export const gearItems = (gear: Gear): (ItemInstance | undefined)[] => GEAR_SLOTS.map((s) => gear[s])
 export const gearSummary = (m: Member): GearSummary => summarizeGear(gearItems(m.gear ?? {}))
 
-/** 2차 직업이 얹는 기본 스탯 보정 (M2-5b). 분배 포인트가 아니라 기본값에 더한다 */
-function withAdvanceBonus(base: Stats, job2?: string): Stats {
+/**
+ * 2차 직업이 얹는 스탯 보정 (M2-5b).
+ * **레벨 배율을 곱한 뒤에** 더한다. 성장 전에 더하면 HP +240 이 Lv24 에서 +516 이 되어
+ * 전직이 "다르게 싸우는 것"이 아니라 힘 도약이 된다 (ADR-003 위반).
+ */
+function withAdvanceBonus(scaled: Stats, job2?: string): Stats {
   const adv = job2 ? JOB_ADVANCE[job2] : undefined
-  if (!adv) return base
-  const out = { ...base }
+  if (!adv) return scaled
+  const out = { ...scaled }
   for (const [k, v] of Object.entries(adv.bonus)) {
     const key = k as keyof Stats
-    out[key] = (out[key] ?? 0) + (v ?? 0)
+    const raw = (out[key] ?? 0) + (v ?? 0)
+    // 분배 스탯은 상한을 함께 지킨다
+    out[key] = key === 'maxHp' || key === 'maxSp' || key === 'def' || key === 'mdef' ? raw : Math.min(STAT_CAP, raw)
   }
   return out
 }
@@ -26,7 +32,7 @@ function withAdvanceBonus(base: Stats, job2?: string): Stats {
 /** 성장 + 편차 + 전직 보정 + 장비 스탯 가산 */
 export const memberStats = (m: Member): Stats =>
   applyGearStats(
-    growthStats(withAdvanceBonus(applyQuirk(PRESETS[m.job].stats, m.quirk), m.job2), m.level, m.alloc),
+    withAdvanceBonus(growthStats(applyQuirk(PRESETS[m.job].stats, m.quirk), m.level, m.alloc), m.job2),
     gearSummary(m).stats,
   )
 

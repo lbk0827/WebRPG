@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>재생</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 3 57 18v28L32 61 7 46V18Z" fill="#e9e4d8"/>
+    <path d="M17 45c3-20 16-29 31-29-1 17-11 30-31 29Z" fill="#7bd389"/><path d="M19 45 42 22m-24 4q-7 5-5 13" fill="none"/></g>
+</svg>

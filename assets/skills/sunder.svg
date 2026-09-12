@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>갑주 파쇄</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="58" height="58" rx="14" fill="#b23a48"/>
+    <path d="M18 18 32 12l14 6-3 30-11 5-11-5Z" fill="#cfd6e0"/><path d="m33 14-5 14 7 4-7 18" fill="none" stroke-width="5"/></g>
+</svg>

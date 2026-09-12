@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>천 로브</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="m24 9 8 7 8-7 8 13-6 7 9 27H13l9-27-6-7Z" fill="#e9e4d8"/><path d="M32 17v37" fill="none"/></g>
+</svg>

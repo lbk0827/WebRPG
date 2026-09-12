@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>굳은 의지</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 3 57 18v28L32 61 7 46V18Z" fill="#e9e4d8"/>
+    <path d="M32 11 47 18v14c0 10-6 16-15 21-9-5-15-11-15-21V18Z" fill="#cfd6e0"/><path d="m24 31 6 7 11-14" fill="none"/></g>
+</svg>

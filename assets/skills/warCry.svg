@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>전의 고양</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="58" height="58" rx="14" fill="#3e8e5a"/>
+    <path d="M14 25q13 7 0 14Z" fill="#fff5cc"/><path d="M29 24q9 8 0 16m10-22q15 14 0 28" fill="none" stroke="#e9e4d8" stroke-width="4"/></g>
+</svg>

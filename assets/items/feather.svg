@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>깃털</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M13 51Q17 16 51 9 48 42 13 51Z" fill="#e9e4d8"/><path d="M14 51 44 17M24 39l-1-12m9 4 11-2" fill="none"/></g>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>가죽 조끼</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="m20 10 12 6 12-6 8 13-7 6v26H19V29l-7-6Z" fill="#8a7550"/><path d="M26 18v32m12-32v32" fill="none"/></g>
+</svg>

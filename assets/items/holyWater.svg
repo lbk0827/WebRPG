@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>성수</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M24 8h16v9l6 8v29H18V25l6-8Z" fill="#8fd3ff"/><path d="M21 34h22m-15-9h8" fill="none"/><circle cx="32" cy="43" r="5" fill="#fff5cc"/></g>
+</svg>

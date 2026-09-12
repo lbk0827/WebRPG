@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>재생의 펜던트</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M15 9q17 22 34 0M32 27c13 0 18 9 12 20-8 11-20 8-24 1-5-9 1-18 12-21Z" fill="#7bd389"/><path d="M25 46q8-11 17-12" fill="none"/></g>
+</svg>

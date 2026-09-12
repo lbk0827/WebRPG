@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>보호막</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="58" height="58" rx="14" fill="#3e8e5a"/>
+    <path d="M32 10 49 17v15c0 11-7 18-17 22-10-4-17-11-17-22V17Z" fill="#8fd3ff"/><path d="M32 17 43 22v10c0 7-4 11-11 15" fill="none" stroke="#e9e4d8"/></g>
+</svg>

@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>정화</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="58" height="58" rx="14" fill="#3e8e5a"/>
+    <path d="M27 13c11 13 11 21 0 26-11-5-11-13 0-26Zm16 18c8 10 8 16 0 20-8-4-8-10 0-20Z" fill="#8fd3ff"/><path d="m14 47 9 4" fill="none" stroke="#e9e4d8"/></g>
+</svg>

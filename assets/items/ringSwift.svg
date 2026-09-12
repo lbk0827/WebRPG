@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>신속의 반지</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <circle cx="28" cy="34" r="14" fill="none" stroke="#fff5cc" stroke-width="7"/><path d="M40 16h13m-16 8h18m-13 8h11" fill="none"/></g>
+</svg>

@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>오우거의 핵</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 8c13-9 26 12 17 25-5 9-10 16-17 23-7-7-12-14-17-23C6 20 19-1 32 8Z" fill="#b23a48"/><path d="m25 17 4 11-6 9 10 3 6 11" fill="none"/></g>
+</svg>

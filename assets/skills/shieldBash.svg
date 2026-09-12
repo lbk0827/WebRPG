@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>방패 밀치기</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="58" height="58" rx="14" fill="#b23a48"/>
+    <path d="M32 11 49 18v15c0 11-7 18-17 22-10-4-17-11-17-22V18Z" fill="#cfd6e0"/><path d="M32 17v31" fill="none"/><path d="M52 24H40m7-7-7 7 7 7" fill="none" stroke="#e9e4d8" stroke-width="4"/></g>
+</svg>

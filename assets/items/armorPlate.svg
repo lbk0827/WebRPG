@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>판금 갑옷</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="m19 9 13 7 13-7 9 15-9 6v25H19V30l-9-6Z" fill="#cfd6e0"/><path d="M32 17v37M19 31h26" fill="none" stroke-width="4"/></g>
+</svg>

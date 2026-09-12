@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>철 조각</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="m10 44 12-24 11 6 9-14 12 10-10 31-17-5-9 7Z" fill="#cfd6e0"/><path d="m20 33 10 4 8-9" fill="none"/></g>
+</svg>

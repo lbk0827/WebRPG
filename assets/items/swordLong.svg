@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>장검</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M10 51 38 23l7 7-28 28Z" fill="#cfd6e0"/><path d="m35 22 7-7 7 7-7 7Z" fill="#fff5cc"/><path d="m18 45 7 7M14 50l-5 5" fill="none"/></g>
+</svg>

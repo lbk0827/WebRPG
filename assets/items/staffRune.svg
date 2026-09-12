@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>룬 지팡이</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M20 56 39 15" fill="none" stroke="#6b4b2a" stroke-width="6"/><circle cx="40" cy="15" r="9" fill="#8fd3ff"/><path d="m35 15 5-5 5 5-5 5Z" fill="none"/></g>
+</svg>

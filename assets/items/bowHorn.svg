@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>각궁</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M18 8Q48 32 18 56" fill="none" stroke="#8a7550" stroke-width="6"/><path d="M18 8v48" fill="none" stroke="#e9e4d8"/><path d="m12 34 30-9m-6-4 6 4-4 6" fill="none"/></g>
+</svg>

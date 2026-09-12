@@ -160,3 +160,71 @@ describe('수칙 훅이 전투에서 작동한다', () => {
     expect(JSON.stringify(run().events)).toBe(JSON.stringify(run().events))
   })
 })
+
+// ── 전직은 "다르게 싸우는 것"이지 힘 도약이 아니다 (ADR-003) ──
+import { EMPTY_ALLOC, REGIONS, STAT_POINTS_PER_LEVEL, growthStats, rollEncounter } from '../src'
+import type { StatKey, Stats } from '../src'
+
+const PRIMARY: Record<string, StatKey> = { warrior: 'str', rogue: 'dex', mage: 'int', priest: 'int', elf: 'dex' }
+
+/**
+ * 웹의 memberStats 와 **같은 순서**로 계산한다: 레벨 배율을 먹인 뒤 전직 보정을 더한다.
+ * 순서가 뒤집히면 HP +240 이 Lv23 에서 +500 이 넘어 전직이 힘 도약이 된다 (2026-09-12 실제로 그랬다).
+ */
+function advStats(scaled: Stats, job2?: string): Stats {
+  const adv = job2 ? JOB_ADVANCE[job2] : undefined
+  if (!adv) return scaled
+  const out = { ...scaled }
+  for (const [k, v] of Object.entries(adv.bonus)) out[k as keyof Stats] = (out[k as keyof Stats] ?? 0) + (v ?? 0)
+  return out
+}
+
+function advParty(level: number, advanced: Record<string, string>): TeamSetup {
+  return {
+    name: '측정',
+    members: JOBS.map((j, i) => {
+      const p = structuredClone(PRESETS[j])
+      const j2 = advanced[j]
+      const adv = j2 ? JOB_ADVANCE[j2] : undefined
+      const alloc = { ...EMPTY_ALLOC, [PRIMARY[j]]: (level - 1) * STAT_POINTS_PER_LEVEL }
+      return {
+        ...p,
+        id: `${j}#${i}`,
+        stats: advStats(growthStats(p.stats, level, alloc), j2),
+        skills: [...new Set([...p.skills, ...(adv?.grants ?? [])])],
+        traits: adv?.traits ?? [],
+      }
+    }),
+  }
+}
+
+function winAt(level: number, regionIdx: number, t: TeamSetup, n = 80): number {
+  let w = 0
+  for (let s = 1; s <= n; s++) {
+    const e = rollEncounter(REGIONS[regionIdx], s)
+    if (simulate({ seed: s, teams: [t, e], config: DEFAULT_CONFIG, skills: SKILLS }).outcome === 'team0') w++
+  }
+  return Math.round((w / n) * 100)
+}
+
+describe('전직은 힘 도약이 아니다', () => {
+  const REGION = 7 // 심연의 굴
+  const LV = REGIONS[REGION].recommended[0]
+  const base = winAt(LV, REGION, advParty(LV, {}))
+
+  it('수칙을 그대로 둔 채 전직만 하면 값이 크게 뛰지 않는다', () => {
+    for (const a of JOB_ADVANCES) {
+      const got = winAt(LV, REGION, advParty(LV, { [a.base]: a.id }))
+      // 위: 전직이 수칙을 대체해 버리면 안 된다. 아래: 전직이 손해여도 안 된다
+      expect(got - base, `${a.name}: 기준 ${base}% → ${got}%`).toBeLessThanOrEqual(14)
+      expect(got - base, `${a.name}: 기준 ${base}% → ${got}%`).toBeGreaterThanOrEqual(-6)
+    }
+  })
+
+  it('전원 전직해도 마찬가지 (한 명씩의 합이 폭발하지 않는다)', () => {
+    const all = { warrior: 'guardian', rogue: 'assassin', mage: 'elementalist', priest: 'bishop', elf: 'ranger' }
+    const got = winAt(LV, REGION, advParty(LV, all))
+    expect(got - base, `전원 전직: 기준 ${base}% → ${got}%`).toBeLessThanOrEqual(30)
+    console.log(`\n전직 전 ${base}% → 전원 전직 ${got}% (수칙은 그대로)\n`)
+  })
+})

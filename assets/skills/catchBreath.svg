@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>숨 고르기</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="3" y="3" width="58" height="58" rx="14" fill="#3e8e5a"/>
+    <path d="M11 30q12-10 22 0t20 0M17 42q8-6 15 0t14 0" fill="none" stroke="#e9e4d8" stroke-width="5"/></g>
+</svg>

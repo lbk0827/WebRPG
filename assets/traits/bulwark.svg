@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <title>방벽</title>
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+    <path d="M32 3 57 18v28L32 61 7 46V18Z" fill="#e9e4d8"/>
+    <path d="M32 11 49 18v15c0 11-7 18-17 22-10-4-17-11-17-22V18Z" fill="#cfd6e0"/><path d="M32 17v31" fill="none"/></g>
+</svg>
