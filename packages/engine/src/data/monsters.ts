@@ -207,14 +207,14 @@ const list: MonsterDef[] = [
     stats: { maxHp: 1650, def: 30 }, guard: { mode: 'never' },
     skills: ['strike', 'venomStrong', 'poisonArrow'],
     rules: rules(row(sp(10), 'poisonArrow'), row(sp(8), 'venomStrong'), row(always, 'strike')),
-    drops: [{ itemId: 'venomSac', permyriad: 5000 }], exp: 145, gold: 75,
+    drops: [{ itemId: 'venomSac', permyriad: 5000 }, { itemId: 'beastFang', permyriad: 5500 }], exp: 145, gold: 75,
   },
   {
     id: 'broodMother', name: '거미 어미', job: 'mage', icon: 'spider', archetype: 'caster', level: 18, growth: { int: 5 },
     stats: { maxHp: 1150, def: 18, mdef: 22 }, row: 'back', skills: ['strike', 'hex', 'bolt', 'meditate'],
     // 교재: 준비가 아주 긴 광역기. 끊으면 아무 일도 없고, 놔두면 전원이 독까지 뒤집어쓴다
     rules: rules(row(sp(20), 'hex'), row(sp(6), 'bolt'), row(always, 'meditate')),
-    drops: [{ itemId: 'venomSac', permyriad: 5500 }, { itemId: 'manaCrystal', permyriad: 2000 }], exp: 150, gold: 80,
+    drops: [{ itemId: 'venomSac', permyriad: 5500 }, { itemId: 'beastFang', permyriad: 5000 }, { itemId: 'manaCrystal', permyriad: 2500 }], exp: 150, gold: 80,
   },
   {
     id: 'harpy', name: '하피', job: 'elf', icon: 'harpy', archetype: 'shooter', level: 17, growth: { dex: 4, spd: 2 },
@@ -253,7 +253,7 @@ const list: MonsterDef[] = [
     stats: { maxHp: 1350, def: 20 }, guard: { mode: 'hpAbove', pct: 50 },
     skills: ['strike', 'sweep', 'heavyBlow'],
     rules: rules(row(atom({ kind: 'teamAliveCount', side: 'enemy', cmp: 'gte', value: 4 }), 'sweep'), row(sp(8), 'heavyBlow'), row(always, 'strike')),
-    drops: [{ itemId: 'ogreCore', permyriad: 2000 }, { itemId: 'ironScrap', permyriad: 3000 }], exp: 190, gold: 100,
+    drops: [{ itemId: 'leather', permyriad: 3500 }, { itemId: 'beastFang', permyriad: 3500 }, { itemId: 'ironScrap', permyriad: 3000 }, { itemId: 'ogreCore', permyriad: 2000 }], exp: 190, gold: 100,
   },
 
   // ───────── 심연의 굴: 마지막. 보스 수칙은 우리 것과 같은 수준
@@ -269,7 +269,7 @@ const list: MonsterDef[] = [
       row(sp(8), 'heavyBlow'),
       row(always, 'strike'),
     ),
-    drops: [{ itemId: 'ogreCore', permyriad: 3500 }], exp: 240, gold: 130,
+    drops: [{ itemId: 'beastFang', permyriad: 4000 }, { itemId: 'ogreCore', permyriad: 3500 }, { itemId: 'leather', permyriad: 4000 }], exp: 240, gold: 130,
   },
   {
     id: 'abyssOgre', name: '심연의 오우거', job: 'warrior', icon: 'ogre', archetype: 'boss', level: 30, growth: { str: 2, spd: 1 },
@@ -284,7 +284,7 @@ const list: MonsterDef[] = [
       row(sp(8), 'heavyBlow'),
       row(always, 'strike'),
     ),
-    drops: [{ itemId: 'ogreCore', permyriad: 10000 }], exp: 600, gold: 400,
+    drops: [{ itemId: 'bossSeal', permyriad: 4000 }, { itemId: 'ogreCore', permyriad: 10000 }], exp: 600, gold: 400,
   },
 ]
 

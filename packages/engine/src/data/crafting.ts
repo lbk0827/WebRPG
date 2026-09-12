@@ -16,9 +16,9 @@ export const MATERIALS: Record<string, MaterialDef> = {
   feather: { id: 'feather', label: '깃털', blurb: '화살 깃으로 쓴다. 궁수들이 떨어뜨린다.' },
   manaCrystal: { id: 'manaCrystal', label: '마력 결정', blurb: '마법사가 쓰러질 때 지팡이 끝에 맺힌다.' },
   holyWater: { id: 'holyWater', label: '성수', blurb: '프리스트가 들고 다니던 병. 반쯤 남았다.' },
-  bossSeal: { id: 'bossSeal', label: '두목의 인장', blurb: '두목 급이 갖고 있던 것. 숨은 상대를 만나야 나온다.' },
+  bossSeal: { id: 'bossSeal', label: '두목의 인장', blurb: '두목 급이 갖고 있던 것. 도적 두목·고블린 족장·심연의 오우거. 숨은 상대를 만나야 나온다.' },
   // M2-5a 짐승·괴물 지역
-  beastFang: { id: 'beastFang', label: '짐승 송곳니', blurb: '들개와 박쥐에게서 나온다. 갈면 날이 선다.' },
+  beastFang: { id: 'beastFang', label: '짐승 송곳니', blurb: '들개·박쥐의 이빨, 거미의 독니, 오우거의 어금니. 갈면 날이 선다.' },
   venomSac: { id: 'venomSac', label: '독주머니', blurb: '거미 배에서 터뜨리지 않고 꺼내야 값이 나간다.' },
   ogreCore: { id: 'ogreCore', label: '오우거의 핵', blurb: '심장 자리에 돌처럼 굳은 것. 아직 따뜻하다.' },
 }

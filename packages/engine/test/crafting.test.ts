@@ -124,3 +124,47 @@ describe('운 — 드롭과 제작', () => {
     }
   })
 })
+
+// ── 제작 재료가 그 장비를 쓸 무렵의 지역에서 나와야 한다 (docs/18 §15) ──
+//
+// 2026-09-13 측정에서 찾은 것: 3등급 제작에 짐승 송곳니가 13개 필요한데
+// **늑대 골짜기(권장 Lv9) 한 곳에서만** 나왔다. Lv23 파티가 Lv9 지역으로 되돌아가
+// 100% 승률로 10판을 도는 것은 도전이 아니라 시간세다.
+describe('제작 재료의 출처', () => {
+  /** 이 재료가 나오는 지역들의 권장 하한 레벨 */
+  function sourceLevels(materialId: string): number[] {
+    const out: number[] = []
+    for (const r of REGIONS) {
+      const has = r.table.some((e) => (MONSTERS[e.monsterId]?.drops ?? []).some((d) => d.itemId === materialId))
+      if (has) out.push(r.recommended[0])
+    }
+    return out
+  }
+
+  it('3등급 제작 재료는 모두 Lv15 이상 지역에서도 나온다', () => {
+    const need = new Set<string>()
+    for (const r of RECIPES) {
+      if (ITEMS[r.itemId]?.tier !== 3) continue
+      for (const m of r.materials) need.add(m.id)
+    }
+    expect(need.size, '3등급 제작법이 있어야 한다').toBeGreaterThan(0)
+    for (const id of need) {
+      const lv = sourceLevels(id)
+      expect(lv.length, `${id} 를 떨구는 지역이 없다`).toBeGreaterThan(0)
+      expect(
+        Math.max(...lv),
+        `${id} 는 Lv${lv.join('·')} 지역에서만 나온다 — 3등급을 쓸 무렵에는 되돌아가야 한다`,
+      ).toBeGreaterThanOrEqual(15)
+    }
+  })
+
+  it('드롭 표는 첫 당첨 하나만이다 — 확정(10000) 뒤의 항목은 죽은 코드다', () => {
+    // 순서가 확률보다 세다. 2000 → 5500 으로 올려도 판당 0.10 → 0.17 이었고,
+    // 맨 앞으로 옮기자 0.13 → 0.42 가 됐다 (docs/18 §15). 실수로 확정 뒤에 붙이는 것을 막는다
+    for (const m of Object.values(MONSTERS)) {
+      const ds = m.drops ?? []
+      const sure = ds.findIndex((d) => d.permyriad >= 10000)
+      if (sure >= 0) expect(ds.length - 1, `${m.name}: 확정 드롭 뒤에 ${ds.length - 1 - sure}개가 더 있다`).toBe(sure)
+    }
+  })
+})
