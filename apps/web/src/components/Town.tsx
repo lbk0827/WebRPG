@@ -1,5 +1,10 @@
-// 마을 (탭 개편 2026-09-11, 단장 지시). 시설이 전부 여기에 모인다 — 용병소 · 상점 · 공방 · 도감 · 훈련소.
-// 앞으로 새 시설(제련·경매 등)도 이 안에 붙인다. 탭은 늘리지 않는다.
+// 마을 (탭 개편 2026-09-11 · 2026-09-12 제로식 방식으로 밀도 개편).
+// 시설이 전부 여기에 모인다. 앞으로 새 시설(제련·경매 등)도 이 안에 붙인다. 탭은 늘리지 않는다.
+//
+// 제로식 마을은 링크 **35개**를 한 줄씩 세로로 늘어놓는다. 밀도가 높아 한눈에 들어오고,
+// 시설이 늘어도 구조가 그대로 버틴다. 우리도 카드 격자를 **한 줄 목록**으로 바꾼다.
+// 다만 그쪽처럼 35개를 그냥 나열하면 처음 온 사람에게는 벽이다 —
+// **묶음 머리글**(사람 · 물건 · 배움)을 달아 무엇을 하러 왔는지로 찾게 한다. 제로식에는 없는 것이다.
 import { useEffect, useState } from 'react'
 import { MEMBER_MAX, MISSIONS, PRESETS, RECIPES, canCraft } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
@@ -13,6 +18,13 @@ import { MissionList } from './MissionList'
 import { MissionPlay } from './MissionPlay'
 
 export type Facility = 'hub' | 'recruit' | 'shop' | 'workshop' | 'codex' | 'missions'
+
+/** 무엇을 하러 왔는지로 묶는다 (제로식은 35개를 그냥 나열해 벽이 된다) */
+const GROUPS: { title: string; note: string; items: Exclude<Facility, 'hub'>[] }[] = [
+  { title: '사람', note: '단원을 늘린다', items: ['recruit'] },
+  { title: '물건', note: '장비를 구하고 다듬는다', items: ['shop', 'workshop'] },
+  { title: '배움', note: '수칙을 배우고 수치를 찾아본다', items: ['missions', 'codex'] },
+]
 
 interface Props {
   save: GameSave
@@ -72,61 +84,55 @@ export function Town({ save, onSave, progress, onProgress, initial = 'hub', onGo
     return <MissionList progress={progress} onOpen={(id) => { setMissionId(id); window.scrollTo(0, 0) }} onFree={onGoBattle} onBack={back} />
   }
 
+  // 무엇을 하러 왔는지로 묶는다. 시설이 늘면 여기에만 더한다
+  const desc: Record<Exclude<Facility, 'hub'>, { ico: string; name: string; what: string; state: string; warn?: boolean }> = {
+    recruit: {
+      ico: '🛡️', name: '용병소', what: '새 단원을 고용한다',
+      state: hireable > 0 ? `고용 가능한 직업 ${hireable}종` : '금이 모자랍니다', warn: hireable === 0,
+    },
+    shop: {
+      ico: '🏪', name: '상점', what: '장비를 사고판다',
+      state: `등급 ${shopTier(save)} · 창고 ${save.inventory.length}개`,
+    },
+    workshop: {
+      ico: '🔨', name: '공방', what: '강화하고 재료로 만든다',
+      state: craftable > 0 ? `만들 수 있는 것 ${craftable}가지` : `재료 ${matCount}개`,
+    },
+    missions: {
+      ico: '📜', name: '훈련소', what: `교전 수칙을 가르치는 과제 ${MISSIONS.length}개`,
+      state: `${cleared}/${MISSIONS.length} 완료${nextMission ? ` · 다음 ${nextMission.title}` : ' · 전부 마침'}`,
+      warn: cleared < MISSIONS.length,
+    },
+    codex: {
+      ico: '📖', name: '자료실', what: '스킬 · 장비 · 조건 · 지역과 상대',
+      state: '엔진 데이터에서 그대로 만든 표',
+    },
+  }
+
   return (
     <section className="town">
       <h2>마을 <small>금 {save.gold} · 단원 {save.members.length}/{MEMBER_MAX} · 재료 {matCount}개</small></h2>
-      <ul className="facilities">
-        <li className="facility">
-          <button onClick={() => go('recruit')}>
-            <span className="ico">🛡️</span>
-            <span className="body">
-              <b>용병소</b>
-              <small>새 단원을 고용한다. 해고와 이름 변경은 캐릭터 탭에서.</small>
-              <small className="state">{hireable > 0 ? `지금 고용 가능한 직업 ${hireable}종` : '금이 모자랍니다'}</small>
-            </span>
-          </button>
-        </li>
-        <li className="facility">
-          <button onClick={() => go('shop')}>
-            <span className="ico">🏪</span>
-            <span className="body">
-              <b>상점</b>
-              <small>장비를 사고판다. 산 물건은 창고로.</small>
-              <small className="state">등급 {shopTier(save)} · 창고 {save.inventory.length}개</small>
-            </span>
-          </button>
-        </li>
-        <li className="facility">
-          <button onClick={() => go('workshop')}>
-            <span className="ico">🔨</span>
-            <span className="body">
-              <b>공방</b>
-              <small>장비를 강화하고 재료로 만든다. 실패해도 장비는 그대로.</small>
-              <small className="state">{craftable > 0 ? `만들 수 있는 것 ${craftable}가지` : `재료 ${matCount}개`}</small>
-            </span>
-          </button>
-        </li>
-        <li className="facility">
-          <button onClick={() => go('missions')}>
-            <span className="ico">📜</span>
-            <span className="body">
-              <b>훈련소</b>
-              <small>교전 수칙을 처음부터 가르치는 과제 {MISSIONS.length}개. 개념 하나에 과제 하나.</small>
-              <small className="state">{cleared}/{MISSIONS.length} 완료{nextMission ? ` · 다음: ${nextMission.title}` : ' · 전부 마침'}</small>
-            </span>
-          </button>
-        </li>
-        <li className="facility">
-          <button onClick={() => go('codex')}>
-            <span className="ico">📖</span>
-            <span className="body">
-              <b>자료실</b>
-              <small>스킬 · 장비 · 상태이상 · 특성 · 조건 · 스탯 · 지역과 상대.</small>
-              <small className="state">엔진 데이터에서 그대로 만든 표 — 여기 적힌 숫자가 실제 숫자다</small>
-            </span>
-          </button>
-        </li>
-      </ul>
+      {GROUPS.map((g) => (
+        <div key={g.title} className="town-group">
+          <h3>{g.title} <small>{g.note}</small></h3>
+          <ul className="facilities">
+            {g.items.map((f) => {
+              const d = desc[f]
+              return (
+                <li key={f} className="facility">
+                  <button onClick={() => go(f)}>
+                    <span className="ico">{d.ico}</span>
+                    <span className="nm">{d.name}</span>
+                    <small className="what">{d.what}</small>
+                    <small className={`state ${d.warn ? 'warn' : ''}`}>{d.state}</small>
+                    <span className="go" aria-hidden="true">→</span>
+                  </button>
+                </li>
+              )
+            })}
+          </ul>
+        </div>
+      ))}
     </section>
   )
 }
