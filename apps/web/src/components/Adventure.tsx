@@ -11,6 +11,7 @@ import { adventureGate, materialsText, partySummary, runAdventure, type Adventur
 import { jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
 import { diagnose } from '../lib/diagnose'
 import { Replay } from './Replay'
+import { PartyBar } from './PartyBar'
 
 interface Props {
   save: GameSave
@@ -79,6 +80,8 @@ export function Adventure({ save, onSave, onGoBattle, onGoFormation }: Props) {
         일반 <button className="link" onClick={onGoBattle}>전투</button>는 같은 지역을 몇 번이든 돌 수 있습니다.
         모험은 <b>재도전 대기</b>·<b>하루 횟수</b>·<b>열쇠 재료</b>·<b>요일</b>이 걸리는 대신 상대가 고정이라 그 상대에 맞춰 수칙을 짤 수 있습니다.
       </p>
+
+      <PartyBar save={save} onSave={onSave} onGoFormation={onGoFormation} />
 
       <ol className="regions">
         {ADVENTURES.map((a) => {
@@ -175,7 +178,7 @@ export function Adventure({ save, onSave, onGoBattle, onGoFormation }: Props) {
                     <button className="primary big" onClick={() => go(a)} disabled={!g.ready}>도전</button>
                     {!g.ready && <small>{g.reason === '재도전 대기 중' ? `재도전까지 ${waitText(g.waitMs)}` : g.reason}</small>}
                     {g.ready && lowLevel && <small>권장 레벨보다 낮습니다. 입장 재료와 횟수는 져도 소모됩니다.</small>}
-                    <small>편성은 <button className="link" onClick={onGoFormation}>편성 탭</button>에서.</small>
+                    
                   </div>
                 </div>
               )}

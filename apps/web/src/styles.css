@@ -352,6 +352,36 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .player-bar button.on { background: var(--ink); color: #fff; }
 
 /* 의뢰소 · 단원 (M2-1) */
+/* 출전 명단 — 전투·모험 맨 위 (제로식 전투 화면의 Party/Teams 자리) */
+.party-bar { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px 12px; margin: 8px 0 10px; }
+.party-bar > h3 {
+  display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap;
+  margin: 0 0 8px; padding-left: 8px; font-size: 13px; color: var(--ink); border-left: 3px solid var(--team0);
+}
+.party-bar > h3 small { font-weight: normal; }
+.party-bar > h3 .link { margin-left: auto; font-size: 12px; }
+.party-bar-body { display: grid; gap: 12px; align-items: start; }
+@media (min-width: 720px) { .party-bar-body { grid-template-columns: auto minmax(0, 1fr); } }
+.party-bar-body > .board { justify-self: start; }  /* 격자 칸에서 늘어나지 않게 */
+.party-bar-side { display: grid; gap: 8px; min-width: 0; }
+.party-bar .hint { margin: 0; }
+
+.preset-row { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.preset-row .lbl { font-size: 11px; color: var(--muted); margin-right: 2px; }
+.preset-row .chip { font-size: 12px; padding: 4px 10px; border-radius: 999px; max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.preset-row .chip.empty { color: var(--muted); border-style: dashed; }
+.preset-row .chip.on { background: var(--ink); color: #fff; border-color: var(--ink); opacity: 1; }
+
+.cell-edit { background: var(--paper); border-radius: 10px; padding: 8px 10px; }
+.cell-edit .run-bar { margin: 6px 0 0; }
+.cell-edit .warn-line { display: block; margin-top: 4px; color: var(--warn); font-size: 11px; }
+.bench-row { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
+.bench-row button {
+  display: inline-flex; align-items: center; gap: 5px; padding: 3px 8px 3px 4px; border-radius: 999px; font-size: 12px;
+}
+.bench-row .nm { font-weight: 600; }
+.bench-row small { color: var(--muted); font-size: 11px; }
+
 /* 의뢰소 — 지역마다 접이식 (제로식 전투 화면 방식, 2026-09-12).
    펼친 블록 안에 등장 상대 · 비교 · 출전이 전부 들어간다. 한 번에 하나만 펼쳐진다. */
 .regions { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }

@@ -8,8 +8,9 @@
 // 전에는 도감에 가야 알 수 있었다. "여기 주술사가 나온다"를 알아야 끊기 수칙을 넣는다 —
 // 이 게임은 출전 전 준비가 본체인데 그 정보가 다른 화면에 있으면 안 된다.
 //
-// 제로식에서 안 가져온 것: 같은 버튼을 위아래 두 벌 두는 것(페이지가 길어서 생긴 땜질),
-// 편성 저장 슬롯을 전투 화면에 두는 것(편성은 편성 탭에 있어야 한다 — docs/11 §5.3 17번).
+// 맨 위에는 **출전 명단**(PartyBar) — 제로식의 Party/Teams 자리다. 편성을 바꾸러 나갈 일이 없다.
+//
+// 제로식에서 안 가져온 것: 같은 버튼을 위아래 두 벌 두는 것 (페이지가 길어서 생긴 땜질).
 import { useMemo, useState } from 'react'
 import { UnitPortrait } from './UnitPortrait'
 import type { Analysis, BattleResult, TeamSetup } from '@webrpg/engine'
@@ -20,10 +21,12 @@ import { addMaterials, applyExp, partyMembers, partySummary, partyTeam } from '.
 import { jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
 import { diagnose } from '../lib/diagnose'
 import { Replay } from './Replay'
+import { PartyBar } from './PartyBar'
 
 interface Props {
   save: GameSave
   onSave: (next: GameSave) => void
+  onGoFormation: () => void
 }
 
 interface Outcome {
@@ -95,7 +98,7 @@ function foesOf(region: RegionDef) {
   }
 }
 
-export function QuestBoard({ save, onSave }: Props) {
+export function QuestBoard({ save, onSave, onGoFormation }: Props) {
   const party = partyMembers(save)
   const us = partySummary(save)
   // 펼쳐 둘 지역. 기본은 **해금된 것 중 가장 깊은 곳** — 거기가 지금 할 일이다
@@ -169,6 +172,7 @@ export function QuestBoard({ save, onSave }: Props) {
       {out && names && jobs && <Replay key={out.seed} result={out.result} names={names} jobs={jobs} />}
 
       <h2>의뢰소 <small>금 {save.gold} · 편성 {party.length}명 · 평균 레벨 {us.avgLevel}</small></h2>
+      <PartyBar save={save} onSave={onSave} onGoFormation={onGoFormation} />
       <ol className="regions">
         {REGIONS.map((r) => {
           const unlocked = isRegionUnlocked(r, save.regionWins)
@@ -249,7 +253,7 @@ export function QuestBoard({ save, onSave }: Props) {
                     <button className="primary big" onClick={() => depart(r, 1)} disabled={!unlocked || party.length === 0}>출전</button>
                     <button className="big" onClick={() => depart(r, 3)} disabled={!unlocked || party.length === 0} title="3판을 연달아 치르고 결과를 한꺼번에 본다">3판 연속</button>
                     {!unlocked && <small>{gate}</small>}
-                    {unlocked && party.length === 0 && <small>편성 탭에서 단원을 세우세요.</small>}
+                    {unlocked && party.length === 0 && <small>위에서 단원을 세우세요.</small>}
                     {unlocked && low && <small>권장 레벨보다 낮습니다. 질 수 있습니다 — 그것도 경험치 30%.</small>}
                   </div>
                 </div>

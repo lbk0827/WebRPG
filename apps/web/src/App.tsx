@@ -94,7 +94,7 @@ export function App() {
             onGoFormation={() => goFormation()}
           />
         )}
-        {tab === 'battle' && <QuestBoard save={save} onSave={setSave} />}
+        {tab === 'battle' && <QuestBoard save={save} onSave={setSave} onGoFormation={() => goFormation()} />}
         {tab === 'adventure' && <Adventure save={save} onSave={setSave} onGoBattle={() => go('battle')} onGoFormation={() => goFormation()} />}
         {tab === 'town' && (
           <Town
