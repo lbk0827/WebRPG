@@ -255,6 +255,21 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .popup.interrupt { color: var(--cast); font-size: 13px; }
 .popup.revive { color: var(--good); font-size: 13px; }
 .popup.cover { color: var(--team1); font-size: 10px; }
+/* ───────── 도트 초상 (목록·편성 판). 줄이지 않고 창으로 자른다 */
+.portrait { display: block; overflow: hidden; flex: none; }
+.portrait svg { display: block; width: 48px; height: 64px; overflow: hidden; image-rendering: pixelated; }
+.portrait.full { width: 48px; height: 64px; }
+.portrait.md { width: 40px; height: 40px; }
+.portrait.md svg { margin: -2px 0 0 -4px; }   /* 창 x4~44, y2~42 — 머리와 상체 */
+.portrait.sm { width: 28px; height: 28px; }
+.portrait.sm svg { margin: -4px 0 0 -10px; }  /* 창 x10~38, y4~32 — 머리만 */
+.portrait.xs { width: 22px; height: 22px; }
+.portrait.xs svg { margin: -6px 0 0 -13px; }  /* 창 x13~35, y6~28 — 얼굴만 */
+.portrait.inline { display: inline-block; vertical-align: -6px; }
+/* 스프라이트가 아직 없는 캐릭터 — 원형 엠블럼으로 물러선다 */
+.portrait.fallback { border-radius: 50%; }
+.portrait.fallback.full { width: 48px; height: 48px; margin: 8px 0; }
+
 /* ───────── 도트 전투 스프라이트 (docs/15). 회전을 쓰지 않는다 — 픽셀이 뭉개지기 때문 */
 .char .unit { display: block; }
 .char .unit svg { display: block; margin: 0 auto; width: 48px; height: 64px; overflow: visible; image-rendering: pixelated; }
@@ -262,8 +277,8 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .side.t1 .char .unit svg { transform: scaleX(-1); }
 
 /* 무기 든 팔의 포즈. 기본은 f0 만 보인다 */
-.unit .f { opacity: 0; }
-.unit .f0 { opacity: 1; }
+.unit .f, .portrait .f { opacity: 0; }
+.unit .f0, .portrait .f0 { opacity: 1; }
 .unit .p-torso, .unit .p-arm-front, .unit .p-arm-back, .unit .p-frames { transform-box: view-box; }
 
 /* 대기 — 1픽셀 위아래. 몸·양팔이 같이 움직인다 */
@@ -477,7 +492,7 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .rule-test h3 { margin: 0 0 8px; color: var(--ink); }
 .rule-test .run-bar label { display: inline-flex; gap: 6px; align-items: center; font-size: 12px; color: var(--muted); }
 /* 편성 프리셋 선반 — 슬롯마다 판 미리보기 (유니콘 오버로드식) */
-.board.mini { --cell: 30px; }
+.board.mini { --cell: 30px; --cell-h: 30px; }
 .board.mini .board-grid { gap: 2px; padding: 3px; border-radius: 6px; }
 .board.mini .cell { border-radius: 3px; border-width: 1px; padding: 0; }
 .board.mini .cell img { width: 22px; height: 22px; }
@@ -523,13 +538,13 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .multi-list button.on small { color: #ccc; }
 
 /* ───────── 편성 판 (유니콘 오버로드식 6칸) */
-.board { --cell: 96px; display: inline-block; max-width: 100%; }
-.board.compact { --cell: 72px; }
+.board { --cell: 96px; --cell-h: 118px; display: inline-block; max-width: 100%; }
+.board.compact { --cell: 76px; --cell-h: 78px; }
 .board-head { display: grid; grid-template-columns: var(--cell) var(--cell) auto; gap: 6px; font-size: 11px; color: var(--muted); padding: 0 4px 4px; }
 .board-head span { text-align: center; }
 .board-head .foe-mark { text-align: left; color: var(--team1); font-weight: 700; padding-left: 6px; }
 .board-grid {
-  display: grid; grid-template-columns: var(--cell) var(--cell); grid-auto-rows: var(--cell); gap: 6px;
+  display: grid; grid-template-columns: var(--cell) var(--cell); grid-auto-rows: var(--cell-h); gap: 6px;
   padding: 8px; border-radius: 12px;
   background: linear-gradient(180deg, #5b4a3a, #3f3128); box-shadow: inset 0 2px 8px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.2);
 }
@@ -541,8 +556,8 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .cell.light { background: #e9dcc4; }
 .cell.dark { background: #c9b48f; }
 .cell.front::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 3px; background: rgba(178,58,72,0.55); border-radius: 0 6px 6px 0; }
-.cell img { width: 40px; height: 40px; }
-.board.compact .cell img { width: 30px; height: 30px; }
+.cell .portrait.fallback { width: 40px; height: 40px; }
+.board.compact .cell .portrait.fallback { width: 34px; height: 34px; margin: 0; }
 .cell .nm { font-size: 12px; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .cell small { font-size: 10px; color: #5a4a3a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
 .cell .bar { width: 70%; height: 3px; margin-top: 2px; background: rgba(0,0,0,0.15); }

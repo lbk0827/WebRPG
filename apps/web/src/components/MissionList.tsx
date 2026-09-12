@@ -1,6 +1,6 @@
 import { MISSIONS } from '@webrpg/engine'
+import { UnitPortrait } from './UnitPortrait'
 import type { MissionProgress } from '../missionState'
-import { jobIcon } from '../lib/labels'
 
 interface Props {
   progress: MissionProgress
@@ -40,11 +40,11 @@ export function MissionList({ progress, onOpen, onFree, onBack }: Props) {
                   <span className="lesson">{m.lesson}</span>
                   <span className="cast">
                     {m.player.map((c, j) => (
-                      <img key={j} src={jobIcon(c.job)} alt="" width={20} height={20} className={m.editable.includes(j) ? 'edit' : ''} />
+                      <span key={j} className={m.editable.includes(j) ? 'edit' : undefined}><UnitPortrait icon={c.job} size="xs" /></span>
                     ))}
                     <i>vs</i>
                     {m.enemy.map((c, j) => (
-                      <img key={j} src={jobIcon(c.job)} alt="" width={20} height={20} />
+                      <UnitPortrait key={j} icon={c.job} size="xs" />
                     ))}
                   </span>
                 </span>

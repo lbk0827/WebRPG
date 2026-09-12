@@ -1,9 +1,10 @@
 // 모집소 (M2-3, docs/07 §3.2). 제로식 인재 알선소(직업 그림 + 가격 그리드)에서 착안. 이름은 플레이어가 짓는다.
 import { useState } from 'react'
+import { UnitPortrait } from './UnitPortrait'
 import { HIRE, MEMBER_MAX, PRESETS } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { canHire, currentHireLevel, currentHirePrice, hireMember } from '../game/members'
-import { jobIcon, jobName } from '../lib/labels'
+import { jobName } from '../lib/labels'
 
 interface Props {
   save: GameSave
@@ -39,7 +40,7 @@ export function Recruit({ save, onSave, onHired }: Props) {
           return (
             <li key={j} className={`hire-card ${job === j ? 'on' : ''} ${ok ? '' : 'far'}`}>
               <button onClick={() => setJob(job === j ? null : j)} disabled={full}>
-                <img src={jobIcon(j)} alt="" width={44} height={44} />
+                <UnitPortrait icon={j} size="md" />
                 <b>{jobName(j)}</b>
                 <span className="price">금 {price}</span>
                 <small>{HIRE[j].blurb}</small>

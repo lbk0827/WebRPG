@@ -1,9 +1,10 @@
 import { useState } from 'react'
+import { UnitPortrait } from './UnitPortrait'
 import type { MissionLimits, RuleRow } from '@webrpg/engine'
 import { PRESETS, SKILLS, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
 import type { SlotState } from '../state'
 import type { RulePreset } from '../game/save'
-import { jobIcon, jobName, skillBrief, skillLabel } from '../lib/labels'
+import { jobName, skillBrief, skillLabel } from '../lib/labels'
 import { describeCondition, fromCondition, toCondition } from '../lib/condition'
 import { GUARDS, guardByKey, guardKey } from '../lib/guards'
 import { ConditionEditor } from './ConditionEditor'
@@ -83,7 +84,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
             const locked = editable && !editable.includes(i)
             return (
               <button key={i} className={`${i === sel ? 'on' : ''} ${locked ? 'locked' : ''}`} onClick={() => setSel(i)}>
-                <img src={jobIcon(s.job)} alt="" width={28} height={28} />
+                <UnitPortrait icon={s.job} size="sm" />
                 <span>{names?.[i] ?? jobName(s.job)}</span>
                 <small>{locked ? '고정' : `${s.rules.rows.length}패턴`}</small>
               </button>

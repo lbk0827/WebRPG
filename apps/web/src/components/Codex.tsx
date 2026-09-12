@@ -1,9 +1,10 @@
 // 도감 (ADR-004). 제로식의 "게임의 데이터" 페이지에서 착안 — 다만 전부 엔진 데이터에서 생성되어 어긋나지 않는다.
 import { useState } from 'react'
+import { UnitPortrait } from './UnitPortrait'
 import type { StatKey, StatusId } from '@webrpg/engine'
 import { ARCHETYPE_LABEL, CRAFT_TRAIT_PCT, ITEMS, ITEM_LIST, MATERIALS, MONSTERS, PRESETS, RECIPES, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, SLOT_LABEL, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, monsterSetup } from '@webrpg/engine'
 import { KIND_SPECS, PICKER_GROUPS, STAT_LABEL } from '../lib/condition'
-import { STAT_HELP, STATUS_HELP, itemBrief, jobIcon, jobName, skillParts, skillSources, traitText } from '../lib/labels'
+import { STAT_HELP, STATUS_HELP, itemBrief, jobName, skillParts, skillSources, traitText } from '../lib/labels'
 
 type Section = 'skills' | 'items' | 'status' | 'traits' | 'conditions' | 'stats' | 'regions'
 
@@ -187,7 +188,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
             <tbody>
               {Object.values(PRESETS).map((p) => (
                 <tr key={p.id}>
-                  <td className="nm"><img src={jobIcon(p.id)} alt="" width={18} height={18} /> {p.name}</td>
+                  <td className="nm"><UnitPortrait icon={p.id} size="xs" inline /> {p.name}</td>
                   <td className="num">{p.stats.maxHp}</td><td className="num">{p.stats.maxSp}</td>
                   {STAT_KEYS.map((k) => <td key={k} className="num">{p.stats[k]}</td>)}
                   <td className="num">{p.stats.def}</td><td className="num">{p.stats.mdef}</td>
@@ -213,7 +214,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
                       const s = monsterSetup(d, 0)
                       return (
                         <tr key={d.id}>
-                          <td className="nm"><img src={jobIcon(d.icon ?? d.job)} alt="" width={18} height={18} /> {d.name} <small>({d.icon ? ARCHETYPE_LABEL[d.archetype] : jobName(d.job)})</small></td>
+                          <td className="nm"><UnitPortrait icon={d.icon ?? d.job} size="xs" inline /> {d.name} <small>({d.icon ? ARCHETYPE_LABEL[d.archetype] : jobName(d.job)})</small></td>
                           <td>{ARCHETYPE_LABEL[d.archetype]}</td>
                           <td className="num">{d.level}</td>
                           <td className="num">{s.stats.maxHp}</td>

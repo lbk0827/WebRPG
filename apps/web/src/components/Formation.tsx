@@ -1,10 +1,11 @@
 // 편성 (유니콘 오버로드 "유닛 상세" 구조). 왼쪽 판 6칸, 오른쪽은 고른 단원의 상세 패널.
 // 패널은 캐릭터 탭과 **같은 컴포넌트**(UnitPanel) — 수칙·스탯·스킬·장비·정보를 여기서도 전부 다룬다.
 import { useEffect, useState } from 'react'
+import { UnitPortrait } from './UnitPortrait'
 import type { GameSave, Member } from '../game/save'
 import { PARTY_MAX, cellRow } from '../game/save'
 import { benchMembers, clearCell, memberById, partyMembers, placeMember, swapCells } from '../game/members'
-import { jobIcon, jobName } from '../lib/labels'
+import { jobName } from '../lib/labels'
 import { Board } from './Board'
 import { PartyPresets } from './PartyPresets'
 import { UnitPanel } from './UnitPanel'
@@ -63,7 +64,7 @@ export function Formation({ save, onSave, initialCell = null, onGoShop }: Props)
                 <ul>
                   {bench.map((m) => (
                     <li key={m.id}>
-                      <img src={jobIcon(m.job)} alt="" width={28} height={28} />
+                      <UnitPortrait icon={m.job} size="sm" />
                       <span className="nm">{m.name}</span>
                       <small>{jobName(m.job)} Lv {m.level}</small>
                       <button className="primary" disabled={full} onClick={() => place(m.id)}>세우기</button>

@@ -1,8 +1,8 @@
 // 편성 판 (유니콘 오버로드식 6칸). 편성 탭에서는 조작용, 본부·프리셋에서는 보기용.
 // 스테이지와 같은 방향 — 후열이 왼쪽, 전열이 오른쪽, 적은 오른쪽 너머.
 import { GRID_COLS, cellRow, type GameSave } from '../game/save'
+import { UnitPortrait } from './UnitPortrait'
 import { memberById, memberStats } from '../game/members'
-import { jobIcon, jobName } from '../lib/labels'
 
 interface Props {
   save: GameSave
@@ -43,9 +43,9 @@ export function Board({ save, party, selected = null, moveFrom = null, onCell, c
               .join(' ')
             const body = m ? (
               <>
-                <img src={jobIcon(m.job)} alt={mini ? m.name : ''} />
+                <UnitPortrait icon={m.job} alt={m.name} size={mini ? 'xs' : compact ? 'md' : 'full'} />
                 {!mini && <span className="nm">{m.name}</span>}
-                {!mini && !compact && <small>{jobName(m.job)} Lv {m.level} · 패턴 {m.rules.rows.length}</small>}
+                {!mini && !compact && <small>Lv {m.level} · 패턴 {m.rules.rows.length}</small>}
                 {!mini && compact && <small>Lv {m.level}</small>}
                 {!mini && !compact && <span className="bar hp"><i style={{ width: '100%' }} title={`HP ${memberStats(m).maxHp}`} /></span>}
               </>

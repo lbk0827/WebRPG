@@ -1,11 +1,12 @@
 // 캐릭터 (탭 개편 2026-09-11). 보유한 모든 단원이 한 화면에.
 // 고르면 오른쪽 상세 패널 — 편성 탭과 **같은 컴포넌트**(UnitPanel)라 여기서도 수칙까지 고친다.
 import { useEffect, useState } from 'react'
+import { UnitPortrait } from './UnitPortrait'
 import { MEMBER_MAX } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { PARTY_MAX } from '../game/save'
 import { canLearnSomething, cellOf, gearSummary, memberStats, partyMembers } from '../game/members'
-import { jobIcon, jobName } from '../lib/labels'
+import { jobName } from '../lib/labels'
 import { UnitPanel } from './UnitPanel'
 
 interface Props {
@@ -44,7 +45,7 @@ export function Characters({ save, onSave, onGoShop, onGoRecruit, onGoFormation 
             return (
               <li key={m.id} className={`char-card ${sel === m.id ? 'on' : ''} ${cell >= 0 ? 'out' : ''}`}>
                 <button onClick={() => setSel(m.id)}>
-                  <img src={jobIcon(m.job)} alt="" width={40} height={40} />
+                  <UnitPortrait icon={m.job} size="md" />
                   <span className="body">
                     <span className="nm">{m.name}{todo && <i className="dot" title="분배하거나 배울 것이 있습니다" />}</span>
                     <small>{jobName(m.job)} · Lv {m.level} · {cell >= 0 ? `${m.row === 'front' ? '전열' : '후열'} 출전` : '대기'}</small>

@@ -1,11 +1,12 @@
 // 의뢰소 (M2-1, ADR-004). 지역 선택 → 출전 전 비교 → 출전(1판 / 3판 연속) → 보상·레벨업·진단 → 재생. 기록에 저장.
 import { useMemo, useState } from 'react'
+import { UnitPortrait } from './UnitPortrait'
 import type { Analysis, BattleResult, TeamSetup } from '@webrpg/engine'
 import { DEFAULT_CONFIG, MONSTERS, REGIONS, SKILLS, analyze, battleRewards, isRegionUnlocked, monsterSetup, rollEncounter, simulate, type RegionDef } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { pushRecord } from '../game/save'
 import { addMaterials, applyExp, partyMembers, partySummary, partyTeam } from '../game/members'
-import { jobIcon, jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
+import { jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
 import { diagnose } from '../lib/diagnose'
 import { Replay } from './Replay'
 
@@ -179,7 +180,7 @@ export function QuestBoard({ save, onSave }: Props) {
             <div className="who">
               {party.map((m) => (
                 <span key={m.id} className="foe">
-                  <img src={jobIcon(m.job)} alt="" width={26} height={26} />
+                  <UnitPortrait icon={m.job} size="sm" />
                   <small>Lv {m.level}</small>
                 </span>
               ))}
@@ -192,7 +193,7 @@ export function QuestBoard({ save, onSave }: Props) {
             <div className="who">
               {preview.map((m) => (
                 <span key={m.id} className="foe">
-                  <img src={jobIcon(m.icon ?? m.job)} alt="" width={26} height={26} />
+                  <UnitPortrait icon={m.icon ?? m.job} size="sm" />
                   <small>{m.name} Lv {m.level}</small>
                 </span>
               ))}

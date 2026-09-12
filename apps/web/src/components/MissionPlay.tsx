@@ -1,9 +1,10 @@
 import { useMemo, useState } from 'react'
+import { UnitPortrait } from './UnitPortrait'
 import type { BattleResult, Mission, SlotOverride, Verdict } from '@webrpg/engine'
 import { DEFAULT_CONFIG, PRESETS, SKILLS, analyze, judgeMission, missionTeams, simulate } from '@webrpg/engine'
 import type { MissionProgress } from '../missionState'
 import type { SlotState } from '../state'
-import { jobIcon, jobOf, type Names } from '../lib/labels'
+import { jobOf, type Names } from '../lib/labels'
 import { describeCondition } from '../lib/condition'
 import { skillLabel } from '../lib/labels'
 import { diagnose } from '../lib/diagnose'
@@ -79,7 +80,7 @@ export function MissionPlay({ mission: m, progress, onProgress, onBack, onNext }
         <span className="label">상대</span>
         {teams[1].members.map((c, i) => (
           <span key={i} className="foe">
-            <img src={jobIcon(jobs[1][i])} alt="" width={28} height={28} />
+            <UnitPortrait icon={jobs[1][i]} size="sm" />
             <span>{c.name}<small> {c.row === 'front' ? '전열' : '후열'} · HP {c.stats.maxHp}</small></span>
           </span>
         ))}

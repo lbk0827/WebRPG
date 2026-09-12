@@ -1,11 +1,12 @@
 // 본부 (ADR-004, 탭 개편 2026-09-11). 시작 화면 — 할 일, 편성 판, 훈련 진행, 최근 전투 기록, 용병단 관리.
 import { useMemo, useState } from 'react'
+import { UnitPortrait } from './UnitPortrait'
 import { ADVENTURES, DEFAULT_CONFIG, ITEMS, MEMBER_MAX, MISSIONS, PRESETS, REGIONS, REGION_BY_ID, SKILLS, isRegionUnlocked, simulate } from '@webrpg/engine'
 import type { BattleRecord, GameSave } from '../game/save'
 import { DEFAULT_NAME, PARTY_MAX, exportGame, importGame, newGame } from '../game/save'
 import { adventureGate, canHire, canLearnSomething, craftableNow, partyMembers } from '../game/members'
 import type { MissionProgress } from '../missionState'
-import { jobIcon, jobOf, outcomeText, timeAgo, type Names } from '../lib/labels'
+import { jobOf, outcomeText, timeAgo, type Names } from '../lib/labels'
 import { Replay } from './Replay'
 import { Board } from './Board'
 import type { Facility } from './Town'
@@ -100,7 +101,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
               {party.map((m) => (
                 <li key={m.id} className={m.row}>
                   <button onClick={() => onGo('formation')}>
-                    <img src={jobIcon(m.job)} alt="" width={24} height={24} />
+                    <UnitPortrait icon={m.job} size="sm" />
                     <span className="nm">{m.name}</span>
                     <small>Lv {m.level} · {m.row === 'front' ? '전열' : '후열'} · 패턴 {m.rules.rows.length}{m.gear?.weapon ? '' : ' · 무기 없음'}</small>
                   </button>
@@ -198,7 +199,7 @@ function RecordRow({ r, open, onToggle }: { r: BattleRecord; open: boolean; onTo
         </span>
         <span className="cast">
           {r.enemy.members.map((m, i) => (
-            <img key={i} src={jobIcon(jobOf(m.id))} alt="" width={18} height={18} />
+            <UnitPortrait key={i} icon={jobOf(m.id)} size="xs" />
           ))}
         </span>
       </button>

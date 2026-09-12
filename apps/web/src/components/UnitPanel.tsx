@@ -2,12 +2,13 @@
 // 편성 탭(판에서 칸 선택)과 캐릭터 탭(목록에서 선택)이 **같은 컴포넌트**를 쓴다 (단장 지시 2026-09-11).
 // 두 곳의 차이는 처음 열리는 절(편성=수칙, 캐릭터=스탯)뿐이다.
 import { useState } from 'react'
+import { UnitPortrait } from './UnitPortrait'
 import { RENAME_GOLD, STARTER_SKILLS } from '@webrpg/engine'
 import type { GameSave, Member, RulePreset } from '../game/save'
 import { RULE_PRESET_MAX } from '../game/save'
 import { cellOf, dismissMember, dismissRefund, learnSkill, memberStats, renameMember, resetSkills, updateMember } from '../game/members'
 import type { SlotState } from '../state'
-import { jobIcon, jobName, skillLabel } from '../lib/labels'
+import { jobName, skillLabel } from '../lib/labels'
 import { STAT_LABEL } from '../lib/condition'
 import { RuleEditor, type PresetHooks } from './RuleEditor'
 import { MemberGrowth } from './MemberGrowth'
@@ -69,7 +70,7 @@ export function UnitPanel({ save, onSave, member, initial = 'stats', onGoShop, o
   return (
     <div className="unit-panel">
       <header>
-        <img src={jobIcon(member.job)} alt="" width={40} height={40} />
+        <UnitPortrait icon={member.job} size="md" />
         <div>
           <div className="name">
             {member.name} <small>{jobName(member.job)} · Lv {member.level} · {cell >= 0 ? (member.row === 'front' ? '전열 출전' : '후열 출전') : '대기'}</small>

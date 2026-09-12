@@ -1,9 +1,10 @@
 // 모험 (탭 개편 2026-09-11). 일반 전투와 달리 상대가 고정이고, 연속 도전이 안 되며, 보상이 크다.
 import { useMemo, useState } from 'react'
+import { UnitPortrait } from './UnitPortrait'
 import { ADVENTURES, MATERIALS, MONSTERS, WEEKDAY_LABEL, adventureRewards, adventureTeam } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { adventureGate, materialsText, partySummary, runAdventure, type AdventureRun } from '../game/members'
-import { jobIcon, jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
+import { jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
 import { diagnose } from '../lib/diagnose'
 import { Replay } from './Replay'
 
@@ -124,7 +125,7 @@ export function Adventure({ save, onSave, onGoBattle, onGoFormation }: Props) {
                 const m = save.members.find((x) => x.id === id)
                 return m ? (
                   <span key={i} className="foe">
-                    <img src={jobIcon(m.job)} alt="" width={26} height={26} />
+                    <UnitPortrait icon={m.job} size="sm" />
                     <small>Lv {m.level}</small>
                   </span>
                 ) : null
@@ -138,7 +139,7 @@ export function Adventure({ save, onSave, onGoBattle, onGoFormation }: Props) {
             <div className="who">
               {foes.members.map((m, i) => (
                 <span key={i} className="foe">
-                  <img src={jobIcon(jobOf(m.id))} alt="" width={26} height={26} />
+                  <UnitPortrait icon={jobOf(m.id)} size="sm" />
                   <small>{m.name}</small>
                 </span>
               ))}
