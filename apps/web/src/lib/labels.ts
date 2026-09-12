@@ -155,6 +155,60 @@ export function itemBrief(def: ItemDef, inst?: ItemInstance): string {
   return out.join(' · ')
 }
 
+/**
+ * 장비 하나가 주는 수치 (강화 반영). 비교에 쓴다.
+ * 키 순서를 고정해 두 장비를 나란히 뺄 수 있게 한다.
+ */
+function gearNumbers(inst?: ItemInstance): Record<string, number> {
+  const out: Record<string, number> = {}
+  if (!inst) return out
+  const def = ITEMS[inst.itemId]
+  if (!def) return out
+  const n = refinedNumbers(def, inst.refine)
+  if (n.atk[0]) out.물리 = n.atk[0]
+  if (n.atk[1]) out.마법 = n.atk[1]
+  if (n.def[0]) out['방어%'] = n.def[0]
+  if (n.def[1]) out.방어 = n.def[1]
+  if (n.def[2]) out['마방%'] = n.def[2]
+  if (n.def[3]) out.마방 = n.def[3]
+  if (def.stats) for (const [k, v] of Object.entries(def.stats)) if (v) out[GEAR_STAT_LABEL[k] ?? k] = (out[GEAR_STAT_LABEL[k] ?? k] ?? 0) + v
+  return out
+}
+
+export interface GearDelta {
+  label: string
+  /** 지금 낀 것 대비 증감 */
+  value: number
+}
+
+/** 후보를 끼면 무엇이 얼마나 달라지나 (제로식에는 없는 비교 — docs/11 §5.13) */
+export function gearDelta(next?: ItemInstance, cur?: ItemInstance): GearDelta[] {
+  const a = gearNumbers(next)
+  const b = gearNumbers(cur)
+  const keys = [...new Set([...Object.keys(a), ...Object.keys(b)])]
+  return keys
+    .map((label) => ({ label, value: (a[label] ?? 0) - (b[label] ?? 0) }))
+    .filter((d) => d.value !== 0)
+}
+
+/** 바뀌는 특성 — 얻는 것과 잃는 것 */
+export function traitDelta(next?: ItemInstance, cur?: ItemInstance): { gain: string[]; lose: string[] } {
+  const of = (inst?: ItemInstance): string[] => {
+    if (!inst) return []
+    const d = ITEMS[inst.itemId]
+    return [d?.trait, inst.trait].filter((t): t is string => !!t && !!TRAITS[t])
+  }
+  const a = of(next)
+  const b = of(cur)
+  return { gain: a.filter((t) => !b.includes(t)), lose: b.filter((t) => !a.includes(t)) }
+}
+
+/** 장비 하나의 대략적인 값 — 목록 정렬에만 쓴다. 판단은 플레이어가 한다 */
+export function gearWorth(inst: ItemInstance): number {
+  const n = gearNumbers(inst)
+  return Object.entries(n).reduce((s, [k, v]) => s + (k.endsWith('%') ? v * 3 : v), 0)
+}
+
 /** "강철 검 +3" */
 export const itemName = (inst: ItemInstance): string => `${ITEMS[inst.itemId]?.label ?? inst.itemId}${inst.refine > 0 ? ` +${inst.refine}` : ''}${inst.trait ? ' ✦' : ''}`
 export const materialLabel = (id: string): string => MATERIALS[id]?.label ?? id

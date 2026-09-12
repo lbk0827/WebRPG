@@ -141,6 +141,28 @@ export function unequipItem(g: GameSave, memberId: string, slot: GearSlot): Game
 export const equippableFor = (g: GameSave, m: Member, slot: GearSlot): ItemInstance[] =>
   g.inventory.filter((it) => ITEMS[it.itemId].slot === slot && canEquip(m.job, ITEMS[it.itemId]))
 
+/**
+ * 다른 단원이 끼고 있지만 이 단원도 낄 수 있는 장비 (M2-4a 개선 2026-09-12).
+ * "전부 리스트화해서 비교한다"는 요구를 채우려면 창고만 봐서는 모자란다 — 좋은 건 대개 누가 끼고 있다.
+ */
+export function wornByOthers(g: GameSave, m: Member, slot: GearSlot): { it: ItemInstance; owner: Member }[] {
+  const out: { it: ItemInstance; owner: Member }[] = []
+  for (const other of g.members) {
+    if (other.id === m.id) continue
+    const it = other.gear?.[slot]
+    if (it && canEquip(m.job, ITEMS[it.itemId])) out.push({ it, owner: other })
+  }
+  return out
+}
+
+/** 다른 단원의 장비를 벗겨 이 단원에게 끼운다 (한 번에) */
+export function takeFrom(g: GameSave, fromId: string, toId: string, slot: GearSlot): GameSave {
+  const from = g.members.find((x) => x.id === fromId)
+  const it = from?.gear?.[slot]
+  if (!from || !it) return g
+  return equipItem(unequipItem(g, fromId, slot), toId, it.uid)
+}
+
 // ───────────────────────────── 공방 (M2-4b)
 
 export interface OwnedItem {

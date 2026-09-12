@@ -717,10 +717,47 @@ button.big { padding: 10px 22px; font-size: 15px; }
   font-size: 12px; line-height: 1.5; color: var(--muted);
 }
 .unit-panel .rules .rows { margin-top: 4px; }
-.gear-slots { list-style: none; margin: 0 0 8px; padding: 0; display: grid; gap: 6px; }
-.gear-slots li { display: flex; gap: 10px; align-items: center; border: 1px dashed var(--line); border-radius: 10px; padding: 8px 10px; }
-.gear-slots li b { width: 56px; }
-.gear-slots .empty { color: var(--muted); font-size: 12px; }
+/* 장비 — 낄 수 있는 것을 전부 펼치고 지금 낀 것 대비 증감을 보여 준다 (docs/11 §5.13) */
+.gear-total {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px;
+  background: var(--paper); border-radius: 10px; padding: 7px 10px; margin-bottom: 10px; font-size: 12px;
+}
+.gear-total b { font-size: 12px; }
+.gear-total .traits { color: var(--team1); }
+.gear-total .empty { color: var(--muted); }
+
+.gear-slot { margin-bottom: 12px; }
+.gear-slot-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px;
+  padding: 6px 10px; border-radius: 9px 9px 0 0; background: #f0ebdf; border: 1px solid var(--line); border-bottom: none;
+}
+.gear-slot-head b { min-width: 44px; }
+.gear-slot-head .nm { font-weight: 700; }
+.gear-slot-head small { font-size: 11px; color: var(--muted); }
+.gear-slot-head .empty { color: var(--muted); }
+.gear-slot-head button.mini { margin-left: auto; padding: 2px 8px; font-size: 11px; }
+
+.gear-options { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 0 0 9px 9px; }
+.gear-options li {
+  display: grid; grid-template-columns: minmax(90px, auto) minmax(0, 1fr) auto auto;
+  gap: 4px 10px; align-items: center; padding: 5px 10px; border-top: 1px solid var(--line); font-size: 12px;
+}
+.gear-options li:first-child { border-top: none; }
+.gear-options li:nth-child(even) { background: var(--paper); }
+.gear-options li.borrowed { opacity: 0.88; }
+.gear-options .nm { font-weight: 700; white-space: nowrap; }
+.gear-options .spec { color: var(--muted); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gear-options button.mini { padding: 3px 9px; font-size: 11px; white-space: nowrap; }
+.gear .deltas { display: inline-flex; flex-wrap: wrap; gap: 3px; justify-content: flex-end; }
+.gear .deltas small { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 6px; white-space: nowrap; }
+.gear .deltas .up { color: #1f6b40; background: #dff1e4; }
+.gear .deltas .down { color: #8f2532; background: #f7dde1; }
+.gear .same { color: var(--muted); font-size: 11px; }
+.gear + .hint, .gear .hint { margin: 6px 0 0; }
+@media (max-width: 620px) {
+  .gear-options li { grid-template-columns: 1fr auto; }
+  .gear-options .spec, .gear .deltas { grid-column: 1 / -1; justify-content: flex-start; }
+}
 .unit-info dl { margin: 0; }
 .unit-info dt { font-weight: 700; margin-top: 8px; font-size: 12px; color: var(--muted); }
 .unit-info dd { margin: 2px 0 0; }
@@ -787,13 +824,7 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .stock .tier { font-size: 10px; color: var(--muted); border: 1px solid var(--line); border-radius: 6px; padding: 0 5px; margin-left: 4px; }
 .stock li button { white-space: nowrap; }
 .shop h3 { margin: 16px 0 6px; color: var(--ink); }
-.gear-slots li { flex-wrap: wrap; }
-.gear-slots .worn { flex: 1; min-width: 0; display: grid; }
-.gear-slots .worn .nm { font-weight: 700; }
-.gear-slots .worn small { font-size: 11px; color: var(--muted); }
-.gear-slots .gear-tools { display: inline-flex; gap: 4px; align-items: center; margin-left: auto; }
-.gear-slots .gear-tools select { max-width: 220px; }
-.gear-slots button.mini { padding: 4px 8px; font-size: 11px; }
+
 .growth .derived i { font-style: normal; color: var(--team1); font-weight: 700; }
 
 /* ───────── M2-4b 공방 */
