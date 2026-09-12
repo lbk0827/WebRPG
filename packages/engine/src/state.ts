@@ -112,7 +112,10 @@ export function traitEffects(c: CharState): TraitEffect[] {
   return out
 }
 
-function sumTrait(c: CharState, kind: 'castTimePct' | 'coverDamagePct' | 'startGauge' | 'ruleRows' | 'resistPct'): number {
+function sumTrait(
+  c: CharState,
+  kind: 'castTimePct' | 'coverDamagePct' | 'startGauge' | 'ruleRows' | 'resistPct' | 'statusPowerPct' | 'damageVsDebuffedPct' | 'gaugeDamagePct',
+): number {
   let n = 0
   for (const e of traitEffects(c)) {
     if (e.kind !== kind) continue
@@ -124,6 +127,10 @@ function sumTrait(c: CharState, kind: 'castTimePct' | 'coverDamagePct' | 'startG
 export const castTimePct = (c: CharState): number => sumTrait(c, 'castTimePct')
 export const coverDamagePct = (c: CharState): number => sumTrait(c, 'coverDamagePct')
 export const traitRuleRows = (c: CharState): number => sumTrait(c, 'ruleRows')
+/** 수칙 훅 (M2-5b). 전부 "특정 조건을 쓸 때만" 값이 나오는 것들이다 */
+export const statusPowerPct = (c: CharState): number => sumTrait(c, 'statusPowerPct')
+export const damageVsDebuffedPct = (c: CharState): number => sumTrait(c, 'damageVsDebuffedPct')
+export const gaugeDamagePct = (c: CharState): number => sumTrait(c, 'gaugeDamagePct')
 export function damageVsRowPct(c: CharState, row: Row): number {
   let n = 0
   for (const e of traitEffects(c)) if (e.kind === 'damageVsRowPct' && e.row === row) n += e.pct

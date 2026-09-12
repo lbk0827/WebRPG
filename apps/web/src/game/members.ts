@@ -2,7 +2,8 @@
 import type { Alloc, Analysis, AdventureDef, BattleResult, CharSetup, GearSlot, GearSummary, ItemDef, ItemInstance, Recipe, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
 import {
   DEFAULT_CONFIG, DISMISS_REFUND_PCT, ITEMS, ITEM_LIST, MATERIALS, MEMBER_MAX, PRESETS, RECIPE_BY_ID, REFINE_MAX, REGIONS, RENAME_GOLD, SKILLS, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, WEEKDAY_LABEL,
-  adventureRewards, adventureTeam, analyze, applyGearStats, applyQuirk, canCraft, canEquip, createRng, grantExp, growthStats, hireLevel, hirePrice, isRegionUnlocked, learnCost, learnableFor, refineCost, rollCraftTrait, rollQuirk, sellPrice, simulate, summarizeGear, tryRefine,
+  ADVANCE_RESET_GOLD, JOB_ADVANCE,
+  adventureRewards, adventureTeam, advancesFor, analyze, applyGearStats, applyQuirk, canAdvance, canCraft, canEquip, createRng, grantExp, growthStats, hireLevel, hirePrice, isRegionUnlocked, learnCost, learnableFor, refineCost, rollCraftTrait, rollQuirk, sellPrice, simulate, summarizeGear, tryRefine,
 } from '@webrpg/engine'
 import { PARTY_MAX, cellRow, dayKey, pushRecord, type GameSave, type Gear, type Member } from './save'
 
@@ -10,13 +11,29 @@ export const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'trinket']
 export const gearItems = (gear: Gear): (ItemInstance | undefined)[] => GEAR_SLOTS.map((s) => gear[s])
 export const gearSummary = (m: Member): GearSummary => summarizeGear(gearItems(m.gear ?? {}))
 
-/** 성장 + 편차 + 장비 스탯 가산 */
+/** 2차 직업이 얹는 기본 스탯 보정 (M2-5b). 분배 포인트가 아니라 기본값에 더한다 */
+function withAdvanceBonus(base: Stats, job2?: string): Stats {
+  const adv = job2 ? JOB_ADVANCE[job2] : undefined
+  if (!adv) return base
+  const out = { ...base }
+  for (const [k, v] of Object.entries(adv.bonus)) {
+    const key = k as keyof Stats
+    out[key] = (out[key] ?? 0) + (v ?? 0)
+  }
+  return out
+}
+
+/** 성장 + 편차 + 전직 보정 + 장비 스탯 가산 */
 export const memberStats = (m: Member): Stats =>
-  applyGearStats(growthStats(applyQuirk(PRESETS[m.job].stats, m.quirk), m.level, m.alloc), gearSummary(m).stats)
+  applyGearStats(
+    growthStats(withAdvanceBonus(applyQuirk(PRESETS[m.job].stats, m.quirk), m.job2), m.level, m.alloc),
+    gearSummary(m).stats,
+  )
 
 export function memberSetup(m: Member, idx: number): CharSetup {
   const p = PRESETS[m.job]
   const g = gearSummary(m)
+  const adv = m.job2 ? JOB_ADVANCE[m.job2] : undefined
   return {
     id: `${m.job}#${idx}`,
     name: m.name,
@@ -26,8 +43,45 @@ export function memberSetup(m: Member, idx: number): CharSetup {
     skills: [...(m.skills ?? p.skills)],
     rules: structuredClone(m.rules),
     bonus: { atk: g.atk, def: g.def },
-    traits: g.traits,
+    // 수칙 훅은 특성으로 붙는다 (docs/04 ADR-003)
+    traits: [...(adv?.traits ?? []), ...g.traits],
     weapon: g.weapon,
+  }
+}
+
+// ───────────────────────────── 전직 (M2-5b)
+
+export const advanceOptions = (m: Member) => advancesFor(m.job)
+export const memberCanAdvance = (m: Member): boolean => canAdvance(m.job, m.job2, m.level)
+
+/** 2차 직업을 고른다. 대표 스킬을 바로 배우고 훅 특성이 붙는다 */
+export function advanceMember(g: GameSave, id: string, jobId: string): GameSave {
+  const m = g.members.find((x) => x.id === id)
+  const def = JOB_ADVANCE[jobId]
+  if (!m || !def || def.base !== m.job || m.job2 || m.level < def.level) return g
+  const skills = [...new Set([...(m.skills ?? []), ...def.grants])]
+  return { ...g, members: g.members.map((x) => (x.id === id ? { ...x, job2: jobId, skills } : x)) }
+}
+
+/** 전직 취소 — 금을 낸다. 2차 스킬은 잃고 쓴 포인트는 돌려받는다 */
+export function resetAdvance(g: GameSave, id: string): GameSave {
+  const m = g.members.find((x) => x.id === id)
+  if (!m || !m.job2 || g.gold < ADVANCE_RESET_GOLD) return g
+  const def = JOB_ADVANCE[m.job2]
+  const lost = new Set([...def.grants, ...def.learnable.map((l) => l.skillId)])
+  let refund = 0
+  for (const l of def.learnable) if ((m.skills ?? []).includes(l.skillId)) refund += l.cost
+  const skills = (m.skills ?? []).filter((s) => !lost.has(s))
+  // 잃은 스킬을 쓰던 수칙 줄은 기본 공격으로 되돌린다 — 우물쭈물하지 않게
+  const rows = m.rules.rows.map((r) => (lost.has(r.skillId) ? { ...r, skillId: 'strike' } : r))
+  return {
+    ...g,
+    gold: g.gold - ADVANCE_RESET_GOLD,
+    members: g.members.map((x) =>
+      x.id === id
+        ? { ...x, job2: undefined, skills, rules: { ...x.rules, rows }, skillPoints: x.skillPoints + refund, spentSkillPoints: Math.max(0, x.spentSkillPoints - refund) }
+        : x,
+    ),
   }
 }
 
@@ -275,13 +329,13 @@ export function runAdventure(g: GameSave, def: AdventureDef, now = Date.now()): 
 // ───────────────────────────── 스킬 습득 (M2-2, 제로식 방식)
 
 /** 아직 안 배운, 이 직업이 배울 수 있는 스킬 */
-export const unlearned = (m: Member) => learnableFor(m.job).filter((l) => !m.skills.includes(l.skillId))
+export const unlearned = (m: Member) => learnableFor(m.job, m.job2).filter((l) => !m.skills.includes(l.skillId))
 
 /** 지금 포인트로 살 수 있는 게 있는가 */
 export const canLearnSomething = (m: Member): boolean => unlearned(m).some((l) => l.cost <= m.skillPoints)
 
 export function learnSkill(m: Member, skillId: string): Member {
-  const cost = learnCost(m.job, skillId)
+  const cost = learnCost(m.job, skillId, m.job2)
   if (cost === null || m.skills.includes(skillId) || m.skillPoints < cost) return m
   return { ...m, skills: [...m.skills, skillId], skillPoints: m.skillPoints - cost, spentSkillPoints: m.spentSkillPoints + cost }
 }
@@ -295,7 +349,9 @@ export function pruneRules(rules: RuleSet, skills: string[]): RuleSet {
 /** 스킬 초기화 — 시작 스킬로 되돌리고 쓴 포인트를 돌려준다. 금이 든다 */
 export function resetSkills(g: GameSave, m: Member): GameSave {
   if (g.gold < SKILL_RESET_GOLD) return g
-  const skills = [...(STARTER_SKILLS[m.job] ?? PRESETS[m.job].skills)]
+  // 전직으로 받은 대표 스킬은 되돌리지 않는다 — 그건 산 것이 아니라 직업이 준 것이다
+  const granted = m.job2 ? JOB_ADVANCE[m.job2].grants : []
+  const skills = [...new Set([...(STARTER_SKILLS[m.job] ?? PRESETS[m.job].skills), ...granted])]
   const next: Member = { ...m, skills, skillPoints: m.skillPoints + m.spentSkillPoints, spentSkillPoints: 0, rules: pruneRules(m.rules, skills) }
   return { ...updateMember(g, next), gold: g.gold - SKILL_RESET_GOLD }
 }

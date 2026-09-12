@@ -11,6 +11,21 @@ const list: TraitDef[] = [
   { id: 'ironWill', label: '굳은 의지', effects: [{ kind: 'resistPct', pct: 10 }] },
   { id: 'secondWind', label: '재기', effects: [{ kind: 'trigger', on: 'lowHp', hpPct: 30, perBattle: 1, effect: { kind: 'heal', power: 80 } }] },
   { id: 'regen', label: '재생', effects: [{ kind: 'trigger', on: 'turnStart', effect: { kind: 'heal', power: 25 } }] },
+
+  // ───────── 2차 직업의 수칙 훅 (M2-5b, data/jobs.ts). 전부 "특정 조건을 써야" 값이 나온다
+  { id: 'aegis', label: '수호', effects: [{ kind: 'coverDamagePct', pct: -30 }] },
+  {
+    id: 'bloodRage',
+    label: '피의 분노',
+    effects: [{ kind: 'trigger', on: 'lowHp', hpPct: 40, perBattle: 1, effect: { kind: 'applyStatus', status: 'atkUp', duration: 99, magnitude: 55 } }],
+  },
+  { id: 'venomcraft', label: '독술', effects: [{ kind: 'statusPowerPct', pct: 50 }] },
+  { id: 'disruptor', label: '교란', effects: [{ kind: 'gaugeDamagePct', pct: 80 }] },
+  { id: 'foresight', label: '예지', effects: [{ kind: 'startGauge', amount: 200 }, { kind: 'castTimePct', pct: -10 }] },
+  { id: 'highLiturgy', label: '고전례', effects: [{ kind: 'ruleRows', add: 2 }] },
+  { id: 'zeal', label: '열의', effects: [{ kind: 'damageVsDebuffedPct', pct: 35 }] },
+  { id: 'deadeye', label: '매의 눈', effects: [{ kind: 'damageVsRowPct', row: 'back', pct: 15 }] },
+  { id: 'thornward', label: '가시 수호', effects: [{ kind: 'statusPowerPct', pct: 25 }, { kind: 'resistPct', pct: 10 }] },
 ]
 
 export const TRAITS: Record<string, TraitDef> = Object.fromEntries(list.map((t) => [t.id, t]))

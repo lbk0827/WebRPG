@@ -2,7 +2,7 @@
 import { isqrt, pctOf } from './fixed'
 import type { Row } from './types'
 import type { CharState } from './state'
-import { atkModPct, coverDamagePct, damageVsRowPct, defModPct } from './state'
+import { atkModPct, coverDamagePct, damageVsDebuffedPct, damageVsRowPct, defModPct, hasDebuff } from './state'
 
 export interface DamageOpts {
   school: 'phys' | 'magic'
@@ -45,6 +45,8 @@ export function calcDamage(o: DamageOpts, attacker: CharState, target: CharState
   let raw = pctOf(base, power)
   raw = pctOf(raw, 100 + atkModPct(attacker))
   raw = pctOf(raw, 100 + damageVsRowPct(attacker, target.row))
+  // 수칙 훅 (M2-5b 심문관): 걸어 놓고 치면 더 아프다
+  if (hasDebuff(target)) raw = pctOf(raw, 100 + damageVsDebuffedPct(attacker))
   if (o.viaCover) raw = pctOf(raw, 100 + coverDamagePct(target))
 
   const floor = Math.max(1, Math.floor(raw / 10))

@@ -1,7 +1,7 @@
 // 전황 보고서 렌더러 (콘솔). 이벤트 로그가 UI 없이도 읽히는지 검증하는 도구.
 // 사용: npm run report -- --a balanced --b rush --seed 7
 import { DEFAULT_CONFIG, SKILLS, TEAMS, simulate } from '../src'
-import type { BattleEvent, BattleInput, CharRef, TeamSnapshot } from '../src'
+import type { BattleEvent, BattleInput, CharRef, SkillFailReason, TeamSnapshot } from '../src'
 
 const args = parseArgs(process.argv.slice(2))
 const aName = args.a ?? 'balanced'
@@ -97,8 +97,16 @@ function roster(teams: [TeamSnapshot, TeamSnapshot]): string {
   return `${line(teams[0], '◆')}\n${line(teams[1], '◇')}`
 }
 
-function failText(r: 'noSp' | 'noRequiredTarget' | 'silenced' | 'cooldown' | 'noWeapon'): string {
-  return r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : r === 'silenced' ? '침묵 상태' : r === 'cooldown' ? '재사용 대기' : '무기 불일치'
+function failText(r: SkillFailReason): string {
+  const text: Record<SkillFailReason, string> = {
+    noSp: 'SP 부족',
+    noRequiredTarget: '대상 없음',
+    silenced: '침묵 상태',
+    cooldown: '재사용 대기',
+    noWeapon: '무기 불일치',
+    notLearned: '배우지 않은 스킬',
+  }
+  return text[r]
 }
 
 function outcomeText(o: string): string {

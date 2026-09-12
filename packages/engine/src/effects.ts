@@ -2,7 +2,7 @@
 import type { Effect, Row } from './types'
 import { GAUGE_MAX, pctOf } from './fixed'
 import type { BattleState, CharState } from './state'
-import { DELAY_TAKEN_CAP, emit, findStatus, hpPct, resistPct } from './state'
+import { DELAY_TAKEN_CAP, emit, findStatus, gaugeDamagePct, hpPct, resistPct, statusPowerPct } from './state'
 import { STATUS_DEFS } from './data/statuses'
 import { TRAITS } from './data/traits'
 import { calcDamage, calcHeal, calcSpDamage, calcSpRestore } from './damage'
@@ -111,7 +111,10 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
           return
         }
       }
-      const magnitude = effect.magnitude ?? STATUS_DEFS[effect.status].defaultMagnitude
+      // 수칙 훅 (M2-5b 암살자): 내가 건 지속 피해가 더 아프다. 거는 순간 한 번 곱한다
+      const baseMag = effect.magnitude ?? STATUS_DEFS[effect.status].defaultMagnitude
+      const boost = STATUS_DEFS[effect.status].category === 'debuff' ? statusPowerPct(actor) : 0
+      const magnitude = boost ? Math.max(1, pctOf(baseMag, 100 + boost)) : baseMag
       const existing = findStatus(target, effect.status)
       if (existing) {
         existing.remaining = Math.max(existing.remaining, effect.duration)
@@ -143,6 +146,9 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
       if (!target.alive) return
       let delta = effect.delta
       if (delta < 0) {
+        // 수칙 훅 (M2-5b 파괴공작원): 내가 깎는 게이지가 더 크다
+        const hook = gaugeDamagePct(actor)
+        if (hook) delta = -pctOf(-delta, 100 + hook)
         // 딜밀기 상한: 한 전투에서 받을 수 있는 지연 총량
         const allowed = Math.max(0, DELAY_TAKEN_CAP - target.delayTaken)
         delta = Math.max(delta, -allowed)

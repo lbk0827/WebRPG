@@ -3,10 +3,10 @@
 // 두 곳의 차이는 처음 열리는 절(편성=수칙, 캐릭터=스탯)뿐이다.
 import { useState } from 'react'
 import { UnitPortrait } from './UnitPortrait'
-import { RENAME_GOLD, STARTER_SKILLS } from '@webrpg/engine'
+import { JOB_ADVANCE, RENAME_GOLD, STARTER_SKILLS } from '@webrpg/engine'
 import type { GameSave, Member, RulePreset } from '../game/save'
 import { RULE_PRESET_MAX } from '../game/save'
-import { cellOf, dismissMember, dismissRefund, learnSkill, memberStats, renameMember, resetSkills, updateMember } from '../game/members'
+import { cellOf, dismissMember, dismissRefund, learnSkill, memberCanAdvance, memberStats, renameMember, resetSkills, updateMember } from '../game/members'
 import type { SlotState } from '../state'
 import { jobName, skillLabel } from '../lib/labels'
 import { STAT_LABEL } from '../lib/condition'
@@ -14,14 +14,16 @@ import { RuleEditor, type PresetHooks } from './RuleEditor'
 import { MemberGrowth } from './MemberGrowth'
 import { SkillLearn } from './SkillLearn'
 import { GearPanel } from './GearPanel'
+import { AdvancePanel } from './AdvancePanel'
 
-export type UnitTab = 'rules' | 'stats' | 'skills' | 'gear' | 'info'
+export type UnitTab = 'rules' | 'stats' | 'skills' | 'gear' | 'advance' | 'info'
 
 const TABS: { key: UnitTab; label: string }[] = [
   { key: 'rules', label: '수칙' },
   { key: 'stats', label: '스탯' },
   { key: 'skills', label: '스킬' },
   { key: 'gear', label: '장비' },
+  { key: 'advance', label: '전직' },
   { key: 'info', label: '정보' },
 ]
 
@@ -73,7 +75,7 @@ export function UnitPanel({ save, onSave, member, initial = 'stats', onGoShop, o
         <UnitPortrait icon={member.job} size="md" />
         <div>
           <div className="name">
-            {member.name} <small>{jobName(member.job)} · Lv {member.level} · {cell >= 0 ? (member.row === 'front' ? '전열 출전' : '후열 출전') : '대기'}</small>
+            {member.name} <small>{member.job2 ? `${JOB_ADVANCE[member.job2].name} (${jobName(member.job)})` : jobName(member.job)} · Lv {member.level} · {cell >= 0 ? (member.row === 'front' ? '전열 출전' : '후열 출전') : '대기'}</small>
           </div>
           {member.quirk && Object.keys(member.quirk).length > 0 && (
             <small className="quirk">특징: {Object.entries(member.quirk).map(([k, v]) => `${QUIRK_LABEL[k] ?? k} ${v > 0 ? '+' : ''}${v}`).join(' · ')}</small>
@@ -99,10 +101,12 @@ export function UnitPanel({ save, onSave, member, initial = 'stats', onGoShop, o
             {t.key === 'rules' ? ` (${member.rules.rows.length})` : ''}
             {t.key === 'stats' && member.statPoints > 0 ? ` (${member.statPoints})` : ''}
             {t.key === 'skills' && member.skillPoints > 0 ? ` (${member.skillPoints})` : ''}
+            {t.key === 'advance' && memberCanAdvance(member) ? ' ●' : ''}
           </button>
         ))}
       </nav>
 
+      {tab === 'advance' && <AdvancePanel key={member.id} save={save} onSave={onSave} member={member} />}
       {tab === 'rules' && <RuleEditor key={member.id} slots={[slot]} onChange={setSlot} presets={presetHooks} noRow />}
       {tab === 'stats' && <MemberGrowth key={member.id} member={member} onChange={setMember} />}
       {tab === 'skills' && (

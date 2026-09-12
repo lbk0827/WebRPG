@@ -15,6 +15,8 @@ export interface Member {
   id: string
   name: string
   job: string
+  /** 2차 직업 id (M2-5b). 없으면 미전직 */
+  job2?: string
   level: number
   exp: number
   alloc: Alloc

@@ -382,6 +382,123 @@ const list: Skill[] = [
     ignoreCover: true,
     effects: [{ kind: 'damage', school: 'phys', power: 190, scaleBy: 'dex' }],
   },
+  // ───────── 2차 직업 스킬 (M2-5b, data/jobs.ts). 훅을 쓸 도구다
+  {
+    id: 'bulwark', label: '방벽 선언', spCost: 16,
+    target: { side: 'ally', scope: 'all', hits: 1 }, charge: 200, stiff: 50, isSupport: true,
+    effects: [{ kind: 'shield', hits: 1 }],
+  },
+  {
+    id: 'taunt', label: '도발', spCost: 8,
+    target: { side: 'enemy', scope: 'all', hits: 1 }, charge: 0, stiff: 0, ignoreCover: true,
+    effects: [{ kind: 'applyStatus', status: 'atkDown', duration: 3, magnitude: 25 }],
+  },
+  {
+    id: 'recklessSwing', label: '무모한 일격', spCost: 10,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 100, stiff: 100,
+    // 자신을 깎아 가며 친다. HP 조건 수칙과 맞물린다
+    effects: [{ kind: 'damage', school: 'phys', power: 260 }, { kind: 'drain', resource: 'hp', pct: -12 }],
+  },
+  {
+    id: 'bloodlust', label: '혈갈', spCost: 12,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 0, stiff: 50,
+    effects: [{ kind: 'damage', school: 'phys', power: 130 }, { kind: 'drain', resource: 'hp', pct: 35 }],
+  },
+  {
+    id: 'toxicBlade', label: '맹독 칼날', spCost: 14,
+    target: { side: 'enemy', scope: 'single', hits: 2 }, charge: 0, stiff: 50,
+    effects: [
+      { kind: 'damage', school: 'phys', power: 60, scaleBy: 'dex' },
+      { kind: 'applyStatus', status: 'poison', duration: 5, magnitude: 7 },
+    ],
+  },
+  {
+    id: 'markPrey', label: '표적 지정', spCost: 8,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, priority: { mode: 'prefer', by: 'highestHpPct' },
+    charge: 0, stiff: 0, ignoreCover: true,
+    effects: [{ kind: 'applyStatus', status: 'defDown', duration: 4, magnitude: 35 }],
+  },
+  {
+    id: 'disrupt', label: '차단', spCost: 14,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, priority: { mode: 'require', by: 'casting' },
+    charge: 0, stiff: 0, ignoreCover: true,
+    effects: [
+      { kind: 'damage', school: 'phys', power: 70, scaleBy: 'dex' },
+      { kind: 'modifyGauge', delta: -600 },
+      { kind: 'applyStatus', status: 'silence', duration: 2 },
+    ],
+  },
+  {
+    id: 'smokeBomb', label: '연막', spCost: 12,
+    target: { side: 'enemy', scope: 'all', hits: 1 }, charge: 0, stiff: 50, ignoreCover: true,
+    effects: [{ kind: 'modifyGauge', delta: -150 }],
+  },
+  {
+    id: 'maelstrom', label: '난류', spCost: 26,
+    target: { side: 'enemy', scope: 'all', hits: 1 }, charge: 500, stiff: 100, ignoreCover: true,
+    effects: [{ kind: 'damage', school: 'magic', power: 135 }],
+  },
+  {
+    id: 'emberfall', label: '잔불', spCost: 16,
+    target: { side: 'enemy', scope: 'multi', hits: 3 }, charge: 300, stiff: 50, ignoreCover: true,
+    effects: [{ kind: 'damage', school: 'magic', power: 95 }],
+  },
+  {
+    id: 'hasten', label: '가속', spCost: 14,
+    target: { side: 'ally', scope: 'single', hits: 1 }, charge: 100, stiff: 0, isSupport: true,
+    // 아군을 먼저 움직이게 만든다. "누가 먼저인가"를 수칙으로 설계하게 하는 도구
+    effects: [{ kind: 'modifyGauge', delta: 450 }, { kind: 'applyStatus', status: 'spdUp', duration: 3, magnitude: 30 }],
+  },
+  {
+    id: 'stasis', label: '정지', spCost: 22,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 350, stiff: 100, ignoreCover: true,
+    effects: [{ kind: 'modifyGauge', delta: -700 }, { kind: 'applyStatus', status: 'spdDown', duration: 4, magnitude: 40 }],
+  },
+  {
+    id: 'sanctuary', label: '성역', spCost: 22,
+    target: { side: 'ally', scope: 'all', hits: 1 }, charge: 350, stiff: 50, isSupport: true,
+    effects: [{ kind: 'heal', power: 60 }, { kind: 'applyStatus', status: 'defUp', duration: 3, magnitude: 30 }],
+  },
+  {
+    id: 'benediction', label: '은사', spCost: 18,
+    target: { side: 'ally', scope: 'single', hits: 1 }, priority: { mode: 'prefer', by: 'lowestHpPct' },
+    charge: 0, stiff: 50, isSupport: true,
+    effects: [{ kind: 'heal', power: 170 }, { kind: 'removeStatus', category: 'debuff' }],
+  },
+  {
+    id: 'judgment', label: '심판', spCost: 16,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, priority: { mode: 'require', by: 'debuffed' },
+    charge: 200, stiff: 100, ignoreCover: true,
+    effects: [{ kind: 'damage', school: 'magic', power: 185 }],
+  },
+  {
+    id: 'condemn', label: '단죄', spCost: 12,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 0, stiff: 50,
+    effects: [
+      { kind: 'damage', school: 'magic', power: 90 },
+      { kind: 'applyStatus', status: 'atkDown', duration: 3, magnitude: 30 },
+    ],
+  },
+  {
+    id: 'volley', label: '화살비', spCost: 18,
+    target: { side: 'enemy', scope: 'all', hits: 1 }, priority: { mode: 'prefer', by: 'backRow' },
+    charge: 250, stiff: 100, ignoreCover: true,
+    effects: [{ kind: 'damage', school: 'phys', power: 85, scaleBy: 'dex' }],
+  },
+  {
+    id: 'entangle', label: '얽매기', spCost: 12,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 0, stiff: 50, ignoreCover: true,
+    effects: [
+      { kind: 'damage', school: 'phys', power: 60, scaleBy: 'dex' },
+      { kind: 'applyStatus', status: 'spdDown', duration: 4, magnitude: 35 },
+      { kind: 'modifyGauge', delta: -250 },
+    ],
+  },
+  {
+    id: 'windArrow', label: '바람 화살', spCost: 10,
+    target: { side: 'enemy', scope: 'multi', hits: 2 }, charge: 0, stiff: 50, ignoreCover: true,
+    effects: [{ kind: 'damage', school: 'phys', power: 75, scaleBy: 'dex' }],
+  },
 ]
 
 export const SKILLS: SkillBook = Object.fromEntries(list.map((s) => [s.id, s]))

@@ -191,6 +191,12 @@ export type TraitEffect =
   | { kind: 'startGauge'; amount: number }
   | { kind: 'ruleRows'; add: number }
   | { kind: 'resistPct'; pct: number }
+  /** 내가 건 상태이상의 세기 (M2-5b 암살자). 걸 때 한 번 곱한다 */
+  | { kind: 'statusPowerPct'; pct: number }
+  /** 디버프에 걸린 적에게 주는 피해 (M2-5b 심문관) */
+  | { kind: 'damageVsDebuffedPct'; pct: number }
+  /** 내가 깎는 행동 게이지의 세기 (M2-5b 파괴공작원). 끊기 전용 */
+  | { kind: 'gaugeDamagePct'; pct: number }
   | { kind: 'trigger'; on: 'turnStart' | 'damaged' | 'lowHp'; hpPct?: number; perBattle?: number; effect: Effect }
 
 export interface TraitDef {
