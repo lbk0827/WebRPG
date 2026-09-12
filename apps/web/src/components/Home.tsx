@@ -8,6 +8,7 @@ import { adventureGate, canHire, canLearnSomething, craftableNow, partyMembers }
 import type { MissionProgress } from '../missionState'
 import { jobOf, outcomeText, timeAgo, type Names } from '../lib/labels'
 import { Replay } from './Replay'
+import { Section } from './Section'
 import { Board } from './Board'
 import type { Facility } from './Town'
 
@@ -138,24 +139,29 @@ export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
         )}
       </details>
 
-      <h2>최근 전투 <small>{save.battles}전 {save.wins}승 · 기록 {save.log.length}건</small></h2>
-      {save.log.length === 0 ? (
-        <p className="hint">아직 나간 적이 없다. 기록은 여기 쌓인다 — 언제든 다시 볼 수 있다.</p>
-      ) : (
-        <ol className="records">
-          {save.log.map((r) => (
-            <RecordRow key={r.at} r={r} open={r.at === replayAt} onToggle={() => setReplayAt(r.at === replayAt ? null : r.at)} />
-          ))}
-        </ol>
-      )}
-      {replay && record && (
-        <div className="record-replay">
-          <p className="hint">{recordPlace(record)} · {outcomeText(record.outcome)} · 시드 {record.seed}</p>
-          <Replay result={replay.result} names={replay.names} jobs={replay.jobs} autoPlay={false} />
-        </div>
-      )}
+      <Section
+        title="최근 전투"
+        note={`${save.battles}전 ${save.wins}승 · 기록 ${save.log.length}건`}
+        help="전투는 결정론입니다. 시드와 양 팀 편성만 저장해 두면 언제든 그때 그 판을 똑같이 다시 볼 수 있습니다. 진 판을 다시 보는 것이 수칙을 고치는 가장 빠른 길입니다."
+      >
+        {save.log.length === 0 ? (
+          <p className="hint">아직 나간 적이 없다. 기록은 여기 쌓인다 — 언제든 다시 볼 수 있다.</p>
+        ) : (
+          <ol className="records">
+            {save.log.map((r) => (
+              <RecordRow key={r.at} r={r} open={r.at === replayAt} onToggle={() => setReplayAt(r.at === replayAt ? null : r.at)} />
+            ))}
+          </ol>
+        )}
+        {replay && record && (
+          <div className="record-replay">
+            <p className="hint">{recordPlace(record)} · {outcomeText(record.outcome)} · 시드 {record.seed}</p>
+            <Replay result={replay.result} names={replay.names} jobs={replay.jobs} autoPlay={false} />
+          </div>
+        )}
+      </Section>
 
-      <h2>용병단</h2>
+      <Section title="용병단" help="이름은 전투 기록과 비교 카드에 그대로 나옵니다. 저장은 이 브라우저에만 있습니다.">
       <label className="rename">
         <span>이름</span>
         <input
@@ -177,6 +183,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
         </div>
         <textarea value={io} onChange={(e) => setIo(e.target.value)} rows={4} placeholder="내보내기를 누르거나, 저장 JSON 을 붙여넣으세요" />
       </details>
+      </Section>
     </section>
   )
 }

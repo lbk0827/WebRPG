@@ -653,6 +653,18 @@ button.big { padding: 10px 22px; font-size: 15px; }
 /* 구역 — 제로식의 "▌제목 ?" 을 우리 색으로 */
 .unit-sec { padding: 10px 12px 14px; border-top: 1px solid var(--line); scroll-margin-top: 92px; }
 .unit-sec:first-of-type { border-top: none; }
+/* 단원 상세 밖에서 쓰는 구역 (훈련장 등) — 패널 안이 아니라 카드처럼 선다 */
+.unit-sec.plain {
+  padding: 10px 12px 12px; margin: 8px 0; border: 1px solid var(--line); border-radius: 12px;
+  background: var(--card); scroll-margin-top: 0;
+}
+.unit-sec.plain .run-bar { margin-bottom: 0; }
+.sec-note { margin-left: 6px; font-weight: normal; }
+/* 본부 편성 카드도 같은 머리 형식으로 (구역 하나만 특별해 보이지 않게) */
+.hq-formation > h3 {
+  margin: 0 0 8px; padding-left: 8px; font-size: 13px; color: var(--ink);
+  border-left: 3px solid var(--team0);
+}
 .unit-sec > h3 {
   display: flex; align-items: center; gap: 6px;
   margin: 0 0 8px; padding-left: 8px; font-size: 13px; color: var(--ink); font-weight: 700;

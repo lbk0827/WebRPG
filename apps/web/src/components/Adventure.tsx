@@ -1,7 +1,11 @@
-// 모험 (탭 개편 2026-09-11). 일반 전투와 달리 상대가 고정이고, 연속 도전이 안 되며, 보상이 크다.
-import { useMemo, useState } from 'react'
+// 모험 (탭 개편 2026-09-11 · 2026-09-12 의뢰소와 같은 접이식으로).
+// 일반 전투와 달리 상대가 고정이고, 연속 도전이 안 되며, 보상이 크다.
+// 상대가 고정이라 **그 상대에 맞춰 수칙을 짜는 것**이 이 콘텐츠의 본체다 —
+// 그래서 전투보다 상대를 더 자세히 (이름 · Lv · 원형 · HP) 보여 준다.
+import { useState } from 'react'
 import { UnitPortrait } from './UnitPortrait'
-import { ADVENTURES, MATERIALS, MONSTERS, WEEKDAY_LABEL, adventureRewards, adventureTeam } from '@webrpg/engine'
+import { ADVENTURES, ARCHETYPE_LABEL, MATERIALS, MONSTERS, WEEKDAY_LABEL, adventureRewards, adventureTeam } from '@webrpg/engine'
+import type { AdventureDef } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { adventureGate, materialsText, partySummary, runAdventure, type AdventureRun } from '../game/members'
 import { jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
@@ -25,17 +29,14 @@ function waitText(ms: number): string {
 }
 
 export function Adventure({ save, onSave, onGoBattle, onGoFormation }: Props) {
-  const [sel, setSel] = useState(ADVENTURES[0].id)
+  const [sel, setSel] = useState<string>(ADVENTURES[0].id)
   const [out, setOut] = useState<AdventureRun | null>(null)
   // 대기 시간 표시를 위해 렌더 시각을 고정한다 (도전할 때 다시 읽는다)
   const now = Date.now()
-  const def = ADVENTURES.find((a) => a.id === sel) ?? ADVENTURES[0]
-  const gate = adventureGate(save, def, now)
   const us = partySummary(save)
-  const foes = useMemo(() => adventureTeam(def), [def])
-  const reward = useMemo(() => adventureRewards(def), [def])
 
-  const go = () => {
+  // 펼친 블록이 넘겨 준다. 접힌 상태(sel === '')에서 엉뚱한 모험이 돌지 않게
+  const go = (def: AdventureDef) => {
     const r = runAdventure(save, def, Date.now())
     if (!r) return
     onSave(r.save)
@@ -82,9 +83,20 @@ export function Adventure({ save, onSave, onGoBattle, onGoFormation }: Props) {
       <ol className="regions">
         {ADVENTURES.map((a) => {
           const g = adventureGate(save, a, now)
+          const open = a.id === sel
+          const foeTeam = adventureTeam(a)
+          const rw = adventureRewards(a)
+          const lowLevel = us.avgLevel > 0 && us.avgLevel < a.recommended[0]
           return (
-            <li key={a.id} className={`region ${a.id === sel ? 'on' : ''} ${g.unlocked ? '' : 'locked'}`}>
-              <button onClick={() => { setSel(a.id); setOut(null) }}>
+            <li key={a.id} className={`region ${open ? 'open' : ''} ${g.unlocked ? '' : 'locked'}`}>
+              <button
+                className="region-head"
+                aria-expanded={open}
+                onClick={() => {
+                  setSel(open ? '' : a.id)
+                  setOut(null)
+                }}
+              >
                 <span className="no">{a.no}</span>
                 <span className="body">
                   <span className="title">
@@ -95,67 +107,83 @@ export function Adventure({ save, onSave, onGoBattle, onGoFormation }: Props) {
                     {g.ready ? '지금 갈 수 있다' : g.reason === '재도전 대기 중' ? `재도전까지 ${waitText(g.waitMs)}` : g.reason}
                   </span>
                 </span>
+                <span className="caret" aria-hidden="true">{open ? '▾' : '▸'}</span>
               </button>
+
+              {open && (
+                <div className="region-body">
+                  <p className="brief">{a.brief}</p>
+
+                  {/* 상대가 고정이라 전투보다 더 자세히 보여 준다 — 그 상대에 맞춰 수칙을 짜라고 있는 콘텐츠다 */}
+                  <h4 className="foe-title">고정 상대 <small>{foeTeam.members.length}명 · HP 합 {foeTeam.members.reduce((s, m) => s + m.stats.maxHp, 0)}</small></h4>
+                  <ul className="foe-table">
+                    {a.foes.map((id, i) => {
+                      const d = MONSTERS[id]
+                      const setup = foeTeam.members[i]
+                      return (
+                        <li key={i}>
+                          <UnitPortrait icon={d.icon ?? d.job} size="sm" />
+                          <span className="nm">{d.name}</span>
+                          <small className="lv">Lv {d.level}</small>
+                          <small className="arch">{ARCHETYPE_LABEL[d.archetype]}</small>
+                          <small className="hp">HP {setup?.stats.maxHp ?? 0}</small>
+                        </li>
+                      )
+                    })}
+                  </ul>
+
+                  <h4 className="foe-title">조건과 보상</h4>
+                  <ul className="adv-terms">
+                    <li><b>재도전</b> 승리 후 {a.cooldownMin.win === 0 ? '없음' : waitText(a.cooldownMin.win * 60_000)} · 패배 후 {waitText(a.cooldownMin.lose * 60_000)}</li>
+                    {a.dailyLimit !== undefined && <li><b>하루</b> {a.dailyLimit}회까지 {g.todayLeft !== null && `(오늘 ${g.todayLeft}회 남음)`}</li>}
+                    {a.weekdays && <li><b>요일</b> {a.weekdays.map((d) => WEEKDAY_LABEL[d]).join('·')}요일</li>}
+                    {a.entry && (
+                      <li className={(save.materials[a.entry.itemId] ?? 0) >= a.entry.qty ? 'have' : 'lack'}>
+                        <b>입장</b> {materialLabel(a.entry.itemId)} ×{a.entry.qty} 소모 (보유 {save.materials[a.entry.itemId] ?? 0})
+                        <small> — {MATERIALS[a.entry.itemId]?.blurb}</small>
+                      </li>
+                    )}
+                    <li>
+                      <b>보상</b> 경험치 {rw.exp} · 금 {rw.gold} <small>(일반 전투의 {a.rewardPct}%)</small> · 승리 시{' '}
+                      {a.clearDrops.map((d) => `${materialLabel(d.itemId)} ×${d.qty}`).join(' · ')} 확정
+                    </li>
+                  </ul>
+
+                  <div className="compare">
+                    <div className="side us">
+                      <div className="who">
+                        {save.party.map((id, i) => {
+                          const m = save.members.find((x) => x.id === id)
+                          return m ? (
+                            <span key={i} className="foe">
+                              <UnitPortrait icon={m.job} size="sm" />
+                              <small>Lv {m.level}</small>
+                            </span>
+                          ) : null
+                        })}
+                        {us.count === 0 && <small>편성 없음</small>}
+                      </div>
+                      <div className="sum"><b>{save.name}</b> · {us.count}명 · Lv 합 {us.levelSum} · HP 합 {us.hpSum}</div>
+                    </div>
+                    <div className="vs">vs</div>
+                    <div className="side them">
+                      <div className="sum">고정 {foeTeam.members.length}명 · HP 합 {foeTeam.members.reduce((s, m) => s + m.stats.maxHp, 0)}</div>
+                    </div>
+                  </div>
+
+                  <div className="run-bar">
+                    <button className="primary big" onClick={() => go(a)} disabled={!g.ready}>도전</button>
+                    {!g.ready && <small>{g.reason === '재도전 대기 중' ? `재도전까지 ${waitText(g.waitMs)}` : g.reason}</small>}
+                    {g.ready && lowLevel && <small>권장 레벨보다 낮습니다. 입장 재료와 횟수는 져도 소모됩니다.</small>}
+                    <small>편성은 <button className="link" onClick={onGoFormation}>편성 탭</button>에서.</small>
+                  </div>
+                </div>
+              )}
             </li>
           )
         })}
       </ol>
-
-      <div className="region-detail">
-        <p className="brief">{def.brief}</p>
-
-        <ul className="adv-terms">
-          <li><b>상대</b> 고정 {def.foes.length}명 — {def.foes.map((id) => MONSTERS[id].name).join(' · ')}</li>
-          <li><b>재도전</b> 승리 후 {def.cooldownMin.win === 0 ? '없음' : waitText(def.cooldownMin.win * 60_000)} · 패배 후 {waitText(def.cooldownMin.lose * 60_000)}</li>
-          {def.dailyLimit !== undefined && <li><b>하루</b> {def.dailyLimit}회까지 {gate.todayLeft !== null && `(오늘 ${gate.todayLeft}회 남음)`}</li>}
-          {def.weekdays && <li><b>요일</b> {def.weekdays.map((d) => WEEKDAY_LABEL[d]).join('·')}요일</li>}
-          {def.entry && (
-            <li className={(save.materials[def.entry.itemId] ?? 0) >= def.entry.qty ? 'have' : 'lack'}>
-              <b>입장</b> {materialLabel(def.entry.itemId)} ×{def.entry.qty} 소모 (보유 {save.materials[def.entry.itemId] ?? 0})
-              <small> — {MATERIALS[def.entry.itemId]?.blurb}</small>
-            </li>
-          )}
-          <li><b>보상</b> 경험치 {reward.exp} · 금 {reward.gold} <small>(일반 전투의 {def.rewardPct}%)</small> · 승리 시 {def.clearDrops.map((d) => `${materialLabel(d.itemId)} ×${d.qty}`).join(' · ')} 확정</li>
-        </ul>
-
-        <div className="compare">
-          <div className="side us">
-            <div className="who">
-              {save.party.map((id, i) => {
-                const m = save.members.find((x) => x.id === id)
-                return m ? (
-                  <span key={i} className="foe">
-                    <UnitPortrait icon={m.job} size="sm" />
-                    <small>Lv {m.level}</small>
-                  </span>
-                ) : null
-              })}
-              {us.count === 0 && <small>편성 없음</small>}
-            </div>
-            <div className="sum"><b>{save.name}</b> · {us.count}명 · Lv 합 {us.levelSum} · HP 합 {us.hpSum}</div>
-          </div>
-          <div className="vs">vs</div>
-          <div className="side them">
-            <div className="who">
-              {foes.members.map((m, i) => (
-                <span key={i} className="foe">
-                  <UnitPortrait icon={jobOf(m.id)} size="sm" />
-                  <small>{m.name}</small>
-                </span>
-              ))}
-            </div>
-            <div className="sum">고정 {foes.members.length}명 · HP 합 {foes.members.reduce((s, m) => s + m.stats.maxHp, 0)}</div>
-          </div>
-        </div>
-
-        <div className="run-bar">
-          <button className="primary big" onClick={go} disabled={!gate.ready}>도전</button>
-          {!gate.ready && <small>{gate.reason === '재도전 대기 중' ? `재도전까지 ${waitText(gate.waitMs)}` : gate.reason}</small>}
-          {gate.ready && us.avgLevel > 0 && us.avgLevel < def.recommended[0] && <small>권장 레벨보다 낮습니다. 입장 재료와 횟수는 져도 소모됩니다.</small>}
-          <small>편성은 <button className="link" onClick={onGoFormation}>편성 탭</button>에서.</small>
-        </div>
-        {materialsText(save) && <p className="hint">가진 재료: {materialsText(save)}</p>}
-      </div>
+      {materialsText(save) && <p className="hint">가진 재료: {materialsText(save)}</p>}
     </section>
   )
 }
