@@ -477,11 +477,14 @@ const list: Skill[] = [
     effects: [{ kind: 'damage', school: 'magic', power: 200 }],
   },
   {
-    id: 'condemn', label: '단죄', spCost: 12,
-    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 0, stiff: 50,
+    id: 'condemn', label: '단죄', spCost: 20,
+    target: { side: 'enemy', scope: 'all', hits: 1 }, charge: 200, stiff: 50,
+    // **적 전원**의 공격을 깎는다. 한 차례로 여러 차례의 치유를 덜어 내는 기술이다 —
+    // 심문관이 주교와 겨룰 수 있는 유일한 축이다 ("예방이 치료보다 싸다", docs/18 §13).
+    // 열의(세기 +20%)가 붙으면 약화가 22 → 26 이 된다
     effects: [
-      { kind: 'damage', school: 'magic', power: 90 },
-      { kind: 'applyStatus', status: 'atkDown', duration: 3, magnitude: 30 },
+      { kind: 'damage', school: 'magic', power: 55 },
+      { kind: 'applyStatus', status: 'atkDown', duration: 3, magnitude: 22 },
     ],
   },
   {

@@ -30,7 +30,15 @@ const list: TraitDef[] = [
   { id: 'disruptor', label: '교란', effects: [{ kind: 'gaugeDamagePct', pct: 80 }] },
   { id: 'foresight', label: '예지', effects: [{ kind: 'startGauge', amount: 200 }, { kind: 'castTimePct', pct: -10 }] },
   { id: 'highLiturgy', label: '고전례', effects: [{ kind: 'ruleRows', add: 2 }] },
-  { id: 'zeal', label: '열의', effects: [{ kind: 'damageVsDebuffedPct', pct: 35 }] },
+  {
+    id: 'zeal',
+    label: '열의',
+    // 걸고 친다. 약화를 **더 세게** 걸고, 그렇게 약해진 적을 **더 아프게** 친다.
+    // 세기 보정이 핵심이다 — 심문관의 단죄(공격 약화)가 세지면 파티가 덜 맞고,
+    // 그만큼 치유에 쓸 차례가 줄어든다. 프리스트 칸에서 주교와 겨룰 수 있는 유일한 축이다
+    // (2026-09-13 측정: 그냥 때리는 쪽으로는 못 겨룬다 — docs/18 §13)
+    effects: [{ kind: 'statusPowerPct', pct: 20 }, { kind: 'damageVsDebuffedPct', pct: 35 }],
+  },
   { id: 'deadeye', label: '매의 눈', effects: [{ kind: 'damageVsRowPct', row: 'back', pct: 15 }] },
   { id: 'thornward', label: '가시 수호', effects: [{ kind: 'statusPowerPct', pct: 25 }, { kind: 'resistPct', pct: 10 }] },
 ]

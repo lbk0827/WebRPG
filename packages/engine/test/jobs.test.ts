@@ -326,3 +326,64 @@ describe('광전사 수칙의 값', () => {
     expect(gate - burn, `무조건 ${burn}% / 멈출 선 ${gate}%`).toBeGreaterThanOrEqual(6)
   })
 })
+
+// ── 프리스트의 두 갈래가 **둘 다 답이어야 한다** (docs/18 §13) ────
+//
+// 2026-09-13 측정: 프리스트 칸은 차례를 대개 치유에 쓴다. 그래서 "걸고 친다"로 겨루려던 심문관은
+// 남는 두세 차례에만 훅이 붙어 주교에게 구조적으로 밀렸다 (66 vs 59).
+// 심문관의 훅을 **치유 수요를 줄이는 쪽**으로 돌려(단죄를 적 전원 약화로) 격차를 닫았다.
+// 이 테스트는 다시 벌어지는 것을 막는다.
+describe('프리스트: 주교와 심문관이 둘 다 답이다', () => {
+  const REGION2 = 7 // 심연의 굴
+  const LV2 = REGIONS[REGION2].recommended[0]
+  const at = (a: any) => ({ op: 'atom' as const, atom: a })
+  const ROW = (condition: any, skillId: string, maxUses?: number) => ({ condition, skillId, ...(maxUses ? { maxUses } : {}) })
+
+  /**
+   * 프리스트 칸에만 수칙을 갈아 끼운 파티.
+   * `advParty` 는 전직 즉시 받는 스킬(grants)만 준다 — 여기서는 **포인트로 배우는 것까지** 준다.
+   * 주교의 은사·심문관의 단죄가 각자의 훅을 쓰는 핵심 도구이므로, 없으면 비교가 성립하지 않는다
+   */
+  function priestWith(job2: string, rows: ReturnType<typeof ROW>[]): TeamSetup {
+    const t = advParty(LV2, { priest: job2 })
+    const extra = JOB_ADVANCE[job2].learnable.map((l) => l.skillId)
+    return {
+      ...t,
+      members: t.members.map((m) =>
+        m.id.startsWith('priest') ? { ...m, skills: [...new Set([...m.skills, ...extra])], rules: { rows } } : m,
+      ),
+    }
+  }
+
+  /** 주교 — 칸 7개로 "지금 어느 치유가 맞나"를 잘게 가른다 */
+  const BISHOP = [
+    ROW(at({ kind: 'teamDeadCount', side: 'ally', cmp: 'gte', value: 1 }), 'resurrect'),
+    ROW(at({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: 30 }), 'benediction'),
+    ROW(at({ kind: 'teamAvgHpPct', side: 'ally', cmp: 'lte', value: 60 }), 'sanctuary'),
+    ROW(at({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: 55 }), 'mend'),
+    ROW(at({ kind: 'teamStatusCount', side: 'ally', status: 'poison', cmp: 'gte', value: 1 }), 'cleanse'),
+    ROW(at({ kind: 'selfActionCount', cmp: 'eq', value: 1 }), 'ward', 1),
+    ROW({ op: 'always' as const }, 'strike'),
+  ]
+  /** 심문관 — 예방이 치료보다 싸다. 적 전원 약화를 유지하고 친다 */
+  const INQUISITOR = [
+    ROW(at({ kind: 'teamDeadCount', side: 'ally', cmp: 'gte', value: 1 }), 'resurrect'),
+    ROW(at({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: 40 }), 'mend'),
+    ROW(at({ kind: 'teamStatusCount', side: 'enemy', status: 'atkDown', cmp: 'lte', value: 1 }), 'condemn'),
+    ROW(at({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: 65 }), 'mend'),
+    ROW({ op: 'always' as const }, 'judgment'),
+  ]
+
+  it('두 길의 승률 차이가 5%p 안에 있다 — 한쪽이 정답이면 고를 이유가 없다', () => {
+    const bishop = winAt(LV2, REGION2, priestWith('bishop', BISHOP))
+    const inquisitor = winAt(LV2, REGION2, priestWith('inquisitor', INQUISITOR))
+    console.log(`\n프리스트 — 주교 ${bishop}% vs 심문관 ${inquisitor}%\n`)
+    expect(Math.abs(bishop - inquisitor), `주교 ${bishop}% / 심문관 ${inquisitor}%`).toBeLessThanOrEqual(5)
+  })
+
+  it('심문관의 단죄는 적 전원을 약화시킨다 — 치유 한 차례를 대신하는 값이다', () => {
+    const s = SKILLS.condemn
+    expect(s.target.scope, '단일 대상이면 주교와 겨룰 수 없다').toBe('all')
+    expect(s.effects.some((e) => e.kind === 'applyStatus' && e.status === 'atkDown')).toBe(true)
+  })
+})
