@@ -15,9 +15,13 @@ export interface EffectCtx {
   viaCover: boolean
   /** 직전 damage 효과가 준 피해 (drain 용) */
   lastDamage: number
+  /** 이 기술이 시전자의 HP 를 태우는가 (광전사의 피의 분노가 여기에 붙는다) */
+  recoil: boolean
+  /** 이번 행동에서 태운 HP — 최대 HP 의 몇 %인가. 태운 만큼 그 타격이 세진다 */
+  recoilPaidPct: number
 }
 
-export const freshCtx = (): EffectCtx => ({ hitIndex: 0, viaCover: false, lastDamage: 0 })
+export const freshCtx = (): EffectCtx => ({ hitIndex: 0, viaCover: false, lastDamage: 0, recoil: false, recoilPaidPct: 0 })
 
 export function applyEffect(effect: Effect, actor: CharState, target: CharState, st: BattleState, ctx: EffectCtx): void {
   switch (effect.kind) {
@@ -44,6 +48,8 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
           hitIndex: ctx.hitIndex,
           rowBonus: effect.rowBonus,
           viaCover: ctx.viaCover,
+          recoil: ctx.recoil,
+          recoilPaidPct: ctx.recoilPaidPct,
         },
         actor,
         target,
@@ -80,6 +86,24 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
       if (amount <= 0) return
       target.sp -= amount
       emit(st, { t: 'spChange', target: target.ref, delta: -amount })
+      return
+    }
+
+    case 'recoil': {
+      // 자기 최대 HP 의 pct%. **이것으로 죽을 수 있다.**
+      // 1 을 남겨 주면 끝까지 태우는 것이 공짜가 되어 "언제 멈출까"가 판단이 아니게 된다
+      // (2026-09-12 실측: 안전판이 있으면 무조건 태우는 수칙이 최선이었다).
+      if (!actor.alive) return
+      const maxHp = actor.setup.stats.maxHp
+      const cost = Math.max(1, pctOf(effect.ofCurrent ? actor.hp : maxHp, effect.pct))
+      const taken = Math.min(cost, actor.hp)
+      actor.hp -= taken
+      // 최대 HP 대비 몇 %를 태웠나 — 이 값이 뒤따르는 타격의 위력이 된다
+      ctx.recoilPaidPct = maxHp > 0 ? Math.floor((taken * 100) / maxHp) : 0
+      emit(st, { t: 'damage', source: actor.ref, target: actor.ref, amount: taken, school: 'phys' })
+      // 스스로 무는 대가라 딜밀기 상한(DELAY_TAKEN_CAP)을 쓰지 않는다 — 적이 민 것이 아니다
+      if (effect.gauge) actor.gauge = Math.max(0, actor.gauge - effect.gauge)
+      if (actor.hp === 0) kill(actor, st)
       return
     }
 

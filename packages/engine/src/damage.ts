@@ -2,7 +2,7 @@
 import { isqrt, pctOf } from './fixed'
 import type { Row } from './types'
 import type { CharState } from './state'
-import { atkModPct, coverDamagePct, damageVsDebuffedPct, damageVsRowPct, defModPct, hasDebuff } from './state'
+import { atkModPct, coverDamagePct, damageVsDebuffedPct, damageVsRowPct, defModPct, hasDebuff, recoilPowerPct } from './state'
 
 export interface DamageOpts {
   school: 'phys' | 'magic'
@@ -16,6 +16,10 @@ export interface DamageOpts {
   rowBonus?: { selfRow?: Row; targetRow?: Row; power: number }
   /** 엄호로 대신 맞는 중인가 (특성 coverDamagePct 적용) */
   viaCover?: boolean
+  /** 시전자의 HP 를 태우는 기술인가 (특성 recoilPowerPct 적용 — 광전사) */
+  recoil?: boolean
+  /** 이 타격 직전에 태운 HP (최대 HP 의 %). 태운 만큼 세진다 */
+  recoilPaidPct?: number
 }
 
 /**
@@ -44,6 +48,9 @@ export function calcDamage(o: DamageOpts, attacker: CharState, target: CharState
 
   let raw = pctOf(base, power)
   raw = pctOf(raw, 100 + atkModPct(attacker))
+  // 피의 분노: **태운 만큼** 세진다. 태울 피가 없으면 값도 없다 —
+  // 그래서 "HP 가 넉넉할 때만 태운다"가 수칙의 판단이 된다 (docs/18 §12)
+  if (o.recoil && o.recoilPaidPct) raw = pctOf(raw, 100 + o.recoilPaidPct * recoilPowerPct(attacker))
   raw = pctOf(raw, 100 + damageVsRowPct(attacker, target.row))
   // 수칙 훅 (M2-5b 심문관): 걸어 놓고 치면 더 아프다
   if (hasDebuff(target)) raw = pctOf(raw, 100 + damageVsDebuffedPct(attacker))

@@ -150,6 +150,15 @@ export type Effect =
   | { kind: 'moveRow'; who: 'self' | 'target'; to: Row | 'swap' }
   | { kind: 'damageSp'; power: number }
   | { kind: 'drain'; resource: 'hp' | 'sp'; pct: number }
+  /**
+   * 시전자가 자기 HP 를 태운다 (M2-5b 광전사).
+   * `ofCurrent` 면 **지금 남은 HP** 의 pct%, 아니면 최대 HP 의 pct%. `gauge` 가 있으면 게이지도 잃는다.
+   * drain 과 반대 방향이다 — drain 은 음수 비율을 받지 못한다 (amount <= 0 이면 아무 일도 안 한다).
+   *
+   * 이 효과는 **damage 보다 앞에** 두어야 한다. 태운 양이 그 타격의 위력이 되기 때문이다
+   * (특성 recoilPowerPct — 광전사의 피의 분노).
+   */
+  | { kind: 'recoil'; pct: number; gauge?: number; ofCurrent?: boolean }
   | { kind: 'heal'; power: number }
   | { kind: 'restoreSp'; power: number }
   | { kind: 'applyStatus'; status: StatusId; duration: number; magnitude?: number }
@@ -197,6 +206,14 @@ export type TraitEffect =
   | { kind: 'damageVsDebuffedPct'; pct: number }
   /** 내가 깎는 행동 게이지의 세기 (M2-5b 파괴공작원). 끊기 전용 */
   | { kind: 'gaugeDamagePct'; pct: number }
+  /**
+   * 자기 HP 를 대가로 내는 기술(recoil)의 피해 +pct% (M2-5b 광전사).
+   *
+   * "HP 가 낮으면 세진다"로 만들면 안 된다 — 적이 알아서 깎아 주므로 **공짜로 붙는다**
+   * (2026-09-12 실측: 수칙을 안 짜도 +29%p. 훅이 아니라 힘 도약이다).
+   * 대가를 **치른 행동**에만 값을 붙이면, "언제 태울 만한가"가 수칙의 판단이 된다.
+   */
+  | { kind: 'recoilPowerPct'; pct: number }
   | { kind: 'trigger'; on: 'turnStart' | 'damaged' | 'lowHp'; hpPct?: number; perBattle?: number; effect: Effect }
 
 export interface TraitDef {

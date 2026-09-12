@@ -1,12 +1,38 @@
 // 전직 (M2-5b). ADR-003 — 2차 직업은 "스탯이 좋은 직업"이 아니라 **수칙을 다르게 짜게 만드는 직업**이다.
 // 그래서 화면이 앞에 내세우는 것도 스탯이 아니라 **훅 한 줄**이다.
-import { ADVANCE_RESET_GOLD, JOB_ADVANCE, SKILLS } from '@webrpg/engine'
+import { ADVANCE_RESET_GOLD, JOB_ADVANCE, SKILLS, TRAITS } from '@webrpg/engine'
 import type { GameSave, Member } from '../game/save'
 import { advanceMember, advanceOptions, memberCanAdvance, resetAdvance } from '../game/members'
-import { skillLabel } from '../lib/labels'
+import { skillLabel, traitText } from '../lib/labels'
 import { STAT_LABEL } from '../lib/condition'
 
 const BONUS_LABEL: Record<string, string> = { ...STAT_LABEL, maxHp: 'HP', maxSp: 'SP', def: '방어', mdef: '마법 방어' }
+
+/**
+ * 훅이 실제로 무엇을 하는지 — 2026-09-13 까지 이 화면에 없었다.
+ * 훅 문구는 "무엇을 노리라"는 말이고, 이것은 "얼마나 붙는다"는 수다. 둘 다 없으면 수칙을 못 짠다
+ * (도감에만 있었으니 단원 화면에서는 보이지 않았다).
+ */
+function TraitLines({ ids }: { ids: string[] }) {
+  const defs = ids.map((id) => TRAITS[id]).filter(Boolean)
+  if (defs.length === 0) return null
+  return (
+    <ul className="adv-traits">
+      {defs.map((t) => (
+        <li key={t.id}>
+          <b>[{t.label}]</b> {traitText(t)}
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+/** 한글 받침 판정 — "광전사 이 된다" 가 아니라 "광전사가 된다" 로 */
+function hasFinal(word: string): boolean {
+  const c = word.charCodeAt(word.length - 1)
+  if (c < 0xac00 || c > 0xd7a3) return true
+  return (c - 0xac00) % 28 !== 0
+}
 
 export function AdvancePanel({ save, onSave, member }: { save: GameSave; onSave: (g: GameSave) => void; member: Member }) {
   const options = advanceOptions(member)
@@ -18,6 +44,7 @@ export function AdvancePanel({ save, onSave, member }: { save: GameSave; onSave:
         <div className="advance-current">
           <h3>{chosen.name}</h3>
           <p className="hook">{chosen.hook}</p>
+          <TraitLines ids={chosen.traits} />
           <p className="hint">{chosen.brief}</p>
           <p className="hint">
             받은 스킬 {chosen.grants.map((s) => skillLabel(s)).join(' · ')}
@@ -60,6 +87,7 @@ export function AdvancePanel({ save, onSave, member }: { save: GameSave; onSave:
                 <small>Lv {o.level}</small>
               </div>
               <p className="hook">{o.hook}</p>
+              <TraitLines ids={o.traits} />
               <p className="hint">{o.brief}</p>
               <p className="hint">
                 대표 스킬 {o.grants.map((s) => `${skillLabel(s)} — ${SKILLS[s]?.spCost ?? 0}SP`).join(' · ')}
@@ -75,7 +103,7 @@ export function AdvancePanel({ save, onSave, member }: { save: GameSave; onSave:
                   }
                 }}
               >
-                {o.name} 이 된다
+                {o.name}{hasFinal(o.name) ? '이' : '가'} 된다
               </button>
             </li>
           )

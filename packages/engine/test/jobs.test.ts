@@ -228,3 +228,101 @@ describe('전직은 힘 도약이 아니다', () => {
     console.log(`\n전직 전 ${base}% → 전원 전직 ${got}% (수칙은 그대로)\n`)
   })
 })
+
+// ── 광전사: 패시브가 아니라 **결정**이다 (docs/18 §12) ────────────
+//
+// 2026-09-12 실측에서 광전사의 훅만 값이 음수(−2)였다. 훅이 "HP 40% 아래면 공격 +55%" 방아쇠라
+// 적이 알아서 깎아 주었고, 수칙으로 살릴 것이 없었다. 태운 만큼 세지는 쪽으로 바꿨다.
+// 아래 넷이 그 성질을 고정한다.
+describe('광전사의 피의 분노', () => {
+  const dummy = () => lone({ id: 'dummy#0', stats: { ...PRESETS.warrior.stats, maxHp: 99999, def: 0 } })
+  const burner = (hpPct: number, traits: string[]): CharSetup => {
+    const base = PRESETS.warrior.stats
+    return lone({
+      // 현재 HP 를 직접 못 주므로 최대 HP 를 줄여 "남은 피가 적은 상태"를 만든다.
+      // 태운 양은 최대 HP 대비로 재므로, 비율이 같으면 배율도 같아야 한다 — 그래서 다르게 만든다
+      stats: { ...base, maxHp: Math.floor((base.maxHp * hpPct) / 100) },
+      skills: ['recklessSwing', 'strike'],
+      traits,
+      rules: { rows: [{ condition: { op: 'always' }, skillId: 'recklessSwing' }] },
+    })
+  }
+  /** 첫 무모한 일격이 적에게 준 피해 */
+  const firstHit = (c: CharSetup): number => {
+    const r = simulate({ seed: 4, teams: [team('a', [c]), team('b', [dummy()])], config: DEFAULT_CONFIG, skills: SKILLS })
+    const e = r.events.find((x) => x.t === 'damage' && x.source.team === 0 && x.target.team === 1)
+    return e && e.t === 'damage' ? e.amount : 0
+  }
+
+  it('태우는 기술을 쓰지 않으면 훅은 아무 값도 없다 — 패시브가 아니다', () => {
+    const plain = lone({ skills: ['strike'], rules: { rows: [{ condition: { op: 'always' }, skillId: 'strike' }] } })
+    const raged = { ...plain, traits: ['bloodRage'] }
+    expect(firstHit(raged), '기본 공격에는 분노가 붙지 않는다').toBe(firstHit(plain))
+  })
+
+  it('태운 만큼 세진다 — 훅이 붙으면 같은 기술이 훨씬 아프다', () => {
+    expect(firstHit(burner(100, ['bloodRage']))).toBeGreaterThan(firstHit(burner(100, [])) * 2)
+  })
+
+  it('태울 피가 없으면 값도 줄어든다 — "언제 태우나"가 판단이 된다', () => {
+    // 최대 HP 가 작으면 25% 를 태워도 절대량이 작고, 배율은 최대 HP 대비이므로 위력도 작다.
+    // 스탯이 같으므로 차이는 전부 태운 양에서 온다
+    const big = firstHit(burner(100, ['bloodRage']))
+    const small = firstHit(burner(30, ['bloodRage']))
+    expect(small, `만피 ${big} vs 작은 그릇 ${small}`).toBeLessThan(big)
+  })
+
+  it('자해로 죽을 수 있다 — 1 을 남겨 주지 않는다', () => {
+    // 남은 HP 의 25% 씩 태우면 언젠가 1 미만이 되어 스스로 쓰러진다.
+    // 안전판이 있으면 "끝까지 태우기"가 공짜가 되어 멈출 이유가 없어진다
+    const c = lone({
+      stats: { ...PRESETS.warrior.stats, maxHp: 12 },
+      skills: ['recklessSwing'],
+      traits: ['bloodRage'],
+      rules: { rows: [{ condition: { op: 'always' }, skillId: 'recklessSwing' }] },
+    })
+    const r = simulate({ seed: 4, teams: [team('a', [c]), team('b', [dummy()])], config: DEFAULT_CONFIG, skills: SKILLS })
+    expect(r.events.some((e) => e.t === 'death' && e.target.team === 0), '스스로 쓰러져야 한다').toBe(true)
+  })
+})
+
+// ── 훅을 잘못 쓰면 손해다: 무조건 태우는 수칙 < 멈출 선을 그은 수칙 ──
+describe('광전사 수칙의 값', () => {
+  const LV = REGIONS[7].recommended[0] // 심연의 굴 Lv23
+  /** 광전사 한 명을 끼운 5인 파티. INT 에 투자해 6칸을 쓴다 */
+  function withRules(rows: { condition: any; skillId: string; maxUses?: number }[]): TeamSetup {
+    const t = advParty(LV, { warrior: 'berserker' })
+    return {
+      ...t,
+      members: t.members.map((m) => {
+        if (!m.id.startsWith('warrior')) return m
+        const pool = (LV - 1) * STAT_POINTS_PER_LEVEL
+        return {
+          ...m,
+          stats: advStats(growthStats(PRESETS.warrior.stats, LV, { ...EMPTY_ALLOC, str: pool - 120, int: 120 }), 'berserker'),
+          rules: { rows },
+        }
+      }),
+    }
+  }
+  const atomOf = (a: any) => ({ op: 'atom' as const, atom: a })
+  const BURN_ALWAYS = [
+    { condition: atomOf({ kind: 'selfSpAbs', cmp: 'gte', value: 10 }), skillId: 'recklessSwing' },
+    { condition: { op: 'always' as const }, skillId: 'strike' },
+  ]
+  const GATED = [
+    { condition: atomOf({ kind: 'selfActionCount', cmp: 'eq', value: 1 }), skillId: 'warCry', maxUses: 1 },
+    { condition: atomOf({ kind: 'selfHpPct', cmp: 'lte', value: 32 }), skillId: 'bloodlust' },
+    { condition: atomOf({ kind: 'teamAliveCount', side: 'enemy', cmp: 'gte', value: 4 }), skillId: 'sweep' },
+    { condition: atomOf({ kind: 'teamAnyHpPct', side: 'enemy', cmp: 'lte', value: 30 }), skillId: 'recklessSwing' },
+    { condition: atomOf({ kind: 'selfHpPct', cmp: 'gte', value: 60 }), skillId: 'recklessSwing' },
+    { condition: { op: 'always' as const }, skillId: 'strike' },
+  ]
+
+  it('멈출 선을 그은 수칙이 무조건 태우는 수칙을 크게 이긴다', () => {
+    const burn = winAt(LV, 7, withRules(BURN_ALWAYS))
+    const gate = winAt(LV, 7, withRules(GATED))
+    console.log(`\n광전사 — 무조건 태우기 ${burn}% vs 멈출 선 ${gate}%\n`)
+    expect(gate - burn, `무조건 ${burn}% / 멈출 선 ${gate}%`).toBeGreaterThanOrEqual(6)
+  })
+})

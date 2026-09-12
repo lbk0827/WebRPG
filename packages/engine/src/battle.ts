@@ -242,6 +242,7 @@ function resolveSkill(
     const actual = coverable && target.ref.team !== actor.ref.team ? resolveCover(target, skill, st) : target
     const ctx = freshCtx()
     ctx.viaCover = actual !== target
+    ctx.recoil = skill.effects.some((e) => e.kind === 'recoil')
     for (let h = 0; h < hits; h++) {
       if (!actual.alive && !isRevive) break
       ctx.hitIndex = h

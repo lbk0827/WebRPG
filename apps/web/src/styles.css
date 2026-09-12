@@ -963,3 +963,23 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .adv-terms li.have { outline: 1px solid var(--good); }
 .adv-terms li.lack { outline: 1px solid var(--bad); }
 .region .title .badge { margin-left: 6px; }
+
+/* 전직 화면의 훅 특성 줄 — 훅이 "얼마나" 붙는지 (2026-09-13) */
+.adv-traits {
+  list-style: none;
+  margin: 4px 0 6px;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.adv-traits li {
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--fg-dim);
+  padding-left: 8px;
+  border-left: 2px solid var(--accent-dim, #566);
+}
+.adv-traits b {
+  color: var(--accent, #8cf);
+  font-weight: 600;
+}

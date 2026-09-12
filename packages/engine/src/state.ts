@@ -114,7 +114,16 @@ export function traitEffects(c: CharState): TraitEffect[] {
 
 function sumTrait(
   c: CharState,
-  kind: 'castTimePct' | 'coverDamagePct' | 'startGauge' | 'ruleRows' | 'resistPct' | 'statusPowerPct' | 'damageVsDebuffedPct' | 'gaugeDamagePct',
+  kind:
+    | 'castTimePct'
+    | 'coverDamagePct'
+    | 'startGauge'
+    | 'ruleRows'
+    | 'resistPct'
+    | 'statusPowerPct'
+    | 'damageVsDebuffedPct'
+    | 'gaugeDamagePct'
+    | 'recoilPowerPct',
 ): number {
   let n = 0
   for (const e of traitEffects(c)) {
@@ -131,6 +140,8 @@ export const traitRuleRows = (c: CharState): number => sumTrait(c, 'ruleRows')
 export const statusPowerPct = (c: CharState): number => sumTrait(c, 'statusPowerPct')
 export const damageVsDebuffedPct = (c: CharState): number => sumTrait(c, 'damageVsDebuffedPct')
 export const gaugeDamagePct = (c: CharState): number => sumTrait(c, 'gaugeDamagePct')
+/** 자기 HP 를 태우는 기술의 피해 보정 % (광전사) */
+export const recoilPowerPct = (c: CharState): number => sumTrait(c, 'recoilPowerPct')
 export function damageVsRowPct(c: CharState, row: Row): number {
   let n = 0
   for (const e of traitEffects(c)) if (e.kind === 'damageVsRowPct' && e.row === row) n += e.pct

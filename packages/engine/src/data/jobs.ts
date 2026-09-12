@@ -53,13 +53,13 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     name: '광전사',
     base: 'warrior',
     level: 20,
-    hook: 'HP 가 40% 아래로 떨어지면 스스로 분노한다. "내 HP 이하" 조건이 방아쇠가 된다',
+    hook: '태운 HP 만큼 세게 친다. 만피에서 태우면 전력, 빈사에서 태우면 헛수고다. "내 HP" 조건으로 태울 구간과 멈출 선을 직접 그어야 한다',
     hookKind: 'lowHp',
     traits: ['bloodRage'],
     grants: ['recklessSwing'],
     learnable: [{ skillId: 'bloodlust', cost: 3 }],
     bonus: { maxHp: 120, str: 14, spd: 6 },
-    brief: '몰릴수록 세진다. 회복을 늦게 잡는 수칙과 맞물린다.',
+    brief: '자기 피를 태워 친다. 어디까지 태우고 어디서 멈출지가 수칙이다.',
   },
 
   // ───────── 도적 → 독으로 말릴 것인가, 시전을 끊을 것인가

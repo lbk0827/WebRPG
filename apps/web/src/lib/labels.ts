@@ -63,6 +63,9 @@ export function effectText(e: Effect): string {
       return `SP 피해 ${e.power}%`
     case 'drain':
       return `${e.resource === 'hp' ? 'HP' : 'SP'} 흡수 ${e.pct}%`
+    case 'recoil':
+      // 지금 남은 HP 기준인지 최대 HP 기준인지가 수칙 판단을 바꾼다 — 반드시 적는다
+      return `${e.ofCurrent ? '남은' : '최대'} HP 의 ${e.pct}% 를 태운다${e.gauge ? ` (게이지도 −${e.gauge})` : ''}`
   }
 }
 
@@ -114,9 +117,11 @@ export function skillSources(id: string): string {
   return out.join(' · ') || '—'
 }
 
+// M2-5b 의 훅 특성 4종이 여기 빠져 있어 화면에 빈칸으로 나왔다 (2026-09-13).
+// 반환형을 string 으로 못 박아 두면 다음에 효과를 더할 때 컴파일이 막아 준다
 export function traitText(t: TraitDef): string {
   return t.effects
-    .map((e) => {
+    .map((e): string => {
       switch (e.kind) {
         case 'castTimePct':
           return `시전 준비 시간 ${e.pct}%`
@@ -130,6 +135,14 @@ export function traitText(t: TraitDef): string {
           return `패턴 칸 +${e.add}`
         case 'resistPct':
           return `상태이상 저항 +${e.pct}%`
+        case 'statusPowerPct':
+          return `내가 건 상태이상의 세기 +${e.pct}%`
+        case 'damageVsDebuffedPct':
+          return `약화된 상대에게 피해 +${e.pct}%`
+        case 'gaugeDamagePct':
+          return `내가 깎는 게이지 +${e.pct}%`
+        case 'recoilPowerPct':
+          return `내 HP 를 태우는 기술: 태운 최대 HP 1%p 마다 피해 +${e.pct}%`
         case 'trigger': {
           const when = e.on === 'turnStart' ? '매 차례 시작' : e.on === 'damaged' ? '피격 시' : `HP ${e.hpPct}% 이하가 되면`
           return `${when}${e.perBattle ? ` (전투당 ${e.perBattle}회)` : ''}: ${effectText(e.effect)}`

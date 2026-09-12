@@ -394,10 +394,15 @@ const list: Skill[] = [
     effects: [{ kind: 'applyStatus', status: 'atkDown', duration: 3, magnitude: 25 }],
   },
   {
-    id: 'recklessSwing', label: '무모한 일격', spCost: 12,
-    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 50, stiff: 120,
-    // 분노가 걸린 저체력 구간에서 쓰라고 있는 기술이다. 준비가 짧아 그 짧은 순간을 잡는다
-    effects: [{ kind: 'damage', school: 'phys', power: 300 }],
+    id: 'recklessSwing', label: '무모한 일격', spCost: 10,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 50, stiff: 100,
+    // **지금 남은 HP 의 4분의 1을 태우고** 그만큼 세게 친다 (광전사의 피의 분노).
+    // 만피에서 태우면 전력, 빈사에서 태우면 헛수고다 — 그래서 "언제 태우나"가 수칙의 판단이 된다.
+    // recoil 이 damage 보다 **앞에** 있어야 한다. 태운 양이 그 타격의 위력이기 때문이다
+    effects: [
+      { kind: 'recoil', pct: 25, gauge: 100, ofCurrent: true },
+      { kind: 'damage', school: 'phys', power: 170 },
+    ],
   },
   {
     id: 'bloodlust', label: '혈갈', spCost: 12,
