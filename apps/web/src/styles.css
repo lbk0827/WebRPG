@@ -1070,3 +1070,102 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .rules .row > header > .skill-frame { align-self: center; }
 .codex-table .nm { white-space: nowrap; }
 .codex-table .nm .skill-frame { display: inline-grid; vertical-align: -8px; }
+
+/* ───────── 전투 — 제로식 HOF 방식: 지역 목록 → 전투 맵 (2026-09-13 단장 지시) ───────── */
+
+/* 정수 2배 전신 — 벡터 격자라 픽셀이 깨지지 않는다 */
+.portrait.xl { width: 96px; height: 128px; }
+.portrait.xl svg { width: 96px; height: 128px; }
+.portrait.fallback.xl { width: 96px; height: 96px; margin: 16px 0; }
+
+/* 제로식의 "▌제목" 띠 */
+.bar-title {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px;
+  margin: 16px 0 8px; padding: 3px 0 3px 8px;
+  border-left: 5px solid var(--ink); border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+.bar-title small { color: var(--muted); font-weight: 400; font-size: 12px; }
+
+/* 지역 목록 */
+.map-groups { list-style: none; margin: 0; padding: 0; display: grid; gap: 14px; }
+.map-group > h3 { margin: 0 0 4px; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.map-group > h3 small { color: var(--muted); font-weight: 400; }
+.map-list { list-style: none; margin: 0; padding: 0 0 0 26px; display: grid; gap: 2px; }
+.map-entry button {
+  width: 100%; display: grid; grid-template-columns: 22px auto 1fr auto; gap: 8px; align-items: center;
+  text-align: left; padding: 6px 10px; border: 1px solid transparent; border-radius: 8px;
+  background: transparent; font: inherit; color: var(--ink); cursor: pointer;
+}
+.map-entry button:hover { background: var(--card); border-color: var(--line); }
+.map-entry .nm { font-weight: 700; color: var(--team1); }
+.map-entry.locked .nm { color: var(--muted); }
+.map-entry.here button { background: var(--card); border-color: var(--team0); }
+.map-entry .tags { display: inline-flex; gap: 4px; }
+.map-entry .meta { color: var(--muted); font-size: 11px; text-align: right; white-space: nowrap; }
+.here-badge {
+  padding: 1px 6px; border-radius: 999px; font-size: 11px; white-space: nowrap;
+  color: #fff; background: var(--team0);
+}
+@media (max-width: 560px) {
+  .map-list { padding-left: 8px; }
+  .map-entry button { grid-template-columns: 22px 1fr auto; }
+  .map-entry .meta { grid-column: 2 / -1; text-align: left; }
+}
+
+/* 전투 맵 */
+.battle-map .map-head h2 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; margin: 4px 0 8px; }
+.battle-map .map-head h2 small { font-weight: 400; }
+.battle-map > .brief { margin: 4px 0 8px; }
+
+/* 편성 저장 — 모험단 LOAD · DEL / SAVE */
+.party-box { display: grid; gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
+.party-box .pb-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.party-box .lbl { font-size: 12px; color: var(--muted); min-width: 30px; }
+.party-box select, .party-box input { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; min-width: 0; }
+/* 좁은 화면에서 버튼이 혼자 다음 줄로 떨어지지 않게, 선택칸·이름칸이 줄어든다.
+   select 는 가장 긴 선택지 폭을 고집하므로 기준 폭을 0 으로 두어야 실제로 줄어든다 (320px 에서 확인) */
+.party-box select { flex: 1 1 0; min-width: 6em; max-width: 16em; }
+.party-box input { flex: 1 1 8em; max-width: 14em; }
+.party-box .pb-who { color: var(--muted); font-size: 11px; }
+
+/* 싸우자! · 3번 싸우자! · 선택초기화 */
+.fight-bar { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 8px; margin: 12px 0; }
+.fight-bar .note { flex-basis: 100%; text-align: center; font-size: 12px; color: var(--muted); }
+
+/* 단원 · 등장 몬스터 카드 격자 */
+.teams, .appear {
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 12px 8px;
+}
+.team-card, .appear-card { text-align: center; }
+.team-card label { display: grid; justify-items: center; gap: 2px; padding: 2px; border-radius: 10px; cursor: pointer; }
+.team-card.blocked label { cursor: not-allowed; }
+.team-card .nm, .appear-card .nm { font-weight: 700; font-size: 13px; }
+.team-card:not(.on) .nm { color: var(--muted); }
+.team-card small, .appear-card small { display: block; color: var(--muted); font-size: 11px; }
+.team-card input[type='checkbox'] { width: 16px; height: 16px; margin: 2px 0 0; cursor: inherit; }
+
+/* 받침 — 제로식의 마름모 발판 */
+.tile { position: relative; display: grid; place-items: end center; width: 100%; height: 146px; }
+.tile::before {
+  content: ''; position: absolute; left: 50%; bottom: 0; transform: translateX(-50%);
+  width: 108px; height: 38px; clip-path: polygon(50% 0, 100% 50%, 50% 100%, 0 50%);
+  background: linear-gradient(180deg, #a9b6c6, #66778c);
+}
+.tile .portrait { position: relative; margin-bottom: 14px; }
+.team-card.on .tile::before { background: linear-gradient(180deg, #e8b9c0, var(--team0)); }
+.appear-card .tile::before { background: linear-gradient(180deg, #9c8660, #4a3b2c); }
+/* 몬스터는 우리 쪽을 본다 — 좌우 반전은 도트를 깨지 않는다 */
+.appear-card .tile .portrait { transform: scaleX(-1); }
+.appear-card.rumor .q { position: relative; margin-bottom: 44px; font-size: 42px; font-weight: 700; color: var(--muted); }
+.appear-card.rumor .nm { font-style: italic; color: var(--muted); }
+
+/* 전열 / 후열 토글 */
+.row-toggle { display: flex; justify-content: center; gap: 4px; margin-top: 4px; }
+.row-toggle button { padding: 1px 9px; font-size: 11px; border-radius: 999px; }
+.row-toggle button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+@media (max-width: 560px) {
+  .teams, .appear { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
+}

@@ -460,6 +460,43 @@ export function swapCells(g: GameSave, a: number, b: number): GameSave {
   return { ...g, party, members }
 }
 
+// ───────────────────────────── 전투 맵의 체크박스 편성 (2026-09-13, 제로식 방식)
+// 체크박스는 "누가 가나"만 정한다. "어디 서나"는 단원의 row 로 빈 칸을 찾는다.
+// 같은 열 안의 칸 순서는 건드리지 않는다 — 그건 편성 탭의 판에서 한다.
+
+type RowName = 'front' | 'back'
+
+const freeCell = (g: GameSave, row: RowName): number => g.party.findIndex((id, c) => id === null && cellRow(c) === row)
+
+/** 이 열에 빈 칸이 있나 (열은 3칸) */
+export const rowHasRoom = (g: GameSave, row: RowName): boolean => freeCell(g, row) >= 0
+
+/** 출전시킨다. 원래 서던 열의 빈 칸 → 없으면 반대 열 → 인원 상한이면 그대로 */
+export function enlistMember(g: GameSave, id: string): GameSave {
+  const m = memberById(g, id)
+  if (!m || g.party.includes(id) || partyMembers(g).length >= PARTY_MAX) return g
+  const other: RowName = m.row === 'front' ? 'back' : 'front'
+  const cell = freeCell(g, m.row) >= 0 ? freeCell(g, m.row) : freeCell(g, other)
+  return cell < 0 ? g : placeMember(g, cell, id)
+}
+
+/** 출전에서 뺀다 (대기로). 단원의 row 는 남아 다음에 같은 열로 돌아간다 */
+export function withdrawMember(g: GameSave, id: string): GameSave {
+  const cell = g.party.indexOf(id)
+  return cell < 0 ? g : clearCell(g, cell)
+}
+
+/** 서는 열을 바꾼다. 그 열이 꽉 차 있으면 그대로 */
+export function setMemberRow(g: GameSave, id: string, row: RowName): GameSave {
+  const from = g.party.indexOf(id)
+  if (from < 0 || cellRow(from) === row) return g
+  const to = freeCell(g, row)
+  return to < 0 ? g : placeMember(g, to, id)
+}
+
+/** 선택초기화 — 전원 대기로 */
+export const clearParty = (g: GameSave): GameSave => ({ ...g, party: g.party.map(() => null) })
+
 /** 판 전체를 바꾼다 (프리셋 불러오기). 모르는 id 는 비움, 상한 초과는 잘라냄 */
 export function setGrid(g: GameSave, grid: (string | null)[]): GameSave {
   const party: (string | null)[] = Array(g.party.length).fill(null)

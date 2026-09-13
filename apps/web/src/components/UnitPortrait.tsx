@@ -3,6 +3,7 @@
 //
 // 도트는 정수 배율에서만 깨지지 않는다. 그래서 줄이지 않고 **1배로 두고 창을 씌운다**:
 //   full — 48×64 전신 그대로
+//   xl   — 96×128 전신을 정수 2배로 (전투 맵 카드). 벡터 격자라 정수 배율은 픽셀이 깨지지 않는다
 //   md   — 40×40 창으로 머리와 상체
 //   sm   — 28×28 창으로 머리만
 //   xs   — 22×22 창으로 얼굴만 (표 한 칸)
@@ -10,7 +11,7 @@
 import { jobIcon } from '../lib/labels'
 import { useUnitSprite } from '../lib/sprites'
 
-type Size = 'xs' | 'sm' | 'md' | 'full'
+type Size = 'xs' | 'sm' | 'md' | 'full' | 'xl'
 
 export function UnitPortrait({
   icon,
