@@ -1,7 +1,7 @@
 // M2-4b 공방: 재료 · 드롭 · 강화 · 제작
 import { describe, expect, it } from 'vitest'
 import {
-  ITEMS, MATERIALS, MONSTERS, RECIPES, REFINE_MAX, REGIONS, TRAITS, battleRewards, canCraft, createRng, refineCost, refineRate, refinedNumbers,
+  ITEMS, JOB_WEAPONS, MATERIALS, MONSTERS, RECIPES, REFINE_MAX, REGIONS, TRAITS, battleRewards, canCraft, createRng, refineCost, refineRate, refinedNumbers,
   craftLukBonusPct, lootBonusPct, rollCraftTrait, rollEncounter, summarizeGear, tryRefine,
 } from '../src'
 
@@ -165,6 +165,26 @@ describe('제작 재료의 출처', () => {
       const ds = m.drops ?? []
       const sure = ds.findIndex((d) => d.permyriad >= 10000)
       if (sure >= 0) expect(ds.length - 1, `${m.name}: 확정 드롭 뒤에 ${ds.length - 1 - sure}개가 더 있다`).toBe(sure)
+    }
+  })
+})
+
+// ── 상점은 기본품만, 3등급은 제작으로만 (2026-09-13 단장 결정) ──
+describe('상점과 공방의 역할 분담', () => {
+  it('3등급 장비는 전부 제작법이 있다 — 상점에서 못 사므로 없으면 아예 못 얻는다', () => {
+    const craftable = new Set(RECIPES.map((r) => r.itemId))
+    const t3 = Object.values(ITEMS).filter((i) => i.tier === 3)
+    expect(t3.length).toBeGreaterThan(0)
+    for (const i of t3) expect(craftable.has(i.id), `${i.label} (${i.id}) 는 제작법이 없는데 상점에도 없다`).toBe(true)
+  })
+
+  it('직업마다 3등급 무기로 갈 길이 있다', () => {
+    const craftable = new Set(RECIPES.map((r) => r.itemId))
+    for (const [job, types] of Object.entries(JOB_WEAPONS)) {
+      const ok = Object.values(ITEMS).some(
+        (i) => i.tier === 3 && i.slot === 'weapon' && types.includes(i.weaponType as never) && craftable.has(i.id),
+      )
+      expect(ok, `${job} 이 만들 수 있는 3등급 무기가 없다`).toBe(true)
     }
   })
 })

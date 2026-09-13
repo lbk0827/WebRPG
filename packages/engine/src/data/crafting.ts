@@ -79,6 +79,11 @@ export const RECIPES: Recipe[] = [
   { id: 'rBowHorn', itemId: 'bowHorn', materials: [{ id: 'feather', qty: 8 }, { id: 'beastFang', qty: 5 }, { id: 'leather', qty: 4 }], gold: 280 },
   { id: 'rArmorPlate', itemId: 'armorPlate', materials: [{ id: 'ironScrap', qty: 10 }, { id: 'ogreCore', qty: 2 }], gold: 240 },
   { id: 'rPendantRegen', itemId: 'pendantRegen', materials: [{ id: 'holyWater', qty: 5 }, { id: 'venomSac', qty: 3 }, { id: 'manaCrystal', qty: 4 }], gold: 280 },
+  // 2026-09-13 단장 결정: 3등급은 **제작으로만** 얻는다. 상점은 기본품(1·2등급)만 판다.
+  // 그래서 제작법이 없던 3등급 셋을 채웠다 — 없으면 마법사·프리스트가 3등급 무기를 아예 못 든다
+  { id: 'rStaffSage', itemId: 'staffSage', materials: [{ id: 'manaCrystal', qty: 8 }, { id: 'holyWater', qty: 3 }, { id: 'ogreCore', qty: 1 }], gold: 260 },
+  { id: 'rRelicHoly', itemId: 'relicHoly', materials: [{ id: 'holyWater', qty: 8 }, { id: 'manaCrystal', qty: 4 }, { id: 'bossSeal', qty: 1 }], gold: 280 },
+  { id: 'rRobeArch', itemId: 'robeArch', materials: [{ id: 'manaCrystal', qty: 7 }, { id: 'leather', qty: 4 }, { id: 'venomSac', qty: 2 }], gold: 240 },
 ]
 
 export const RECIPE_BY_ID: Record<string, Recipe> = Object.fromEntries(RECIPES.map((r) => [r.id, r]))

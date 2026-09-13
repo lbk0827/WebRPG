@@ -198,6 +198,8 @@ export function QuestBoard({ save, onSave, onGoFormation }: Props) {
                 <span className="body">
                   <span className="title">
                     {r.name} <small>권장 Lv {r.recommended[0]}–{r.recommended[1]}</small>
+                    {/* 전직 지역은 문턱이 레벨이 아니라 설계다. 들어가기 전에 알려 준다 (docs/18 §17) */}
+                    {r.expects === 'advanced' && <small className="adv-badge">전직 전제</small>}
                   </span>
                   <span className="lesson">
                     {unlocked ? `${wins}승 · 조우 ${r.count[0]}~${r.count[1]}명 · 상대 ${foes.list.length}종` : gate}
@@ -209,6 +211,12 @@ export function QuestBoard({ save, onSave, onGoFormation }: Props) {
               {open && (
                 <div className="region-body">
                   <p className="brief">{r.brief}</p>
+                  {r.expects === 'advanced' && (
+                    <p className="adv-note">
+                      <b>여기부터는 레벨로 넘지 못합니다.</b> 상대가 우리보다 높고, 2차 직업의 훅을 그대로 들고 나옵니다.
+                      전직하고 그 훅을 쓰는 수칙을 짜야 해볼 만합니다 — 만렙으로 기본 수칙만 들고 오면 거의 집니다.
+                    </p>
+                  )}
 
                   {/* 등장 상대 — 출전 직전 그 자리에서. 전에는 도감에 가야 알 수 있었다 */}
                   <h4 className="foe-title">등장 상대 <small>Lv {foes.lvMin}{foes.lvMax !== foes.lvMin ? `–${foes.lvMax}` : ''} · 한 판에 {r.count[0]}~{r.count[1]}명</small></h4>

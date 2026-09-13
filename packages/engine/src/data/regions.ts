@@ -16,6 +16,17 @@ export interface RegionDef {
   table: { monsterId: string; weight: number }[]
   /** 해금 조건: 특정 지역에서 N승 */
   unlock?: { regionId: string; wins: number }
+  /**
+   * 이 지역이 기대하는 편성 (M2-7).
+   *
+   * 기본은 `'base'` — 장비 없이 직업 기본 수칙만으로도 권장 하한에서 해볼 만해야 한다
+   * (`test/balance.test.ts` 가 40% 이상을 요구한다).
+   *
+   * `'advanced'` 는 **전직이 전제인 지역**이다. 만렙이 30 이라 레벨로는 더 어렵게 만들 수 없고,
+   * 기준 편성이 이길 수 있게 잡으면 전직 편성은 90% 를 넘어 측정 신호가 뭉개진다 (docs/18 §13·§14).
+   * 그래서 문턱을 레벨이 아니라 **설계**로 옮겼다 — 기준 편성은 지고, 전직 + 훅 수칙이어야 해볼 만하다.
+   */
+  expects?: 'base' | 'advanced'
 }
 
 export const REGIONS: RegionDef[] = [
@@ -135,6 +146,44 @@ export const REGIONS: RegionDef[] = [
       { monsterId: 'abyssOgre', weight: 10 },
     ],
     unlock: { regionId: 'citadel', wins: 3 },
+  },
+  // ═════════ M2-7: 전직이 전제인 지역 (expects: 'advanced') ═════════
+  //
+  // 만렙이 30 이라 레벨로는 더 어렵게 만들 수 없다. 그래서 문턱을 **설계**로 옮겼다.
+  // 여기 적은 짐승이 아니라 2차 직업의 훅을 들고 나오는 용병단이다 — 기준 편성으로는 넘지 못한다.
+  // 덕분에 전직 편성을 포화 없이 측정할 자리가 생긴다 (docs/18 §13·§14 가 요구한 것).
+  {
+    id: 'frostgate',
+    no: 9,
+    name: '서리 관문',
+    brief: '심연을 넘으면 관문이 있다. 지키는 것은 짐승이 아니라 훈련된 용병단이다 — 그들도 수칙을 짜고, 그들도 전직했다. 엄호를 뚫고 시전을 끊어야 한다.',
+    recommended: [26, 30],
+    count: [4, 6],
+    expects: 'advanced',
+    table: [
+      { monsterId: 'gateGuardian', weight: 26 },
+      { monsterId: 'frostBerserker', weight: 24 },
+      { monsterId: 'gateMarksman', weight: 22 },
+      { monsterId: 'frostChanter', weight: 16 },
+      { monsterId: 'gateChaplain', weight: 16 },
+    ],
+    unlock: { regionId: 'abyss', wins: 3 },
+  },
+  {
+    id: 'throne',
+    no: 10,
+    name: '잊힌 왕좌',
+    brief: '관문 너머, 용병단을 처음 만든 자가 앉아 있던 자리. 잊힌 단장은 여덟 줄의 수칙을 쓴다 — 이 게임에서 가장 긴 것이다. 당신의 거울이다.',
+    recommended: [28, 30],
+    count: [4, 6],
+    expects: 'advanced',
+    table: [
+      { monsterId: 'throneKnight', weight: 30 },
+      { monsterId: 'throneShadow', weight: 26 },
+      { monsterId: 'gateChaplain', weight: 22 },
+      { monsterId: 'forgottenCaptain', weight: 14 },
+    ],
+    unlock: { regionId: 'frostgate', wins: 3 },
   },
 ]
 

@@ -31,6 +31,11 @@ export interface MonsterDef {
   /** 성장 적용 후 덮어쓸 스탯 */
   stats?: Partial<Stats>
   skills?: string[]
+  /**
+   * 특성 (data/traits.ts). M2-7 의 후반 지역용 — **저쪽도 전직했다**.
+   * 훅 특성을 그대로 쓰므로, 플레이어가 자기 훅을 배우는 교재가 된다.
+   */
+  traits?: string[]
   rules: RuleSet
   row?: Row
   guard?: GuardPolicy
@@ -67,6 +72,7 @@ export function monsterSetup(def: MonsterDef, idx: number): CharSetup {
     guard: structuredClone(def.guard ?? p.guard),
     stats,
     skills: [...(def.skills ?? p.skills)],
+    ...(def.traits ? { traits: [...def.traits] } : {}),
     rules: structuredClone(def.rules),
     monster: { exp: def.exp, gold: def.gold, drops: def.drops ? def.drops.map((d) => ({ ...d })) : undefined },
   }
@@ -285,6 +291,151 @@ const list: MonsterDef[] = [
       row(always, 'strike'),
     ),
     drops: [{ itemId: 'bossSeal', permyriad: 4000 }, { itemId: 'ogreCore', permyriad: 10000 }], exp: 600, gold: 400,
+  },
+
+  // ═════════ M2-7 후반 지역: 상대도 전직했다 ═════════
+  //
+  // 여기서부터 적은 짐승이 아니라 **훈련된 용병단**이다. 2차 직업의 훅 특성과 대표 스킬을
+  // 그대로 들고 나온다 (ADR-003). 그래서 두 가지 일을 한다.
+  //   1. **관문** — 전직하지 않은 편성은 넘지 못한다. 레벨이 아니라 설계가 문턱이다
+  //   2. **교재** — 플레이어가 고른 2차 직업이 어떻게 싸우는지 상대 쪽에서 먼저 보여 준다
+  //
+  // 사람이므로 아이콘은 직업 아이콘을 쓴다 (새 그림이 필요 없다).
+
+  // ───────── 서리 관문 (Lv26~30)
+  {
+    id: 'gateGuardian', name: '관문 수호기사', job: 'warrior', archetype: 'wall', level: 36,
+    growth: { str: 2, spd: 1 },
+    // 5줄 → 지능 10 이상. 엄호 문턱을 낮게 잡은 수호기사 — 플레이어의 aegis 훅과 같은 것
+    stats: { maxHp: 4420, def: 42, mdef: 28, int: 12 }, guard: { mode: 'always' },
+    traits: ['aegis', 'ironWill'],
+    skills: ['strike', 'bulwark', 'taunt', 'heavyBlow', 'ironSkin'],
+    rules: rules(
+      row(firstAction, 'bulwark', 1),
+      row(and(sp(10), atom({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: 55 })), 'taunt'),
+      row(and(hpBelow(55), sp(8)), 'ironSkin', 2),
+      row(sp(8), 'heavyBlow'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'ironScrap', permyriad: 5000 }, { itemId: 'leather', permyriad: 3000 }], exp: 300, gold: 170,
+  },
+  {
+    id: 'frostBerserker', name: '서리 광전사', job: 'warrior', archetype: 'rush', level: 35,
+    growth: { str: 3, spd: 2 },
+    // 교재: **HP 가 넉넉할 때만 태운다.** 플레이어의 피의 분노와 같은 판단이다 (docs/18 §12)
+    stats: { maxHp: 3230, def: 28, int: 12 },
+    traits: ['bloodRage'],
+    skills: ['strike', 'recklessSwing', 'heavyBlow', 'warCry', 'bloodlust'],
+    rules: rules(
+      row(firstAction, 'warCry', 1),
+      row(and(hpBelow(30), sp(12)), 'bloodlust'),
+      row(and(atom({ kind: 'selfHpPct', cmp: 'gte', value: 60 }), sp(10)), 'recklessSwing'),
+      row(sp(8), 'heavyBlow'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'beastFang', permyriad: 4000 }, { itemId: 'leather', permyriad: 3000 }], exp: 290, gold: 165,
+  },
+  {
+    id: 'gateMarksman', name: '관문 사수', job: 'elf', archetype: 'shooter', level: 35,
+    growth: { dex: 3, spd: 2 }, row: 'back',
+    stats: { maxHp: 2125, int: 12 },
+    traits: ['sniperEye', 'deadeye'],
+    skills: ['strike', 'snipe', 'volley', 'pierceShot'],
+    rules: rules(
+      row(and(sp(14), atom({ kind: 'teamRowCount', side: 'enemy', row: 'back', cmp: 'gte', value: 2 })), 'snipe'),
+      row(and(sp(16), atom({ kind: 'teamAliveCount', side: 'enemy', cmp: 'gte', value: 4 })), 'volley'),
+      row(sp(12), 'pierceShot'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'feather', permyriad: 5000 }, { itemId: 'beastFang', permyriad: 2500 }], exp: 285, gold: 160,
+  },
+  {
+    id: 'frostChanter', name: '서리 주술사', job: 'mage', archetype: 'caster', level: 36,
+    growth: { int: 3, spd: 1 }, row: 'back',
+    stats: { maxHp: 1870, int: 38 },
+    traits: ['foresight', 'quickCast'],
+    skills: ['bolt', 'maelstrom', 'stasis', 'hex', 'emberfall'],
+    // 교재: 넓게 칠 것인가 순서를 바꿀 것인가 — 원소술사와 시간술사를 한 몸에 붙였다
+    rules: rules(
+      row(and(sp(16), atom({ kind: 'teamAliveCount', side: 'enemy', cmp: 'gte', value: 4 })), 'maelstrom'),
+      row(and(sp(16), atom({ kind: 'teamCastingCount', side: 'enemy', cmp: 'gte', value: 1 })), 'stasis'),
+      row(and(sp(12), atom({ kind: 'teamStatusCount', side: 'enemy', status: 'atkDown', cmp: 'lte', value: 0 })), 'hex'),
+      row(sp(10), 'emberfall'),
+      row(always, 'bolt'),
+    ),
+    drops: [{ itemId: 'manaCrystal', permyriad: 5500 }, { itemId: 'ironScrap', permyriad: 2000 }], exp: 300, gold: 175,
+  },
+  {
+    id: 'gateChaplain', name: '관문 사제', job: 'priest', archetype: 'caster', level: 36,
+    growth: { int: 3, luk: 2 }, row: 'back',
+    stats: { maxHp: 2040, int: 40 },
+    traits: ['zeal', 'highLiturgy'],
+    skills: ['strike', 'mendChant', 'mend', 'resurrect', 'condemn', 'judgment'],
+    // 교재: 되돌리면서 걸고 친다. 뒤를 치거나 시전을 끊지 않으면 끝나지 않는다
+    rules: rules(
+      row(atom({ kind: 'teamDeadCount', side: 'ally', cmp: 'gte', value: 1 }), 'resurrect'),
+      row(and(sp(12), atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 55 })), 'mendChant'),
+      row(and(sp(10), atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 35 })), 'mend'),
+      row(and(sp(20), atom({ kind: 'teamStatusCount', side: 'enemy', status: 'atkDown', cmp: 'lte', value: 1 })), 'condemn'),
+      row(sp(12), 'judgment'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'holyWater', permyriad: 5500 }, { itemId: 'manaCrystal', permyriad: 2000 }], exp: 305, gold: 175,
+  },
+
+  // ───────── 잊힌 왕좌 (Lv30)
+  {
+    id: 'throneKnight', name: '왕좌의 기사', job: 'warrior', archetype: 'wall', level: 35,
+    growth: { str: 3, spd: 1 },
+    stats: { maxHp: 4350, def: 43, mdef: 29, int: 22 }, guard: { mode: 'always' },
+    traits: ['aegis', 'thornward'],
+    skills: ['strike', 'bulwark', 'taunt', 'sunder', 'heavyBlow', 'ironSkin'],
+    rules: rules(
+      row(firstAction, 'bulwark', 1),
+      row(and(sp(10), atom({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: 60 })), 'taunt'),
+      row(and(hpBelow(60), sp(8)), 'ironSkin', 2),
+      row(and(sp(6), atom({ kind: 'teamAnyHpPct', side: 'enemy', cmp: 'gte', value: 70 })), 'sunder'),
+      row(sp(8), 'heavyBlow'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'ironScrap', permyriad: 5500 }, { itemId: 'ogreCore', permyriad: 2500 }], exp: 380, gold: 220,
+  },
+  {
+    id: 'throneShadow', name: '왕좌의 그림자', job: 'rogue', archetype: 'venom', level: 35,
+    growth: { dex: 3, spd: 3 }, row: 'back',
+    stats: { maxHp: 2030, int: 22 },
+    traits: ['venomcraft', 'disruptor'],
+    skills: ['strike', 'toxicBlade', 'disrupt', 'venomStrong', 'markPrey', 'smokeBomb'],
+    // 교재: 시전을 끊고 독을 겹친다. 암살자와 파괴공작원을 한 몸에
+    rules: rules(
+      row(and(sp(14), atom({ kind: 'teamCastingCount', side: 'enemy', cmp: 'gte', value: 1 })), 'disrupt'),
+      row(and(sp(12), firstAction), 'markPrey', 1),
+      row(and(sp(10), atom({ kind: 'teamStatusCount', side: 'enemy', status: 'poison', cmp: 'lte', value: 1 })), 'toxicBlade'),
+      row(and(hpBelow(35), sp(10)), 'smokeBomb', 1),
+      row(sp(8), 'venomStrong'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'venomSac', permyriad: 5500 }, { itemId: 'beastFang', permyriad: 3000 }], exp: 370, gold: 215,
+  },
+  {
+    id: 'forgottenCaptain', name: '잊힌 단장', job: 'warrior', archetype: 'boss', level: 35,
+    growth: { str: 3, spd: 2 },
+    // **플레이어의 거울.** 8줄(지능 50 이상) — 이 게임에서 가장 긴 수칙을 쓴다.
+    // 훅을 셋 겹쳐 들고 나온다: 엄호 경감 · 피의 분노 · 약화된 적 추가타
+    stats: { maxHp: 6090, maxSp: 220, def: 41, mdef: 31, int: 52 }, guard: { mode: 'hpAbove', pct: 35 },
+    traits: ['aegis', 'bloodRage', 'zeal'],
+    skills: ['strike', 'warCry', 'bulwark', 'sunder', 'sweep', 'heavyBlow', 'recklessSwing', 'ironSkin'],
+    rules: rules(
+      row(firstAction, 'warCry', 1),
+      row(and(sp(16), atom({ kind: 'teamAliveCount', side: 'ally', cmp: 'lte', value: 2 })), 'bulwark', 2),
+      row(and(hpBelow(40), sp(8)), 'ironSkin', 3),
+      row(and(sp(6), atom({ kind: 'teamAnyHpPct', side: 'enemy', cmp: 'gte', value: 75 })), 'sunder'),
+      row(and(sp(14), atom({ kind: 'teamAliveCount', side: 'enemy', cmp: 'gte', value: 4 })), 'sweep'),
+      row(and(atom({ kind: 'selfHpPct', cmp: 'gte', value: 65 }), sp(10)), 'recklessSwing'),
+      row(sp(8), 'heavyBlow'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'bossSeal', permyriad: 10000 }], exp: 900, gold: 600,
   },
 ]
 

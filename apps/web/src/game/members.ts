@@ -94,9 +94,18 @@ export function resetAdvance(g: GameSave, id: string): GameSave {
 // ───────────────────────────── 장비 · 상점 (M2-4a)
 
 /** 상점 등급: 1 항상, 2 는 폐허 요새(3) 해금, 3 은 고블린 부락(5) 해금 */
-export function shopTier(g: GameSave): 1 | 2 | 3 {
+/**
+ * 상점 등급. **2 가 상한이다** (2026-09-13 단장 결정).
+ *
+ * 전에는 3등급까지 팔았다. 그런데 제작법이 상점과 **같은 물건**을 만들면서 금이 2.4배 싸서
+ * (상점 9,000금 vs 제작 3,735금 — docs/18 §15), 공방이 열리면 상점 3등급 칸을 아무도 안 봤다.
+ * 이제 역할을 나눈다: **상점은 기본품, 공방은 좋은 물건.**
+ *   · 상점 1·2등급 — 금만 있으면 즉시. 언제든 최소한을 갖춘다
+ *   · 공방 3등급 — 재료가 필요하다. 시간이 든다. 보너스 특성이 붙을 수도 있다
+ */
+export function shopTier(g: GameSave): 1 | 2 {
   const open = (no: number) => { const r = REGIONS.find((x) => x.no === no); return !!r && isRegionUnlocked(r, g.regionWins) }
-  return open(5) ? 3 : open(3) ? 2 : 1
+  return open(3) ? 2 : 1
 }
 
 export const shopStock = (g: GameSave): ItemDef[] => { const t = shopTier(g); return ITEM_LIST.filter((i) => i.tier <= t) }
