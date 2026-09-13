@@ -1,6 +1,7 @@
-// docs/14 리소스 요청서의 아이콘 87종을 생성한다.
-// 외부 에셋 없이 이 파일의 도형 정의만으로 SVG를 만든다.
-import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+// 레거시 SVG 생성기. 새 JRPG 도트 PNG가 있는 항목의 manifest 경로는 덮어쓰지 않는다.
+// 장비·상태·특성 PNG 전환이 끝날 때까지 기존 SVG 재생성에만 사용한다.
+import { execFileSync } from 'node:child_process'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -146,10 +147,11 @@ for (const { dir, defs, render } of Object.values(groups)) {
 
 const manifestPath = join(here, 'manifest.json')
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
-manifest.skills = Object.fromEntries(skills.map(([id, name, color]) => [id, { name, icon: `skills/${id}.svg`, color }]))
-manifest.items = Object.fromEntries(items.map(([id, name]) => [id, { name, icon: `items/${id}.svg` }]))
-manifest.status = Object.fromEntries(statuses.map(([id, name]) => [id, { name, icon: `status/${id}.svg` }]))
-manifest.traits = Object.fromEntries(traits.map(([id, name]) => [id, { name, icon: `traits/${id}.svg` }]))
+const iconPath = (dir, id) => existsSync(join(here, dir, `${id}.png`)) ? `${dir}/${id}.png` : `${dir}/${id}.svg`
+manifest.skills = Object.fromEntries(skills.map(([id, name, color]) => [id, { name, icon: iconPath('skills', id), color }]))
+manifest.items = Object.fromEntries(items.map(([id, name]) => [id, { name, icon: iconPath('items', id) }]))
+manifest.status = Object.fromEntries(statuses.map(([id, name]) => [id, { name, icon: iconPath('status', id) }]))
+manifest.traits = Object.fromEntries(traits.map(([id, name]) => [id, { name, icon: iconPath('traits', id) }]))
 writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8')
 
 const ledgerPath = join(here, 'README.md')
@@ -157,7 +159,7 @@ let ledger = readFileSync(ledgerPath, 'utf8')
 const start = '<!-- generated-icons:start -->'
 const end = '<!-- generated-icons:end -->'
 const rows = Object.values(groups).flatMap(({ dir, defs }) =>
-  defs.map(([id, name]) => `| \`${dir}/${id}.svg\` | ${name} 아이콘 | 자체 제작 (\`build-icons.mjs\` 도형 정의) | 저장소 소유 | 2026-09-12 |`),
+  defs.map(([id, name]) => `| \`${dir}/${id}.svg\` | ${name} 도트 아이콘 | 자체 제작 (\`build-icons.mjs\` + \`pixelate-icons.py\`, 24×24 격자) | 저장소 소유 | 2026-09-13 |`),
 )
 const block = `${start}\n${rows.join('\n')}\n${end}`
 if (ledger.includes(start) && ledger.includes(end)) {
@@ -167,4 +169,5 @@ if (ledger.includes(start) && ledger.includes(end)) {
 }
 writeFileSync(ledgerPath, ledger, 'utf8')
 
+execFileSync(process.platform === 'win32' ? 'python' : 'python3', [join(here, 'pixelate-icons.py')], { stdio: 'inherit' })
 console.log(`아이콘 ${skills.length + items.length + statuses.length + traits.length}종 생성`)

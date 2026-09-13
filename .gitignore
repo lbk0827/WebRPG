@@ -6,6 +6,8 @@ build/
 *.log
 .DS_Store
 Thumbs.db
+__pycache__/
+*.pyc
 
 # 클린룸: 원본 참고 소스는 절대 이 저장소에 포함하지 않는다
 _Reference_ReadOnly/

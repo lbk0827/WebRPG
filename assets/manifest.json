@@ -153,389 +153,389 @@
   "skills": {
     "strike": {
       "name": "기본 공격",
-      "icon": "skills/strike.svg",
+      "icon": "skills/strike.png",
       "color": "#b23a48"
     },
     "heavyBlow": {
       "name": "강타",
-      "icon": "skills/heavyBlow.svg",
+      "icon": "skills/heavyBlow.png",
       "color": "#b23a48"
     },
     "flurry": {
       "name": "연타",
-      "icon": "skills/flurry.svg",
+      "icon": "skills/flurry.png",
       "color": "#b23a48"
     },
     "sweep": {
       "name": "휩쓸기",
-      "icon": "skills/sweep.svg",
+      "icon": "skills/sweep.png",
       "color": "#b23a48"
     },
     "pierceShot": {
       "name": "관통 사격",
-      "icon": "skills/pierceShot.svg",
+      "icon": "skills/pierceShot.png",
       "color": "#b23a48"
     },
     "sunder": {
       "name": "갑주 파쇄",
-      "icon": "skills/sunder.svg",
+      "icon": "skills/sunder.png",
       "color": "#b23a48"
     },
     "shieldBash": {
       "name": "방패 밀치기",
-      "icon": "skills/shieldBash.svg",
+      "icon": "skills/shieldBash.png",
       "color": "#b23a48"
     },
     "ambush": {
       "name": "급습",
-      "icon": "skills/ambush.svg",
+      "icon": "skills/ambush.png",
       "color": "#b23a48"
     },
     "snipe": {
       "name": "저격",
-      "icon": "skills/snipe.svg",
+      "icon": "skills/snipe.png",
       "color": "#b23a48"
     },
     "venom": {
       "name": "독 바르기",
-      "icon": "skills/venom.svg",
+      "icon": "skills/venom.png",
       "color": "#b23a48"
     },
     "venomStrong": {
       "name": "맹독",
-      "icon": "skills/venomStrong.svg",
+      "icon": "skills/venomStrong.png",
       "color": "#b23a48"
     },
     "poisonArrow": {
       "name": "독화살",
-      "icon": "skills/poisonArrow.svg",
+      "icon": "skills/poisonArrow.png",
       "color": "#b23a48"
     },
     "stagger": {
       "name": "흔들기",
-      "icon": "skills/stagger.svg",
+      "icon": "skills/stagger.png",
       "color": "#b23a48"
     },
     "bolt": {
       "name": "마력탄",
-      "icon": "skills/bolt.svg",
+      "icon": "skills/bolt.png",
       "color": "#2f6fd6"
     },
     "fireball": {
       "name": "화염구",
-      "icon": "skills/fireball.svg",
+      "icon": "skills/fireball.png",
       "color": "#2f6fd6"
     },
     "inferno": {
       "name": "대화염",
-      "icon": "skills/inferno.svg",
+      "icon": "skills/inferno.png",
       "color": "#2f6fd6"
     },
     "smite": {
       "name": "응징",
-      "icon": "skills/smite.svg",
+      "icon": "skills/smite.png",
       "color": "#2f6fd6"
     },
     "frostbind": {
       "name": "얼음 결박",
-      "icon": "skills/frostbind.svg",
+      "icon": "skills/frostbind.png",
       "color": "#2f6fd6"
     },
     "manaBurn": {
       "name": "마력 소진",
-      "icon": "skills/manaBurn.svg",
+      "icon": "skills/manaBurn.png",
       "color": "#2f6fd6"
     },
     "mend": {
       "name": "치유",
-      "icon": "skills/mend.svg",
+      "icon": "skills/mend.png",
       "color": "#3e8e5a"
     },
     "prayer": {
       "name": "기원",
-      "icon": "skills/prayer.svg",
+      "icon": "skills/prayer.png",
       "color": "#3e8e5a"
     },
     "resurrect": {
       "name": "소생",
-      "icon": "skills/resurrect.svg",
+      "icon": "skills/resurrect.png",
       "color": "#3e8e5a"
     },
     "ward": {
       "name": "보호막",
-      "icon": "skills/ward.svg",
+      "icon": "skills/ward.png",
       "color": "#3e8e5a"
     },
     "cleanse": {
       "name": "정화",
-      "icon": "skills/cleanse.svg",
+      "icon": "skills/cleanse.png",
       "color": "#3e8e5a"
     },
     "bless": {
       "name": "축복",
-      "icon": "skills/bless.svg",
+      "icon": "skills/bless.png",
       "color": "#3e8e5a"
     },
     "warCry": {
       "name": "전의 고양",
-      "icon": "skills/warCry.svg",
+      "icon": "skills/warCry.png",
       "color": "#3e8e5a"
     },
     "meditate": {
       "name": "명상",
-      "icon": "skills/meditate.svg",
+      "icon": "skills/meditate.png",
       "color": "#3e8e5a"
     },
     "catchBreath": {
       "name": "숨 고르기",
-      "icon": "skills/catchBreath.svg",
+      "icon": "skills/catchBreath.png",
       "color": "#3e8e5a"
     },
     "guardStance": {
       "name": "방어 자세",
-      "icon": "skills/guardStance.svg",
+      "icon": "skills/guardStance.png",
       "color": "#3e8e5a"
     },
     "ironSkin": {
       "name": "굳히기",
-      "icon": "skills/ironSkin.svg",
+      "icon": "skills/ironSkin.png",
       "color": "#3e8e5a"
     },
     "backstep": {
       "name": "물러서기",
-      "icon": "skills/backstep.svg",
+      "icon": "skills/backstep.png",
       "color": "#3e8e5a"
     },
     "hush": {
       "name": "침묵",
-      "icon": "skills/hush.svg",
+      "icon": "skills/hush.png",
       "color": "#5b4b8a"
     }
   },
   "items": {
     "swordTraining": {
       "name": "훈련용 검",
-      "icon": "items/swordTraining.svg"
+      "icon": "items/swordTraining.png"
     },
     "swordSteel": {
       "name": "강철 검",
-      "icon": "items/swordSteel.svg"
+      "icon": "items/swordSteel.png"
     },
     "swordLong": {
       "name": "장검",
-      "icon": "items/swordLong.svg"
+      "icon": "items/swordLong.png"
     },
     "daggerPlain": {
       "name": "단도",
-      "icon": "items/daggerPlain.svg"
+      "icon": "items/daggerPlain.png"
     },
     "daggerCurved": {
       "name": "곡도",
-      "icon": "items/daggerCurved.svg"
+      "icon": "items/daggerCurved.png"
     },
     "daggerAssassin": {
       "name": "비수",
-      "icon": "items/daggerAssassin.svg"
+      "icon": "items/daggerAssassin.png"
     },
     "staffOak": {
       "name": "참나무 지팡이",
-      "icon": "items/staffOak.svg"
+      "icon": "items/staffOak.png"
     },
     "staffRune": {
       "name": "룬 지팡이",
-      "icon": "items/staffRune.svg"
+      "icon": "items/staffRune.png"
     },
     "staffSage": {
       "name": "현자의 지팡이",
-      "icon": "items/staffSage.svg"
+      "icon": "items/staffSage.png"
     },
     "relicWood": {
       "name": "목제 성표",
-      "icon": "items/relicWood.svg"
+      "icon": "items/relicWood.png"
     },
     "relicSilver": {
       "name": "은 성표",
-      "icon": "items/relicSilver.svg"
+      "icon": "items/relicSilver.png"
     },
     "relicHoly": {
       "name": "성유물",
-      "icon": "items/relicHoly.svg"
+      "icon": "items/relicHoly.png"
     },
     "bowHunting": {
       "name": "사냥활",
-      "icon": "items/bowHunting.svg"
+      "icon": "items/bowHunting.png"
     },
     "bowLong": {
       "name": "장궁",
-      "icon": "items/bowLong.svg"
+      "icon": "items/bowLong.png"
     },
     "bowHorn": {
       "name": "각궁",
-      "icon": "items/bowHorn.svg"
+      "icon": "items/bowHorn.png"
     },
     "armorLeather": {
       "name": "가죽 조끼",
-      "icon": "items/armorLeather.svg"
+      "icon": "items/armorLeather.png"
     },
     "armorChain": {
       "name": "사슬 갑옷",
-      "icon": "items/armorChain.svg"
+      "icon": "items/armorChain.png"
     },
     "armorPlate": {
       "name": "판금 갑옷",
-      "icon": "items/armorPlate.svg"
+      "icon": "items/armorPlate.png"
     },
     "robeCloth": {
       "name": "천 로브",
-      "icon": "items/robeCloth.svg"
+      "icon": "items/robeCloth.png"
     },
     "robeEnchanted": {
       "name": "마법 로브",
-      "icon": "items/robeEnchanted.svg"
+      "icon": "items/robeEnchanted.png"
     },
     "robeArch": {
       "name": "대마법사 로브",
-      "icon": "items/robeArch.svg"
+      "icon": "items/robeArch.png"
     },
     "ringSwift": {
       "name": "신속의 반지",
-      "icon": "items/ringSwift.svg"
+      "icon": "items/ringSwift.png"
     },
     "charmGuard": {
       "name": "수호의 부적",
-      "icon": "items/charmGuard.svg"
+      "icon": "items/charmGuard.png"
     },
     "hornVanguard": {
       "name": "선봉의 뿔피리",
-      "icon": "items/hornVanguard.svg"
+      "icon": "items/hornVanguard.png"
     },
     "amuletIron": {
       "name": "철의 의지",
-      "icon": "items/amuletIron.svg"
+      "icon": "items/amuletIron.png"
     },
     "coinLucky": {
       "name": "행운의 동전",
-      "icon": "items/coinLucky.svg"
+      "icon": "items/coinLucky.png"
     },
     "braceletVigor": {
       "name": "활력 팔찌",
-      "icon": "items/braceletVigor.svg"
+      "icon": "items/braceletVigor.png"
     },
     "necklaceMemory": {
       "name": "기억의 목걸이",
-      "icon": "items/necklaceMemory.svg"
+      "icon": "items/necklaceMemory.png"
     },
     "pendantRegen": {
       "name": "재생의 펜던트",
-      "icon": "items/pendantRegen.svg"
+      "icon": "items/pendantRegen.png"
     },
     "ironScrap": {
       "name": "철 조각",
-      "icon": "items/ironScrap.svg"
+      "icon": "items/ironScrap.png"
     },
     "leather": {
       "name": "가죽",
-      "icon": "items/leather.svg"
+      "icon": "items/leather.png"
     },
     "feather": {
       "name": "깃털",
-      "icon": "items/feather.svg"
+      "icon": "items/feather.png"
     },
     "manaCrystal": {
       "name": "마력 결정",
-      "icon": "items/manaCrystal.svg"
+      "icon": "items/manaCrystal.png"
     },
     "holyWater": {
       "name": "성수",
-      "icon": "items/holyWater.svg"
+      "icon": "items/holyWater.png"
     },
     "bossSeal": {
       "name": "두목의 인장",
-      "icon": "items/bossSeal.svg"
+      "icon": "items/bossSeal.png"
     },
     "beastFang": {
       "name": "짐승 송곳니",
-      "icon": "items/beastFang.svg"
+      "icon": "items/beastFang.png"
     },
     "venomSac": {
       "name": "독주머니",
-      "icon": "items/venomSac.svg"
+      "icon": "items/venomSac.png"
     },
     "ogreCore": {
       "name": "오우거의 핵",
-      "icon": "items/ogreCore.svg"
+      "icon": "items/ogreCore.png"
     }
   },
   "status": {
     "poison": {
       "name": "중독",
-      "icon": "status/poison.svg"
+      "icon": "status/poison.png"
     },
     "atkUp": {
       "name": "공격 강화",
-      "icon": "status/atkUp.svg"
+      "icon": "status/atkUp.png"
     },
     "atkDown": {
       "name": "공격 약화",
-      "icon": "status/atkDown.svg"
+      "icon": "status/atkDown.png"
     },
     "defUp": {
       "name": "방어 강화",
-      "icon": "status/defUp.svg"
+      "icon": "status/defUp.png"
     },
     "defDown": {
       "name": "방어 약화",
-      "icon": "status/defDown.svg"
+      "icon": "status/defDown.png"
     },
     "spdUp": {
       "name": "가속",
-      "icon": "status/spdUp.svg"
+      "icon": "status/spdUp.png"
     },
     "spdDown": {
       "name": "둔화",
-      "icon": "status/spdDown.svg"
+      "icon": "status/spdDown.png"
     },
     "silence": {
       "name": "침묵",
-      "icon": "status/silence.svg"
+      "icon": "status/silence.png"
     },
     "barrier": {
       "name": "보호막",
-      "icon": "status/barrier.svg"
+      "icon": "status/barrier.png"
     }
   },
   "traits": {
     "quickCast": {
       "name": "속영창",
-      "icon": "traits/quickCast.svg"
+      "icon": "traits/quickCast.png"
     },
     "bulwark": {
       "name": "방벽",
-      "icon": "traits/bulwark.svg"
+      "icon": "traits/bulwark.png"
     },
     "sniperEye": {
       "name": "저격안",
-      "icon": "traits/sniperEye.svg"
+      "icon": "traits/sniperEye.png"
     },
     "eager": {
       "name": "선봉",
-      "icon": "traits/eager.svg"
+      "icon": "traits/eager.png"
     },
     "extraPattern": {
       "name": "암기",
-      "icon": "traits/extraPattern.svg"
+      "icon": "traits/extraPattern.png"
     },
     "ironWill": {
       "name": "굳은 의지",
-      "icon": "traits/ironWill.svg"
+      "icon": "traits/ironWill.png"
     },
     "secondWind": {
       "name": "재기",
-      "icon": "traits/secondWind.svg"
+      "icon": "traits/secondWind.png"
     },
     "regen": {
       "name": "재생",
-      "icon": "traits/regen.svg"
+      "icon": "traits/regen.png"
     }
   }
 }
