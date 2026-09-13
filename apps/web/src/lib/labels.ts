@@ -309,3 +309,12 @@ export function describeEvent(e: BattleEvent, names: Names): Line | null {
       return null
   }
 }
+
+/** "2시간 14분" / "3시간" / "3분" — 모험 재도전 대기 (목록·맵이 함께 쓴다) */
+export function waitText(ms: number): string {
+  const min = Math.ceil(ms / 60_000)
+  if (min < 60) return `${min}분`
+  const h = Math.floor(min / 60)
+  const m = min % 60
+  return m === 0 ? `${h}시간` : `${h}시간 ${m}분`
+}

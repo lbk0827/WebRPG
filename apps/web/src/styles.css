@@ -1169,3 +1169,16 @@ button.big { padding: 10px 22px; font-size: 15px; }
 @media (max-width: 560px) {
   .teams, .appear { grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)); }
 }
+
+/* ───────── 모험 — 전투와 같은 흐름 (2026-09-13 단장 지시) ───────── */
+.map-entry.ready button { border-color: var(--good); }
+.ready-badge, .clear-badge { padding: 1px 6px; border-radius: 999px; font-size: 11px; white-space: nowrap; }
+.ready-badge { color: #fff; background: var(--good); }
+.clear-badge { color: var(--ink); border: 1px solid var(--ink); font-weight: 400; }
+.battle-map .adv-terms {
+  list-style: none; margin: 0; padding: 8px 10px; display: grid; gap: 4px; font-size: 13px;
+  background: var(--card); border: 1px solid var(--line); border-radius: 10px;
+}
+.battle-map .adv-terms small { color: var(--muted); }
+.battle-map .adv-terms .have b { color: var(--good); }
+.battle-map .adv-terms .lack b { color: var(--bad); }

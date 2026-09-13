@@ -4,6 +4,7 @@
 // 제로식 한 페이지를 위에서 아래로 그대로 옮겼다:
 //   편성 저장(모험단 LOAD·DEL / SAVE) → 싸우자! · 3번 싸우자! · 선택초기화
 //   → 단원(체크박스) → 한 번 더 싸우자 → 등장 몬스터(MonsterAppearance)
+// 편성 부품은 모험 맵과 함께 쓴다 (MapParts).
 //
 // 우리와 다른 점 하나 — 우리 엔진은 **전열/후열**이 있다. 제로식처럼 체크박스로 "누가 가나"를 고르고,
 // 체크된 단원 카드에 전열/후열 토글을 붙여 "어디 서나"를 정한다. 같은 열 안의 칸 순서까지 만지려면 편성 탭.
@@ -15,17 +16,12 @@
 // 맵마다 다른 편성은 맨 위의 편성 저장(프리셋)으로 한다.
 import { useState } from 'react'
 import type { Analysis, BattleResult, TeamSetup } from '@webrpg/engine'
-import {
-  ARCHETYPE_LABEL, DEFAULT_CONFIG, JOB_ADVANCE, MONSTERS, REGIONS, SKILLS,
-  analyze, battleRewards, isRegionUnlocked, monsterSetup, rollEncounter, simulate, type RegionDef,
-} from '@webrpg/engine'
-import { PARTY_MAX, PARTY_PRESET_SLOTS, pushRecord, type GameSave, type Member, type PartyPreset } from '../game/save'
-import {
-  addMaterials, applyExp, clearParty, enlistMember, memberById, partyLuk, partyMembers, partySummary, partyTeam,
-  rowHasRoom, setGrid, setMemberRow, withdrawMember,
-} from '../game/members'
-import { jobName, jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
+import { DEFAULT_CONFIG, MONSTERS, REGIONS, SKILLS, analyze, battleRewards, isRegionUnlocked, rollEncounter, simulate, type RegionDef } from '@webrpg/engine'
+import { PARTY_MAX, pushRecord, type GameSave } from '../game/save'
+import { addMaterials, applyExp, clearParty, partyLuk, partyMembers, partySummary, partyTeam } from '../game/members'
+import { jobOf, materialLabel, outcomeText, type Names } from '../lib/labels'
 import { diagnose } from '../lib/diagnose'
+import { MonsterCard, PresetBox, RumorCard, TeamGrid } from './MapParts'
 import { Replay } from './Replay'
 import { UnitPortrait } from './UnitPortrait'
 
@@ -104,9 +100,6 @@ function foesOf(region: RegionDef) {
   const lv = list.map((d) => d.level)
   return { list, hidden: region.table.some((t) => MONSTERS[t.monsterId].hidden), lvMin: Math.min(...lv), lvMax: Math.max(...lv) }
 }
-
-/** "Lv.32 소서리스" 의 직업 자리 — 전직했으면 2차 직업 이름 */
-const jobLabel = (m: Member): string => (m.job2 ? JOB_ADVANCE[m.job2].name : jobName(m.job))
 
 export function BattleMap({ save, onSave, region, group, icon, onBack, onGoFormation }: Props) {
   const party = partyMembers(save)
@@ -228,11 +221,7 @@ export function BattleMap({ save, onSave, region, group, icon, onBack, onGoForma
       <h3 className="bar-title">
         단원 <small>체크하면 출전 · {party.length}/{PARTY_MAX}명 · Lv 합 {us.levelSum} · HP 합 {us.hpSum}</small>
       </h3>
-      <ul className="teams">
-        {save.members.map((m) => (
-          <TeamCard key={m.id} save={save} onSave={onSave} m={m} />
-        ))}
-      </ul>
+      <TeamGrid save={save} onSave={onSave} />
 
       {fightBar}
 
@@ -241,116 +230,10 @@ export function BattleMap({ save, onSave, region, group, icon, onBack, onGoForma
       </h3>
       <ul className="appear">
         {foes.list.map((d) => (
-          <li key={d.id} className="appear-card">
-            <span className="tile"><UnitPortrait icon={d.icon ?? d.job} size="xl" alt={d.name} /></span>
-            <span className="nm">{d.name}</span>
-            <small>Lv.{d.level} · {ARCHETYPE_LABEL[d.archetype]}</small>
-            <small>HP {monsterSetup(d, 0).stats.maxHp}</small>
-          </li>
+          <MonsterCard key={d.id} def={d} />
         ))}
-        {foes.hidden && (
-          <li className="appear-card rumor">
-            <span className="tile"><span className="q" aria-hidden="true">?</span></span>
-            <span className="nm">소문뿐인 상대</span>
-            <small>드물게 나온다</small>
-          </li>
-        )}
+        {foes.hidden && <RumorCard />}
       </ul>
     </section>
-  )
-}
-
-/** 편성 저장 — 제로식의 "모험단 [LOAD] [DEL] / 이름 [SAVE]" 줄 */
-function PresetBox({ save, onSave, onGoFormation }: { save: GameSave; onSave: (g: GameSave) => void; onGoFormation: () => void }) {
-  const current = JSON.stringify(save.party)
-  const inUse = save.partyPresets.findIndex((p) => p !== null && JSON.stringify(p.party) === current)
-  const filled = save.partyPresets.findIndex((p) => p !== null)
-  const [slot, setSlot] = useState(inUse >= 0 ? inUse : filled >= 0 ? filled : 0)
-  const [name, setName] = useState('')
-  const p = save.partyPresets[slot] ?? null
-  const isCurrent = p !== null && JSON.stringify(p.party) === current
-  const empty = partyMembers(save).length === 0
-
-  const put = (next: PartyPreset | null) => {
-    const presets = save.partyPresets.slice()
-    presets[slot] = next
-    onSave({ ...save, partyPresets: presets })
-  }
-  const store = () => {
-    if (empty) return
-    if (p && !isCurrent && !window.confirm(`${slot + 1}번 "${p.name}" 을(를) 지금 편성으로 덮어씁니다.`)) return
-    put({ name: (name.trim() || p?.name || `편성 ${slot + 1}`).slice(0, 12), party: [...save.party] })
-    setName('')
-  }
-  const remove = () => {
-    if (p && window.confirm(`${slot + 1}번 "${p.name}" 을(를) 지웁니다.`)) put(null)
-  }
-  const who = p ? p.party.map((id) => memberById(save, id)?.name).filter(Boolean).join(' · ') : ''
-
-  return (
-    <div className="party-box">
-      <div className="pb-row">
-        <span className="lbl">편성</span>
-        <select value={slot} onChange={(e) => setSlot(Number(e.target.value))} aria-label="편성 슬롯">
-          {Array.from({ length: PARTY_PRESET_SLOTS }, (_, i) => {
-            const q = save.partyPresets[i]
-            return (
-              <option key={i} value={i}>
-                {i + 1}. {q ? q.name : '(비어 있음)'}
-              </option>
-            )
-          })}
-        </select>
-        <button disabled={!p || isCurrent} onClick={() => p && onSave(setGrid(save, p.party))}>불러오기</button>
-        <button disabled={!p} onClick={remove}>삭제</button>
-      </div>
-      <div className="pb-row">
-        <span className="lbl">이름</span>
-        <input value={name} maxLength={12} placeholder={p?.name ?? `편성 ${slot + 1}`} onChange={(e) => setName(e.target.value)} aria-label="편성 이름" />
-        <button disabled={empty} onClick={store}>이 슬롯에 저장</button>
-      </div>
-      <small className="pb-who">
-        {p ? (isCurrent ? '지금 쓰는 편성입니다' : who || '비어 있는 편성') : '빈 슬롯 — 지금 편성을 저장할 수 있습니다'}
-        {' · '}
-        <button className="link" onClick={onGoFormation}>자리 세부 조정은 편성 탭 →</button>
-      </small>
-    </div>
-  )
-}
-
-/** 단원 카드 — 제로식 Teams 의 한 칸. 도트 2배 + 받침 + 이름 · Lv 직업 + 체크박스, 체크되면 전열/후열 */
-function TeamCard({ save, onSave, m }: { save: GameSave; onSave: (g: GameSave) => void; m: Member }) {
-  const on = save.party.includes(m.id)
-  const full = partyMembers(save).length >= PARTY_MAX
-  const blocked = !on && full
-  const toggle = () => onSave(on ? withdrawMember(save, m.id) : enlistMember(save, m.id))
-  return (
-    <li className={`team-card ${on ? 'on' : ''} ${blocked ? 'blocked' : ''}`}>
-      <label title={blocked ? `출전은 ${PARTY_MAX}명까지입니다` : undefined}>
-        <span className="tile"><UnitPortrait icon={m.job} size="xl" alt={m.name} /></span>
-        <span className="nm">{m.name}</span>
-        <small>Lv.{m.level} {jobLabel(m)}</small>
-        <input type="checkbox" checked={on} disabled={blocked} onChange={toggle} />
-      </label>
-      {on && (
-        <div className="row-toggle" role="group" aria-label={`${m.name} 서는 열`}>
-          {(['front', 'back'] as const).map((r) => {
-            const here = m.row === r
-            const noRoom = !here && !rowHasRoom(save, r)
-            return (
-              <button
-                key={r}
-                className={here ? 'on' : ''}
-                disabled={noRoom}
-                title={noRoom ? `${r === 'front' ? '전열' : '후열'}이 꽉 찼습니다 (3칸)` : undefined}
-                onClick={() => onSave(setMemberRow(save, m.id, r))}
-              >
-                {r === 'front' ? '전열' : '후열'}
-              </button>
-            )
-          })}
-        </div>
-      )}
-    </li>
   )
 }
