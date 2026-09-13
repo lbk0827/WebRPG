@@ -43,7 +43,10 @@ export function Board({ save, party, selected = null, moveFrom = null, onCell, c
               .join(' ')
             const body = m ? (
               <>
-                <UnitPortrait icon={m.job} alt={m.name} size={mini ? 'xs' : compact ? 'md' : 'full'} />
+                {/* 2026-09-13 단장 지적: 본부 판에서 몸이 허리에서 잘려 보였다.
+                    compact 도 **전신**을 쓴다 — 칸을 조금 키우는 편이 잘린 그림보다 낫다.
+                    아주 작은 프리셋 미리보기(mini)만 얼굴 창을 쓴다 */}
+                <UnitPortrait icon={m.job} alt={m.name} size={mini ? 'xs' : 'full'} />
                 {!mini && <span className="nm">{m.name}</span>}
                 {!mini && !compact && <small>Lv {m.level} · 패턴 {m.rules.rows.length}</small>}
                 {!mini && compact && <small>Lv {m.level}</small>}

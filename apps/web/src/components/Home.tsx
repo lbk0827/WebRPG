@@ -102,7 +102,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
               {party.map((m) => (
                 <li key={m.id} className={m.row}>
                   <button onClick={() => onGo('formation')}>
-                    <UnitPortrait icon={m.job} size="sm" />
+                    <UnitPortrait icon={m.job} size="full" />
                     <span className="nm">{m.name}</span>
                     <small>Lv {m.level} · {m.row === 'front' ? '전열' : '후열'} · 패턴 {m.rules.rows.length}{m.gear?.weapon ? '' : ' · 무기 없음'}</small>
                   </button>
