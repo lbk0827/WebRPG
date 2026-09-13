@@ -3,6 +3,7 @@ import { JOB_ADVANCE, SKILL_RESET_GOLD, STARTER_SKILLS } from '@webrpg/engine'
 import type { Member } from '../game/save'
 import { unlearned } from '../game/members'
 import { skillBrief, skillLabel } from '../lib/labels'
+import { SkillIcon } from './Icon'
 
 interface Props {
   member: Member
@@ -32,7 +33,8 @@ export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
           <h5>{g.title} <small>{g.ids.length}</small></h5>
           <ul className="skill-list">
             {g.ids.map((id) => (
-              <li key={id}>
+              <li key={id} className="skill-row">
+                <SkillIcon id={id} alt={skillLabel(id)} />
                 <b>{skillLabel(id)}</b> <small>{skillBrief(id)}</small>
               </li>
             ))}
@@ -51,6 +53,7 @@ export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
             const ok = l.cost <= m.skillPoints
             return (
               <li key={l.skillId} className={ok ? '' : 'far'}>
+                <SkillIcon id={l.skillId} alt={skillLabel(l.skillId)} />
                 <div className="body">
                   <b>{skillLabel(l.skillId)}</b> <span className={`cost ${l.cost === 0 ? 'free' : ''}`}>{l.cost === 0 ? '공짜' : `${l.cost}pt`}</span>
                   <small>{skillBrief(l.skillId)}</small>

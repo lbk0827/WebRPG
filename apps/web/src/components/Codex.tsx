@@ -5,6 +5,7 @@ import type { StatKey, StatusId } from '@webrpg/engine'
 import { ARCHETYPE_LABEL, CRAFT_TRAIT_PCT, ITEMS, ITEM_LIST, MATERIALS, MONSTERS, PRESETS, RECIPES, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, SLOT_LABEL, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, monsterSetup } from '@webrpg/engine'
 import { KIND_SPECS, PICKER_GROUPS, STAT_LABEL } from '../lib/condition'
 import { STAT_HELP, STATUS_HELP, itemBrief, jobName, skillParts, skillSources, traitText } from '../lib/labels'
+import { SkillIcon, StatusIcon, TraitIcon } from './Icon'
 
 type Section = 'skills' | 'items' | 'status' | 'traits' | 'conditions' | 'stats' | 'regions'
 
@@ -45,7 +46,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
                 const p = skillParts(s.id)!
                 return (
                   <tr key={s.id}>
-                    <td className="nm">{s.label}</td>
+                    <td className="nm"><SkillIcon id={s.id} size="sm" /> {s.label}</td>
                     <td>{skillSources(s.id)}</td>
                     <td className="num">{s.spCost}</td>
                     <td>{p.target}</td>
@@ -116,7 +117,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
                 const d = STATUS_DEFS[id]
                 return (
                   <tr key={id}>
-                    <td className="nm">{d.label}</td>
+                    <td className="nm"><StatusIcon id={id} inline /> {d.label}</td>
                     <td>{d.category === 'buff' ? '강화' : '약화'}</td>
                     <td className="num">{d.defaultMagnitude}</td>
                     <td>{STATUS_HELP[id]}</td>
@@ -135,7 +136,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
             <thead><tr><th>특성</th><th>효과</th></tr></thead>
             <tbody>
               {Object.values(TRAITS).map((t) => (
-                <tr key={t.id}><td className="nm">{t.label}</td><td>{traitText(t)}</td></tr>
+                <tr key={t.id}><td className="nm"><TraitIcon id={t.id} inline /> {t.label}</td><td>{traitText(t)}</td></tr>
               ))}
             </tbody>
           </table>

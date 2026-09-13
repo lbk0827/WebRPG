@@ -5,6 +5,7 @@ import type { GameSave, Member } from '../game/save'
 import { advanceMember, advanceOptions, memberCanAdvance, resetAdvance } from '../game/members'
 import { skillLabel, traitText } from '../lib/labels'
 import { STAT_LABEL } from '../lib/condition'
+import { SkillIcon, TraitIcon } from './Icon'
 
 const BONUS_LABEL: Record<string, string> = { ...STAT_LABEL, maxHp: 'HP', maxSp: 'SP', def: '방어', mdef: '마법 방어' }
 
@@ -20,7 +21,8 @@ function TraitLines({ ids }: { ids: string[] }) {
     <ul className="adv-traits">
       {defs.map((t) => (
         <li key={t.id}>
-          <b>[{t.label}]</b> {traitText(t)}
+          <TraitIcon id={t.id} inline />
+          <b>{t.label}</b> {traitText(t)}
         </li>
       ))}
     </ul>
@@ -90,7 +92,9 @@ export function AdvancePanel({ save, onSave, member }: { save: GameSave; onSave:
               <TraitLines ids={o.traits} />
               <p className="hint">{o.brief}</p>
               <p className="hint">
-                대표 스킬 {o.grants.map((s) => `${skillLabel(s)} — ${SKILLS[s]?.spCost ?? 0}SP`).join(' · ')}
+                대표 스킬 {o.grants.map((s) => (
+                  <span key={s} className="chip"><SkillIcon id={s} alt={skillLabel(s)} size="sm" />{skillLabel(s)} — {SKILLS[s]?.spCost ?? 0}SP</span>
+                ))}
                 {' · '}
                 보정 {Object.entries(o.bonus).map(([k, v]) => `${BONUS_LABEL[k] ?? k} +${v}`).join(' ')}
               </p>

@@ -5,6 +5,7 @@ import { PRESETS, SKILLS, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
 import type { SlotState } from '../state'
 import type { RulePreset } from '../game/save'
 import { jobName, skillBrief, skillLabel } from '../lib/labels'
+import { SkillIcon } from './Icon'
 import { describeCondition, fromCondition, toCondition } from '../lib/condition'
 import { GUARDS, guardByKey, guardKey } from '../lib/guards'
 import { ConditionEditor } from './ConditionEditor'
@@ -127,6 +128,8 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
             <li key={i} className={`row ${expanded ? 'open' : ''} ${row.disabled ? 'off' : ''}`}>
               <header onClick={() => !rowsLocked && !reorderOnly && setOpen((o) => ({ ...o, [i]: !o[i] }))}>
                 <span className="idx">{i + 1}</span>
+                {/* 수칙 한 줄의 결론은 "무슨 기술을 쓰나"다. 프레임으로 먼저 보여 준다 (M2-8) */}
+                <SkillIcon id={row.skillId} alt={skillLabel(row.skillId)} size="sm" />
                 <span className="summary">
                   {describeCondition(row.condition)} → <b>{skillLabel(row.skillId)}</b>
                   {row.maxUses !== undefined && <small> · {row.maxUses}회만</small>}

@@ -4,6 +4,7 @@ import { CRAFT_TRAIT_PCT, ITEMS, MATERIALS, RECIPES, REFINE_MAX, refineCost, ref
 import type { GameSave } from '../game/save'
 import { allItems, canRefine, craftItem, refineItem } from '../game/members'
 import { itemBrief, itemName, materialLabel, traitLabel } from '../lib/labels'
+import { ItemIcon } from './Icon'
 
 interface Props {
   save: GameSave
@@ -49,7 +50,10 @@ export function Workshop({ save, onSave, onBack, onGoQuest }: Props) {
           <small>없음 — 의뢰에서 이긴 상대가 떨어뜨립니다. <button className="link" onClick={onGoQuest}>의뢰 →</button></small>
         ) : (
           mats.map(([id, n]) => (
-            <span key={id} className="mat" title={MATERIALS[id]?.blurb}>{materialLabel(id)} <b>×{n}</b></span>
+            <span key={id} className="mat" title={MATERIALS[id]?.blurb}>
+              <ItemIcon id={id} alt="" size="sm" />
+              {materialLabel(id)} <b>×{n}</b>
+            </span>
           ))
         )}
       </div>
@@ -75,6 +79,7 @@ export function Workshop({ save, onSave, onBack, onGoQuest }: Props) {
                 const ok = canRefine(save, it)
                 return (
                   <li key={it.uid} className={`item ${sel === it.uid ? 'on' : ''} ${ok || maxed ? '' : 'far'}`}>
+                    <ItemIcon id={it.itemId} alt={d.label} size="lg" />
                     <div className="body">
                       <b>{itemName(it)}</b> <span className="tier">{owner ? `${owner.name} 착용` : '창고'}</span>
                       <small>{itemBrief(d, it)}</small>
@@ -108,6 +113,7 @@ export function Workshop({ save, onSave, onBack, onGoQuest }: Props) {
               const okMats = r.materials.every((m) => (save.materials[m.id] ?? 0) >= m.qty)
               return (
                 <li key={r.id} className={`item ${okGold && okMats ? '' : 'far'}`}>
+                  <ItemIcon id={r.itemId} alt={d.label} size="lg" />
                   <div className="body">
                     <b>{d.label}</b> <span className="tier">{d.tier}등급</span>
                     <small>{itemBrief(d)}</small>
@@ -117,7 +123,9 @@ export function Workshop({ save, onSave, onBack, onGoQuest }: Props) {
                         const have = save.materials[m.id] ?? 0
                         return (
                           <span key={m.id} className={have >= m.qty ? 'have' : 'lack'}>
-                            {i > 0 && ' · '}{materialLabel(m.id)} {have}/{m.qty}
+                            {i > 0 && ' · '}
+                            <ItemIcon id={m.id} alt="" size="sm" />
+                            {materialLabel(m.id)} {have}/{m.qty}
                           </span>
                         )
                       })}

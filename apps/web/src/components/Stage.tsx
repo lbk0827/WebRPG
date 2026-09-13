@@ -5,6 +5,7 @@ import type { BattleEvent, CharRef } from '@webrpg/engine'
 import { skillLabel, statusLabel, traitLabel } from '../lib/labels'
 import type { Roster, RosterChar } from '../lib/roster'
 import { UnitSprite } from './UnitSprite'
+import { StatusIcon } from './Icon'
 
 interface Props {
   events: BattleEvent[]
@@ -181,8 +182,16 @@ function Char({ team, index, c, job, fx, cursor }: { team: 0 | 1; index: number;
       <div className="nm">{c.name}</div>
       <div className="bar hp"><i style={{ width: `${(c.hp / c.maxHp) * 100}%` }} /></div>
       <div className="bar sp"><i style={{ width: `${c.maxSp ? (c.sp / c.maxSp) * 100 : 0}%` }} /></div>
+      {/* 칩이 좁아 글자만으로는 훑기 어렵다. 아이콘을 앞세운다 (M2-8) */}
       {c.statuses.length > 0 && c.alive && (
-        <div className="tags">{c.statuses.map((s) => <span key={s} className="tag">{statusLabel(s)}</span>)}</div>
+        <div className="tags">
+          {c.statuses.map((s) => (
+            <span key={s} className="tag">
+              <StatusIcon id={s} alt={statusLabel(s)} size="sm" />
+              {statusLabel(s)}
+            </span>
+          ))}
+        </div>
       )}
       <div key={`p${cursor}`} className="popups">
         {popups.map((p, i) => (

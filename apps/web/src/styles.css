@@ -796,7 +796,8 @@ button.big { padding: 10px 22px; font-size: 15px; }
 
 .gear-options { list-style: none; margin: 0; padding: 0; border: 1px solid var(--line); border-radius: 0 0 9px 9px; }
 .gear-options li {
-  display: grid; grid-template-columns: minmax(90px, auto) minmax(0, 1fr) auto auto;
+  /* 맨 앞은 아이콘 열 (M2-8) */
+  display: grid; grid-template-columns: auto minmax(90px, auto) minmax(0, 1fr) auto auto;
   gap: 4px 10px; align-items: center; padding: 5px 10px; border-top: 1px solid var(--line); font-size: 12px;
 }
 .gear-options li:first-child { border-top: none; }
@@ -812,7 +813,7 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .gear .same { color: var(--muted); font-size: 11px; }
 .gear + .hint, .gear .hint { margin: 6px 0 0; }
 @media (max-width: 620px) {
-  .gear-options li { grid-template-columns: 1fr auto; }
+  .gear-options li { grid-template-columns: auto 1fr auto; }
   .gear-options .spec, .gear .deltas { grid-column: 1 / -1; justify-content: flex-start; }
 }
 .unit-info dl { margin: 0; }
@@ -820,6 +821,9 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .unit-info dd { margin: 2px 0 0; }
 .skill-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 13px; }
 .skill-list small { display: block; font-size: 11px; }
+/* 프레임이 이름·설명 두 줄을 가로지른다 (M2-8) */
+.skill-list li.skill-row { align-items: center; padding: 2px 0; }
+.skill-list li.skill-row > .skill-frame { grid-row: 1 / span 2; }
 .growth .line { display: block; margin: 2px 0 4px; }
 .growth .line .badge { margin-left: 6px; }
 .growth .bar.exp { height: 5px; margin: 3px 0 2px; }
@@ -1009,3 +1013,60 @@ button.big { padding: 10px 22px; font-size: 15px; }
   font-size: 13px;
   line-height: 1.6;
 }
+
+/* ───────── 32×32 도트 아이콘 (M2-8, 2026-09-13) ───────── */
+.dot-icon {
+  display: block;
+  flex: none;
+  image-rendering: pixelated; /* 도트는 보간하면 뭉갠다 */
+  width: 24px;
+  height: 24px;
+}
+.dot-icon.sm { width: 20px; height: 20px; }
+.dot-icon.md { width: 24px; height: 24px; }
+.dot-icon.lg { width: 32px; height: 32px; }
+
+/* 스킬 프레임 — 스킬은 "칸에 놓인 것"이다 (단장 지시) */
+.skill-frame {
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 5px;
+  background: linear-gradient(180deg, #6b5740 0%, #4a3b2c 55%, #3a2e22 100%);
+  border: 1px solid #8d7452;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 240, 210, 0.28),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.35),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.skill-frame.sm { width: 26px; height: 26px; }
+.skill-frame.md { width: 32px; height: 32px; }
+.skill-frame.lg { width: 40px; height: 40px; border-radius: 6px; border-width: 2px; }
+/* 빈 칸 — 그림이 아직 없는 스킬도 칸은 남는다 */
+.skill-frame:empty::after,
+.skill-frame:has(> :only-child:not(img))::after { content: ''; }
+
+/* 스킬 목록: 프레임 + 이름 + 설명 */
+.skill-row { display: grid; grid-template-columns: auto 1fr; column-gap: 8px; align-items: start; }
+.skill-row > .skill-frame { grid-row: 1 / span 2; }
+
+/* 상태이상 칩에 들어간 아이콘 */
+.tag .dot-icon, .chip .dot-icon { margin-right: 3px; }
+.tag, .chip { display: inline-flex; align-items: center; }
+
+/* 글줄 안에 섞이는 아이콘 (특성·상태) */
+.dot-icon.inline { display: inline-block; vertical-align: -5px; margin-right: 2px; }
+
+/* 아이콘이 들어간 목록 줄 정렬 (M2-8) */
+.stock .item > .dot-icon { align-self: center; }
+.gear-options li > .dot-icon { align-self: center; }
+.gear-slot-head > .dot-icon { align-self: center; }
+.materials .mat { display: inline-flex; align-items: center; gap: 3px; }
+.cost-line .have, .cost-line .lack { display: inline-flex; align-items: center; gap: 2px; }
+.gear-total .chip, .advance .chip { display: inline-flex; align-items: center; gap: 3px; margin-right: 6px; }
+.adv-traits li { display: flex; align-items: flex-start; gap: 5px; }
+.blog-block .skill { display: inline-flex; align-items: center; gap: 4px; }
+/* 수칙 편집기 머리줄: 번호 · 프레임 · 요약 · 도구 */
+.rules .row > header > .skill-frame { align-self: center; }
+.codex-table .nm { white-space: nowrap; }
+.codex-table .nm .skill-frame { display: inline-grid; vertical-align: -8px; }

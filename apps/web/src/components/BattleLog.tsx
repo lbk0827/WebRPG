@@ -13,6 +13,7 @@
 import { useMemo, useState } from 'react'
 import type { BattleEvent, BattleResult } from '@webrpg/engine'
 import { describeEvent, skillLabel, statusLabel, type Names } from '../lib/labels'
+import { SkillIcon } from './Icon'
 
 type Side = 'all' | 'us' | 'them'
 type Kind = 'all' | 'hits'
@@ -121,7 +122,7 @@ export function BattleLog({ result, names, upto }: { result: BattleResult; names
               <div className="blk-head">
                 <span className="no">{it.b.no}</span>
                 <b>{it.b.team === 1 ? '적 ' : ''}{it.b.actor}</b>
-                {it.b.skill && <span className="skill">{skillLabel(it.b.skill)}</span>}
+                {it.b.skill && <span className="skill"><SkillIcon id={it.b.skill} size="sm" />{skillLabel(it.b.skill)}</span>}
               </div>
               <ul>
                 {it.b.lines.map((l, j) => (

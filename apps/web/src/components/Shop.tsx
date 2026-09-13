@@ -10,6 +10,7 @@ import { ITEMS, JOB_WEAPONS, PRESETS, REGIONS, SLOT_LABEL, WEAPON_TYPE_LABEL, se
 import type { GameSave } from '../game/save'
 import { buyItem, sellItem, shopStock, shopTier } from '../game/members'
 import { itemBrief, itemName } from '../lib/labels'
+import { ItemIcon } from './Icon'
 
 interface Props {
   save: GameSave
@@ -51,6 +52,7 @@ export function Shop({ save, onSave, onBack, onGoFormation }: Props) {
           const ok = save.gold >= i.price
           return (
             <li key={i.id} className={`item ${ok ? '' : 'far'}`}>
+              <ItemIcon id={i.id} alt={i.label} size="lg" />
               <div className="body">
                 <b>{i.label}</b> <span className="tier">{i.tier}등급</span>
                 {i.weaponType && <small className="who">{whoUses(i.weaponType)} 용 {WEAPON_TYPE_LABEL[i.weaponType as WeaponType]}</small>}
@@ -73,6 +75,7 @@ export function Shop({ save, onSave, onBack, onGoFormation }: Props) {
             const d = ITEMS[it.itemId]
             return (
               <li key={it.uid} className="item">
+                <ItemIcon id={it.itemId} alt={d.label} size="lg" />
                 <div className="body">
                   <b>{itemName(it)}</b> <span className="tier">{SLOT_LABEL[d.slot]}</span>
                   <small>{itemBrief(d, it)}</small>

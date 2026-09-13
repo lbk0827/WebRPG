@@ -13,6 +13,8 @@ import { ITEMS, SLOT_LABEL, WEAPON_TYPE_LABEL } from '@webrpg/engine'
 import type { GameSave, Member } from '../game/save'
 import { equipItem, equippableFor, gearSummary, takeFrom, unequipItem, wornByOthers } from '../game/members'
 import { gearDelta, gearWorth, itemBrief, itemName, traitDelta, traitLabel } from '../lib/labels'
+import { ItemIcon } from './Icon'
+import { TraitIcon } from './Icon'
 
 const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'trinket']
 const STAT_LABEL: Record<string, string> = { str: '힘', int: '지능', dex: '손재주', spd: '속도', luk: '운', maxHp: 'HP', maxSp: 'SP', def: '방어', mdef: '마방' }
@@ -37,10 +39,10 @@ function DeltaChips({ next, cur }: { next?: ItemInstance; cur?: ItemInstance }) 
         </small>
       ))}
       {t.gain.map((id) => (
-        <small key={`g${id}`} className="up">＋[{traitLabel(id)}]</small>
+        <small key={`g${id}`} className="up"><TraitIcon id={id} inline />＋{traitLabel(id)}</small>
       ))}
       {t.lose.map((id) => (
-        <small key={`l${id}`} className="down">－[{traitLabel(id)}]</small>
+        <small key={`l${id}`} className="down"><TraitIcon id={id} inline />－{traitLabel(id)}</small>
       ))}
     </span>
   )
@@ -62,7 +64,11 @@ export function GearPanel({ save, onSave, member, onGoShop }: Props) {
       <div className="gear-total">
         <b>지금 합계</b>
         {totals.length ? <span>{totals.join(' · ')}</span> : <small className="empty">낀 장비가 없습니다</small>}
-        {g.traits.length > 0 && <span className="traits">특성 {g.traits.map((t) => `[${traitLabel(t)}]`).join(' ')}</span>}
+        {g.traits.length > 0 && (
+          <span className="traits">
+            특성 {g.traits.map((t) => <span key={t} className="chip"><TraitIcon id={t} alt={traitLabel(t)} />{traitLabel(t)}</span>)}
+          </span>
+        )}
       </div>
 
       {GEAR_SLOTS.map((slot) => {
@@ -79,6 +85,7 @@ export function GearPanel({ save, onSave, member, onGoShop }: Props) {
               <b>{SLOT_LABEL[slot]}</b>
               {curDef && cur ? (
                 <>
+                  <ItemIcon id={cur.itemId} alt={curDef.label} size="lg" />
                   <span className="nm">{itemName(cur)}</span>
                   <small>{itemBrief(curDef, cur)}</small>
                   <button className="mini" onClick={() => onSave(unequipItem(save, member.id, slot))}>해제</button>
@@ -94,6 +101,7 @@ export function GearPanel({ save, onSave, member, onGoShop }: Props) {
               <ul className="gear-options">
                 {sorted.map((it) => (
                   <li key={it.uid}>
+                    <ItemIcon id={it.itemId} alt={ITEMS[it.itemId]?.label ?? ''} />
                     <span className="nm">{itemName(it)}</span>
                     <small className="spec">{itemBrief(ITEMS[it.itemId], it)}</small>
                     <DeltaChips next={it} cur={cur} />
@@ -102,6 +110,7 @@ export function GearPanel({ save, onSave, member, onGoShop }: Props) {
                 ))}
                 {others.map(({ it, owner }) => (
                   <li key={it.uid} className="borrowed">
+                    <ItemIcon id={it.itemId} alt={ITEMS[it.itemId]?.label ?? ''} />
                     <span className="nm">{itemName(it)}</span>
                     <small className="spec">{itemBrief(ITEMS[it.itemId], it)}</small>
                     <DeltaChips next={it} cur={cur} />
