@@ -60,67 +60,67 @@
 | `../art-source/icon-vectors/monsters/ogre.svg` | 오우거 아이콘 벡터 원본 | 기존 자체 제작 수작업 SVG 보존본 | 저장소 소유 | 2026-09-13 |
 | `../art-source/units/warrior-source.png` | AI 생성 도트 시트 초안 (전사, 검+방패 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `rogue-source.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
 | `units/warrior.px` | **도트 전투 스프라이트 원본** (전사, AI 초안 변환 후 검수) | `warrior-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
-| `units/warrior.svg` | 생성물 (`node assets/build-units.mjs`) | `warrior.px`에서 생성 | 원본과 동일 | 2026-09-11 |
-| `build-units.mjs` | 도구 (`.px` → `.svg` 컴파일러) | 자체 제작 | 저장소 소유 | 2026-09-11 |
-| `png-to-px.mjs` | 도구 (AI 가 그린 PNG 시트 → `.px` 초안) | 자체 제작 | 저장소 소유 | 2026-09-11 |
-| `px-to-png.mjs` | 도구 (`.px` → PNG 시트. AI 에게 올릴 레퍼런스) | 자체 제작 | 저장소 소유 | 2026-09-11 |
-| `units/warrior-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs warrior 10`) | `warrior.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `units/warrior.svg` | 생성물 (`node tools/build-units.mjs`) | `warrior.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `../tools/build-units.mjs` | 도구 (`.px` → `.svg` 컴파일러) | 자체 제작 | 저장소 소유 | 2026-09-11 |
+| `../tools/png-to-px.mjs` | 도구 (AI 가 그린 PNG 시트 → `.px` 초안) | 자체 제작 | 저장소 소유 | 2026-09-11 |
+| `../tools/px-to-png.mjs` | 도구 (`.px` → PNG 시트. AI 에게 올릴 레퍼런스) | 자체 제작 | 저장소 소유 | 2026-09-11 |
+| `units/warrior-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs warrior 10`) | `warrior.px`에서 생성 | 원본과 동일 | 2026-09-11 |
 | `../art-source/units/rogue-source.png` | AI 생성 도트 시트 초안 (도적, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
 | `units/rogue.px` | 도트 전투 스프라이트 원본 (도적, AI 초안 변환 후 검수) | `rogue-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
-| `units/rogue.svg` | 생성물 (`node assets/build-units.mjs`) | `rogue.px`에서 생성 | 원본과 동일 | 2026-09-11 |
-| `units/rogue-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs rogue 10`) | `rogue.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `units/rogue.svg` | 생성물 (`node tools/build-units.mjs`) | `rogue.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `units/rogue-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs rogue 10`) | `rogue.px`에서 생성 | 원본과 동일 | 2026-09-11 |
 | `../art-source/units/mage-source.png` | AI 생성 도트 시트 초안 (마법사, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
 | `units/mage.px` | 도트 전투 스프라이트 원본 (마법사, AI 초안 변환 후 검수) | `mage-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
-| `units/mage.svg` | 생성물 (`node assets/build-units.mjs`) | `mage.px`에서 생성 | 원본과 동일 | 2026-09-11 |
-| `units/mage-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs mage 10`) | `mage.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `units/mage.svg` | 생성물 (`node tools/build-units.mjs`) | `mage.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `units/mage-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs mage 10`) | `mage.px`에서 생성 | 원본과 동일 | 2026-09-11 |
 | `../art-source/units/priest-source.png` | AI 생성 도트 시트 초안 (프리스트, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
 | `units/priest.px` | 도트 전투 스프라이트 원본 (프리스트, AI 초안 변환 후 검수) | `priest-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
-| `units/priest.svg` | 생성물 (`node assets/build-units.mjs`) | `priest.px`에서 생성 | 원본과 동일 | 2026-09-11 |
-| `units/priest-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs priest 10`) | `priest.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `units/priest.svg` | 생성물 (`node tools/build-units.mjs`) | `priest.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `units/priest-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs priest 10`) | `priest.px`에서 생성 | 원본과 동일 | 2026-09-11 |
 | `../art-source/units/elf-source.png` | AI 생성 도트 시트 초안 (엘프, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
 | `units/elf.px` | 도트 전투 스프라이트 원본 (엘프, AI 초안 변환 후 검수) | `elf-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
-| `units/elf.svg` | 생성물 (`node assets/build-units.mjs`) | `elf.px`에서 생성 | 원본과 동일 | 2026-09-11 |
-| `units/elf-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs elf 10`) | `elf.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `units/elf.svg` | 생성물 (`node tools/build-units.mjs`) | `elf.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `units/elf-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs elf 10`) | `elf.px`에서 생성 | 원본과 동일 | 2026-09-11 |
 | `manifest.json` | 매니페스트 | 자체 제작 | 저장소 소유 | 2026-09-10 |
-| `build-icons.mjs` | 도구 (요청서 87종 SVG 생성·매니페스트·원장 동기화) | 자체 제작 | 저장소 소유 | 2026-09-12 |
-| `pixelate-icons.py` | 도구 (도형 SVG → 24×24 제한 팔레트 도트 SVG) | 자체 제작 | 저장소 소유 | 2026-09-13 |
-| `build-preview.mjs` | 도구 (SVG·PNG 인라인 프리뷰 생성) | 자체 제작 | 저장소 소유 | 2026-09-13 |
-| `process-jrpg-icon.py` | 도구 (AI 도트 원본 → 투명 32×32 PNG 최근접 축소) | 자체 제작 | 저장소 소유 | 2026-09-13 |
-| `preview.html` | 생성물 (`node assets/build-preview.mjs`) | 자체 제작 | 저장소 소유 | 2026-09-10 |
+| `../tools/build-icons.mjs` | 도구 (요청서 87종 SVG 생성·매니페스트·원장 동기화) | 자체 제작 | 저장소 소유 | 2026-09-12 |
+| `../tools/pixelate-icons.py` | 도구 (도형 SVG → 24×24 제한 팔레트 도트 SVG) | 자체 제작 | 저장소 소유 | 2026-09-13 |
+| `../tools/build-preview.mjs` | 도구 (SVG·PNG 인라인 프리뷰 생성) | 자체 제작 | 저장소 소유 | 2026-09-13 |
+| `../tools/process-jrpg-icon.py` | 도구 (AI 도트 원본 → 투명 32×32 PNG 최근접 축소) | 자체 제작 | 저장소 소유 | 2026-09-13 |
+| `../tools/preview.html` | 생성물 (`node tools/build-preview.mjs`) | 자체 제작 | 저장소 소유 | 2026-09-10 |
 
 <!-- generated-monster-units:start -->
 | `../art-source/units/goblin-source.png` | AI 생성 도트 시트 초안 (고블린, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
 | `units/goblin.px` | 도트 전투 스프라이트 원본 (고블린, AI 초안 변환 후 검수) | `goblin-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
-| `units/goblin.svg` | 생성물 (`node assets/build-units.mjs`) | `goblin.px`에서 생성 | 원본과 동일 | 2026-09-12 |
-| `units/goblin-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs goblin 10`) | `goblin.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/goblin.svg` | 생성물 (`node tools/build-units.mjs`) | `goblin.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/goblin-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs goblin 10`) | `goblin.px`에서 생성 | 원본과 동일 | 2026-09-12 |
 | `../art-source/units/beast-source.png` | AI 생성 도트 시트 초안 (들개, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
 | `units/beast.px` | 도트 전투 스프라이트 원본 (들개, AI 초안 변환 후 검수) | `beast-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
-| `units/beast.svg` | 생성물 (`node assets/build-units.mjs`) | `beast.px`에서 생성 | 원본과 동일 | 2026-09-12 |
-| `units/beast-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs beast 10`) | `beast.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/beast.svg` | 생성물 (`node tools/build-units.mjs`) | `beast.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/beast-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs beast 10`) | `beast.px`에서 생성 | 원본과 동일 | 2026-09-12 |
 | `../art-source/units/turtle-source.png` | AI 생성 도트 시트 초안 (바위 거북, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
 | `units/turtle.px` | 도트 전투 스프라이트 원본 (바위 거북, AI 초안 변환 후 검수) | `turtle-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
-| `units/turtle.svg` | 생성물 (`node assets/build-units.mjs`) | `turtle.px`에서 생성 | 원본과 동일 | 2026-09-12 |
-| `units/turtle-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs turtle 10`) | `turtle.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/turtle.svg` | 생성물 (`node tools/build-units.mjs`) | `turtle.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/turtle-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs turtle 10`) | `turtle.px`에서 생성 | 원본과 동일 | 2026-09-12 |
 | `../art-source/units/harpy-source.png` | AI 생성 도트 시트 초안 (하피, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
 | `units/harpy.px` | 도트 전투 스프라이트 원본 (하피, AI 초안 변환 후 검수) | `harpy-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
-| `units/harpy.svg` | 생성물 (`node assets/build-units.mjs`) | `harpy.px`에서 생성 | 원본과 동일 | 2026-09-12 |
-| `units/harpy-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs harpy 10`) | `harpy.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/harpy.svg` | 생성물 (`node tools/build-units.mjs`) | `harpy.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/harpy-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs harpy 10`) | `harpy.px`에서 생성 | 원본과 동일 | 2026-09-12 |
 | `../art-source/units/shaman-source.png` | AI 생성 도트 시트 초안 (주술사, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
 | `units/shaman.px` | 도트 전투 스프라이트 원본 (주술사, AI 초안 변환 후 검수) | `shaman-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
-| `units/shaman.svg` | 생성물 (`node assets/build-units.mjs`) | `shaman.px`에서 생성 | 원본과 동일 | 2026-09-12 |
-| `units/shaman-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs shaman 10`) | `shaman.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/shaman.svg` | 생성물 (`node tools/build-units.mjs`) | `shaman.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/shaman-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs shaman 10`) | `shaman.px`에서 생성 | 원본과 동일 | 2026-09-12 |
 | `../art-source/units/spider-source.png` | AI 생성 도트 시트 초안 (독거미, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
 | `units/spider.px` | 도트 전투 스프라이트 원본 (독거미, AI 초안 변환 후 검수) | `spider-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
-| `units/spider.svg` | 생성물 (`node assets/build-units.mjs`) | `spider.px`에서 생성 | 원본과 동일 | 2026-09-12 |
-| `units/spider-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs spider 10`) | `spider.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/spider.svg` | 생성물 (`node tools/build-units.mjs`) | `spider.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/spider-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs spider 10`) | `spider.px`에서 생성 | 원본과 동일 | 2026-09-12 |
 | `../art-source/units/swarm-source.png` | AI 생성 도트 시트 초안 (박쥐 떼, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
 | `units/swarm.px` | 도트 전투 스프라이트 원본 (박쥐 떼, AI 초안 변환 후 검수) | `swarm-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
-| `units/swarm.svg` | 생성물 (`node assets/build-units.mjs`) | `swarm.px`에서 생성 | 원본과 동일 | 2026-09-12 |
-| `units/swarm-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs swarm 10`) | `swarm.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/swarm.svg` | 생성물 (`node tools/build-units.mjs`) | `swarm.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/swarm-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs swarm 10`) | `swarm.px`에서 생성 | 원본과 동일 | 2026-09-12 |
 | `../art-source/units/ogre-source.png` | AI 생성 도트 시트 초안 (오우거, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
 | `units/ogre.px` | 도트 전투 스프라이트 원본 (오우거, AI 초안 변환 후 검수) | `ogre-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
-| `units/ogre.svg` | 생성물 (`node assets/build-units.mjs`) | `ogre.px`에서 생성 | 원본과 동일 | 2026-09-12 |
-| `units/ogre-sheet.png` | 검수용 생성물 (`node assets/px-to-png.mjs ogre 10`) | `ogre.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/ogre.svg` | 생성물 (`node tools/build-units.mjs`) | `ogre.px`에서 생성 | 원본과 동일 | 2026-09-12 |
+| `units/ogre-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs ogre 10`) | `ogre.px`에서 생성 | 원본과 동일 | 2026-09-12 |
 <!-- generated-monster-units:end -->
 
 ## 기존 기계식 SVG 아이콘 — 런타임 교체 진행 중
@@ -440,5 +440,5 @@
 - 파일명은 엔진 preset id / skill id / status id 와 **대소문자까지 동일한 키**를 쓴다
 - 새 정적 아이콘은 투명 32×32 PNG다. AI 원본은 `art-source/icons/`에 두고 `process-jrpg-icon.py`로 최근접 축소한다
 - **AI 가 그린 원본 PNG 는 `assets/` 에 두지 않는다.** `assets/` 는 Vite publicDir 이라 그 안의 모든 파일이 배포에 실린다 (원본 4장 = 5.7MB). 원본은 [`art-source/units/`](../art-source/units/) 에 두고 여기 원장에는 그대로 기록한다
-- **도트 전투 스프라이트**(`units/*`)는 규격이 다르다 — 손으로 고치는 원본은 `.px` 문자 격자이고, `.svg` 는 `node assets/build-units.mjs` 가 굽는 생성물이다. `.svg` 를 직접 고치지 말 것. 48×64, 배경 없음, 부위를 `.p-*` 클래스로 나눈다. [docs/15](../docs/15_전투_스프라이트_규격.md) 참조
+- **도트 전투 스프라이트**(`units/*`)는 규격이 다르다 — 손으로 고치는 원본은 `.px` 문자 격자이고, `.svg` 는 `node tools/build-units.mjs` 가 굽는 생성물이다. `.svg` 를 직접 고치지 말 것. 48×64, 배경 없음, 부위를 `.p-*` 클래스로 나눈다. [docs/15](../docs/15_전투_스프라이트_규격.md) 참조
 - 팔레트는 `manifest.json` 의 `palette` 를 따른다

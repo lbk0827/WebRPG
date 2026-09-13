@@ -1,5 +1,5 @@
 // 도트 스프라이트 빌드: assets/units/*.px (문자 격자) → assets/units/*.svg
-// 사용: node assets/build-units.mjs
+// 사용: node tools/build-units.mjs
 //
 // 왜 문자 격자인가:
 //  · 사람도 에이전트도 픽셀을 한 칸씩 눈으로 보며 쓸 수 있다
@@ -10,7 +10,8 @@ import { readFileSync, writeFileSync, readdirSync } from 'node:fs'
 import { dirname, join, basename } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const here = dirname(fileURLToPath(import.meta.url))
+// 도구는 tools/ 에, 다루는 파일은 assets/ 에 있다. assets/ 는 폴더째 배포되므로 도구를 떼어 냈다 (2026-09-13)
+const here = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets')
 const dir = join(here, 'units')
 
 /** 레이어 이름 → SVG 구조. 이 구조는 고정이다 (styles.css 가 이 클래스를 찾는다) */
@@ -155,7 +156,7 @@ function build(file) {
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${box.w} ${box.h}" width="${box.w}" height="${box.h}" overflow="visible" shape-rendering="crispEdges">
   <title>${title}</title>
-  <!-- assets/units/${file} 에서 생성됨. 이 파일을 직접 고치지 말 것 — .px 를 고치고 node assets/build-units.mjs -->
+  <!-- assets/units/${file} 에서 생성됨. 이 파일을 직접 고치지 말 것 — .px 를 고치고 node tools/build-units.mjs -->
 ${parts.join('\n')}
 </svg>
 `

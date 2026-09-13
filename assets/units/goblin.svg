@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 64" width="48" height="64" overflow="visible" shape-rendering="crispEdges">
   <title>고블린</title>
-  <!-- assets/units/goblin.px 에서 생성됨. 이 파일을 직접 고치지 말 것 — .px 를 고치고 node assets/build-units.mjs -->
+  <!-- assets/units/goblin.px 에서 생성됨. 이 파일을 직접 고치지 말 것 — .px 를 고치고 node tools/build-units.mjs -->
   <g class="p-frames">
     <g class="f f0">
       <rect x="28" y="8" width="7" height="1" fill="#1d1d24"/>

@@ -15,7 +15,8 @@ from pathlib import Path
 from PIL import Image
 
 
-HERE = Path(__file__).resolve().parent
+# 도구는 tools/ 에, 다루는 파일은 assets/ 에 있다 (2026-09-13 분리)
+HERE = Path(__file__).resolve().parent.parent / "assets"
 GENERATED_GROUPS = ("skills", "items", "status", "traits")
 SOURCE_ROOT = HERE.parent / "art-source" / "icon-vectors"
 GRID = 24

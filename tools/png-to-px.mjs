@@ -1,8 +1,8 @@
 // 이미지 생성 AI 가 준 PNG 시트 → assets/units/<키>.px (docs/16)
 //
 // 사용:
-//   node assets/png-to-px.mjs <시트.png> <키> [칸수=3]
-//   예: node assets/png-to-px.mjs ~/Downloads/rogue.png rogue 3
+//   node tools/png-to-px.mjs <시트.png> <키> [칸수=3]
+//   예: node tools/png-to-px.mjs ~/Downloads/rogue.png rogue 3
 //
 // 하는 일:
 //   1. PNG 를 읽는다 (외부 라이브러리 없이. node:zlib 만 쓴다)
@@ -20,7 +20,8 @@ import { inflateSync } from 'node:zlib'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const here = dirname(fileURLToPath(import.meta.url))
+// 도구는 tools/ 에, 다루는 파일은 assets/ 에 있다. assets/ 는 폴더째 배포되므로 도구를 떼어 냈다 (2026-09-13)
+const here = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets')
 
 const W = 48
 const H = 64
@@ -367,7 +368,7 @@ function cellToGrid(img, bg, bounds, scale, origin, gridW, gridH) {
 // ── 실행 ──────────────────────────────────────────────────
 const [src, key, colsArg] = process.argv.slice(2)
 if (!src || !key) {
-  console.log('사용: node assets/png-to-px.mjs <시트.png> <키> [칸수=3]')
+  console.log('사용: node tools/png-to-px.mjs <시트.png> <키> [칸수=3]')
   process.exit(1)
 }
 const cols = Number(colsArg || 3)
@@ -432,7 +433,7 @@ for (const grid of grids) for (const row of grid) for (const ch of row) if (ch !
 
 const lines = []
 lines.push(`# ${entry.name || key}`)
-lines.push(`# ${src} 에서 node assets/png-to-px.mjs 로 뽑은 초안이다. 손으로 다듬을 것 (docs/16)`)
+lines.push(`# ${src} 에서 node tools/png-to-px.mjs 로 뽑은 초안이다. 손으로 다듬을 것 (docs/16)`)
 lines.push(`# 48x64 상자. 3/4 반측면. 발바닥 y=59, 발 중심은 상자의 x=24. 대기 포즈 키 ${BODY_H}줄 (전원 공통)`)
 lines.push('# pose0 대기 / pose1 치켜듦 / pose2 내리침 — 전신을 통째로 갈아 끼운다')
 if (gridW > W || gridH > H) {
@@ -456,4 +457,4 @@ grids.forEach((grid, i) => {
 const out = join(here, 'units', `${key}.px`)
 writeFileSync(out, lines.join('\n') + '\n', 'utf8')
 console.log(`${out}  칸 ${cols}개  색 ${used.size}종`)
-console.log('다음: node assets/build-units.mjs')
+console.log('다음: node tools/build-units.mjs')

@@ -1,10 +1,13 @@
 // manifest 의 모든 아이콘을 96/48/24px, 밝은/어두운 바탕으로 미리 본다.
-// 사용: node assets/build-preview.mjs
+// 사용: node tools/build-preview.mjs
+// 결과 preview.html 은 tools/ 에 쓴다 — 검수용이라 배포하지 않는다
 import { readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const here = dirname(fileURLToPath(import.meta.url))
+// 도구는 tools/ 에, 다루는 파일은 assets/ 에 있다. assets/ 는 폴더째 배포되므로 도구를 떼어 냈다 (2026-09-13)
+const tools = dirname(fileURLToPath(import.meta.url))
+const here = join(tools, '..', 'assets')
 const manifest = JSON.parse(readFileSync(join(here, 'manifest.json'), 'utf8'))
 const groups = [
   ['jobs', '직업'],
@@ -54,6 +57,6 @@ h1{font-size:18px;margin:0}section{padding:16px 20px 26px}section.dark{backgroun
 .name{font-size:13px;font-weight:700;margin-top:7px}.id{font:11px ui-monospace,monospace;opacity:.6;overflow:hidden;text-overflow:ellipsis}
 </style></head><body><header><h1>도트 아이콘 100종 · 96/48/24px · 밝은/어두운 배경</h1></header>${content('')}${content('dark')}</body></html>`
 
-writeFileSync(join(here, 'preview.html'), html)
+writeFileSync(join(tools, 'preview.html'), html)
 const count = groups.reduce((sum, [key]) => sum + Object.keys(manifest[key] ?? {}).length, 0)
-console.log(`assets/preview.html 생성 (아이콘 ${count}종 인라인)`)
+console.log(`tools/preview.html 생성 (아이콘 ${count}종 인라인)`)

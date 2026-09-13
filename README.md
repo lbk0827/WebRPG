@@ -78,11 +78,12 @@ packages/engine/        전투 엔진 — 순수 함수, 의존성 0, DOM/시간
   src/data/             스킬 · 상태이상 · 프리셋 단원 (전부 데이터)
   cli/report.ts         전황 보고서 렌더러
   cli/train.ts          훈련장
-assets/                 리소스 (전부 자체 제작 — README.md 가 라이선스 원장)
+assets/                 리소스 — 폴더째 배포된다 (README.md 가 출처·라이선스 원장, 빌드 결과에서는 빠진다)
   jobs/*.svg            직업 아이콘 5종
   monsters/*.svg        몬스터 아이콘 8종 (원형별 — 여러 몬스터가 공유)
   manifest.json         preset id → 아이콘/색상 매핑, 팔레트
-  preview.html          아이콘 미리보기
+tools/                  리소스 도구 — 배포하지 않는다 (build-units · png-to-px · build-preview …, 검수 시트 preview.html)
+art-source/             AI 원본 그림 — 배포하지 않는다. 채택본만 커밋 (assets/README.md 규칙)
 apps/web/               웹 훈련장 — Vite + React, 서버 없음 (엔진을 브라우저에서 직접 실행)
   src/state.ts          편성 · 슬롯별 수칙 · 시드 (localStorage 보존)
   src/lib/condition.ts  조건 편집 모델 ↔ 엔진 Condition 트리, 한국어 문장화

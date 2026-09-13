@@ -1,8 +1,8 @@
 // assets/units/<키>.px → PNG 시트 (포즈를 가로로 나란히)
 //
 // 사용:
-//   node assets/px-to-png.mjs <키> [배율=10]
-//   예: node assets/px-to-png.mjs warrior 10
+//   node tools/px-to-png.mjs <키> [배율=10]
+//   예: node tools/px-to-png.mjs warrior 10
 //
 // 쓰는 데:
 //   · 이미지 생성 AI 에게 "이 화풍에 맞춰 달라"고 올리는 레퍼런스 (docs/16 §0)
@@ -16,7 +16,8 @@ import { deflateSync } from 'node:zlib'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const here = dirname(fileURLToPath(import.meta.url))
+// 도구는 tools/ 에, 다루는 파일은 assets/ 에 있다. assets/ 는 폴더째 배포되므로 도구를 떼어 냈다 (2026-09-13)
+const here = join(dirname(fileURLToPath(import.meta.url)), '..', 'assets')
 
 /** 겹쳐 그릴 순서. 앞의 것이 뒤에 깔린다 */
 const BASE = ['shadow', 'arm-back', 'body', 'head']
@@ -101,7 +102,7 @@ function encodePng(width, height, rgba) {
 
 const [key, scaleArg] = process.argv.slice(2)
 if (!key) {
-  console.log('사용: node assets/px-to-png.mjs <키> [배율=10]')
+  console.log('사용: node tools/px-to-png.mjs <키> [배율=10]')
   process.exit(1)
 }
 const scale = Number(scaleArg || 10)

@@ -29,7 +29,7 @@
 
 - AI 원본: `art-source/icons/<종류>/<id>-source.png`
 - 게임용: `assets/<종류>/<id>.png`
-- 변환: `python assets/process-jrpg-icon.py <원본> <출력>`
+- 변환: `python tools/process-jrpg-icon.py <원본> <출력>`
 - 처리는 알파 경계로 자른 뒤 최근접 보간으로 최대 30px 안에 맞추고, 알파 임계값을 적용해 32×32 캔버스 중앙에 놓는다.
 - 87종 모두 32×32, 투명 배경, 사방 최소 1px 여백, 매니페스트 경로 존재 여부를 검사했다.
 - 전체 검수판은 각 폴더의 `all-*-proof.png`에 있다.

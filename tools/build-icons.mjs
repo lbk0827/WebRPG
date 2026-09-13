@@ -5,7 +5,9 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const here = dirname(fileURLToPath(import.meta.url))
+// 도구는 tools/ 에, 다루는 파일은 assets/ 에 있다. assets/ 는 폴더째 배포되므로 도구를 떼어 냈다 (2026-09-13)
+const tools = dirname(fileURLToPath(import.meta.url))
+const here = join(tools, '..', 'assets')
 const ink = '#1d1d24'
 const paper = '#e9e4d8'
 const steel = '#cfd6e0'
@@ -169,5 +171,5 @@ if (ledger.includes(start) && ledger.includes(end)) {
 }
 writeFileSync(ledgerPath, ledger, 'utf8')
 
-execFileSync(process.platform === 'win32' ? 'python' : 'python3', [join(here, 'pixelate-icons.py')], { stdio: 'inherit' })
+execFileSync(process.platform === 'win32' ? 'python' : 'python3', [join(tools, 'pixelate-icons.py')], { stdio: 'inherit' })
 console.log(`아이콘 ${skills.length + items.length + statuses.length + traits.length}종 생성`)
