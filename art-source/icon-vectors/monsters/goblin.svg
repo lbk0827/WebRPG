@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>고블린</title>
+  <circle cx="64" cy="64" r="60" fill="#5c8d3f"/>
+  <circle cx="64" cy="64" r="60" fill="none" stroke="#1d1d24" stroke-width="4"/>
+  <!-- ears -->
+  <path d="M40 56 L14 40 L34 74 Z" fill="#7bd389" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M88 56 L114 40 L94 74 Z" fill="#7bd389" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <!-- head -->
+  <path d="M64 24 C88 24 100 42 100 62 C100 84 84 102 64 102 C44 102 28 84 28 62 C28 42 40 24 64 24 Z" fill="#7bd389" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <!-- eyes -->
+  <polygon points="42,56 60,62 42,68" fill="#1d1d24"/>
+  <polygon points="86,56 68,62 86,68" fill="#1d1d24"/>
+  <!-- grin with tusks -->
+  <path d="M46 80 Q64 92 82 80" fill="none" stroke="#1d1d24" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="52,82 56,92 60,83" fill="#e9e4d8" stroke="#1d1d24" stroke-width="2.5" stroke-linejoin="round"/>
+  <polygon points="68,83 72,92 76,82" fill="#e9e4d8" stroke="#1d1d24" stroke-width="2.5" stroke-linejoin="round"/>
+</svg>

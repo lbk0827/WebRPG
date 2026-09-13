@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>엘프</title>
+  <circle cx="64" cy="64" r="60" fill="#3e8e5a"/>
+  <circle cx="64" cy="64" r="60" fill="none" stroke="#1d1d24" stroke-width="4"/>
+  <!-- bow -->
+  <path d="M42 22 Q100 64 42 106" fill="none" stroke="#6b4b2a" stroke-width="7" stroke-linecap="round"/>
+  <line x1="42" y1="22" x2="42" y2="106" stroke="#e9e4d8" stroke-width="2.5"/>
+  <!-- arrow -->
+  <line x1="28" y1="64" x2="92" y2="64" stroke="#cfd6e0" stroke-width="4" stroke-linecap="round"/>
+  <polygon points="100,64 86,55 86,73" fill="#cfd6e0" stroke="#1d1d24" stroke-width="3" stroke-linejoin="round"/>
+  <polygon points="28,64 20,56 34,60" fill="#7bd389" stroke="#1d1d24" stroke-width="2"/>
+  <polygon points="28,64 20,72 34,68" fill="#7bd389" stroke="#1d1d24" stroke-width="2"/>
+  <!-- leaf -->
+  <path d="M44 20 C52 12 62 14 64 22 C56 26 48 26 44 20 Z" fill="#7bd389" stroke="#1d1d24" stroke-width="2.5" stroke-linejoin="round"/>
+</svg>
