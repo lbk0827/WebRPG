@@ -1,10 +1,11 @@
 // M2-3 모집소: 고용가 · 편차 · 재현성
 import { describe, expect, it } from 'vitest'
-import { HIRE, MEMBER_MAX, PRESETS, applyQuirk, createRng, hireLevel, hirePrice, rollQuirk } from '../src'
+import { HERO_JOB, HIRE, MEMBER_MAX, PRESETS, applyQuirk, createRng, hireLevel, hirePrice, rollQuirk } from '../src'
 
 describe('모집소', () => {
-  it('직업 5종 전부 고용가가 있고 양수', () => {
-    for (const job of Object.keys(PRESETS)) expect(HIRE[job]?.price, job).toBeGreaterThan(0)
+  it('주인공을 뺀 직업 전부 고용가가 있고 양수 — 주인공(모험가)은 고용 목록에 없다', () => {
+    for (const job of Object.keys(PRESETS).filter((j) => j !== HERO_JOB)) expect(HIRE[job]?.price, job).toBeGreaterThan(0)
+    expect(HIRE[HERO_JOB]).toBeUndefined()
     expect(MEMBER_MAX).toBeGreaterThanOrEqual(30)
   })
   it('고용 레벨은 편성 평균 −2, 최소 1. 가격은 레벨에 따라 오른다', () => {

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { UnitPortrait } from './UnitPortrait'
 import type { GameSave, Member } from '../game/save'
 import { PARTY_MAX, cellRow } from '../game/save'
-import { benchMembers, clearCell, memberById, partyMembers, placeMember, swapCells } from '../game/members'
+import { benchMembers, clearCell, memberById, memberIcon, partyMembers, placeMember, swapCells } from '../game/members'
 import { jobName } from '../lib/labels'
 import { Board } from './Board'
 import { PartyPresets } from './PartyPresets'
@@ -64,7 +64,7 @@ export function Formation({ save, onSave, initialCell = null, onGoShop }: Props)
                 <ul>
                   {bench.map((m) => (
                     <li key={m.id}>
-                      <UnitPortrait icon={m.job} size="sm" />
+                      <UnitPortrait icon={memberIcon(m)} size="sm" />
                       <span className="nm">{m.name}</span>
                       <small>{jobName(m.job)} Lv {m.level}</small>
                       <button className="primary" disabled={full} onClick={() => place(m.id)}>세우기</button>

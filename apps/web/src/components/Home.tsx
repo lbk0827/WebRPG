@@ -1,10 +1,10 @@
 // 본부 (ADR-004, 탭 개편 2026-09-11). 시작 화면 — 할 일, 편성 판, 훈련 진행, 최근 전투 기록, 용병단 관리.
 import { useMemo, useState } from 'react'
 import { UnitPortrait } from './UnitPortrait'
-import { ADVENTURES, DEFAULT_CONFIG, ITEMS, MEMBER_MAX, MISSIONS, PRESETS, REGIONS, REGION_BY_ID, SKILLS, isRegionUnlocked, simulate } from '@webrpg/engine'
+import { ADVENTURES, DEFAULT_CONFIG, HIRE, ITEMS, JOB_WEAPONS, MEMBER_MAX, MISSIONS, REGIONS, REGION_BY_ID, SKILLS, isRegionUnlocked, simulate } from '@webrpg/engine'
 import type { BattleRecord, GameSave } from '../game/save'
-import { DEFAULT_NAME, PARTY_MAX, exportGame, importGame, newGame } from '../game/save'
-import { adventureGate, canHire, canLearnSomething, craftableNow, partyMembers } from '../game/members'
+import { DEFAULT_NAME, PARTY_MAX, exportGame, importGame } from '../game/save'
+import { adventureGate, canHire, canLearnSomething, craftableNow, memberIcon, partyMembers } from '../game/members'
 import type { MissionProgress } from '../missionState'
 import { jobOf, outcomeText, timeAgo, type Names } from '../lib/labels'
 import { Replay } from './Replay'
@@ -20,6 +20,8 @@ interface Props {
   progress: MissionProgress
   onGo: (tab: Tab) => void
   onGoTown: (f?: Facility) => void
+  /** 새 게임 화면(성별·이름)으로 간다. 거기서 취소하면 지금 진행으로 돌아온다 */
+  onNewGame: () => void
 }
 
 interface Todo {
@@ -28,7 +30,7 @@ interface Todo {
   go: () => void
 }
 
-export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
+export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Props) {
   const [replayAt, setReplayAt] = useState<number | null>(null)
   const [io, setIo] = useState('')
   const [msg, setMsg] = useState('')
@@ -46,10 +48,11 @@ export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
   if (party.length < PARTY_MAX && save.members.length > party.length) {
     todos.push({ text: `출전 ${party.length}/${PARTY_MAX}명 — 대기 단원 ${save.members.length - party.length}명`, action: '편성', go: () => onGo('formation') })
   }
-  if (party.length < PARTY_MAX && save.members.length === party.length && save.members.length < MEMBER_MAX && Object.keys(PRESETS).some((j) => canHire(save, j))) {
+  if (party.length < PARTY_MAX && save.members.length === party.length && save.members.length < MEMBER_MAX && Object.keys(HIRE).some((j) => canHire(save, j))) {
     todos.push({ text: `출전 자리가 남았고 금 ${save.gold} — 용병소에서 고용 가능`, action: '용병소', go: () => onGoTown('recruit') })
   }
-  const unarmed = party.filter((m) => !m.gear?.weapon)
+  // 들 수 있는 무기가 없는 직업(주인공 — 전용 무기 기획 중)은 빼고 센다
+  const unarmed = party.filter((m) => !m.gear?.weapon && (JOB_WEAPONS[m.job] ?? []).length > 0)
   if (unarmed.length && save.gold >= 60) todos.push({ text: `${unarmed.map((m) => m.name).join('·')} — 무기 없음`, action: '상점', go: () => onGoTown('shop') })
   if (save.inventory.length > 0) todos.push({ text: `창고에 장비 ${save.inventory.length}개 — 착용은 캐릭터 탭`, action: '캐릭터', go: () => onGo('characters') })
   const craftable = craftableNow(save)
@@ -102,7 +105,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
               {party.map((m) => (
                 <li key={m.id} className={m.row}>
                   <button onClick={() => onGo('formation')}>
-                    <UnitPortrait icon={m.job} size="full" />
+                    <UnitPortrait icon={memberIcon(m)} size="full" />
                     <span className="nm">{m.name}</span>
                     <small>Lv {m.level} · {m.row === 'front' ? '전열' : '후열'} · 패턴 {m.rules.rows.length}{m.gear?.weapon ? '' : ' · 무기 없음'}</small>
                   </button>
@@ -178,7 +181,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown }: Props) {
         <div className="run-bar">
           <button onClick={() => { setIo(exportGame(save)); setMsg('아래 상자의 내용을 복사해 두세요.') }}>내보내기</button>
           <button onClick={() => { const g = importGame(io); if (g) { onSave(g); setMsg('가져왔습니다.') } else setMsg('형식이 맞지 않습니다.') }}>가져오기</button>
-          <button onClick={() => { if (window.confirm('진행을 지우고 새로 시작할까요?')) { onSave(newGame()); setMsg('새 게임.') } }}>새 게임</button>
+          <button onClick={() => { if (window.confirm('새로 시작할까요? 주인공의 성별과 이름을 고르는 화면으로 갑니다. 시작을 누르면 지금 진행은 지워지고, 거기서 취소하면 그대로 돌아옵니다.')) onNewGame() }}>새 게임</button>
           <small>{msg}</small>
         </div>
         <textarea value={io} onChange={(e) => setIo(e.target.value)} rows={4} placeholder="내보내기를 누르거나, 저장 JSON 을 붙여넣으세요" />

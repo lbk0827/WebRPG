@@ -1,7 +1,7 @@
 // 단원 ↔ 전투 CharSetup 변환, 성장 처리, 편성 판 조작.
 import type { Alloc, Analysis, AdventureDef, BattleResult, CharSetup, GearSlot, GearSummary, ItemDef, ItemInstance, Recipe, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
 import {
-  DEFAULT_CONFIG, DISMISS_REFUND_PCT, ITEMS, ITEM_LIST, MATERIALS, MEMBER_MAX, PRESETS, RECIPE_BY_ID, REFINE_MAX, REGIONS, RENAME_GOLD, SKILLS, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, WEEKDAY_LABEL,
+  DEFAULT_CONFIG, DISMISS_REFUND_PCT, HERO_JOB, HIRE, ITEMS, ITEM_LIST, MATERIALS, MEMBER_MAX, PRESETS, RECIPE_BY_ID, REFINE_MAX, REGIONS, RENAME_GOLD, SKILLS, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, WEEKDAY_LABEL,
   ADVANCE_RESET_GOLD, JOB_ADVANCE,
   adventureRewards, adventureTeam, advancesFor, analyze, applyGearStats, applyQuirk, canAdvance, canCraft, canEquip, createRng, grantExp, growthStats, hireLevel, hirePrice, isRegionUnlocked, learnCost, learnableFor, refineCost, rollCraftTrait, rollQuirk, sellPrice, simulate, summarizeGear, tryRefine,
 } from '@webrpg/engine'
@@ -36,12 +36,16 @@ export const memberStats = (m: Member): Stats =>
     gearSummary(m).stats,
   )
 
+/** 초상·전투 도트의 키. 주인공은 성별마다 그림이 다르다 — 외형만, 능력치는 같다 (docs/20) */
+export const memberIcon = (m: Member): string => (m.job === HERO_JOB ? `${HERO_JOB}-${m.gender ?? 'male'}` : m.job)
+
 export function memberSetup(m: Member, idx: number): CharSetup {
   const p = PRESETS[m.job]
   const g = gearSummary(m)
   const adv = m.job2 ? JOB_ADVANCE[m.job2] : undefined
   return {
-    id: `${m.job}#${idx}`,
+    // id 앞부분은 전투 화면이 도트를 고르는 키다 (jobOf)
+    id: `${memberIcon(m)}#${idx}`,
     name: m.name,
     row: m.row,
     guard: structuredClone(m.guard),
@@ -516,7 +520,8 @@ export const currentHireLevel = (g: GameSave): number => hireLevel(partySummary(
 export const currentHirePrice = (g: GameSave, job: string): number => hirePrice(job, currentHireLevel(g))
 
 export function canHire(g: GameSave, job: string): boolean {
-  return g.members.length < MEMBER_MAX && !!PRESETS[job] && g.gold >= currentHirePrice(g, job)
+  // 고용 목록(HIRE)에 있는 직업만 — 주인공(모험가)은 고용할 수 없다
+  return g.members.length < MEMBER_MAX && !!PRESETS[job] && !!HIRE[job] && g.gold >= currentHirePrice(g, job)
 }
 
 /** 고용. 이름은 플레이어가 짓는다. 편차는 seed 로 굴린다 (웹은 시각) */
@@ -548,10 +553,10 @@ export function hireMember(g: GameSave, job: string, name: string, seed: number)
 
 export const dismissRefund = (m: Member): number => Math.floor(((m.hiredFor ?? 0) * DISMISS_REFUND_PCT) / 100)
 
-/** 해고 = 삭제. 편성 판에서도 빠진다. 고용가의 일부 환급. 장비는 창고로. 마지막 한 명은 못 보낸다 */
+/** 해고 = 삭제. 편성 판에서도 빠진다. 고용가의 일부 환급. 장비는 창고로. 주인공과 마지막 한 명은 못 보낸다 */
 export function dismissMember(g: GameSave, id: string): GameSave {
   const m = g.members.find((x) => x.id === id)
-  if (!m || g.members.length <= 1) return g
+  if (!m || m.hero || g.members.length <= 1) return g
   return {
     ...g,
     inventory: [...g.inventory, ...Object.values(m.gear ?? {}).filter((x): x is ItemInstance => !!x)],

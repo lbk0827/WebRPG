@@ -1,6 +1,6 @@
 // M2-4a 장비: 데이터 정합성 · 합산 · 전투 반영
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_CONFIG, ITEMS, ITEM_LIST, JOB_WEAPONS, PRESETS, SKILLS, TRAITS, canEquip, sellPrice, simulate, summarizeGear } from '../src'
+import { DEFAULT_CONFIG, HERO_JOB, ITEMS, ITEM_LIST, JOB_WEAPONS, PRESETS, SKILLS, TRAITS, canEquip, sellPrice, simulate, summarizeGear } from '../src'
 import type { CharSetup } from '../src'
 
 describe('장비 데이터', () => {
@@ -18,8 +18,9 @@ describe('장비 데이터', () => {
       expect(sellPrice(i)).toBe(Math.floor(i.price * 0.2))
     }
   })
-  it('직업마다 3등급 무기가 하나씩은 있다', () => {
-    for (const job of Object.keys(PRESETS)) {
+  it('직업마다 3등급 무기가 하나씩은 있다 (주인공은 전용 무기 기획 중이라 제외 — docs/20)', () => {
+    expect(JOB_WEAPONS[HERO_JOB]).toEqual([])
+    for (const job of Object.keys(PRESETS).filter((j) => j !== HERO_JOB)) {
       for (const tier of [1, 2, 3]) {
         expect(ITEM_LIST.some((i) => i.slot === 'weapon' && i.tier === tier && canEquip(job, i)), `${job} tier ${tier}`).toBe(true)
       }

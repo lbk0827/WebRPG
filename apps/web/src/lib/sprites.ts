@@ -3,6 +3,7 @@
 // assets/ 는 Vite publicDir 라 import 할 수 없으므로 런타임에 받아서 캐시한다.
 // 아직 없는 캐릭터는 null 을 돌려주고, 화면은 기존 원형 엠블럼 아이콘으로 물러선다.
 import { useEffect, useState } from 'react'
+import { artKey } from './labels'
 
 const cache = new Map<string, string | null>()
 const pending = new Map<string, Promise<void>>()
@@ -10,11 +11,13 @@ const pending = new Map<string, Promise<void>>()
 function load(key: string): Promise<void> {
   const inFlight = pending.get(key)
   if (inFlight) return inFlight
-  const p = fetch(`${import.meta.env.BASE_URL}units/${key}.svg`)
+  const p = fetch(`${import.meta.env.BASE_URL}units/${artKey(key)}.svg`)
     .then((r) => (r.ok ? r.text() : null))
     .then((text) => {
       // 우리가 만든 파일만 들어온다. 그래도 SVG 가 아니면 버린다
-      cache.set(key, text && text.includes('<svg') ? text : null)
+      const svg = text && text.includes('<svg') ? text : null
+      // 빌려 쓴 그림(모험가 → 전사 도트 등)은 SVG 안의 <title> 이 원래 직업 이름이라 툴팁에 "전사"가 뜬다 — 지운다
+      cache.set(key, svg && artKey(key) !== key ? svg.replace(/<title>[\s\S]*?<\/title>/g, '') : svg)
     })
     .catch(() => {
       cache.set(key, null)

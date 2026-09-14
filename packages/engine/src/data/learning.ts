@@ -16,6 +16,8 @@ export const STARTER_SKILLS: Record<string, string[]> = {
   mage: ['strike', 'bolt', 'inferno', 'meditate'],
   priest: ['strike', 'mend', 'resurrect'],
   elf: ['strike', 'pierceShot'],
+  // 주인공 — 임시. 고유 스킬은 단장 기획 뒤에 바꾼다 (docs/20)
+  adventurer: ['strike', 'heavyBlow', 'flurry'],
 }
 
 /** 누구나 0포인트로 배우는 기본 동작 */
@@ -54,6 +56,13 @@ export const LEARNABLE: Record<string, Learnable[]> = {
     { skillId: 'venom', cost: 2 },
     { skillId: 'poisonArrow', cost: 3 },
     { skillId: 'snipe', cost: 4 },
+  ],
+  // 주인공 — 임시. 혼자 버티는 수단(굳히기·치유)과 여럿을 상대하는 수단(휩쓸기·흔들기)
+  adventurer: [
+    { skillId: 'ironSkin', cost: 2 },
+    { skillId: 'sweep', cost: 3 },
+    { skillId: 'stagger', cost: 3 },
+    { skillId: 'mend', cost: 3 },
   ],
 }
 

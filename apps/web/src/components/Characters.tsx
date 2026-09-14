@@ -6,7 +6,7 @@ import { UnitPortrait } from './UnitPortrait'
 import { MEMBER_MAX } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { PARTY_MAX } from '../game/save'
-import { canLearnSomething, cellOf, memberCanAdvance, partyMembers } from '../game/members'
+import { canLearnSomething, cellOf, memberCanAdvance, memberIcon, partyMembers } from '../game/members'
 import { UnitOverlay } from './UnitOverlay'
 
 interface Props {
@@ -43,7 +43,7 @@ export function Characters({ save, onSave, onGoShop, onGoRecruit, onGoFormation 
           return (
             <li key={m.id} className={`char-card ${cell >= 0 ? 'out' : ''}`}>
               <button onClick={() => setOpen(m.id)} title={cell >= 0 ? (m.row === 'front' ? '전열 출전' : '후열 출전') : '대기'}>
-                <UnitPortrait icon={m.job} size="full" />
+                <UnitPortrait icon={memberIcon(m)} size="full" />
                 <span className="nm">
                   {m.name}
                   {todo && <i className="dot" title="분배하거나 배울 것이 있습니다" />}

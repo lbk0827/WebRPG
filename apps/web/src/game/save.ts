@@ -1,8 +1,9 @@
 // 게임 저장 (M2-1, v2 는 ADR-004, v3 는 편성 판). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
 import type { GearSlot, GuardPolicy, ItemInstance, Outcome, Quirk, Row, RuleSet, TeamSetup } from '@webrpg/engine'
-import { ADVENTURE_BY_ID, EMPTY_ALLOC, ITEMS, MATERIALS, MEMBER_MAX, PRESETS, REFINE_MAX, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, TRAITS, type Alloc } from '@webrpg/engine'
+import { ADVENTURE_BY_ID, EMPTY_ALLOC, HERO_JOB, ITEMS, MATERIALS, MEMBER_MAX, PRESETS, REFINE_MAX, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, TRAITS, type Alloc } from '@webrpg/engine'
 
 export type Gear = Partial<Record<GearSlot, ItemInstance>>
+export type Gender = 'male' | 'female'
 
 const validItem = (x: unknown): x is ItemInstance => !!x && typeof x === 'object' && typeof (x as ItemInstance).uid === 'string' && !!ITEMS[(x as ItemInstance).itemId]
 const fixItem = (x: ItemInstance): ItemInstance => {
@@ -17,6 +18,10 @@ export interface Member {
   job: string
   /** 2차 직업 id (M2-5b). 없으면 미전직 */
   job2?: string
+  /** 주인공 (2026-09-14). 새 게임의 모험가 한 명 — 해고할 수 없다 */
+  hero?: true
+  /** 성별 — 외형(도트)만 바꾼다. 능력치·스킬은 같다 (단장 결정) */
+  gender?: Gender
   level: number
   exp: number
   alloc: Alloc
@@ -126,33 +131,46 @@ export const SAVE_KEY = 'webrpg.game.v1'
 export const LOG_MAX = 12
 export const DEFAULT_NAME = '이름 없는 용병단'
 
-const START_JOBS = ['warrior', 'rogue', 'mage', 'priest', 'elf']
+/** 시작 금 — 혼자 몇 판 싸운 뒤 첫 동료를 고용할 수 있게 (docs/20) */
+export const START_GOLD = 300
+export const HERO_ID = 'hero'
+export const HERO_DEFAULT_NAME = '모험가'
 
 const emptyGrid = (): (string | null)[] => Array(GRID_CELLS).fill(null)
 
-export function newGame(): GameSave {
-  const members: Member[] = START_JOBS.map((job, i) => {
-    const p = PRESETS[job]
-    return {
-      id: `m${i + 1}`,
-      name: p.name,
-      job,
-      level: 1,
-      exp: 0,
-      alloc: { ...EMPTY_ALLOC },
-      statPoints: 0,
-      skillPoints: 0,
-      skills: [...(STARTER_SKILLS[job] ?? p.skills)],
-      spentSkillPoints: 0,
-      gear: {},
-      row: p.row,
-      guard: structuredClone(p.guard),
-      rules: structuredClone(p.rules),
-    }
-  })
+export interface NewGameOptions {
+  gender: Gender
+  heroName?: string
+}
+
+/**
+ * 새 게임 — 주인공(모험가) 한 명으로 시작한다 (2026-09-14 단장 결정).
+ * 전에는 프로토타입이라 5직업을 다 줬다. 이제 동료는 용병소에서 고용한다.
+ */
+export function newGame({ gender, heroName }: NewGameOptions): GameSave {
+  const p = PRESETS[HERO_JOB]
+  const hero: Member = {
+    id: HERO_ID,
+    name: heroName?.trim().slice(0, 12) || HERO_DEFAULT_NAME,
+    job: HERO_JOB,
+    hero: true,
+    gender,
+    level: 1,
+    exp: 0,
+    alloc: { ...EMPTY_ALLOC },
+    statPoints: 0,
+    skillPoints: 0,
+    skills: [...(STARTER_SKILLS[HERO_JOB] ?? p.skills)],
+    spentSkillPoints: 0,
+    gear: {},
+    row: p.row,
+    guard: structuredClone(p.guard),
+    rules: structuredClone(p.rules),
+  }
+  const members = [hero]
   return {
     version: 3, name: DEFAULT_NAME, rulePresets: [], partyPresets: Array(PARTY_PRESET_SLOTS).fill(null),
-    gold: 200, members, party: gridFromRows(members.map((m) => m.id), members), regionWins: {}, battles: 0, wins: 0, log: [], inventory: [], materials: {}, adventures: {},
+    gold: START_GOLD, members, party: gridFromRows([hero.id], members), regionWins: {}, battles: 0, wins: 0, log: [], inventory: [], materials: {}, adventures: {},
   }
 }
 
@@ -234,6 +252,8 @@ export function migrate(raw: unknown): GameSave | null {
       }
     }
     m.gear = gear
+    if (m.hero !== true) delete m.hero
+    if (m.gender !== 'male' && m.gender !== 'female') delete m.gender
   }
   const inventory: ItemInstance[] = Array.isArray(s.inventory) ? s.inventory.filter(validItem).map(fixItem) : []
   const materials: Record<string, number> = {}
@@ -285,7 +305,8 @@ export function migrate(raw: unknown): GameSave | null {
   }
 }
 
-export function loadGame(): GameSave {
+/** 저장이 없으면 null — 화면은 새 게임(성별·이름 고르기)으로 간다. 기존 저장은 그대로 불러온다 */
+export function loadGame(): GameSave | null {
   try {
     const raw = localStorage.getItem(SAVE_KEY)
     if (raw) {
@@ -295,7 +316,7 @@ export function loadGame(): GameSave {
   } catch {
     /* ignore */
   }
-  return newGame()
+  return null
 }
 
 export function saveGame(g: GameSave): void {

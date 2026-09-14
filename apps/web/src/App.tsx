@@ -9,6 +9,7 @@ import { Formation } from './components/Formation'
 import { Characters } from './components/Characters'
 import { Adventure } from './components/Adventure'
 import { Town, type Facility } from './components/Town'
+import { NewGame } from './components/NewGame'
 
 /** 탭 7개 (단장 지시 2026-09-11). 시설은 탭을 늘리지 않고 전부 마을 안에 붙인다 */
 type Tab = 'home' | 'formation' | 'characters' | 'battle' | 'adventure' | 'town' | 'training'
@@ -23,8 +24,26 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'training', label: '훈련장' },
 ]
 
+/**
+ * 저장이 없으면 새 게임 화면(주인공 성별·이름, docs/20)부터.
+ * 본부의 "새 게임"으로 들어오면 지금 진행을 잡아 두었다가 취소하면 돌려준다 — 시작을 누르기 전에는 저장을 덮지 않는다.
+ */
 export function App() {
-  const [save, setSave] = useState<GameSave>(loadGame)
+  const [save, setSave] = useState<GameSave | null>(loadGame)
+  const [prev, setPrev] = useState<GameSave | null>(null)
+
+  if (!save) {
+    return (
+      <NewGame
+        onStart={(g) => { setPrev(null); setSave(g) }}
+        onCancel={prev ? () => { setSave(prev); setPrev(null) } : undefined}
+      />
+    )
+  }
+  return <Game save={save} setSave={setSave} onNewGame={() => { setPrev(save); setSave(null) }} />
+}
+
+function Game({ save, setSave, onNewGame }: { save: GameSave; setSave: (g: GameSave) => void; onNewGame: () => void }) {
   const [progress, setProgress] = useState<MissionProgress>(loadProgress)
   const [tab, setTab] = useState<Tab>('home')
   /** 마을에 들어갈 때 바로 열 시설 */
@@ -83,7 +102,7 @@ export function App() {
       </header>
 
       <main>
-        {tab === 'home' && <Home save={save} onSave={setSave} progress={progress} onGo={go} onGoTown={goTown} />}
+        {tab === 'home' && <Home save={save} onSave={setSave} progress={progress} onGo={go} onGoTown={goTown} onNewGame={onNewGame} />}
         {tab === 'formation' && <Formation save={save} onSave={setSave} initialCell={formationCell} onGoShop={() => goTown('shop')} />}
         {tab === 'characters' && (
           <Characters

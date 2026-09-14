@@ -1,7 +1,7 @@
 // 모집소 (M2-3, docs/07 §3.2). 제로식 인재 알선소(직업 그림 + 가격 그리드)에서 착안. 이름은 플레이어가 짓는다.
 import { useState } from 'react'
 import { UnitPortrait } from './UnitPortrait'
-import { HIRE, MEMBER_MAX, PRESETS } from '@webrpg/engine'
+import { HIRE, MEMBER_MAX } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { canHire, currentHireLevel, currentHirePrice, hireMember } from '../game/members'
 import { jobName } from '../lib/labels'
@@ -34,7 +34,8 @@ export function Recruit({ save, onSave, onHired }: Props) {
       <h3>모집소 <small>보유 {save.members.length}/{MEMBER_MAX} · 금 {save.gold} · 지금 고용하면 Lv {level}</small></h3>
       {full && <p className="hint">단원이 꽉 찼습니다. 누군가를 보내야 새로 받습니다.</p>}
       <ul className="hire-grid">
-        {Object.keys(PRESETS).map((j) => {
+        {/* 고용 목록(HIRE) 기준 — 주인공(모험가)은 여기 없다 */}
+        {Object.keys(HIRE).map((j) => {
           const price = currentHirePrice(save, j)
           const ok = canHire(save, j)
           return (

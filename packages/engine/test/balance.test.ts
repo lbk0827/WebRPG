@@ -2,7 +2,7 @@
 // 기준 편성은 장비 없음 + 직업 기본 수칙 + 주 스탯 몰빵 — 실제 플레이어는 장비와 수칙으로 이보다 낫다.
 // 임계값은 여유 있게 잡는다 (튜닝할 때마다 깨지면 안 된다). 실측값은 docs/07 §3.8g 표 참조.
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_CONFIG, EMPTY_ALLOC, JOB_ADVANCE, MONSTERS, PRESETS, REGIONS, SKILLS, STAT_POINTS_PER_LEVEL, growthStats, rollEncounter, simulate } from '../src'
+import { DEFAULT_CONFIG, EMPTY_ALLOC, HERO_JOB, JOB_ADVANCE, MONSTERS, PRESETS, REGIONS, SKILLS, STAT_POINTS_PER_LEVEL, growthStats, rollEncounter, simulate } from '../src'
 import type { RuleSet, Stats } from '../src'
 import type { StatKey, TeamSetup } from '../src'
 
@@ -152,6 +152,24 @@ describe('지역 난이도 곡선', () => {
       // 장비를 갖춘 실제 플레이어는 여기서 70% 대다. 최종 지역이 맨몸으로도 편해지면 갈 곳이 없어진다
       expect(hi, `${r.name} 전직 편성 Lv${r.recommended[1]}`).toBeGreaterThanOrEqual(50)
     }
+  })
+
+  it('주인공(모험가)은 혼자 마을 외곽을 넘는다 — 새 게임은 한 명으로 시작한다 (docs/20)', () => {
+    const solo = (level: number): number => {
+      const p = structuredClone(PRESETS[HERO_JOB])
+      const hero: TeamSetup = {
+        name: '주인공',
+        members: [{ ...p, id: `${HERO_JOB}#0`, stats: growthStats(p.stats, level, { ...EMPTY_ALLOC, str: (level - 1) * STAT_POINTS_PER_LEVEL }) }],
+      }
+      let w = 0
+      for (let s = 1; s <= 30; s++) {
+        const enemy = rollEncounter(REGIONS[0], s)
+        if (simulate({ seed: s, teams: [hero, enemy], config: DEFAULT_CONFIG, skills: SKILLS }).outcome === 'team0') w++
+      }
+      return Math.round((w / 30) * 100)
+    }
+    expect(solo(1), '혼자 Lv1').toBeGreaterThanOrEqual(60)
+    expect(solo(2), '혼자 Lv2').toBeGreaterThanOrEqual(85)
   })
 
   it('입문 두 지역은 기본 수칙만으로 넘어간다 (≥85%)', () => {

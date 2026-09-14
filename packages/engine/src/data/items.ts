@@ -32,6 +32,8 @@ export const JOB_WEAPONS: Record<string, WeaponType[]> = {
   mage: ['staff'],
   priest: ['relic'],
   elf: ['bow'],
+  // 주인공 — 전용 무기(성장형 등)를 단장이 기획 중이라 지금은 어떤 무기도 들지 않는다 (docs/20)
+  adventurer: [],
 }
 
 export const WEAPON_TYPE_LABEL: Record<WeaponType, string> = { sword: '검', dagger: '단검', staff: '지팡이', relic: '성물', bow: '활', none: '—' }

@@ -185,6 +185,8 @@ describe('상점과 공방의 역할 분담', () => {
   it('직업마다 3등급 무기로 갈 길이 있다', () => {
     const craftable = new Set(RECIPES.map((r) => r.itemId))
     for (const [job, types] of Object.entries(JOB_WEAPONS)) {
+      // 들 수 있는 무기가 없는 직업은 건너뛴다 — 주인공(모험가)은 전용 무기를 기획 중이다 (docs/20)
+      if (types.length === 0) continue
       const ok = Object.values(ITEMS).some(
         (i) => i.tier === 3 && i.slot === 'weapon' && types.includes(i.weaponType as never) && craftable.has(i.id),
       )

@@ -34,9 +34,10 @@ export const REGIONS: RegionDef[] = [
     id: 'outskirts',
     no: 1,
     name: '마을 외곽',
-    brief: '탈영병 몇이 마을 근처를 어슬렁거린다. 훈련이 안 된 자들이라 수칙이 한 줄뿐이다. 첫 의뢰로 알맞다.',
+    brief: '탈영병 한둘이 마을 근처를 어슬렁거린다. 훈련이 안 된 자들이라 수칙이 한 줄뿐이다. 혼자서도 해볼 만한 첫 의뢰.',
     recommended: [1, 3],
-    count: [2, 3],
+    // 새 게임은 주인공 한 명으로 시작한다 (docs/20). 2~3명이면 혼자 Lv1 30% · Lv5 에도 55% 에 막혔다 → 1~2명: Lv1 78% · Lv2 97%
+    count: [1, 2],
     table: [
       { monsterId: 'deserter', weight: 70 },
       { monsterId: 'deserterArcher', weight: 30 },

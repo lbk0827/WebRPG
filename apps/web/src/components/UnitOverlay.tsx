@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import { UnitPortrait } from './UnitPortrait'
 import type { GameSave, Member } from '../game/save'
 import { UnitPanel, type UnitTab } from './UnitPanel'
+import { memberIcon } from '../game/members'
 
 interface Props {
   save: GameSave
@@ -51,7 +52,7 @@ export function UnitOverlay({ save, onSave, member, siblings, onPick, onClose, i
             {siblings.map((m) => (
               <li key={m.id}>
                 <button className={m.id === member.id ? 'on' : ''} onClick={() => onPick(m.id)} title={`Lv ${m.level}`}>
-                  <UnitPortrait icon={m.job} size="xs" />
+                  <UnitPortrait icon={memberIcon(m)} size="xs" />
                   <span className="nm">{m.name}</span>
                 </button>
               </li>

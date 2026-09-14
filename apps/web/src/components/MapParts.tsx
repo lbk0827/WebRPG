@@ -5,7 +5,7 @@
 import { useState } from 'react'
 import { ARCHETYPE_LABEL, JOB_ADVANCE, MONSTERS, monsterSetup } from '@webrpg/engine'
 import { PARTY_MAX, PARTY_PRESET_SLOTS, type GameSave, type Member, type PartyPreset } from '../game/save'
-import { enlistMember, memberById, partyMembers, rowHasRoom, setGrid, setMemberRow, withdrawMember } from '../game/members'
+import { enlistMember, memberById, memberIcon, partyMembers, rowHasRoom, setGrid, setMemberRow, withdrawMember } from '../game/members'
 import { jobName } from '../lib/labels'
 import { UnitPortrait } from './UnitPortrait'
 
@@ -92,7 +92,7 @@ function TeamCard({ save, onSave, m }: { save: GameSave; onSave: (g: GameSave) =
   return (
     <li className={`team-card ${on ? 'on' : ''} ${blocked ? 'blocked' : ''}`}>
       <label title={blocked ? `출전은 ${PARTY_MAX}명까지입니다` : undefined}>
-        <span className="tile"><UnitPortrait icon={m.job} size="xl" alt={m.name} /></span>
+        <span className="tile"><UnitPortrait icon={memberIcon(m)} size="xl" alt={m.name} /></span>
         <span className="nm">{m.name}</span>
         <small>Lv.{m.level} {jobLabel(m)}</small>
         <input type="checkbox" checked={on} disabled={blocked} onChange={toggle} />

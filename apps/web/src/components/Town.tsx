@@ -6,7 +6,7 @@
 // 다만 그쪽처럼 35개를 그냥 나열하면 처음 온 사람에게는 벽이다 —
 // **묶음 머리글**(사람 · 물건 · 배움)을 달아 무엇을 하러 왔는지로 찾게 한다. 제로식에는 없는 것이다.
 import { useEffect, useState } from 'react'
-import { MEMBER_MAX, MISSIONS, PRESETS, RECIPES, canCraft } from '@webrpg/engine'
+import { HIRE, MEMBER_MAX, MISSIONS, RECIPES, canCraft } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { canHire, shopTier } from '../game/members'
 import type { MissionProgress } from '../missionState'
@@ -47,7 +47,7 @@ export function Town({ save, onSave, progress, onProgress, initial = 'hub', onGo
 
   const cleared = MISSIONS.filter((m) => progress.cleared[m.id]).length
   const nextMission = MISSIONS.find((m) => !progress.cleared[m.id])
-  const hireable = Object.keys(PRESETS).filter((j) => canHire(save, j)).length
+  const hireable = Object.keys(HIRE).filter((j) => canHire(save, j)).length
   const craftable = RECIPES.filter((r) => canCraft(r, save.materials, save.gold)).length
   const matCount = Object.values(save.materials).reduce((a, b) => a + b, 0)
 

@@ -237,7 +237,8 @@ export function timeAgo(ms: number, now = Date.now()): string {
   return `${Math.floor(h / 24)}일 전`
 }
 
-export const jobName = (job: string): string => PRESETS[job]?.name ?? job
+/** 직업 이름. 'adventurer-female' 처럼 성별이 붙은 그림 키도 받는다 */
+export const jobName = (job: string): string => PRESETS[job]?.name ?? PRESETS[job.split('-')[0]]?.name ?? job
 export const jobOf = (charId: string): string => charId.split('#')[0]
 export const skillLabel = (id: string): string => SKILLS[id]?.label ?? id
 export const statusLabel = (id: StatusId): string => STATUS_DEFS[id]?.label ?? id
@@ -246,7 +247,17 @@ export const statusLabel = (id: StatusId): string => STATUS_DEFS[id]?.label ?? i
  * 아이콘 경로 (assets/manifest.json 과 일치). BASE_URL 을 붙여 GitHub Pages 같은 하위 경로 배포에서도 동작.
  * 키는 직업 id 또는 몬스터 아이콘 id — 전투 CharSetup.id 의 `키#번호` 앞부분이 그대로 들어온다.
  */
-export const jobIcon = (key: string): string => `${import.meta.env.BASE_URL}${isMonsterIcon(key) ? 'monsters' : 'jobs'}/${key}.svg`
+export const jobIcon = (key: string): string => {
+  const k = artKey(key)
+  return `${import.meta.env.BASE_URL}${isMonsterIcon(k) ? 'monsters' : 'jobs'}/${k}.svg`
+}
+
+/**
+ * 그림이 아직 없는 키 → 임시로 쓸 기존 그림. 모험가 남/여 도트는 Codex 주문 대기다 (docs/20).
+ * 그림이 도착하면 해당 줄을 지운다.
+ */
+const ART_STANDIN: Record<string, string> = { 'adventurer-male': 'warrior', 'adventurer-female': 'rogue', adventurer: 'warrior' }
+export const artKey = (key: string): string => ART_STANDIN[key] ?? key
 
 export const failText = (r: SkillFailReason): string =>
   r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : r === 'silenced' ? '침묵 상태' : r === 'cooldown' ? '재사용 대기' : r === 'notLearned' ? '미습득' : '무기 불일치'

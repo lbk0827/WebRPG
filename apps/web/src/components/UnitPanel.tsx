@@ -14,7 +14,7 @@ import { UnitPortrait } from './UnitPortrait'
 import { JOB_ADVANCE, RENAME_GOLD, STARTER_SKILLS } from '@webrpg/engine'
 import type { GameSave, Member, RulePreset } from '../game/save'
 import { RULE_PRESET_MAX } from '../game/save'
-import { cellOf, dismissMember, dismissRefund, learnSkill, memberCanAdvance, memberStats, renameMember, resetSkills, updateMember } from '../game/members'
+import { cellOf, dismissMember, dismissRefund, learnSkill, memberCanAdvance, memberIcon, memberStats, renameMember, resetSkills, updateMember } from '../game/members'
 import type { SlotState } from '../state'
 import { jobName, skillLabel } from '../lib/labels'
 import { STAT_LABEL } from '../lib/condition'
@@ -162,7 +162,7 @@ export function UnitPanel({ save, onSave, member, initial = 'stats', onGoShop, o
                   .join(' · ') || '아직 없음'}
               </dd>
               <dt>고용가</dt>
-              <dd>{member.hiredFor ? `금 ${member.hiredFor} (해고 시 ${dismissRefund(member)} 환급)` : '창단 단원 — 환급 없음'}</dd>
+              <dd>{member.hero ? '주인공 — 해고할 수 없음' : member.hiredFor ? `금 ${member.hiredFor} (해고 시 ${dismissRefund(member)} 환급)` : '창단 단원 — 환급 없음'}</dd>
             </dl>
           </div>
         )
@@ -172,7 +172,7 @@ export function UnitPanel({ save, onSave, member, initial = 'stats', onGoShop, o
   return (
     <div className="unit-panel onepage">
       <header>
-        <UnitPortrait icon={member.job} size="md" />
+        <UnitPortrait icon={memberIcon(member)} size="md" />
         <div>
           <div className="name">
             {member.name}{' '}
@@ -189,8 +189,8 @@ export function UnitPanel({ save, onSave, member, initial = 'stats', onGoShop, o
           <button className="mini" title={`이름 변경 (금 ${RENAME_GOLD})`} onClick={() => { const n = window.prompt(`새 이름 (금 ${RENAME_GOLD})`, member.name); if (n) onSave(renameMember(save, member, n)) }}>이름</button>
           <button
             className="mini danger"
-            disabled={save.members.length <= 1}
-            title="해고 — 되돌릴 수 없음"
+            disabled={member.hero || save.members.length <= 1}
+            title={member.hero ? '주인공은 보낼 수 없습니다' : '해고 — 되돌릴 수 없음'}
             onClick={() => { if (window.confirm(`${member.name}(Lv ${member.level}) 을(를) 보냅니다. 되돌릴 수 없고, 환급은 금 ${dismissRefund(member)} 입니다. 장비는 창고로 돌아옵니다.`)) onSave(dismissMember(save, member.id)) }}
           >
             해고

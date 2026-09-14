@@ -84,7 +84,26 @@ export const PRESETS: Record<string, CharSetup> = {
       ],
     },
   },
+  // 주인공 (2026-09-14 단장 결정). 새 게임은 모험가 한 명으로 시작한다 — 고용할 수 없고 해고할 수 없다.
+  // ⚠ 임시값: 전용 무기 · 고유 스킬 · 전직(영웅)은 단장이 기획 중이다. 지금은 무기 없이 기존 스킬로 싸운다 (docs/20)
+  adventurer: {
+    id: 'adventurer',
+    name: '모험가',
+    row: 'front',
+    guard: { mode: 'hpAbove', pct: 50 },
+    stats: { maxHp: 520, maxSp: 70, str: 46, int: 20, dex: 40, spd: 48, luk: 20, def: 18, mdef: 12 },
+    skills: ['strike', 'heavyBlow', 'flurry'],
+    rules: {
+      rows: [
+        row(atom({ kind: 'selfSpAbs', cmp: 'gte', value: 8 }), 'heavyBlow'),
+        row(always, 'strike'),
+      ],
+    },
+  },
 }
+
+/** 주인공 직업. 고용 목록(HIRE)에 없고, 이 직업의 단원은 해고할 수 없다 */
+export const HERO_JOB = 'adventurer'
 
 /** 프리셋을 복제해 팀을 만든다. 같은 프리셋을 여러 번 써도 상태가 공유되지 않는다. */
 export function makeTeam(name: string, ids: string[]): TeamSetup {

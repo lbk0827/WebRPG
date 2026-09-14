@@ -2,7 +2,7 @@
 // 스테이지와 같은 방향 — 후열이 왼쪽, 전열이 오른쪽, 적은 오른쪽 너머.
 import { GRID_COLS, cellRow, type GameSave } from '../game/save'
 import { UnitPortrait } from './UnitPortrait'
-import { memberById, memberStats } from '../game/members'
+import { memberById, memberIcon, memberStats } from '../game/members'
 
 interface Props {
   save: GameSave
@@ -46,7 +46,7 @@ export function Board({ save, party, selected = null, moveFrom = null, onCell, c
                 {/* 2026-09-13 단장 지적: 본부 판에서 몸이 허리에서 잘려 보였다.
                     compact 도 **전신**을 쓴다 — 칸을 조금 키우는 편이 잘린 그림보다 낫다.
                     아주 작은 프리셋 미리보기(mini)만 얼굴 창을 쓴다 */}
-                <UnitPortrait icon={m.job} alt={m.name} size={mini ? 'xs' : 'full'} />
+                <UnitPortrait icon={memberIcon(m)} alt={m.name} size={mini ? 'xs' : 'full'} />
                 {!mini && <span className="nm">{m.name}</span>}
                 {!mini && !compact && <small>Lv {m.level} · 패턴 {m.rules.rows.length}</small>}
                 {!mini && compact && <small>Lv {m.level}</small>}
