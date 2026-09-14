@@ -34,6 +34,9 @@ describe('강화', () => {
     for (let l = 1; l < REFINE_MAX; l++) expect(refineRate(l)).toBeLessThanOrEqual(refineRate(l - 1))
     expect(refineRate(REFINE_MAX)).toBe(0)
     expect(refineRate(0)).toBe(100)
+    // +1~+3 은 확정 — 운은 +4·+5 에만 (2026-09-14 단장 결정)
+    for (let l = 0; l < 3; l++) expect(refineRate(l), `+${l} → +${l + 1}`).toBe(100)
+    expect(refineRate(3)).toBeLessThan(100)
   })
   it('+0→+1 은 항상 성공, 시드가 같으면 결과가 같다', () => {
     for (let s = 1; s <= 20; s++) expect(tryRefine(0, createRng(s))).toBe(true)
@@ -46,7 +49,8 @@ describe('강화', () => {
     expect(w.atk[0]).toBe(27)
     const cost = refineCost(ITEMS.swordSteel, 2)
     expect(cost.gold).toBe(Math.floor(220 * 0.15) * 3)
-    expect(cost.qty).toBe(3)
+    // 금만 든다 — 재료는 경제의 병목이라 강화에 걸지 않는다 (docs/18 §18)
+    expect(Object.keys(cost)).toEqual(['gold'])
   })
 })
 

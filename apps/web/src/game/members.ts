@@ -208,8 +208,7 @@ export function addMaterials(g: GameSave, ids: string[]): GameSave {
 
 export function canRefine(g: GameSave, it: ItemInstance): boolean {
   if (it.refine >= REFINE_MAX) return false
-  const c = refineCost(ITEMS[it.itemId], it.refine)
-  return g.gold >= c.gold && (g.materials[c.material] ?? 0) >= c.qty
+  return g.gold >= refineCost(ITEMS[it.itemId], it.refine).gold
 }
 
 export interface RefineOutcome {
@@ -218,7 +217,7 @@ export interface RefineOutcome {
   item: ItemInstance
 }
 
-/** 강화 시도. 비용은 성공·실패 모두 소모. 실패해도 파괴·하락 없음 (§3.5) */
+/** 강화 시도. 금만 든다. 비용은 성공·실패 모두 소모. 실패해도 파괴·하락 없음 (§3.5 · docs/18 §18) */
 export function refineItem(g: GameSave, uid: string, seed: number): RefineOutcome | null {
   const found = allItems(g).find((o) => o.it.uid === uid)
   if (!found || !canRefine(g, found.it)) return null
@@ -226,9 +225,7 @@ export function refineItem(g: GameSave, uid: string, seed: number): RefineOutcom
   const c = refineCost(ITEMS[it.itemId], it.refine)
   const success = tryRefine(it.refine, createRng(seed))
   const next: ItemInstance = success ? { ...it, refine: it.refine + 1 } : it
-  const materials = { ...g.materials, [c.material]: (g.materials[c.material] ?? 0) - c.qty }
-  if (materials[c.material] <= 0) delete materials[c.material]
-  let save: GameSave = { ...g, gold: g.gold - c.gold, materials }
+  let save: GameSave = { ...g, gold: g.gold - c.gold }
   if (success) save = replaceItem(save, uid, next)
   return { save, success, item: next }
 }

@@ -283,7 +283,8 @@ export type BattleEvent =
   | { t: 'castResolve'; actor: CharRef; skillId: SkillId }
   | { t: 'castInterrupted'; target: CharRef; skillId: SkillId }
   | { t: 'cover'; defender: CharRef; protectedChar: CharRef }
-  | { t: 'damage'; source: CharRef; target: CharRef; amount: number; school: 'phys' | 'magic'; nullified?: boolean }
+  /** crit = 운으로 터진 더블 크리티컬 (amount 는 이미 2배 된 값) */
+  | { t: 'damage'; source: CharRef; target: CharRef; amount: number; school: 'phys' | 'magic'; nullified?: boolean; crit?: boolean }
   | { t: 'heal'; source: CharRef; target: CharRef; amount: number }
   | { t: 'spChange'; target: CharRef; delta: number }
   | { t: 'statusApply'; target: CharRef; status: StatusId; duration: number; magnitude: number }

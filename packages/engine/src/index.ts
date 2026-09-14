@@ -16,6 +16,7 @@ export {
 } from './progression'
 export type { Alloc, ExpResult } from './progression'
 export { derivedStats } from './derived'
+export { CRIT_LUK_PER_PCT, CRIT_MAX_PCT, CRIT_MULT_PCT, critPct } from './state'
 export { STARTER_SKILLS, COMMON_LEARNABLE, LEARNABLE, SKILL_RESET_GOLD, learnableFor, learnCost, jobSkillPool } from './data/learning'
 export type { Learnable } from './data/learning'
 export { JOB_ADVANCES, JOB_ADVANCE, ADVANCE_RESET_GOLD, advancesFor, advanceLevel, canAdvance } from './data/jobs'
@@ -24,7 +25,7 @@ export { HIRE, MEMBER_MAX, RENAME_GOLD, DISMISS_REFUND_PCT, HIRE_LEVEL_STEP, hir
 export type { HireDef, Quirk } from './data/recruit'
 export { ITEMS, ITEM_LIST, JOB_WEAPONS, WEAPON_TYPE_LABEL, SLOT_LABEL, SELL_PCT, sellPrice, canEquip, summarizeGear, applyGearStats, refinedNumbers } from './data/items'
 export {
-  MATERIALS, REFINE_MAX, REFINE_RATE, REFINE_PCT_PER_LEVEL, REFINE_MATERIAL, refineCost, refineRate, tryRefine, refineMult,
+  MATERIALS, REFINE_MAX, REFINE_RATE, REFINE_PCT_PER_LEVEL, refineCost, refineRate, tryRefine, refineMult,
   RECIPES, RECIPE_BY_ID, CRAFT_TRAIT_PCT, CRAFT_TRAIT_POOL, rollCraftTrait, craftLukBonusPct, canCraft,
 } from './data/crafting'
 export type { MaterialDef, RefineCost, Recipe } from './data/crafting'

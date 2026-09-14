@@ -2,7 +2,7 @@
 import type { Effect, Row } from './types'
 import { GAUGE_MAX, pctOf } from './fixed'
 import type { BattleState, CharState } from './state'
-import { DELAY_TAKEN_CAP, emit, findStatus, gaugeDamagePct, hpPct, resistPct, statusPowerPct } from './state'
+import { CRIT_MULT_PCT, DELAY_TAKEN_CAP, critPct, emit, findStatus, gaugeDamagePct, hpPct, resistPct, statusPowerPct } from './state'
 import { STATUS_DEFS } from './data/statuses'
 import { TRAITS } from './data/traits'
 import { calcDamage, calcHeal, calcSpDamage, calcSpRestore } from './damage'
@@ -38,7 +38,7 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
         ctx.lastDamage = 0
         return
       }
-      const amount = calcDamage(
+      const dealt = calcDamage(
         {
           school: effect.school,
           power: effect.power,
@@ -54,9 +54,12 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
         actor,
         target,
       )
+      // 더블 크리티컬: 방어까지 다 적용한 뒤 2배. 굴림은 critRng 로 — 본 rng 순서를 밀지 않는다
+      const crit = st.critRng.pct() < critPct(actor.setup.stats.luk)
+      const amount = crit ? Math.floor((dealt * CRIT_MULT_PCT) / 100) : dealt
       target.hp = Math.max(0, target.hp - amount)
       ctx.lastDamage = amount
-      emit(st, { t: 'damage', source: actor.ref, target: target.ref, amount, school: effect.school })
+      emit(st, { t: 'damage', source: actor.ref, target: target.ref, amount, school: effect.school, ...(crit ? { crit: true } : {}) })
       if (target.hp === 0) kill(target, st)
       else runTriggers(target, 'damaged', st)
       return

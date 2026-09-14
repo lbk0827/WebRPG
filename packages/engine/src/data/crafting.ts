@@ -26,21 +26,25 @@ export const MATERIALS: Record<string, MaterialDef> = {
 // ───────────────────────────── 강화 (§3.5)
 
 export const REFINE_MAX = 5
-/** 현재 단계 → 다음 단계 성공률 %. 실패해도 파괴·하락 없음 */
-export const REFINE_RATE: number[] = [100, 100, 80, 60, 40]
+/**
+ * 현재 단계 → 다음 단계 성공률 %. 실패해도 파괴·하락 없음.
+ * +1~+3 은 확정, 운은 +4·+5 에만 — HOF 의 모양이다: 누구나 조금은 강화하고, 욕심낼 때만 운이 걸린다 (2026-09-14 단장 결정)
+ */
+export const REFINE_RATE: number[] = [100, 100, 100, 60, 40]
 /** 강화 단계당 공격·방어 고정치 +10% */
 export const REFINE_PCT_PER_LEVEL = 10
-export const REFINE_MATERIAL = 'ironScrap'
 
 export interface RefineCost {
   gold: number
-  material: string
-  qty: number
 }
 
-/** 강화비: 장비 값의 15% × (단계+1), 철 조각 (단계+1) */
+/**
+ * 강화비: 장비 값의 15% × (단계+1), **금만**.
+ * 전에는 철 조각 (단계+1) 도 들었다. 재료가 경제의 병목이라 한 아이템 0→5 가 철 조각 27~36판이었고, 아무도 강화하지 않았다 (docs/18 §15).
+ * 금만 들면 3등급 한 벌 0→5 가 기대 약 2,300금 — 무너진 성채 6~7판이다 (2026-09-14 단장 결정, docs/18 §18)
+ */
 export function refineCost(def: ItemDef, level: number): RefineCost {
-  return { gold: Math.floor((def.price * 15) / 100) * (level + 1), material: REFINE_MATERIAL, qty: level + 1 }
+  return { gold: Math.floor((def.price * 15) / 100) * (level + 1) }
 }
 
 export const refineRate = (level: number): number => (level >= REFINE_MAX ? 0 : REFINE_RATE[level])

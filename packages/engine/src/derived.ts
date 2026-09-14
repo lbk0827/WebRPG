@@ -2,7 +2,7 @@
 // 공식은 damage.ts / state.ts 와 같아야 한다 — 여기서 바꾸면 거기도 바꾼다.
 import { isqrt } from './fixed'
 import { maxRuleRows } from './progression'
-import { CHARGE_BASE } from './state'
+import { CHARGE_BASE, critPct } from './state'
 import type { Stats } from './types'
 
 export interface DerivedStats {
@@ -18,6 +18,8 @@ export interface DerivedStats {
   castReductionPct: number
   /** 운 0 인 상대의 상태이상을 저항할 확률 % (LUK/4, 최대 30) */
   resistMaxPct: number
+  /** 피해 한 타가 더블 크리티컬(2배)이 될 확률 % (LUK/5, 최대 30) */
+  critPct: number
   /** 패턴 칸 수 */
   ruleRows: number
 }
@@ -30,6 +32,7 @@ export function derivedStats(s: Stats): DerivedStats {
     chargePerTick: isqrt(s.spd * 100) + CHARGE_BASE,
     castReductionPct: Math.min(25, Math.floor(s.dex / 4)),
     resistMaxPct: Math.min(30, Math.floor(s.luk / 4)),
+    critPct: critPct(s.luk),
     ruleRows: maxRuleRows(s),
   }
 }

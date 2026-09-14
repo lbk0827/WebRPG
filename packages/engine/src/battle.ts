@@ -22,6 +22,8 @@ import { maxRuleRows } from './progression'
 export function simulate(input: BattleInput): BattleResult {
   const st: BattleState = {
     rng: createRng(input.seed),
+    // 시드에서 갈라 낸 두 번째 흐름 — 같은 시드면 크리티컬도 같다 (결정론)
+    critRng: createRng((input.seed ^ 0x5bd1e995) >>> 0),
     teams: [
       input.teams[0].members.map((m, i) => createCharState(m, { team: 0, index: i })),
       input.teams[1].members.map((m, i) => createCharState(m, { team: 1, index: i })),

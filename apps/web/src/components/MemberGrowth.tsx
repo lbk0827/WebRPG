@@ -29,11 +29,10 @@ export function MemberGrowth({ member: m, onChange, compact }: Props) {
   const gear = gearSummary(m)
   const next = expToNext(m.level)
 
-  const bump = (k: StatKey, dir: 1 | -1) => {
-    const n = { ...pend, [k]: Math.max(0, pend[k] + dir) }
-    if (dir > 0 && sumAlloc(n) > m.statPoints) return
-    setPend(n)
-  }
+  // 드롭다운 (2026-09-14 단장 지시 — HOF 방식). 포인트가 많을 때 +1 을 수십 번 누르지 않고 한 번에 고른다.
+  // 고를 수 있는 최대치 = 이 스탯에 이미 골라 둔 것 + 남은 포인트, 그리고 스탯 상한까지
+  const maxFor = (k: StatKey): number => Math.max(0, Math.min(left + pend[k], STAT_CAP - base[k]))
+  const pick = (k: StatKey, v: number) => setPend({ ...pend, [k]: Math.max(0, Math.min(v, maxFor(k))) })
   const confirm = () => { onChange(allocateMany(m, pend)); setPend(EMPTY_ALLOC) }
 
   return (
@@ -51,10 +50,18 @@ export function MemberGrowth({ member: m, onChange, compact }: Props) {
             <b>{STAT_LABEL[k]}</b> {s[k]}
             {pend[k] > 0 ? <small className="delta">(+{pend[k]})</small> : m.alloc[k] > 0 ? <small>(+{m.alloc[k]})</small> : null}
             {m.statPoints > 0 && (
-              <span className="pm">
-                <button disabled={pend[k] <= 0} onClick={() => bump(k, -1)} title="되돌리기">−</button>
-                <button disabled={left <= 0 || base[k] + pend[k] >= STAT_CAP} onClick={() => bump(k, 1)} title={`${STAT_LABEL[k]} +1 — ${STAT_HELP[k]}`}>+</button>
-              </span>
+              <select
+                className="pm"
+                value={pend[k]}
+                disabled={maxFor(k) === 0}
+                onChange={(e) => pick(k, Number(e.target.value))}
+                aria-label={`${STAT_LABEL[k]}에 넣을 포인트`}
+                title={`${STAT_LABEL[k]} — ${STAT_HELP[k]}`}
+              >
+                {Array.from({ length: maxFor(k) + 1 }, (_, i) => (
+                  <option key={i} value={i}>+{i}</option>
+                ))}
+              </select>
             )}
           </span>
         ))}
@@ -68,6 +75,7 @@ export function MemberGrowth({ member: m, onChange, compact }: Props) {
         <span title="틱당 행동 게이지 충전량 (1000 이면 행동)">충전 {d.chargePerTick}/틱</span>
         <span title="시전 준비 시간 단축">선딜 −{d.castReductionPct}%</span>
         <span title="운 0 인 상대의 상태이상을 막을 확률">저항 ≤{d.resistMaxPct}%</span>
+        <span title="피해 한 타가 2배로 들어갈 확률 (운 25 를 넘은 1 당 1%, 최대 30%)">더블 크리 {d.critPct}%</span>
         {/* 운의 값은 전투보다 전투 밖에 있다 — 2026-09-13 까지 화면에 없었다 (docs/18 §14) */}
         <span title="단원 중 가장 높은 운이 출전 드롭 확률에 붙는다">드롭 +{lootBonusPct(s.luk)}%</span>
         <span title="제작 시 보너스 특성이 붙을 확률. 단원 중 가장 높은 운이 쓰인다">제작 특성 {CRAFT_TRAIT_PCT + craftLukBonusPct(s.luk)}%</span>

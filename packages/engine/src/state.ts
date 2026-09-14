@@ -58,6 +58,11 @@ export const DELAY_TAKEN_CAP = 1500
 
 export interface BattleState {
   rng: Rng
+  /**
+   * 더블 크리티컬 전용 난수. 본 rng 와 따로 둔다 — 크리티컬 굴림이 타깃 선택·확률 조건의 순서를 밀지 않게.
+   * 크리티컬이 한 번도 안 터진 전투는 크리티컬이 없던 때와 똑같이 흘러간다.
+   */
+  critRng: Rng
   teams: [CharState[], CharState[]]
   skills: SkillBook
   config: BattleConfig
@@ -204,6 +209,29 @@ export function effectiveSpd(c: CharState): number {
 export function resistPct(target: CharState, source: CharState): number {
   const fromLuk = clamp(Math.floor((target.setup.stats.luk - source.setup.stats.luk) / 4), 0, 30)
   return clamp(fromLuk + sumTrait(target, 'resistPct'), 0, 50)
+}
+
+// ───────────────────────────── 더블 크리티컬 (2026-09-14 단장 지시 — 제로식 "Luk 능력치에 따라 크리티컬")
+
+/**
+ * 이 운까지는 크리티컬이 없다 — 직업이 갖고 태어나는 운(10~25)으로는 터지지 않는다.
+ * 모두에게 붙이면 모든 전투에 운이 섞여 수칙의 값이 묽어진다 (2026-09-14 실측: 운/5 를 모두에게 줬더니
+ * "잘 짠 수칙 > 기본 수칙" 과 훈련 과제 정답이 깨졌다, docs/18 §18). **포인트·장비로 올린 운**만 크리티컬을 산다
+ */
+export const CRIT_LUK_FREE = 25
+/**
+ * 넘친 운 N 당 크리티컬 확률 1%. 3·2 는 너무 약해 운 투자가 여전히 손해였고, 1 에서 비로소
+ * "20% 섞으면 후반에 이득, 40% 는 과하다"가 됐다 (docs/18 §18 표)
+ */
+export const CRIT_LUK_PER_PCT = 1
+/** 크리티컬 확률 상한 % */
+export const CRIT_MAX_PCT = 30
+/** 크리티컬 피해 배율 % — "더블" */
+export const CRIT_MULT_PCT = 200
+
+/** 피해 한 타가 더블 크리티컬이 될 확률 %. 운 25 를 넘은 1 당 1%, 0~30. 몬스터도 같은 식이다 */
+export function critPct(luk: number): number {
+  return Math.min(CRIT_MAX_PCT, Math.floor(Math.max(0, luk - CRIT_LUK_FREE) / CRIT_LUK_PER_PCT))
 }
 
 /** DEX 에 의한 시전(선딜) 단축 %. dex/4, 최대 25 — dex 100 에서 상한. */

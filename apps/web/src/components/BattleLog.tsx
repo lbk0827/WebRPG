@@ -222,7 +222,7 @@ function build(events: BattleEvent[], names: Names, end: number): { items: Item[
         if (actor) tal(actor).dealt += e.amount
         push({
           kind: 'damage',
-          text: `${e.amount} 피해 → ${who(t)} (${before} → ${after})`,
+          text: `${e.crit ? '더블 크리티컬! ' : ''}${e.amount} 피해 → ${who(t)} (${before} → ${after})`,
         })
         break
       }

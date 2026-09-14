@@ -67,7 +67,7 @@ export function Workshop({ save, onSave, onBack, onGoQuest }: Props) {
 
       {tab === 'refine' && (
         <div className="refine">
-          <p className="hint">+0 → +5. 단계마다 공격·방어 고정치 +10%. 성공률 {refineRate(0)}·{refineRate(1)}·{refineRate(2)}·{refineRate(3)}·{refineRate(4)}%. <b>실패해도 장비는 깨지지도 떨어지지도 않습니다</b> — 비용만 듭니다.</p>
+          <p className="hint">+0 → +5. 단계마다 공격·방어 고정치 +10%. <b>금만 듭니다.</b> 성공률 {refineRate(0)}·{refineRate(1)}·{refineRate(2)}·{refineRate(3)}·{refineRate(4)}% — +3 까지는 확정입니다. <b>실패해도 장비는 깨지지도 떨어지지도 않습니다</b> — 들인 금만 사라집니다.</p>
           {items.length === 0 ? (
             <p className="hint">강화할 장비가 없습니다.</p>
           ) : (
@@ -83,7 +83,7 @@ export function Workshop({ save, onSave, onBack, onGoQuest }: Props) {
                     <div className="body">
                       <b>{itemName(it)}</b> <span className="tier">{owner ? `${owner.name} 착용` : '창고'}</span>
                       <small>{itemBrief(d, it)}</small>
-                      {c && <small className="cost-line">다음 +{it.refine + 1}: 금 {c.gold} · {materialLabel(c.material)} ×{c.qty} · 성공 {refineRate(it.refine)}%</small>}
+                      {c && <small className="cost-line">다음 +{it.refine + 1}: 금 {c.gold} · 성공 {refineRate(it.refine)}%</small>}
                       {maxed && <small className="cost-line">최대 강화</small>}
                     </div>
                     {!maxed && <button className={sel === it.uid ? 'on' : ''} onClick={() => { setSel(it.uid); setMsg(null) }}>고르기</button>}
@@ -97,7 +97,7 @@ export function Workshop({ save, onSave, onBack, onGoQuest }: Props) {
               <button className="primary big" disabled={!canRefine(save, target.it)} onClick={doRefine}>
                 {itemName(target.it)} 강화 → +{target.it.refine + 1}
               </button>
-              {!canRefine(save, target.it) && <small>금 또는 재료가 모자랍니다.</small>}
+              {!canRefine(save, target.it) && <small>금이 모자랍니다.</small>}
             </div>
           )}
         </div>

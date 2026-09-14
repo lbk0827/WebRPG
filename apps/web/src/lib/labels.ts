@@ -9,7 +9,7 @@ export const STAT_HELP: Record<StatKey, string> = {
   int: '마법·회복의 위력과 최대 SP. 10·20·35·50·70 을 넘을 때마다 패턴 칸이 하나 늘어난다.',
   dex: '연타·사격·독 같은 손재주 기술의 위력. 4 마다 시전 준비 시간 1% 단축 (최대 25%).',
   spd: '행동 게이지가 차는 속도. 높을수록 차례가 자주 온다 (제곱근이라 몰빵은 손해).',
-  luk: '단원 중 가장 높은 운이 드롭 확률(운 2 당 +1%, 최대 +60%)과 제작 특성 확률(운 5 당 +1%p, 최대 +25%p)에 붙고, 적이 거는 상태이상을 저항한다(상대와의 차이 4 당 1%, 최대 30%). ⚠ 포인트를 넣는 것은 권하지 않습니다 — 측정해 보면 어떤 비율에서도 손해입니다(docs/18 §16). 운은 직업이 갖고 태어나는 값으로 쓰세요. 프리스트 25 · 도적·엘프 20 · 전사·마법사 10.',
+  luk: '더블 크리티컬 — 운이 25 를 넘으면 넘은 1 당 피해 한 타가 2배로 들어갈 확률 +1% (최대 30%). 그리고 단원 중 가장 높은 운이 드롭 확률(운 2 당 +1%, 최대 +60%)과 제작 특성 확률(운 5 당 +1%p, 최대 +25%p)에 붙고, 적이 거는 상태이상을 저항한다(상대와의 차이 4 당 1%, 최대 30%). 포인트의 20% 쯤 섞으면 후반 지역에서 이득이고, 40% 는 과합니다 (docs/18 §18). 타고난 운: 프리스트 25 · 도적·엘프 20 · 전사·마법사 10.',
 }
 
 export const STATUS_HELP: Record<StatusId, string> = {
@@ -282,7 +282,7 @@ export function describeEvent(e: BattleEvent, names: Names): Line | null {
     case 'damage':
       return e.nullified
         ? { kind: 'cover', text: `${who(e.target)}의 보호막이 공격을 막았다` }
-        : { kind: 'damage', text: `${who(e.target)}에게 ${e.amount} 피해` }
+        : { kind: 'damage', text: `${e.crit ? '더블 크리티컬! ' : ''}${who(e.target)}에게 ${e.amount} 피해` }
     case 'heal':
       return { kind: 'heal', text: `${who(e.target)} HP +${e.amount}` }
     case 'spChange':

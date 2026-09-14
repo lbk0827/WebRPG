@@ -248,6 +248,7 @@ button.big { padding: 10px 22px; font-size: 15px; }
   animation: popup-float 900ms ease-out both;
 }
 .popup.dmg { color: var(--bad); }
+.popup.crit { color: var(--warn); font-size: 17px; font-weight: 900; }
 .popup.heal { color: var(--good); }
 .popup.sp { color: var(--sp); font-size: 11px; }
 .popup.block { color: var(--muted); font-size: 11px; }
@@ -833,6 +834,7 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .growth .stat button { padding: 0 8px; min-height: 26px; line-height: 1; }
 .growth .stat small { color: var(--good); }
 .growth .stat .pm { display: inline-flex; gap: 2px; }
+.growth .stat select.pm { min-height: 26px; padding: 0 2px; font-size: 12px; }
 .growth .stat.pend { color: var(--good); font-weight: 700; }
 .growth .derived { display: flex; flex-wrap: wrap; gap: 4px 10px; font-size: 11px; color: var(--muted); margin: 2px 0 6px; }
 .growth .derived span { white-space: nowrap; }

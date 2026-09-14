@@ -19,7 +19,7 @@ interface Props {
 
 interface Popup {
   text: string
-  kind: 'dmg' | 'heal' | 'block' | 'status' | 'interrupt' | 'revive' | 'cover' | 'sp'
+  kind: 'dmg' | 'crit' | 'heal' | 'block' | 'status' | 'interrupt' | 'revive' | 'cover' | 'sp'
 }
 
 interface Fx {
@@ -77,7 +77,7 @@ function currentTurnFx(events: BattleEvent[], cursor: number): Fx {
         fx.lunge = true
         if (e.nullified) push(e.target, { text: '막음', kind: 'block' })
         else {
-          push(e.target, { text: `-${e.amount}`, kind: 'dmg' })
+          push(e.target, e.crit ? { text: `-${e.amount}!!`, kind: 'crit' } : { text: `-${e.amount}`, kind: 'dmg' })
           fx.hit.add(key(e.target))
         }
         break
