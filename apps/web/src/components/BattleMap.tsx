@@ -136,6 +136,9 @@ export function BattleMap({ save, onSave, region, group, icon, onBack, onGoForma
     ? `🔒 ${gate}`
     : party.length === 0
       ? '아래에서 출전할 단원을 체크하세요.'
+      // 인원이 난이도에 가장 크게 작용한다 (docs/07 §3.8g). 레벨 경고보다 먼저 — 혼자 가도에 가면 0% 다 (docs/20 §6)
+      : party.length < region.count[0]
+        ? `상대는 한 판에 ${region.count[0]}~${region.count[1]}명인데 출전 ${party.length}명입니다. 마을 용병소에서 동료를 고용하세요 — 자리가 있으면 바로 출전합니다.`
       : us.avgLevel < region.recommended[0]
         ? '권장 레벨보다 낮습니다. 질 수 있습니다 — 져도 경험치 30%.'
         : ''

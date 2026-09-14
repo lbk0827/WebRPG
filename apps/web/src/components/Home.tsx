@@ -40,6 +40,8 @@ export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Prop
   const fresh = clearedCount === 0 && save.battles === 0
 
   const todos: Todo[] = []
+  // 새 게임의 첫 할 일은 첫 전투다 — 주인공 혼자서도 이기는 지역 (docs/20 §6)
+  if (save.battles === 0) todos.push({ text: `첫 전투 — ${REGIONS[0].name} (혼자서도 이길 수 있다)`, action: '전투', go: () => onGo('battle') })
   if (nextMission) todos.push({ text: `훈련 과제 ${nextMission.no}. ${nextMission.title}`, action: '훈련소', go: () => onGoTown('missions') })
   const unallocated = save.members.filter((m) => m.statPoints > 0)
   if (unallocated.length) todos.push({ text: `${unallocated.map((m) => m.name).join('·')} — 스탯 포인트 미분배`, action: '캐릭터', go: () => onGo('characters') })
@@ -49,7 +51,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Prop
     todos.push({ text: `출전 ${party.length}/${PARTY_MAX}명 — 대기 단원 ${save.members.length - party.length}명`, action: '편성', go: () => onGo('formation') })
   }
   if (party.length < PARTY_MAX && save.members.length === party.length && save.members.length < MEMBER_MAX && Object.keys(HIRE).some((j) => canHire(save, j))) {
-    todos.push({ text: `출전 자리가 남았고 금 ${save.gold} — 용병소에서 고용 가능`, action: '용병소', go: () => onGoTown('recruit') })
+    todos.push({ text: `출전 자리가 남았고 금 ${save.gold} — 용병소에서 동료를 고용하면 바로 출전한다`, action: '용병소', go: () => onGoTown('recruit') })
   }
   // 들 수 있는 무기가 없는 직업(주인공 — 전용 무기 기획 중)은 빼고 센다
   const unarmed = party.filter((m) => !m.gear?.weapon && (JOB_WEAPONS[m.job] ?? []).length > 0)
@@ -88,7 +90,12 @@ export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Prop
             <dt>그럼 뭘 하나?</dt>
             <dd>출전 전에 단원마다 <b>교전 수칙</b>을 적는다 — "이런 상황이면 이걸 해라" 목록. 실력은 반사신경이 아니라 설계다.</dd>
             <dt>뭐부터?</dt>
-            <dd>마을의 훈련소에서 과제 1번. 과제 하나에 개념 하나, 열두 개면 끝. 세 개만 마쳐도 전투가 열린다.</dd>
+            <dd>
+              처음엔 주인공 혼자다. <b>전투 → 마을 외곽</b>은 혼자서도 이긴다. 금이 모이면 <b>마을 → 용병소</b>에서 동료를 고용하자 — 자리가 있으면 바로 출전한다.
+              마을 외곽에서 3승하면 <b>가도</b>가 열리는데, 상대가 3~4명이라 동료 둘은 있어야 한다.
+            </dd>
+            <dt>수칙은 어디서 배우나?</dt>
+            <dd>마을의 훈련소 과제. 과제 하나에 개념 하나다. 전투와 상관없이 언제든 할 수 있다.</dd>
           </dl>
         </div>
       )}

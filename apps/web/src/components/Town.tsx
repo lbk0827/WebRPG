@@ -59,7 +59,7 @@ export function Town({ save, onSave, progress, onProgress, initial = 'hub', onGo
           <h2>용병소 <small>새 단원을 고용한다</small></h2>
         </div>
         <Recruit save={save} onSave={onSave} />
-        <p className="hint">고용한 단원은 <button className="link" onClick={onGoFormation}>편성 판</button>에 세워야 싸웁니다. 스탯·스킬·장비는 캐릭터 탭에서.</p>
+        <p className="hint">고용한 단원은 출전 자리(최대 5명)가 남아 있으면 <b>바로 출전</b>합니다. 자리 조정은 <button className="link" onClick={onGoFormation}>편성 판</button>, 스탯·스킬·장비는 캐릭터 탭에서.</p>
       </section>
     )
   }

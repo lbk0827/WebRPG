@@ -570,7 +570,9 @@ export function hireMember(g: GameSave, job: string, name: string, seed: number)
     guard: structuredClone(p.guard),
     rules: structuredClone(p.rules),
   }
-  return { ...g, gold: g.gold - price, members: [...g.members, m] }
+  // 출전 자리가 있으면 바로 세운다 (2026-09-14 초반 다듬기, docs/20 §6).
+  // 전에는 대기로만 들어가 "편성 탭 → 세우기"를 따로 해야 했다 — 혼자 시작한 사람이 가장 먼저 걸리는 곳이었다
+  return enlistMember({ ...g, gold: g.gold - price, members: [...g.members, m] }, m.id)
 }
 
 export const dismissRefund = (m: Member): number => Math.floor(((m.hiredFor ?? 0) * DISMISS_REFUND_PCT) / 100)
