@@ -216,15 +216,19 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .arena .center { text-align: center; }
 .arena .headline { font-weight: 800; font-size: 13px; }
 .arena .sub { font-size: 11px; color: var(--muted); }
-.side { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+/* 열 폭을 고정하고 두 팀을 판 가운데로 모은다 — 한 열에 6명까지 (2026-09-14 단장 요청) */
+.side { display: grid; grid-template-columns: repeat(2, minmax(0, 88px)); gap: 6px; }
+.side.t0 { justify-content: end; }
+.side.t1 { justify-content: start; }
 .side.t0 .col.back { order: 1; } .side.t0 .col.front { order: 2; }
 .side.t1 .col.front { order: 1; } .side.t1 .col.back { order: 2; }
-.col { display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 60px; }
+.col { display: flex; flex-direction: column; justify-content: center; gap: 4px; min-height: 60px; }
 .col.back { opacity: 0.92; }
 .char { position: relative; text-align: center; width: 100%; }
-.char .sprite { position: relative; display: inline-block; }
+/* block: inline-block 이면 글자 기준선 아래 몇 px 이 남아 한 열 6명일 때 쌓인다 */
+.char .sprite { position: relative; display: block; width: max-content; margin: 0 auto; }
 .char img { width: 40px; height: 40px; display: block; margin: 0 auto; transition: filter 0.3s, transform 0.3s; }
-.char .nm { font-size: 10px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.char .nm { font-size: 10px; line-height: 1.25; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
 .char .bar { height: 4px; margin: 2px 4px 0; }
 .char .tags { display: flex; justify-content: center; gap: 2px; flex-wrap: wrap; margin-top: 2px; }
 .char .tag { font-size: 9px; padding: 0 4px; }
@@ -355,10 +359,11 @@ button.big { padding: 10px 22px; font-size: 15px; }
 @media (min-width: 760px) {
   .arena { grid-template-columns: 1fr 90px 1fr; padding: 34px 16px 16px; min-height: 300px; }
   .arena .headline { font-size: 16px; }
-  .char img { width: 60px; height: 60px; }
-  .char .unit svg { width: 96px; height: 128px; }
-  .char .nm { font-size: 12px; }
-  .char .bar { margin: 3px 10px 0; }
+  /* 데스크톱도 도트는 1배(48×64). 2배(96×128)면 한 열 6명이 판 높이 1086px 로 화면을 넘었다 — 정수 배율만 쓰므로 1배로 */
+  .side { grid-template-columns: repeat(2, minmax(0, 104px)); gap: 10px; }
+  .char img { width: 48px; height: 48px; }
+  .char .nm { font-size: 11px; }
+  .char .bar { margin: 2px 8px 0; }
   .bubble { font-size: 12px; }
   .popup { font-size: 16px; }
   @keyframes lunge-r { 0% { transform: translateX(0); } 40% { transform: translateX(36px) scale(1.1); } 100% { transform: translateX(0); } }
@@ -1146,14 +1151,18 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .battle-map > .brief { margin: 4px 0 8px; }
 
 /* 편성 저장 — 모험단 LOAD · DEL / SAVE */
-.party-box { display: grid; gap: 6px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 8px 10px; }
-.party-box .pb-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+/* 편성 저장 — 한 줄로 (2026-09-14 단장: "너무 크다"). 이름 · 삭제는 ⋯ 를 눌렀을 때만 */
+.party-box { display: grid; gap: 4px; background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 6px 8px; }
+.party-box .pb-row { display: flex; flex-wrap: nowrap; align-items: center; gap: 4px; }
+.party-box .pb-row button { padding: 4px 8px; font-size: 12px; white-space: nowrap; flex: none; }
+.party-box .pb-row button.more { padding: 4px 7px; line-height: 1; }
+.party-box .pb-row button.more.on { background: var(--ink); color: #fff; border-color: var(--ink); }
 .party-box .lbl { font-size: 12px; color: var(--muted); min-width: 30px; }
 .party-box select, .party-box input { font: inherit; padding: 4px 6px; border: 1px solid var(--line); border-radius: 6px; background: #fff; min-width: 0; }
 /* 좁은 화면에서 버튼이 혼자 다음 줄로 떨어지지 않게, 선택칸·이름칸이 줄어든다.
    select 는 가장 긴 선택지 폭을 고집하므로 기준 폭을 0 으로 두어야 실제로 줄어든다 (320px 에서 확인) */
-.party-box select { flex: 1 1 0; min-width: 6em; max-width: 16em; }
-.party-box input { flex: 1 1 8em; max-width: 14em; }
+.party-box select { flex: 1 1 0; min-width: 0; max-width: 18em; font-size: 12px; min-height: 30px; }
+.party-box input { flex: 1 1 0; min-width: 0; max-width: 18em; font-size: 12px; min-height: 30px; }
 .party-box .pb-who { color: var(--muted); font-size: 11px; }
 
 /* 싸우자! · 3번 싸우자! · 선택초기화 */

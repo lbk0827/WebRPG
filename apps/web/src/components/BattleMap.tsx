@@ -216,7 +216,7 @@ export function BattleMap({ save, onSave, region, group, icon, onBack, onGoForma
         </p>
       )}
 
-      <h3 className="bar-title">편성 저장 <small>맵마다 다른 편성을 저장해 두고 불러온다</small></h3>
+      <h3 className="bar-title" title="맵마다 다른 편성을 저장해 두고 불러온다">편성 저장</h3>
       <PresetBox save={save} onSave={onSave} onGoFormation={onGoFormation} />
 
       {fightBar}

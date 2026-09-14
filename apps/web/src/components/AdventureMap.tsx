@@ -142,7 +142,7 @@ export function AdventureMap({ save, onSave, def, icon, onBack, onGoFormation }:
         </li>
       </ul>
 
-      <h3 className="bar-title">편성 저장 <small>이 상대에 맞춘 편성을 저장해 두고 불러온다</small></h3>
+      <h3 className="bar-title" title="이 상대에 맞춘 편성을 저장해 두고 불러온다">편성 저장</h3>
       <PresetBox save={save} onSave={onSave} onGoFormation={onGoFormation} />
 
       {fightBar}

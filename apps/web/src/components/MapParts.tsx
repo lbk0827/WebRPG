@@ -21,6 +21,8 @@ export function PresetBox({ save, onSave, onGoFormation }: { save: GameSave; onS
   const filled = save.partyPresets.findIndex((p) => p !== null)
   const [slot, setSlot] = useState(inUse >= 0 ? inUse : filled >= 0 ? filled : 0)
   const [name, setName] = useState('')
+  /** 이름 바꾸기 · 삭제 줄 — 평소에는 접는다 */
+  const [more, setMore] = useState(false)
   const p = save.partyPresets[slot] ?? null
   const isCurrent = p !== null && JSON.stringify(p.party) === current
   const empty = partyMembers(save).length === 0
@@ -44,7 +46,6 @@ export function PresetBox({ save, onSave, onGoFormation }: { save: GameSave; onS
   return (
     <div className="party-box">
       <div className="pb-row">
-        <span className="lbl">편성</span>
         <select value={slot} onChange={(e) => setSlot(Number(e.target.value))} aria-label="편성 슬롯">
           {Array.from({ length: PARTY_PRESET_SLOTS }, (_, i) => {
             const q = save.partyPresets[i]
@@ -55,18 +56,21 @@ export function PresetBox({ save, onSave, onGoFormation }: { save: GameSave; onS
             )
           })}
         </select>
-        <button disabled={!p || isCurrent} onClick={() => p && onSave(setGrid(save, p.party))}>불러오기</button>
-        <button disabled={!p} onClick={remove}>삭제</button>
+        <button disabled={!p || isCurrent} onClick={() => p && onSave(setGrid(save, p.party))} title="이 슬롯의 편성으로 바꾼다">불러오기</button>
+        <button disabled={empty} onClick={store} title="지금 편성을 이 슬롯에 저장한다">저장</button>
+        <button className={`more ${more ? 'on' : ''}`} onClick={() => setMore((v) => !v)} aria-expanded={more} title="이름 바꾸기 · 삭제">⋯</button>
       </div>
-      <div className="pb-row">
-        <span className="lbl">이름</span>
-        <input value={name} maxLength={12} placeholder={p?.name ?? `편성 ${slot + 1}`} onChange={(e) => setName(e.target.value)} aria-label="편성 이름" />
-        <button disabled={empty} onClick={store}>이 슬롯에 저장</button>
-      </div>
+      {more && (
+        <div className="pb-row">
+          <input value={name} maxLength={12} placeholder={p?.name ?? `편성 ${slot + 1}`} onChange={(e) => setName(e.target.value)} aria-label="편성 이름 — 저장할 때 붙는다" />
+          <button disabled={empty} onClick={store}>이름으로 저장</button>
+          <button disabled={!p} onClick={remove}>삭제</button>
+        </div>
+      )}
       <small className="pb-who">
-        {p ? (isCurrent ? '지금 쓰는 편성입니다' : who || '비어 있는 편성') : '빈 슬롯 — 지금 편성을 저장할 수 있습니다'}
+        {p ? (isCurrent ? '지금 쓰는 편성' : who || '비어 있는 편성') : '빈 슬롯'}
         {' · '}
-        <button className="link" onClick={onGoFormation}>자리 세부 조정은 편성 탭 →</button>
+        <button className="link" onClick={onGoFormation}>자리 조정은 편성 탭 →</button>
       </small>
     </div>
   )
