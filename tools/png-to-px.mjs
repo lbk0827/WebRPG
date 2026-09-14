@@ -377,10 +377,12 @@ const entry = manifest.jobs?.[key] || manifest.monsters?.[key]
 if (!entry?.color) throw new Error(`manifest.json 에 ${key} 대표색이 없다`)
 const representative = hexRgb(entry.color)
 const representativeDark = representative.map((v) => Math.round(v * 0.68))
+const extras = Object.entries(entry.pixelPalette ?? {}).map(([ch, hex]) => [ch, ...hexRgb(hex)])
 const PALETTE = [
   ...BASE_PALETTE,
   ['r', ...representative],
   ['R', ...representativeDark],
+  ...extras,
 ]
 const img = decodePng(readFileSync(src))
 const bg = backgroundOf(img)

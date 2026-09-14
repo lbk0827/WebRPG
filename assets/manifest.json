@@ -30,6 +30,34 @@
       "icon": "jobs/elf.svg",
       "color": "#3e8e5a",
       "role": "후열 관통 사격"
+    },
+    "adventurer-male": {
+      "name": "모험가(남)",
+      "icon": "jobs/warrior.svg",
+      "color": "#c07a2c",
+      "pixelPalette": { "h": "#5a321d", "m": "#9b5a2f", "H": "#d58a47" },
+      "role": "주인공 · 성장형 모험가"
+    },
+    "adventurer-female": {
+      "name": "모험가(여)",
+      "icon": "jobs/rogue.svg",
+      "color": "#2f8f87",
+      "pixelPalette": { "h": "#5a321d", "m": "#a46033", "H": "#d58d4e" },
+      "role": "주인공 · 성장형 모험가"
+    },
+    "guildMember-male": {
+      "name": "길드원(남)",
+      "icon": "jobs/warrior.svg",
+      "color": "#35508f",
+      "pixelPalette": { "h": "#4d2d1d", "m": "#8f542e", "H": "#d18445" },
+      "role": "주인공 · 길드 검사"
+    },
+    "guildMember-female": {
+      "name": "길드원(여)",
+      "icon": "jobs/rogue.svg",
+      "color": "#315fb2",
+      "pixelPalette": { "h": "#6f573b", "m": "#b99b70", "H": "#f0d0a0" },
+      "role": "주인공 · 길드 검사"
     }
   },
   "$monsterComment": "몬스터 아이콘. 키는 엔진 MonsterDef.icon (원형 8종). 여러 몬스터가 한 아이콘을 공유한다",
@@ -136,6 +164,22 @@
     "ogre": {
       "name": "오우거",
       "sprite": "units/ogre.svg"
+    },
+    "adventurer-male": {
+      "name": "모험가(남)",
+      "sprite": "units/adventurer-male.svg"
+    },
+    "adventurer-female": {
+      "name": "모험가(여)",
+      "sprite": "units/adventurer-female.svg"
+    },
+    "guildMember-male": {
+      "name": "길드원(남)",
+      "sprite": "units/guildMember-male.svg"
+    },
+    "guildMember-female": {
+      "name": "길드원(여)",
+      "sprite": "units/guildMember-female.svg"
     }
   },
   "palette": {

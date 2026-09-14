@@ -251,20 +251,30 @@ export const statusLabel = (id: StatusId): string => STATUS_DEFS[id]?.label ?? i
  * 키는 직업 id 또는 몬스터 아이콘 id — 전투 CharSetup.id 의 `키#번호` 앞부분이 그대로 들어온다.
  */
 export const jobIcon = (key: string): string => {
-  const k = artKey(key)
+  const k = emblemKey(key)
   return `${import.meta.env.BASE_URL}${isMonsterIcon(k) ? 'monsters' : 'jobs'}/${k}.svg`
 }
 
 /**
- * 그림이 아직 없는 키 → 임시로 쓸 기존 그림. 주인공 계보 남/여 도트 10장은 주문 대기다 (docs/21).
+ * 그림이 아직 없는 키 → 임시로 쓸 기존 그림. 모험가 · 길드원 남/여는 도착했고 떠돌이 · 용사 · 타락 용사 6장은 주문 대기다 (docs/21).
  * 그림이 도착하면 해당 키를 지운다.
  */
-const HERO_ART_KEYS = ['adventurer', 'guildMember', 'wanderer', 'brave', 'fallenHero']
+const HERO_ART_KEYS = ['wanderer', 'brave', 'fallenHero']
 const ART_STANDIN: Record<string, string> = {
   adventurer: 'warrior',
   ...Object.fromEntries(HERO_ART_KEYS.flatMap((k) => [[`${k}-male`, 'warrior'], [`${k}-female`, 'rogue']])),
 }
 export const artKey = (key: string): string => ART_STANDIN[key] ?? key
+
+/**
+ * 원형 엠블럼(jobs/*.svg)의 키. 전투 도트와 따로 간다 — 주인공 계보는 도트가 도착해도 엠블럼은 없으므로
+ * 남 → 전사, 여 → 도적 엠블럼을 쓴다 (manifest.json 의 icon 과 같다). 도트를 불러오는 동안 이 그림이 먼저 보인다
+ */
+const HERO_LINE = /^(adventurer|guildMember|wanderer|brave|fallenHero)-(male|female)$/
+const emblemKey = (key: string): string => {
+  const m = HERO_LINE.exec(key)
+  return m ? (m[2] === 'male' ? 'warrior' : 'rogue') : artKey(key)
+}
 
 export const failText = (r: SkillFailReason): string =>
   r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : r === 'silenced' ? '침묵 상태' : r === 'cooldown' ? '재사용 대기' : r === 'notLearned' ? '미습득' : '무기 불일치'

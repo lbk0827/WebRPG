@@ -58,7 +58,7 @@ export function NewGame({ onStart, onCancel }: Props) {
             {onCancel && <button onClick={onCancel}>취소 — 지금 진행으로</button>}
             {!gender && <small>성별을 고르세요.</small>}
           </div>
-          <p className="hint">시작 금 {START_GOLD}. 지금 그림은 임시입니다 — 모험가 도트가 도착하면 바뀝니다.</p>
+          <p className="hint">시작 금 {START_GOLD}.</p>
         </section>
       </main>
     </div>

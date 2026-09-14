@@ -81,6 +81,22 @@
 | `units/elf.px` | 도트 전투 스프라이트 원본 (엘프, AI 초안 변환 후 검수) | `elf-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-11 |
 | `units/elf.svg` | 생성물 (`node tools/build-units.mjs`) | `elf.px`에서 생성 | 원본과 동일 | 2026-09-11 |
 | `units/elf-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs elf 10`) | `elf.px`에서 생성 | 원본과 동일 | 2026-09-11 |
+| `../art-source/units/adventurer-male-source.png` | AI 생성 도트 시트 초안 (모험가 남, 주황 망토·몽둥이 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `units/adventurer-male.px` | 도트 전투 스프라이트 원본 (모험가 남) | `adventurer-male-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `units/adventurer-male.svg` | 생성물 (`node tools/build-units.mjs`) | `adventurer-male.px`에서 생성 | 원본과 동일 | 2026-09-14 |
+| `units/adventurer-male-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs adventurer-male 10`) | `adventurer-male.px`에서 생성 | 원본과 동일 | 2026-09-14 |
+| `../art-source/units/adventurer-female-source.png` | AI 생성 도트 시트 초안 (모험가 여, 청록 망토·땋은 머리·몽둥이 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `adventurer-male-source.png`만 사용, 체형·대표색 수정 및 투명 배경 정리 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `units/adventurer-female.px` | 도트 전투 스프라이트 원본 (모험가 여) | `adventurer-female-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `units/adventurer-female.svg` | 생성물 (`node tools/build-units.mjs`) | `adventurer-female.px`에서 생성 | 원본과 동일 | 2026-09-14 |
+| `units/adventurer-female-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs adventurer-female 10`) | `adventurer-female.px`에서 생성 | 원본과 동일 | 2026-09-14 |
+| `../art-source/units/guildMember-male-source.png` | AI 생성 도트 시트 초안 (길드원 남, 남색 망토·에고 소드 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `adventurer-male-source.png` 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `units/guildMember-male.px` | 도트 전투 스프라이트 원본 (길드원 남) | `guildMember-male-source.png` → `png-to-px.mjs` | 원본과 동일 | 2026-09-14 |
+| `units/guildMember-male.svg` | 48×64 게임용 생성물 | `guildMember-male.px`에서 생성 | 원본과 동일 | 2026-09-14 |
+| `units/guildMember-male-sheet.png` | 10배 검수 시트 | `guildMember-male.px`에서 생성 | 원본과 동일 | 2026-09-14 |
+| `../art-source/units/guildMember-female-source.png` | AI 생성 도트 시트 초안 (길드원 여, 긴 애쉬 블론드·남색 망토·에고 소드 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `guildMember-male-source.png` 참조, 투명 배경 정리 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `units/guildMember-female.px` | 도트 전투 스프라이트 원본 (길드원 여) | `guildMember-female-source.png` → `png-to-px.mjs` | 원본과 동일 | 2026-09-14 |
+| `units/guildMember-female.svg` | 48×64 게임용 생성물 | `guildMember-female.px`에서 생성 | 원본과 동일 | 2026-09-14 |
+| `units/guildMember-female-sheet.png` | 10배 검수 시트 | `guildMember-female.px`에서 생성 | 원본과 동일 | 2026-09-14 |
 | `manifest.json` | 매니페스트 | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `../tools/build-icons.mjs` | 도구 (요청서 87종 SVG 생성·매니페스트·원장 동기화) | 자체 제작 | 저장소 소유 | 2026-09-12 |
 | `../tools/pixelate-icons.py` | 도구 (도형 SVG → 24×24 제한 팔레트 도트 SVG) | 자체 제작 | 저장소 소유 | 2026-09-13 |
