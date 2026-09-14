@@ -1014,7 +1014,7 @@ button.big { padding: 10px 22px; font-size: 15px; }
   line-height: 1.6;
 }
 
-/* ───────── 32×32 도트 아이콘 (M2-8, 2026-09-13) ───────── */
+/* ───────── 24×24 도트 아이콘 (M2-8, 2026-09-13 · 09-14 제로식 규격) ───────── */
 .dot-icon {
   display: block;
   flex: none;
@@ -1022,9 +1022,12 @@ button.big { padding: 10px 22px; font-size: 15px; }
   width: 24px;
   height: 24px;
 }
-.dot-icon.sm { width: 20px; height: 20px; }
+/* 제로식 규격 (2026-09-14): 아이콘은 24×24 로 만들고 **1배(24px) 또는 2배(48px)로만** 보인다.
+   도트는 정수 배율에서만 선명하다. 전에는 32px 그림을 24·20px 로 줄여(0.75·0.625배) 흐렸다.
+   sm 은 예전 20px 자리 — 이제 md 와 같은 24px 다 */
+.dot-icon.sm { width: 24px; height: 24px; }
 .dot-icon.md { width: 24px; height: 24px; }
-.dot-icon.lg { width: 32px; height: 32px; }
+.dot-icon.lg { width: 48px; height: 48px; }
 
 /* 스킬 프레임 — 스킬은 "칸에 놓인 것"이다 (단장 지시) */
 .skill-frame {
@@ -1039,9 +1042,9 @@ button.big { padding: 10px 22px; font-size: 15px; }
     inset 0 -1px 0 rgba(0, 0, 0, 0.35),
     0 1px 2px rgba(0, 0, 0, 0.3);
 }
-.skill-frame.sm { width: 26px; height: 26px; }
+.skill-frame.sm { width: 28px; height: 28px; }
 .skill-frame.md { width: 32px; height: 32px; }
-.skill-frame.lg { width: 40px; height: 40px; border-radius: 6px; border-width: 2px; }
+.skill-frame.lg { width: 56px; height: 56px; border-radius: 6px; border-width: 2px; }
 /* 빈 칸 — 그림이 아직 없는 스킬도 칸은 남는다 */
 .skill-frame:empty::after,
 .skill-frame:has(> :only-child:not(img))::after { content: ''; }
