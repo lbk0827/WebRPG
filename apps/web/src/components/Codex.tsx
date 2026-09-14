@@ -5,7 +5,7 @@ import type { StatKey, StatusId } from '@webrpg/engine'
 import { ARCHETYPE_LABEL, CRAFT_TRAIT_PCT, ITEMS, ITEM_LIST, MATERIALS, MONSTERS, PRESETS, RECIPES, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, SLOT_LABEL, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, monsterSetup } from '@webrpg/engine'
 import { KIND_SPECS, PICKER_GROUPS, STAT_LABEL } from '../lib/condition'
 import { STAT_HELP, STATUS_HELP, itemBrief, jobName, skillParts, skillSources, traitText } from '../lib/labels'
-import { SkillIcon, StatusIcon, TraitIcon } from './Icon'
+import { ItemIcon, SkillIcon, StatusIcon, TraitIcon } from './Icon'
 
 type Section = 'skills' | 'items' | 'status' | 'traits' | 'conditions' | 'stats' | 'regions'
 
@@ -69,7 +69,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
             <tbody>
               {ITEM_LIST.map((i) => (
                 <tr key={i.id}>
-                  <td className="nm">{i.label}</td>
+                  <td className="nm"><ItemIcon id={i.id} alt={i.label} inline /> {i.label}</td>
                   <td>{SLOT_LABEL[i.slot]}{i.weaponType ? ` (${WEAPON_TYPE_LABEL[i.weaponType]})` : ''}</td>
                   <td className="num">{i.tier}</td>
                   <td className="num">{i.price}</td>
@@ -78,14 +78,14 @@ export function Codex({ onBack }: { onBack: () => void }) {
               ))}
             </tbody>
           </table>
-          <p className="hint">등급 1 은 처음부터, 2 는 가도, 3 은 폐허 요새가 열리면 상점에 나온다. 무기 종류: 전사 검 · 도적 단검 · 마법사 지팡이 · 프리스트 성물 · 엘프 활. 강화는 +5 까지, 단계마다 공격·방어 고정치 +10%.</p>
+          <p className="hint">등급 1 은 처음부터, 2 는 가도, 3 은 폐허 요새가 열리면 상점에 나온다. 무기 종류: 전사 검 · 도적 단검 · 마법사 지팡이 · 프리스트 성물 · 엘프 활 · 모험가 전용(상점·제작 없음, 전직하면 진화). 강화는 +5 까지, 단계마다 공격·방어 고정치 +10%.</p>
           <h3>재료 <small>의뢰에서 이긴 상대가 떨어뜨린다 (몬스터당 최대 1개)</small></h3>
           <table className="codex-table compact">
             <thead><tr><th>재료</th><th>누가 떨어뜨리나</th><th>설명</th></tr></thead>
             <tbody>
               {Object.values(MATERIALS).map((m) => (
                 <tr key={m.id}>
-                  <td className="nm">{m.label}</td>
+                  <td className="nm"><ItemIcon id={m.id} alt={m.label} inline /> {m.label}</td>
                   <td>{Object.values(MONSTERS).filter((x) => x.drops?.some((d) => d.itemId === m.id)).map((x) => `${x.name}${x.hidden ? '(?)' : ''} ${(x.drops!.find((d) => d.itemId === m.id)!.permyriad / 100).toFixed(0)}%`).join(' · ') || '—'}</td>
                   <td className="muted">{m.blurb}</td>
                 </tr>
@@ -98,7 +98,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
             <tbody>
               {RECIPES.map((r) => (
                 <tr key={r.id}>
-                  <td className="nm">{ITEMS[r.itemId].label}</td>
+                  <td className="nm"><ItemIcon id={r.itemId} alt={ITEMS[r.itemId].label} inline /> {ITEMS[r.itemId].label}</td>
                   <td className="num">{r.gold}</td>
                   <td>{r.materials.map((m) => `${MATERIALS[m.id].label} ×${m.qty}`).join(' · ')}</td>
                 </tr>
