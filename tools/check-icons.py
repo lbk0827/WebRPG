@@ -7,6 +7,8 @@
     · 반투명 픽셀 0 — 알파는 0 또는 255
     · 사방 여백 1px 이상 — 테두리가 캔버스 끝에 붙으면 잘린다
     · 불투명 색 12개 이하 (목표 8~10)
+    · 불투명 색 6개 이상 — 그 아래는 재질 명암이 없는 평면 스티커다. JRPG 느낌이 사라진다 (2026-09-14 단장:
+      "JRPG 느낌이 사라지면 안됩니다". 1차 손질 27종이 전부 3~5색으로 납작해져 반려됐다, docs/14 §9-1)
   경고 (실패는 아님)
     · 외톨이 픽셀 35% 초과 — 상하좌우 이웃 전부와 색이 다른 픽셀. 많으면 1배에서 흐리게 보인다
 
@@ -27,6 +29,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parent.parent
 SIZE = 24
 MAX_COLORS = 12
+MIN_COLORS = 6
 WARN_LONE_PCT = 35
 N4 = ((1, 0), (-1, 0), (0, 1), (0, -1))
 
@@ -81,6 +84,8 @@ def main() -> int:
                 failures.append(f"{name}: 여백 {r['margin']}px (1px 이상)")
             if r["colors"] > MAX_COLORS:
                 failures.append(f"{name}: {r['colors']}색 ({MAX_COLORS}색 이하)")
+            if r["colors"] < MIN_COLORS:
+                failures.append(f"{name}: {r['colors']}색 — 평면 스티커. 재질 명암이 없으면 JRPG 느낌이 사라진다 ({MIN_COLORS}색 이상)")
             if r["lone"] > WARN_LONE_PCT:
                 warnings.append(f"{name}: 외톨이 픽셀 {r['lone']}%")
 
