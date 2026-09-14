@@ -8,6 +8,8 @@ import type { GameSave } from '../game/save'
 import { PARTY_MAX } from '../game/save'
 import { canLearnSomething, cellOf, memberCanAdvance, memberIcon, partyMembers } from '../game/members'
 import { UnitOverlay } from './UnitOverlay'
+import { DebugCharacterGallery } from './DebugCharacterGallery'
+import { DEBUG } from '../lib/debug'
 
 interface Props {
   save: GameSave
@@ -54,6 +56,8 @@ export function Characters({ save, onSave, onGoShop, onGoRecruit, onGoFormation 
           )
         })}
       </ul>
+
+      {DEBUG && <DebugCharacterGallery />}
 
       {member && (
         <UnitOverlay

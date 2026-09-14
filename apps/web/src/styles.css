@@ -1223,3 +1223,26 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .frame-legend i.learn { background: #5a4838; border-color: #8d7452; }
 .frame-legend i.free { background: #686b72; border-color: #b3b6bd; }
 .frame-legend i.passive { background: #4396c6; border-color: #b3e2f7; }
+
+/* 디버그 · 모든 캐릭터 도트 (주소에 ?debug — lib/debug.ts) */
+.debug-gallery { margin: 18px 0 0; padding: 10px 12px; border: 1px dashed var(--warn); border-radius: 12px; background: var(--card); }
+.debug-gallery summary { font-weight: 700; cursor: pointer; }
+.debug-gallery h3 { font-size: 13px; margin: 14px 0 6px; }
+.debug-gallery h3 small { color: var(--muted); font-weight: 400; }
+.debug-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 8px 0 0; font-size: 12px; }
+.debug-controls small { color: var(--muted); margin-left: auto; }
+.debug-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.debug-grid li { display: grid; gap: 2px; padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); min-width: 0; }
+.debug-grid li.stand-in { border-style: dashed; }
+.debug-grid .poses { display: flex; gap: 4px; overflow-x: auto; }
+/* 2배면 포즈 셋(96px × 3)이 한 칸에 들어가게 칸을 넓힌다 */
+.debug-gallery.x2 .debug-grid { grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); }
+.debug-grid b { font-size: 12px; }
+.debug-grid code, .debug-grid small, .debug-grid em { font-size: 11px; color: var(--muted); overflow-wrap: anywhere; }
+.debug-grid em { color: var(--bad); font-style: normal; }
+.debug-gallery.dark .debug-grid li { background: #2a2a33; border-color: #444450; }
+.debug-gallery.dark .debug-grid b { color: #fff; }
+.debug-gallery.dark .debug-grid code, .debug-gallery.dark .debug-grid small { color: #b8b8c2; }
+/* 포즈 고르기 — 초상은 기본으로 f0 만 보인다 */
+.debug-pose-1 .portrait .f0, .debug-pose-2 .portrait .f0 { opacity: 0; }
+.debug-pose-1 .portrait .f1, .debug-pose-2 .portrait .f2 { opacity: 1; }
