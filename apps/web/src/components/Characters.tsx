@@ -9,6 +9,7 @@ import { PARTY_MAX } from '../game/save'
 import { canLearnSomething, cellOf, memberCanAdvance, memberIcon, partyMembers } from '../game/members'
 import { UnitOverlay } from './UnitOverlay'
 import { DebugCharacterGallery } from './DebugCharacterGallery'
+import { DebugBackdropGallery } from './DebugBackdropGallery'
 import { DEBUG } from '../lib/debug'
 
 interface Props {
@@ -58,6 +59,7 @@ export function Characters({ save, onSave, onGoShop, onGoRecruit, onGoFormation 
       </ul>
 
       {DEBUG && <DebugCharacterGallery />}
+      {DEBUG && <DebugBackdropGallery />}
 
       {member && (
         <UnitOverlay

@@ -12,6 +12,8 @@ interface Props {
   names: Names
   jobs: [string[], string[]]
   autoPlay?: boolean
+  /** 전투 배경 키 — 지역 · 모험 id (docs/23) */
+  backdrop?: string
 }
 
 const SPEEDS = [
@@ -20,7 +22,7 @@ const SPEEDS = [
   { label: '빠르게', ms: 350 },
 ]
 
-export function Replay({ result, names, jobs, autoPlay = true }: Props) {
+export function Replay({ result, names, jobs, autoPlay = true, backdrop }: Props) {
   const starts = useMemo(() => turnStarts(result.events), [result])
   const [cursor, setCursor] = useState(1)
   const [playing, setPlaying] = useState(autoPlay)
@@ -81,6 +83,7 @@ export function Replay({ result, names, jobs, autoPlay = true }: Props) {
         turnMs={SPEEDS[speed].ms}
         headline={finished ? outcomeText(result.outcome) : turnNo === 0 ? '출전' : `${turnNo}번째 행동`}
         sub={finished ? `총 ${result.actionCount}회 행동` : undefined}
+        backdrop={backdrop}
       />
 
       <div className="player-bar">

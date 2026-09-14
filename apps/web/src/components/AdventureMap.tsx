@@ -108,7 +108,7 @@ export function AdventureMap({ save, onSave, def, icon, onBack, onGoFormation }:
             )}
             <small>시드 {out.seed} · 총 {out.result.actionCount}회 행동 · 본부의 최근 전투에 기록됨</small>
           </div>
-          <Replay key={out.seed} result={out.result} names={names} jobs={jobs} />
+          <Replay key={out.seed} result={out.result} names={names} jobs={jobs} backdrop={def.id} />
         </>
       )}
 

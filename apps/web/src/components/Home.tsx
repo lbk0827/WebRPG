@@ -166,7 +166,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Prop
         {replay && record && (
           <div className="record-replay">
             <p className="hint">{recordPlace(record)} · {outcomeText(record.outcome)} · 시드 {record.seed}</p>
-            <Replay result={replay.result} names={replay.names} jobs={replay.jobs} autoPlay={false} />
+            <Replay result={replay.result} names={replay.names} jobs={replay.jobs} autoPlay={false} backdrop={record.regionId.replace(/^adv:/, '')} />
           </div>
         )}
       </Section>

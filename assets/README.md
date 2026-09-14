@@ -95,6 +95,7 @@
 | `units/guildMember-male-sheet.png` | 10배 검수 시트 | `guildMember-male.px`에서 생성 | 원본과 동일 | 2026-09-14 |
 | `../art-source/units/guildMember-female-source.png` | AI 생성 도트 시트 초안 (길드원 여, 긴 애쉬 블론드·남색 망토·에고 소드 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `guildMember-male-source.png` 참조, 투명 배경 정리 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
 | `../art-source/units/guildMember-female-hairsep.png` | 변환 입력 파생본 — 원본의 금발을 색상 46° 로 옮기고 얼굴 피부를 공통 피부색 밝기로 맞춤 (새로 그리지 않음) | `guildMember-female-source.png` → `tools/separate-hair-guildmember-female.py` | 원본과 동일 | 2026-09-14 |
+| `../tools/process-backdrop.py` | 도구 (AI 원본 → 480×360 전투 배경 변환 · 규격 검사 · 등록표 대조, docs/23) | 자체 제작 | 저장소 소유 | 2026-09-14 |
 | `../tools/separate-hair-guildmember-female.py` | 도구 (살 영역 flood fill · 구멍 메우기 → 머리색 분리) | 자체 제작 | 저장소 소유 | 2026-09-14 |
 | `../tools/retouch-guildmember-female.mjs` | 도구 (머리 고립점 · 눈 · 입 좌표 보정, 재실행해도 동일) | 자체 제작 | 저장소 소유 | 2026-09-14 |
 | `units/guildMember-female.px` | 도트 전투 스프라이트 원본 (길드원 여) — 금발 · 피부 분리 후 재변환, 머리 고립점 · 눈 손픽셀 보정 | `guildMember-female-hairsep.png` → `png-to-px.mjs` → `retouch-guildmember-female.mjs` | 원본과 동일 | 2026-09-14 |

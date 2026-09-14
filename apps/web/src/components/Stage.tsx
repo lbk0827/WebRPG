@@ -6,6 +6,7 @@ import { skillLabel, statusLabel, traitLabel } from '../lib/labels'
 import type { Roster, RosterChar } from '../lib/roster'
 import { UnitSprite } from './UnitSprite'
 import { StatusIcon } from './Icon'
+import { backdropFor } from '../lib/backdrops'
 
 interface Props {
   events: BattleEvent[]
@@ -15,6 +16,8 @@ interface Props {
   turnMs: number
   headline: string
   sub?: string
+  /** 전투 배경 키 — 지역 · 모험 id (docs/23). 그림이 없으면 그라디언트 */
+  backdrop?: string
 }
 
 interface Popup {
@@ -130,12 +133,16 @@ function currentTurnFx(events: BattleEvent[], cursor: number): Fx {
   return fx
 }
 
-export function Stage({ events, cursor, roster, jobs, turnMs, headline, sub }: Props) {
+export function Stage({ events, cursor, roster, jobs, turnMs, headline, sub, backdrop }: Props) {
   const fx = useMemo(() => currentTurnFx(events, cursor), [events, cursor])
-  const style = { '--turn-ms': `${turnMs}ms` } as CSSProperties
+  const bd = backdrop ? backdropFor(backdrop) : null
+  const style = {
+    '--turn-ms': `${turnMs}ms`,
+    ...(bd ? { '--backdrop': `url("${bd.url}")`, '--backdrop-top': bd.top } : {}),
+  } as CSSProperties
 
   return (
-    <div className="arena" style={style}>
+    <div className={`arena${bd ? ' has-backdrop' : ''}`} style={style} data-backdrop={bd?.key}>
       <Side team={0} chars={roster[0]} jobs={jobs[0]} fx={fx} cursor={cursor} />
       <div className="center">
         <div className="headline">{headline}</div>
