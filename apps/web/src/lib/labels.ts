@@ -1,6 +1,6 @@
 // 한국어 표시 문자열. 엔진은 id 만 다루고, 사람이 읽는 말은 전부 여기서 만든다.
 import type { BattleEvent, CharRef, Effect, ItemDef, ItemInstance, Row, SkillFailReason, StatKey, StatusId, TargetPriority, TargetSpec, TraitDef } from '@webrpg/engine'
-import { COMMON_LEARNABLE, ITEMS, LEARNABLE, MATERIALS, PRESETS, SKILLS, STARTER_SKILLS, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, isMonsterIcon, jobSkillPool, refinedNumbers } from '@webrpg/engine'
+import { COMMON_LEARNABLE, ITEMS, JOB_ADVANCE, LEARNABLE, MATERIALS, PRESETS, SKILLS, STARTER_SKILLS, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, isMonsterIcon, jobSkillPool, refinedNumbers } from '@webrpg/engine'
 
 // ───────────────────────────── 도감 · 요약 문장 (ADR-004)
 
@@ -237,8 +237,11 @@ export function timeAgo(ms: number, now = Date.now()): string {
   return `${Math.floor(h / 24)}일 전`
 }
 
-/** 직업 이름. 'adventurer-female' 처럼 성별이 붙은 그림 키도 받는다 */
-export const jobName = (job: string): string => PRESETS[job]?.name ?? PRESETS[job.split('-')[0]]?.name ?? job
+/** 직업 이름. 'guildMember-female' 처럼 전직 단계·성별이 붙은 그림 키도 받는다 */
+export const jobName = (job: string): string => {
+  const k = job.split('-')[0]
+  return PRESETS[job]?.name ?? PRESETS[k]?.name ?? JOB_ADVANCE[k]?.name ?? job
+}
 export const jobOf = (charId: string): string => charId.split('#')[0]
 export const skillLabel = (id: string): string => SKILLS[id]?.label ?? id
 export const statusLabel = (id: StatusId): string => STATUS_DEFS[id]?.label ?? id
@@ -253,10 +256,14 @@ export const jobIcon = (key: string): string => {
 }
 
 /**
- * 그림이 아직 없는 키 → 임시로 쓸 기존 그림. 모험가 남/여 도트는 Codex 주문 대기다 (docs/20).
- * 그림이 도착하면 해당 줄을 지운다.
+ * 그림이 아직 없는 키 → 임시로 쓸 기존 그림. 주인공 계보 남/여 도트 10장은 주문 대기다 (docs/21).
+ * 그림이 도착하면 해당 키를 지운다.
  */
-const ART_STANDIN: Record<string, string> = { 'adventurer-male': 'warrior', 'adventurer-female': 'rogue', adventurer: 'warrior' }
+const HERO_ART_KEYS = ['adventurer', 'guildMember', 'wanderer', 'brave', 'fallenHero']
+const ART_STANDIN: Record<string, string> = {
+  adventurer: 'warrior',
+  ...Object.fromEntries(HERO_ART_KEYS.flatMap((k) => [[`${k}-male`, 'warrior'], [`${k}-female`, 'rogue']])),
+}
 export const artKey = (key: string): string => ART_STANDIN[key] ?? key
 
 export const failText = (r: SkillFailReason): string =>

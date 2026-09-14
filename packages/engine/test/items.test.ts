@@ -18,15 +18,19 @@ describe('장비 데이터', () => {
       expect(sellPrice(i)).toBe(Math.floor(i.price * 0.2))
     }
   })
-  it('직업마다 3등급 무기가 하나씩은 있다 (주인공은 전용 무기 기획 중이라 제외 — docs/20)', () => {
-    expect(JOB_WEAPONS[HERO_JOB]).toEqual([])
-    for (const job of Object.keys(PRESETS).filter((j) => j !== HERO_JOB)) {
+  it('직업마다 3등급 무기가 하나씩은 있다 (주인공은 전용 무기가 전직으로 1→3등급 진화 — docs/20)', () => {
+    expect(JOB_WEAPONS[HERO_JOB]).toEqual(['ego'])
+    for (const job of Object.keys(PRESETS)) {
       for (const tier of [1, 2, 3]) {
         expect(ITEM_LIST.some((i) => i.slot === 'weapon' && i.tier === tier && canEquip(job, i)), `${job} tier ${tier}`).toBe(true)
       }
     }
     expect(canEquip('mage', ITEMS.swordSteel)).toBe(false)
     expect(canEquip('mage', ITEMS.armorPlate)).toBe(true)
+    // 주인공 전용 무기는 주인공만 든다
+    const bound = ITEM_LIST.filter((i) => i.bound)
+    expect(bound.length).toBe(5)
+    for (const i of bound) for (const job of Object.keys(PRESETS)) expect(canEquip(job, i), `${job} ${i.id}`).toBe(job === HERO_JOB)
   })
   it('합산: 공격·방어·스탯·특성·무기 타입', () => {
     const inst = (itemId: string, refine = 0) => ({ uid: itemId, itemId, refine })

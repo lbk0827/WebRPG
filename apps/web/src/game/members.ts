@@ -2,7 +2,7 @@
 import type { Alloc, Analysis, AdventureDef, BattleResult, CharSetup, GearSlot, GearSummary, ItemDef, ItemInstance, Recipe, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
 import {
   DEFAULT_CONFIG, DISMISS_REFUND_PCT, HERO_JOB, HIRE, ITEMS, ITEM_LIST, MATERIALS, MEMBER_MAX, PRESETS, RECIPE_BY_ID, REFINE_MAX, REGIONS, RENAME_GOLD, SKILLS, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, WEEKDAY_LABEL,
-  ADVANCE_RESET_GOLD, JOB_ADVANCE,
+  ADVANCE_RESET_GOLD, JOB_ADVANCE, advanceChain, boundWeaponFor,
   adventureRewards, adventureTeam, advancesFor, analyze, applyGearStats, applyQuirk, canAdvance, canCraft, canEquip, createRng, grantExp, growthStats, hireLevel, hirePrice, isRegionUnlocked, learnCost, learnableFor, refineCost, rollCraftTrait, rollQuirk, sellPrice, simulate, summarizeGear, tryRefine,
 } from '@webrpg/engine'
 import { PARTY_MAX, cellRow, dayKey, pushRecord, type GameSave, type Gear, type Member } from './save'
@@ -17,14 +17,17 @@ export const gearSummary = (m: Member): GearSummary => summarizeGear(gearItems(m
  * 전직이 "다르게 싸우는 것"이 아니라 힘 도약이 된다 (ADR-003 위반).
  */
 function withAdvanceBonus(scaled: Stats, job2?: string): Stats {
-  const adv = job2 ? JOB_ADVANCE[job2] : undefined
-  if (!adv) return scaled
+  // 전직 사슬 전체 — 주인공은 길드원의 보정 위에 용사의 보정이 쌓인다 (docs/20)
+  const chain = advanceChain(job2)
+  if (chain.length === 0) return scaled
   const out = { ...scaled }
-  for (const [k, v] of Object.entries(adv.bonus)) {
-    const key = k as keyof Stats
-    const raw = (out[key] ?? 0) + (v ?? 0)
-    // 분배 스탯은 상한을 함께 지킨다
-    out[key] = key === 'maxHp' || key === 'maxSp' || key === 'def' || key === 'mdef' ? raw : Math.min(STAT_CAP, raw)
+  for (const adv of chain) {
+    for (const [k, v] of Object.entries(adv.bonus)) {
+      const key = k as keyof Stats
+      const raw = (out[key] ?? 0) + (v ?? 0)
+      // 분배 스탯은 상한을 함께 지킨다
+      out[key] = key === 'maxHp' || key === 'maxSp' || key === 'def' || key === 'mdef' ? raw : Math.min(STAT_CAP, raw)
+    }
   }
   return out
 }
@@ -36,13 +39,16 @@ export const memberStats = (m: Member): Stats =>
     gearSummary(m).stats,
   )
 
-/** 초상·전투 도트의 키. 주인공은 성별마다 그림이 다르다 — 외형만, 능력치는 같다 (docs/20) */
-export const memberIcon = (m: Member): string => (m.job === HERO_JOB ? `${HERO_JOB}-${m.gender ?? 'male'}` : m.job)
+/**
+ * 초상·전투 도트의 키. 주인공은 **전직 단계 × 성별**마다 그림이 다르다 — `guildMember-female` 처럼 (docs/21).
+ * 성별은 외형만, 능력치는 같다. 그림이 아직 없는 키는 labels.ts 의 ART_STANDIN 이 기존 도트로 돌린다
+ */
+export const memberIcon = (m: Member): string => (m.job === HERO_JOB ? `${m.job2 ?? HERO_JOB}-${m.gender ?? 'male'}` : m.job)
 
 export function memberSetup(m: Member, idx: number): CharSetup {
   const p = PRESETS[m.job]
   const g = gearSummary(m)
-  const adv = m.job2 ? JOB_ADVANCE[m.job2] : undefined
+  const chain = advanceChain(m.job2)
   return {
     // id 앞부분은 전투 화면이 도트를 고르는 키다 (jobOf)
     id: `${memberIcon(m)}#${idx}`,
@@ -54,23 +60,32 @@ export function memberSetup(m: Member, idx: number): CharSetup {
     rules: structuredClone(m.rules),
     bonus: { atk: g.atk, def: g.def },
     // 수칙 훅은 특성으로 붙는다 (docs/04 ADR-003)
-    traits: [...(adv?.traits ?? []), ...g.traits],
+    traits: [...chain.flatMap((a) => a.traits), ...g.traits],
     weapon: g.weapon,
   }
 }
 
 // ───────────────────────────── 전직 (M2-5b)
 
-export const advanceOptions = (m: Member) => advancesFor(m.job)
+/** 지금 단계(최근 전직, 없으면 1차 직업) 다음에 고를 수 있는 전직 */
+export const advanceOptions = (m: Member) => advancesFor(m.job2 ?? m.job)
 export const memberCanAdvance = (m: Member): boolean => canAdvance(m.job, m.job2, m.level)
 
-/** 2차 직업을 고른다. 대표 스킬을 바로 배우고 훅 특성이 붙는다 */
+/** 주인공 전용 무기인가 — 벗거나 바꾸거나 팔 수 없다 */
+const isBound = (it: ItemInstance | undefined): boolean => !!it && !!ITEMS[it.itemId]?.bound
+
+/**
+ * 다음 전직을 고른다. 대표 스킬을 바로 배우고 훅 특성이 붙는다.
+ * 주인공은 전직이 이어지고(모험가 → 길드원 → 용사), **전용 무기가 진화한다** — 강화 단계는 그대로 (docs/20)
+ */
 export function advanceMember(g: GameSave, id: string, jobId: string): GameSave {
   const m = g.members.find((x) => x.id === id)
   const def = JOB_ADVANCE[jobId]
-  if (!m || !def || def.base !== m.job || m.job2 || m.level < def.level) return g
+  if (!m || !def || def.base !== (m.job2 ?? m.job) || m.level < def.level) return g
   const skills = [...new Set([...(m.skills ?? []), ...def.grants])]
-  return { ...g, members: g.members.map((x) => (x.id === id ? { ...x, job2: jobId, skills } : x)) }
+  const w = m.gear.weapon
+  const gear: Gear = def.weapon && w && isBound(w) ? { ...m.gear, weapon: { ...w, itemId: def.weapon } } : m.gear
+  return { ...g, members: g.members.map((x) => (x.id === id ? { ...x, job2: jobId, skills, gear } : x)) }
 }
 
 /** 전직 취소 — 금을 낸다. 2차 스킬은 잃고 쓴 포인트는 돌려받는다 */
@@ -84,12 +99,16 @@ export function resetAdvance(g: GameSave, id: string): GameSave {
   const skills = (m.skills ?? []).filter((s) => !lost.has(s))
   // 잃은 스킬을 쓰던 수칙 줄은 기본 공격으로 되돌린다 — 우물쭈물하지 않게
   const rows = m.rules.rows.map((r) => (lost.has(r.skillId) ? { ...r, skillId: 'strike' } : r))
+  // 사슬의 **한 단계만** 되돌린다 — 용사를 취소하면 길드원으로. 주인공 무기도 한 단계 전으로 (docs/20)
+  const prevJob2 = JOB_ADVANCE[def.base] ? def.base : undefined
+  const w = m.gear.weapon
+  const gear: Gear = def.weapon && w && isBound(w) ? { ...m.gear, weapon: { ...w, itemId: boundWeaponFor(prevJob2) } } : m.gear
   return {
     ...g,
     gold: g.gold - ADVANCE_RESET_GOLD,
     members: g.members.map((x) =>
       x.id === id
-        ? { ...x, job2: undefined, skills, rules: { ...x.rules, rows }, skillPoints: x.skillPoints + refund, spentSkillPoints: Math.max(0, x.spentSkillPoints - refund) }
+        ? { ...x, job2: prevJob2, gear, skills, rules: { ...x.rules, rows }, skillPoints: x.skillPoints + refund, spentSkillPoints: Math.max(0, x.spentSkillPoints - refund) }
         : x,
     ),
   }
@@ -112,13 +131,14 @@ export function shopTier(g: GameSave): 1 | 2 {
   return open(3) ? 2 : 1
 }
 
-export const shopStock = (g: GameSave): ItemDef[] => { const t = shopTier(g); return ITEM_LIST.filter((i) => i.tier <= t) }
+// 주인공 전용 무기(bound)는 팔지 않는다
+export const shopStock = (g: GameSave): ItemDef[] => { const t = shopTier(g); return ITEM_LIST.filter((i) => i.tier <= t && !i.bound) }
 
 const newUid = (): string => `i${Date.now().toString(36)}${Math.floor(Math.random() * 1e6).toString(36)}`
 
 export function buyItem(g: GameSave, itemId: string): GameSave {
   const def = ITEMS[itemId]
-  if (!def || def.tier > shopTier(g) || g.gold < def.price) return g
+  if (!def || def.bound || def.tier > shopTier(g) || g.gold < def.price) return g
   return { ...g, gold: g.gold - def.price, inventory: [...g.inventory, { uid: newUid(), itemId, refine: 0 }] }
 }
 
@@ -136,6 +156,8 @@ export function equipItem(g: GameSave, memberId: string, uid: string): GameSave 
   const def = ITEMS[it.itemId]
   if (!canEquip(m.job, def)) return g
   const prev = m.gear[def.slot]
+  // 주인공 전용 무기는 빼지도, 다른 것으로 바꾸지도 않는다
+  if (def.bound || isBound(prev)) return g
   const inventory = g.inventory.filter((x) => x.uid !== uid)
   if (prev) inventory.push(prev)
   return { ...updateMember(g, { ...m, gear: { ...m.gear, [def.slot]: it } }), inventory }
@@ -144,7 +166,7 @@ export function equipItem(g: GameSave, memberId: string, uid: string): GameSave 
 export function unequipItem(g: GameSave, memberId: string, slot: GearSlot): GameSave {
   const m = g.members.find((x) => x.id === memberId)
   const it = m?.gear[slot]
-  if (!m || !it) return g
+  if (!m || !it || isBound(it)) return g
   const gear = { ...m.gear }
   delete gear[slot]
   return { ...updateMember(g, { ...m, gear }), inventory: [...g.inventory, it] }
@@ -388,7 +410,7 @@ export function pruneRules(rules: RuleSet, skills: string[]): RuleSet {
 export function resetSkills(g: GameSave, m: Member): GameSave {
   if (g.gold < SKILL_RESET_GOLD) return g
   // 전직으로 받은 대표 스킬은 되돌리지 않는다 — 그건 산 것이 아니라 직업이 준 것이다
-  const granted = m.job2 ? JOB_ADVANCE[m.job2].grants : []
+  const granted = advanceChain(m.job2).flatMap((a) => a.grants)
   const skills = [...new Set([...(STARTER_SKILLS[m.job] ?? PRESETS[m.job].skills), ...granted])]
   const next: Member = { ...m, skills, skillPoints: m.skillPoints + m.spentSkillPoints, spentSkillPoints: 0, rules: pruneRules(m.rules, skills) }
   return { ...updateMember(g, next), gold: g.gold - SKILL_RESET_GOLD }

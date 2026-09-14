@@ -1,5 +1,5 @@
 // 스킬 습득 (M2-2, 제로식 방식). 보유 목록 + 배울 수 있는 목록(값) + 초기화. 편성 패널과 단원 카드가 같이 쓴다.
-import { JOB_ADVANCE, SKILL_RESET_GOLD, STARTER_SKILLS, TRAITS } from '@webrpg/engine'
+import { SKILL_RESET_GOLD, STARTER_SKILLS, TRAITS, advanceChain } from '@webrpg/engine'
 import type { Member } from '../game/save'
 import { unlearned } from '../game/members'
 import { skillBrief, skillLabel, traitText } from '../lib/labels'
@@ -14,7 +14,9 @@ interface Props {
 
 export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
   const starter = STARTER_SKILLS[m.job] ?? []
-  const granted = m.job2 ? JOB_ADVANCE[m.job2].grants : []
+  // 전직 사슬 전체 (주인공은 전직이 이어진다 — docs/20)
+  const chain = advanceChain(m.job2)
+  const granted = chain.flatMap((a) => a.grants)
   const list = unlearned(m)
   const learnedExtra = m.skills.filter((id) => !starter.includes(id) && !granted.includes(id))
   const canReset = learnedExtra.length > 0 && gold >= SKILL_RESET_GOLD
@@ -26,7 +28,7 @@ export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
   ].filter((g) => g.ids.length > 0)
   // 패시브 = 전직이 준 특성. 수칙에 넣지 않아도 늘 붙는다 (docs/11 §5.18).
   // 장비가 주는 특성은 장비 절에서 보여 준다 — 여기는 "이 단원이 직업으로 가진 스킬"만
-  const passives = (m.job2 ? JOB_ADVANCE[m.job2].traits : []).filter((t) => TRAITS[t])
+  const passives = chain.flatMap((a) => a.traits).filter((t) => TRAITS[t])
 
   return (
     <div className="learn">

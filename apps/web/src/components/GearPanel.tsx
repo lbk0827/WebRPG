@@ -88,7 +88,11 @@ export function GearPanel({ save, onSave, member, onGoShop }: Props) {
                   <ItemIcon id={cur.itemId} alt={curDef.label} size="lg" />
                   <span className="nm">{itemName(cur)}</span>
                   <small>{itemBrief(curDef, cur)}</small>
-                  <button className="mini" onClick={() => onSave(unequipItem(save, member.id, slot))}>해제</button>
+                  {curDef.bound ? (
+                    <small className="bound" title="주인공 전용 — 벗을 수 없고 전직하면 진화한다">전용 · 전직으로 진화</small>
+                  ) : (
+                    <button className="mini" onClick={() => onSave(unequipItem(save, member.id, slot))}>해제</button>
+                  )}
                 </>
               ) : (
                 <small className="empty">— 비어 있음{slot === 'weapon' && wearable ? '' : ''}</small>

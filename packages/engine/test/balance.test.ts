@@ -2,7 +2,7 @@
 // 기준 편성은 장비 없음 + 직업 기본 수칙 + 주 스탯 몰빵 — 실제 플레이어는 장비와 수칙으로 이보다 낫다.
 // 임계값은 여유 있게 잡는다 (튜닝할 때마다 깨지면 안 된다). 실측값은 docs/07 §3.8g 표 참조.
 import { describe, expect, it } from 'vitest'
-import { DEFAULT_CONFIG, EMPTY_ALLOC, HERO_JOB, JOB_ADVANCE, MONSTERS, PRESETS, REGIONS, SKILLS, STAT_POINTS_PER_LEVEL, growthStats, rollEncounter, simulate } from '../src'
+import { DEFAULT_CONFIG, EMPTY_ALLOC, HERO_JOB, HERO_START_WEAPON, JOB_ADVANCE, MONSTERS, PRESETS, REGIONS, SKILLS, STAT_POINTS_PER_LEVEL, growthStats, rollEncounter, simulate, summarizeGear } from '../src'
 import type { RuleSet, Stats } from '../src'
 import type { StatKey, TeamSetup } from '../src'
 
@@ -157,9 +157,17 @@ describe('지역 난이도 곡선', () => {
   it('주인공(모험가)은 혼자 마을 외곽을 넘는다 — 새 게임은 한 명으로 시작한다 (docs/20)', () => {
     const solo = (level: number): number => {
       const p = structuredClone(PRESETS[HERO_JOB])
+      // 새 게임과 같게 — 나무 몽둥이를 든다
+      const club = summarizeGear([{ uid: 'w', itemId: HERO_START_WEAPON, refine: 0 }])
       const hero: TeamSetup = {
         name: '주인공',
-        members: [{ ...p, id: `${HERO_JOB}#0`, stats: growthStats(p.stats, level, { ...EMPTY_ALLOC, str: (level - 1) * STAT_POINTS_PER_LEVEL }) }],
+        members: [{
+          ...p,
+          id: `${HERO_JOB}#0`,
+          stats: growthStats(p.stats, level, { ...EMPTY_ALLOC, str: (level - 1) * STAT_POINTS_PER_LEVEL }),
+          bonus: { atk: club.atk, def: club.def },
+          weapon: club.weapon,
+        }],
       }
       let w = 0
       for (let s = 1; s <= 30; s++) {

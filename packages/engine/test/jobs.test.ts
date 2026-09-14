@@ -2,13 +2,17 @@
 import { describe, expect, it } from 'vitest'
 import {
   DEFAULT_CONFIG,
+  HERO_JOB,
+  ITEMS,
   JOB_ADVANCES,
   JOB_ADVANCE,
   PRESETS,
   SKILLS,
   TRAITS,
+  advanceChain,
   advanceLevel,
   advancesFor,
+  boundWeaponFor,
   canAdvance,
   jobSkillPool,
   learnableFor,
@@ -21,17 +25,18 @@ const JOBS = ['warrior', 'rogue', 'mage', 'priest', 'elf']
 describe('2차 직업 정의', () => {
   it('1차 직업마다 정확히 2개', () => {
     for (const j of JOBS) expect(advancesFor(j), j).toHaveLength(2)
-    expect(JOB_ADVANCES).toHaveLength(10)
+    // 5직업 × 2 + 주인공 계보 4 (길드원 · 떠돌이 · 용사 · 타락 용사)
+    expect(JOB_ADVANCES).toHaveLength(14)
   })
 
-  it('id 가 겹치지 않고 1차 직업이 실재한다', () => {
+  it('id 가 겹치지 않고 앞 단계(1차 직업 또는 앞 전직)가 실재한다', () => {
     const ids = new Set(JOB_ADVANCES.map((j) => j.id))
     expect(ids.size).toBe(JOB_ADVANCES.length)
-    for (const j of JOB_ADVANCES) expect(PRESETS[j.base], `${j.id} 의 1차 직업`).toBeDefined()
+    for (const j of JOB_ADVANCES) expect(PRESETS[j.base] ?? JOB_ADVANCE[j.base], `${j.id} 의 앞 단계`).toBeDefined()
   })
 
-  it('전직 레벨은 18~22 (docs/07 §3.3)', () => {
-    for (const j of JOB_ADVANCES) {
+  it('전직 레벨은 18~22 (docs/07 §3.3) — 주인공 계보는 단장 기획대로 15 · 30', () => {
+    for (const j of JOB_ADVANCES.filter((x) => advanceChain(x.id)[0].base !== HERO_JOB)) {
       expect(j.level, j.id).toBeGreaterThanOrEqual(18)
       expect(j.level, j.id).toBeLessThanOrEqual(22)
     }
@@ -69,6 +74,11 @@ describe('2차 직업 정의', () => {
     expect(canAdvance('warrior', undefined, 18)).toBe(false)
     expect(canAdvance('warrior', undefined, 20)).toBe(true)
     expect(canAdvance('warrior', 'guardian', 30), '이미 전직했으면 못 한다').toBe(false)
+    expect(canAdvance(HERO_JOB, undefined, 14)).toBe(false)
+    expect(canAdvance(HERO_JOB, undefined, 15)).toBe(true)
+    expect(canAdvance(HERO_JOB, 'guildMember', 29), '주인공은 30 에 한 번 더').toBe(false)
+    expect(canAdvance(HERO_JOB, 'guildMember', 30)).toBe(true)
+    expect(canAdvance(HERO_JOB, 'brave', 30), '50 전직은 기획 중').toBe(false)
     expect(advanceLevel('rogue')).toBe(18)
     expect(advanceLevel('warrior')).toBe(20)
   })
@@ -80,6 +90,38 @@ describe('2차 직업 정의', () => {
     for (const s of base) expect(adv).toContain(s)
     expect(jobSkillPool('warrior', 'guardian')).toContain('bulwark')
     expect(jobSkillPool('warrior')).not.toContain('bulwark')
+  })
+
+  it('주인공 전직은 이어진다 — 모험가 →(15) 길드원·떠돌이 →(30) 용사·타락 용사, 계보 고정 (docs/20)', () => {
+    expect(advancesFor(HERO_JOB).map((j) => j.id).sort()).toEqual(['guildMember', 'wanderer'])
+    expect(advancesFor('guildMember').map((j) => j.id)).toEqual(['brave'])
+    expect(advancesFor('wanderer').map((j) => j.id)).toEqual(['fallenHero'])
+    for (const j of advancesFor(HERO_JOB)) expect(j.level, j.id).toBe(15)
+    expect(JOB_ADVANCE.brave.level).toBe(30)
+    expect(JOB_ADVANCE.fallenHero.level).toBe(30)
+    expect(advanceChain('brave').map((j) => j.id)).toEqual(['guildMember', 'brave'])
+    expect(advanceChain('guardian').map((j) => j.id)).toEqual(['guardian'])
+    expect(advanceChain(undefined)).toEqual([])
+    // 사슬의 스킬이 전부 쌓인다 — 용사가 되어도 길드원 때 받은 것을 잃지 않는다
+    expect(jobSkillPool(HERO_JOB, 'brave')).toEqual(expect.arrayContaining(['warCry', 'bulwark']))
+    expect(learnableFor(HERO_JOB, 'brave').map((l) => l.skillId)).toEqual(expect.arrayContaining(['taunt', 'benediction']))
+  })
+
+  it('주인공 전용 무기는 전직으로 진화하고, 진화할수록 세다', () => {
+    expect(boundWeaponFor(undefined)).toBe('woodenClub')
+    expect(boundWeaponFor('guildMember')).toBe('egoSword')
+    expect(boundWeaponFor('wanderer')).toBe('egoBlade')
+    expect(boundWeaponFor('brave')).toBe('braveSword')
+    expect(boundWeaponFor('fallenHero')).toBe('darkBlade')
+    for (const id of ['woodenClub', 'egoSword', 'egoBlade', 'braveSword', 'darkBlade']) {
+      expect(ITEMS[id]?.bound, id).toBe(true)
+      expect(ITEMS[id].weaponType, id).toBe('ego')
+    }
+    const atk = (id: string): number => ITEMS[id].atk?.[0] ?? 0
+    expect(atk('egoSword')).toBeGreaterThan(atk('woodenClub'))
+    expect(atk('egoBlade')).toBeGreaterThan(atk('woodenClub'))
+    expect(atk('braveSword')).toBeGreaterThan(atk('egoSword'))
+    expect(atk('darkBlade')).toBeGreaterThan(atk('egoBlade'))
   })
 })
 

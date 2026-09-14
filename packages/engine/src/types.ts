@@ -5,7 +5,8 @@ export type Side = 'ally' | 'enemy'
 export type Row = 'front' | 'back'
 export type Cmp = 'gte' | 'lte' | 'eq'
 export type SkillId = string
-export type WeaponType = 'sword' | 'dagger' | 'staff' | 'relic' | 'bow' | 'none'
+/** ego = 주인공 전용 무기 (docs/20). 전직하면 진화한다 */
+export type WeaponType = 'sword' | 'dagger' | 'staff' | 'relic' | 'bow' | 'ego' | 'none'
 export type StatKey = 'str' | 'int' | 'dex' | 'spd' | 'luk'
 
 export type StatusId =

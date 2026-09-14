@@ -2,7 +2,7 @@
 // 시작 스킬은 기본 수칙이 쓰는 것만 — 그래서 새 게임의 단원은 프리셋과 똑같이 싸운다 (밸런스 불변).
 // 공용 0포인트 스킬은 제로식의 Guard/Stay 에서 착안: 공짜지만 수칙에 넣어야 쓰이니 "패턴에 넣는다"를 가르친다.
 import { PRESETS } from './presets'
-import { JOB_ADVANCE } from './jobs'
+import { advanceChain } from './jobs'
 
 export interface Learnable {
   skillId: string
@@ -68,8 +68,8 @@ export const LEARNABLE: Record<string, Learnable[]> = {
 
 /** 이 직업이 배울 수 있는 전체 목록 (공용 먼저). 전직했으면 2차 목록이 뒤에 붙는다 */
 export function learnableFor(job: string, job2?: string): Learnable[] {
-  const adv = job2 ? JOB_ADVANCE[job2] : undefined
-  return [...COMMON_LEARNABLE, ...(LEARNABLE[job] ?? []), ...(adv?.learnable ?? [])]
+  // 전직 사슬 전체 — 주인공은 길드원의 목록 위에 용사의 목록이 쌓인다 (docs/20)
+  return [...COMMON_LEARNABLE, ...(LEARNABLE[job] ?? []), ...advanceChain(job2).flatMap((a) => a.learnable)]
 }
 
 export function learnCost(job: string, skillId: string, job2?: string): number | null {
@@ -80,8 +80,7 @@ export function learnCost(job: string, skillId: string, job2?: string): number |
 /** 직업이 어떤 형태로든 가질 수 있는 스킬 (도감·라벨용) */
 export function jobSkillPool(job: string, job2?: string): string[] {
   const starter = STARTER_SKILLS[job] ?? PRESETS[job]?.skills ?? []
-  const adv = job2 ? JOB_ADVANCE[job2] : undefined
-  return [...starter, ...(adv?.grants ?? []), ...learnableFor(job, job2).map((l) => l.skillId)]
+  return [...starter, ...advanceChain(job2).flatMap((a) => a.grants), ...learnableFor(job, job2).map((l) => l.skillId)]
 }
 
 /** 스킬 초기화 비용 (금). 잘못 배운 걸 되돌리되 공짜는 아니게 */

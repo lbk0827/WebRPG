@@ -1147,6 +1147,12 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .new-game .hero-name { display: flex; gap: 8px; align-items: center; margin: 8px 0; }
 .new-game .hero-name input { background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; min-height: 36px; flex: 1 1 auto; max-width: 14em; }
 
+/* 주인공 계보 — 전용 무기 · 이어지는 전직 (docs/20) */
+.gear small.bound { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.advance .chain { margin: 0 0 2px; font-size: 11px; }
+.advance .next-advance { margin: 14px 0 6px; }
+.advance .weapon-evolve { display: flex; flex-wrap: wrap; align-items: center; gap: 4px; }
+
 /* 단원 · 등장 몬스터 카드 격자 */
 .teams, .appear {
   list-style: none; margin: 0; padding: 0;

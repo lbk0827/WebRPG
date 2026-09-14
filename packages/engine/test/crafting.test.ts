@@ -177,7 +177,8 @@ describe('제작 재료의 출처', () => {
 describe('상점과 공방의 역할 분담', () => {
   it('3등급 장비는 전부 제작법이 있다 — 상점에서 못 사므로 없으면 아예 못 얻는다', () => {
     const craftable = new Set(RECIPES.map((r) => r.itemId))
-    const t3 = Object.values(ITEMS).filter((i) => i.tier === 3)
+    // 주인공 전용 무기(bound)는 전직으로 진화해 얻는다 — 제작도 상점도 아니다 (docs/20)
+    const t3 = Object.values(ITEMS).filter((i) => i.tier === 3 && !i.bound)
     expect(t3.length).toBeGreaterThan(0)
     for (const i of t3) expect(craftable.has(i.id), `${i.label} (${i.id}) 는 제작법이 없는데 상점에도 없다`).toBe(true)
   })
@@ -185,8 +186,8 @@ describe('상점과 공방의 역할 분담', () => {
   it('직업마다 3등급 무기로 갈 길이 있다', () => {
     const craftable = new Set(RECIPES.map((r) => r.itemId))
     for (const [job, types] of Object.entries(JOB_WEAPONS)) {
-      // 들 수 있는 무기가 없는 직업은 건너뛴다 — 주인공(모험가)은 전용 무기를 기획 중이다 (docs/20)
-      if (types.length === 0) continue
+      // 주인공 전용 무기는 만들지 않는다 — 전직으로 진화한다 (docs/20)
+      if (types.includes('ego')) continue
       const ok = Object.values(ITEMS).some(
         (i) => i.tier === 3 && i.slot === 'weapon' && types.includes(i.weaponType as never) && craftable.has(i.id),
       )

@@ -11,7 +11,7 @@
 // 편성 탭과 캐릭터 탭이 같은 컴포넌트를 쓴다 (단장 지시 2026-09-11).
 import { useEffect, useRef, useState } from 'react'
 import { UnitPortrait } from './UnitPortrait'
-import { JOB_ADVANCE, RENAME_GOLD, STARTER_SKILLS } from '@webrpg/engine'
+import { JOB_ADVANCE, RENAME_GOLD, STARTER_SKILLS, advanceChain } from '@webrpg/engine'
 import type { GameSave, Member, RulePreset } from '../game/save'
 import { RULE_PRESET_MAX } from '../game/save'
 import { cellOf, dismissMember, dismissRefund, learnSkill, memberCanAdvance, memberIcon, memberStats, renameMember, resetSkills, updateMember } from '../game/members'
@@ -61,6 +61,8 @@ export function UnitPanel({ save, onSave, member, initial = 'stats', onGoShop, o
   const setMember = (m: Member) => onSave(updateMember(save, m))
   const cell = cellOf(save, member.id)
   const adv = member.job2 ? JOB_ADVANCE[member.job2] : undefined
+  // 전직으로 받은 스킬은 사슬 전체 — 주인공은 길드원 때 받은 것 위에 용사가 준 것이 쌓인다 (docs/20)
+  const advGrants = advanceChain(member.job2).flatMap((a) => a.grants)
 
   const jump = (k: UnitTab) => {
     setHere(k)
@@ -151,13 +153,13 @@ export function UnitPanel({ save, onSave, member, initial = 'stats', onGoShop, o
               {adv && (
                 <>
                   <dt>전직으로 받은 스킬</dt>
-                  <dd>{adv.grants.map(skillLabel).join(' · ')}</dd>
+                  <dd>{advGrants.map(skillLabel).join(' · ')}</dd>
                 </>
               )}
               <dt>포인트로 배운 스킬</dt>
               <dd>
                 {member.skills
-                  .filter((id) => !(STARTER_SKILLS[member.job] ?? []).includes(id) && !(adv?.grants ?? []).includes(id))
+                  .filter((id) => !(STARTER_SKILLS[member.job] ?? []).includes(id) && !advGrants.includes(id))
                   .map(skillLabel)
                   .join(' · ') || '아직 없음'}
               </dd>

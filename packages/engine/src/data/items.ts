@@ -22,6 +22,8 @@ export interface ItemDef {
   stats?: Partial<Stats>
   /** 특성 0~1 (data/traits.ts) */
   trait?: string
+  /** 주인공 전용 (docs/20). 상점·제작·판매·해제 없음 — 전직하면 진화한다. 강화(금)는 된다 */
+  bound?: true
   blurb: string
 }
 
@@ -32,11 +34,11 @@ export const JOB_WEAPONS: Record<string, WeaponType[]> = {
   mage: ['staff'],
   priest: ['relic'],
   elf: ['bow'],
-  // 주인공 — 전용 무기(성장형 등)를 단장이 기획 중이라 지금은 어떤 무기도 들지 않는다 (docs/20)
-  adventurer: [],
+  // 주인공 — 전용 무기만 든다. 나무 몽둥이로 시작해 전직할 때 진화한다 (docs/20)
+  adventurer: ['ego'],
 }
 
-export const WEAPON_TYPE_LABEL: Record<WeaponType, string> = { sword: '검', dagger: '단검', staff: '지팡이', relic: '성물', bow: '활', none: '—' }
+export const WEAPON_TYPE_LABEL: Record<WeaponType, string> = { sword: '검', dagger: '단검', staff: '지팡이', relic: '성물', bow: '활', ego: '주인공 전용', none: '—' }
 export const SLOT_LABEL: Record<GearSlot, string> = { weapon: '무기', armor: '방어구', trinket: '장신구' }
 
 const list: ItemDef[] = [
@@ -56,6 +58,14 @@ const list: ItemDef[] = [
   { id: 'bowHunting', label: '사냥활', slot: 'weapon', weaponType: 'bow', tier: 1, price: 60, atk: [8, 0], blurb: '토끼용. 사람에게도 된다.' },
   { id: 'bowLong', label: '장궁', slot: 'weapon', weaponType: 'bow', tier: 2, price: 220, atk: [18, 0], blurb: '키만 한 활.' },
   { id: 'bowHorn', label: '각궁', slot: 'weapon', weaponType: 'bow', tier: 3, price: 650, atk: [28, 0], trait: 'sniperEye', blurb: '뿔을 겹쳐 만든 활. 후열이 잘 보인다.' },
+  // 주인공 전용 무기 (2026-09-14 단장 기획, docs/20). 사거나 만들 수 없고 벗을 수 없다 — 전직하면 진화한다. 강화(금)는 된다.
+  // 모험가 나무 몽둥이 →(15) 길드원 에고 소드 / 떠돌이 에고 블레이드 →(30) 용사의 검 / 다크 블레이드.
+  // 수치는 같은 무렵의 무기보다 조금 높다 — 바꿔 낄 수 없고 제작 보너스 특성도 붙지 않는다. price 는 강화비 계산에만 쓴다
+  { id: 'woodenClub', label: '나무 몽둥이', slot: 'weapon', weaponType: 'ego', tier: 1, price: 60, atk: [9, 0], bound: true, blurb: '모험을 떠나던 날 주운 몽둥이. 이상하게 손에 붙는다.' },
+  { id: 'egoSword', label: '에고 소드', slot: 'weapon', weaponType: 'ego', tier: 2, price: 220, atk: [22, 0], bound: true, blurb: '길드에 들던 날 몽둥이가 검이 되었다. 가끔 말을 건다.' },
+  { id: 'egoBlade', label: '에고 블레이드', slot: 'weapon', weaponType: 'ego', tier: 2, price: 220, atk: [20, 0], stats: { spd: 6 }, bound: true, blurb: '길 위에서 몽둥이가 날을 세웠다. 혼자일 때 더 가볍다.' },
+  { id: 'braveSword', label: '용사의 검', slot: 'weapon', weaponType: 'ego', tier: 3, price: 600, atk: [34, 0], bound: true, blurb: '에고 소드가 제 이름을 찾았다.' },
+  { id: 'darkBlade', label: '다크 블레이드', slot: 'weapon', weaponType: 'ego', tier: 3, price: 600, atk: [36, 0], stats: { spd: 6 }, bound: true, blurb: '에고 블레이드가 어둠을 삼켰다. 힘을 주고 대가를 받는다.' },
 
   // ── 방어구 (전열용 갑옷 / 후열용 로브)
   { id: 'armorLeather', label: '가죽 조끼', slot: 'armor', tier: 1, price: 50, def: [0, 4, 0, 1], blurb: '없는 것보다는.' },

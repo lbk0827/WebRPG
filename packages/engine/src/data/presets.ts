@@ -104,6 +104,8 @@ export const PRESETS: Record<string, CharSetup> = {
 
 /** 주인공 직업. 고용 목록(HIRE)에 없고, 이 직업의 단원은 해고할 수 없다 */
 export const HERO_JOB = 'adventurer'
+/** 주인공이 처음 드는 전용 무기 (data/items.ts). 전직하면 진화한다 — boundWeaponFor */
+export const HERO_START_WEAPON = 'woodenClub'
 
 /** 프리셋을 복제해 팀을 만든다. 같은 프리셋을 여러 번 써도 상태가 공유되지 않는다. */
 export function makeTeam(name: string, ids: string[]): TeamSetup {

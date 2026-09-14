@@ -1,6 +1,6 @@
 // 게임 저장 (M2-1, v2 는 ADR-004, v3 는 편성 판). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
 import type { GearSlot, GuardPolicy, ItemInstance, Outcome, Quirk, Row, RuleSet, TeamSetup } from '@webrpg/engine'
-import { ADVENTURE_BY_ID, EMPTY_ALLOC, HERO_JOB, ITEMS, MATERIALS, MEMBER_MAX, PRESETS, REFINE_MAX, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, TRAITS, type Alloc } from '@webrpg/engine'
+import { ADVENTURE_BY_ID, EMPTY_ALLOC, HERO_JOB, HERO_START_WEAPON, boundWeaponFor, ITEMS, MATERIALS, MEMBER_MAX, PRESETS, REFINE_MAX, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, TRAITS, type Alloc } from '@webrpg/engine'
 
 export type Gear = Partial<Record<GearSlot, ItemInstance>>
 export type Gender = 'male' | 'female'
@@ -162,7 +162,8 @@ export function newGame({ gender, heroName }: NewGameOptions): GameSave {
     skillPoints: 0,
     skills: [...(STARTER_SKILLS[HERO_JOB] ?? p.skills)],
     spentSkillPoints: 0,
-    gear: {},
+    // 전용 무기 — 벗을 수 없고 전직하면 진화한다 (docs/20)
+    gear: { weapon: { uid: 'hero-weapon', itemId: HERO_START_WEAPON, refine: 0 } },
     row: p.row,
     guard: structuredClone(p.guard),
     rules: structuredClone(p.rules),
@@ -254,6 +255,12 @@ export function migrate(raw: unknown): GameSave | null {
     m.gear = gear
     if (m.hero !== true) delete m.hero
     if (m.gender !== 'male' && m.gender !== 'female') delete m.gender
+    // 주인공 전용 무기 — 없거나 전직 단계와 어긋나면 맞춰 준다 (무기 전에 만든 주인공 세이브에는 없었다). 강화 단계는 지킨다
+    if (m.hero) {
+      const w = m.gear.weapon
+      const keep = w && ITEMS[w.itemId]?.bound
+      m.gear.weapon = { uid: keep ? w.uid : 'hero-weapon', itemId: boundWeaponFor(m.job2), refine: keep ? w.refine : 0 }
+    }
   }
   const inventory: ItemInstance[] = Array.isArray(s.inventory) ? s.inventory.filter(validItem).map(fixItem) : []
   const materials: Record<string, number> = {}

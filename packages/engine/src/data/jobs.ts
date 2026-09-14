@@ -8,16 +8,25 @@
 //
 // docs/18 이 "행동 사이의 값 차이가 작다"를 문제로 지목했다. 훅은 그 차이를 만드는 장치다.
 import type { StatKey } from '../types'
+import { HERO_START_WEAPON } from './presets'
 
-export type HookKind = 'guard' | 'lowHp' | 'dot' | 'interrupt' | 'aoe' | 'order' | 'slots' | 'smite' | 'snipe' | 'control'
+export type HookKind =
+  | 'guard' | 'lowHp' | 'dot' | 'interrupt' | 'aoe' | 'order' | 'slots' | 'smite' | 'snipe' | 'control'
+  // 주인공 계보 (docs/20) — 임시 훅. 기획이 나오면 바꾼다
+  | 'guild' | 'wander' | 'brave' | 'fallen'
 
 export interface JobAdvanceDef {
   id: string
   name: string
-  /** 1차 직업 id */
+  /**
+   * 앞 단계 — 1차 직업 id, 또는 **앞 전직 id**.
+   * 다른 직업은 1차 → 2차 한 번뿐이다. 주인공은 모험가 → 길드원 → 용사처럼 **이어진다** (docs/20)
+   */
   base: string
-  /** 전직 가능 레벨 (직업마다 18~22 차등 — docs/07 §3.3) */
+  /** 전직 가능 레벨 (1차 직업마다 18~22 차등 — docs/07 §3.3. 주인공은 15 · 30) */
   level: number
+  /** 주인공 전용 무기가 이 전직에서 무엇으로 진화하나 (data/items.ts 의 bound 무기) */
+  weapon?: string
   /** 수칙 훅 한 줄. 화면에 그대로 보여 준다 */
   hook: string
   hookKind: HookKind
@@ -173,12 +182,89 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     bonus: { dex: 10, luk: 8, maxHp: 100 },
     brief: '적의 시계를 늦춘다. 시간술사와 반대쪽에서 같은 일을 한다.',
   },
+
+  // ───────── 주인공 (2026-09-14 단장 기획, docs/20)
+  // 모험가 →(Lv15) 길드원 · 떠돌이 →(Lv30) 용사 · 타락 용사 →(Lv50) 기획 중. **계보 고정** — 길드원 → 용사, 떠돌이 → 타락 용사.
+  // 전직하면 전용 무기가 진화한다: 나무 몽둥이 → 에고 소드 / 에고 블레이드 → 용사의 검 / 다크 블레이드.
+  // ⚠ 훅 · 스킬 · 보정은 **임시값**이다 — 기존 특성·스킬을 빌려 쓴다. 단장이 기획하면 바꾼다
+  {
+    id: 'guildMember',
+    name: '길드원',
+    base: 'adventurer',
+    level: 15,
+    weapon: 'egoSword',
+    hook: '패턴 칸이 하나 늘어난다. 길드에서 맞춘 약속만큼 조건을 잘게 나눠 쓸 수 있다',
+    hookKind: 'guild',
+    traits: ['extraPattern'],
+    grants: ['warCry'],
+    learnable: [{ skillId: 'taunt', cost: 3 }],
+    bonus: { maxHp: 100, str: 8, def: 6 },
+    brief: '혼자가 아니게 된 모험가. 동료와 맞춘 수칙이 힘이다.',
+  },
+  {
+    id: 'wanderer',
+    name: '떠돌이',
+    base: 'adventurer',
+    level: 15,
+    weapon: 'egoBlade',
+    hook: '전투를 먼저 시작한다. 후열로 물러났다가 급습하는 순서를 수칙으로 짠다',
+    hookKind: 'wander',
+    traits: ['eager'],
+    grants: ['ambush'],
+    learnable: [{ skillId: 'backstep', cost: 2 }],
+    bonus: { dex: 10, spd: 10, maxSp: 20 },
+    brief: '어디에도 속하지 않는 모험가. 먼저 움직이고 먼저 빠진다.',
+  },
+  {
+    id: 'brave',
+    name: '용사',
+    base: 'guildMember',
+    level: 30,
+    weapon: 'braveSword',
+    hook: '엄호로 받는 피해가 크게 줄어든다. 동료가 위험할 때 앞에 서는 조건을 쓸수록 강하다',
+    hookKind: 'brave',
+    traits: ['aegis'],
+    grants: ['bulwark'],
+    learnable: [{ skillId: 'benediction', cost: 4 }],
+    bonus: { maxHp: 160, str: 10, mdef: 8 },
+    brief: '에고 소드가 용사의 검이 되었다. 지키는 검이다.',
+  },
+  {
+    id: 'fallenHero',
+    name: '타락 용사',
+    base: 'wanderer',
+    level: 30,
+    weapon: 'darkBlade',
+    hook: '태운 HP 만큼 세게 친다. 어디까지 태우고 어디서 멈출지를 "내 HP" 조건으로 긋는다',
+    hookKind: 'fallen',
+    traits: ['bloodRage'],
+    grants: ['recklessSwing'],
+    learnable: [{ skillId: 'bloodlust', cost: 3 }],
+    bonus: { str: 14, spd: 6, maxHp: 80 },
+    brief: '에고 블레이드가 어둠을 삼켰다. 힘은 피로 산다.',
+  },
 ]
 
 export const JOB_ADVANCE: Record<string, JobAdvanceDef> = Object.fromEntries(JOB_ADVANCES.map((j) => [j.id, j]))
 
-/** 이 1차 직업이 고를 수 있는 2차 직업 */
+/** 이 단계(1차 직업 id 또는 앞 전직 id)에서 고를 수 있는 다음 전직 */
 export const advancesFor = (baseJob: string): JobAdvanceDef[] => JOB_ADVANCES.filter((j) => j.base === baseJob)
+
+/**
+ * 전직 사슬 — 가장 최근 전직 id 에서 1차 직업까지 거슬러 올라가 **앞 단계부터** 돌려준다.
+ * 다른 직업은 한 칸이고, 주인공은 [길드원, 용사] 처럼 이어진다. 보정·특성·스킬은 사슬 전체가 쌓인다 (docs/20)
+ */
+export function advanceChain(job2?: string): JobAdvanceDef[] {
+  const out: JobAdvanceDef[] = []
+  for (let d = job2 ? JOB_ADVANCE[job2] : undefined; d; d = JOB_ADVANCE[d.base]) out.unshift(d)
+  return out
+}
+
+/** 주인공 전용 무기 — 사슬에서 가장 최근에 진화한 것, 전직 전이면 나무 몽둥이 */
+export function boundWeaponFor(job2?: string): string {
+  const evolved = advanceChain(job2).flatMap((d) => (d.weapon ? [d.weapon] : []))
+  return evolved.length ? evolved[evolved.length - 1] : HERO_START_WEAPON
+}
 
 /** 전직 가능 최소 레벨. 1차 직업마다 다르다 */
 export function advanceLevel(baseJob: string): number {
@@ -186,9 +272,12 @@ export function advanceLevel(baseJob: string): number {
   return list.length ? Math.min(...list.map((j) => j.level)) : Infinity
 }
 
-/** 전직할 수 있나 — 이미 전직했으면 못 한다 (되돌리기는 마을에서 금을 내고) */
+/**
+ * 전직할 수 있나 — 지금 단계(최근 전직, 없으면 1차 직업) 다음에 고를 것이 있고 레벨이 되면.
+ * 다른 직업은 2차 다음이 없으니 한 번뿐이다. 주인공은 30 에 한 번 더 (docs/20)
+ */
 export function canAdvance(baseJob: string, job2: string | undefined, level: number): boolean {
-  return !job2 && advancesFor(baseJob).some((j) => level >= j.level)
+  return advancesFor(job2 ?? baseJob).some((j) => level >= j.level)
 }
 
 /** 전직 취소 비용 (마을). 다시 고르려면 낸다 */
