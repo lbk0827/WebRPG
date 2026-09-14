@@ -7,6 +7,7 @@
 // 다만 PNG 가 없는 id 가 생길 수 있으므로(새 스킬을 넣고 그림을 아직 안 만든 경우)
 // **onError 로 같은 이름의 SVG 로 물러선다.** 87종은 PNG·SVG 가 둘 다 있다.
 import { useState } from 'react'
+import { COMMON_LEARNABLE } from '@webrpg/engine'
 
 type Kind = 'skills' | 'items' | 'status' | 'traits'
 type Size = 'sm' | 'md' | 'lg'
@@ -39,13 +40,19 @@ function Img({ kind, id, alt, size, inline }: IconProps & { kind: Kind; alt: str
   )
 }
 
+/** 누구나 0포인트로 배우는 스킬인가 — 직업별 목록은 전부 1~4 포인트라 공용 목록만 보면 된다 */
+const isFreeSkill = (id: string): boolean => COMMON_LEARNABLE.some((l) => l.skillId === id && l.cost === 0)
+
 /**
  * 스킬 아이콘은 **프레임(슬롯)에 담는다** (단장 지시 2026-09-13).
  * 스킬은 "고르는 것"이라 칸에 놓인 물건처럼 보여야 한다 — 장비·재료와 구별되는 이유이기도 하다.
+ *
+ * 프레임 색이 종류를 말한다 (단장 지시 2026-09-14, docs/11 §5.18):
+ *   갈색 = 포인트로 배우거나 직업이 주는 스킬 · **회색 = 공짜로 배우는 스킬** · 하늘색 = 패시브(TraitIcon)
  */
 export function SkillIcon({ id, alt = '', size = 'md', inline }: IconProps) {
   return (
-    <span className={`skill-frame ${size}${inline ? ' inline' : ''}`} aria-hidden={alt ? undefined : true}>
+    <span className={`skill-frame ${size}${isFreeSkill(id) ? ' free' : ''}${inline ? ' inline' : ''}`} aria-hidden={alt ? undefined : true}>
       <Img kind="skills" id={id} alt={alt} size={size} />
     </span>
   )
@@ -61,7 +68,14 @@ export function StatusIcon({ id, alt = '', size = 'sm', inline }: IconProps) {
   return <Img kind="status" id={id} alt={alt} size={size} inline={inline} />
 }
 
-/** 특성. 글줄 안에 섞이는 일이 많아 기본이 작다 */
+/**
+ * 특성 = **패시브 스킬**. 수칙 없이 늘 붙어 있다 (data/traits.ts — 패시브 스킬과 장비 특성이 공용으로 쓰는 장치).
+ * 그래서 스킬과 같은 프레임에 담되 **하늘색**이다 (단장 지시 2026-09-14). 글줄 안에 섞이는 일이 많아 기본이 작다
+ */
 export function TraitIcon({ id, alt = '', size = 'sm', inline }: IconProps) {
-  return <Img kind="traits" id={id} alt={alt} size={size} inline={inline} />
+  return (
+    <span className={`skill-frame passive ${size}${inline ? ' inline' : ''}`} aria-hidden={alt ? undefined : true}>
+      <Img kind="traits" id={id} alt={alt} size={size} />
+    </span>
+  )
 }

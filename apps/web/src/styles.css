@@ -1182,3 +1182,24 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .battle-map .adv-terms small { color: var(--muted); }
 .battle-map .adv-terms .have b { color: var(--good); }
 .battle-map .adv-terms .lack b { color: var(--bad); }
+
+/* ───────── 스킬 프레임 색 — 종류를 테두리로 가른다 (2026-09-14 단장 지시, docs/11 §5.18) ─────────
+   갈색(기본) = 포인트로 배우거나 직업이 주는 스킬 · 회색 = 누구나 공짜로 배우는 스킬 · 하늘색 = 패시브(특성) */
+.skill-frame.free {
+  background: linear-gradient(180deg, #979aa1 0%, #686b72 55%, #50525a 100%);
+  border-color: #b3b6bd;
+}
+.skill-frame.passive {
+  background: linear-gradient(180deg, #86cdf0 0%, #4396c6 55%, #2f729d 100%);
+  border-color: #b3e2f7;
+}
+/* 글줄 안에 섞인 프레임 (표 한 칸 · 칩) */
+.skill-frame.inline { display: inline-grid; vertical-align: middle; margin-right: 3px; }
+
+/* 스킬 절 맨 위의 색 범례 */
+.frame-legend { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; margin: 0 0 6px; font-size: 11px; color: var(--muted); }
+.frame-legend span { display: inline-flex; align-items: center; gap: 4px; }
+.frame-legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1px solid; }
+.frame-legend i.learn { background: #5a4838; border-color: #8d7452; }
+.frame-legend i.free { background: #686b72; border-color: #b3b6bd; }
+.frame-legend i.passive { background: #4396c6; border-color: #b3e2f7; }

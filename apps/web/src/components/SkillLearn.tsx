@@ -1,9 +1,9 @@
 // 스킬 습득 (M2-2, 제로식 방식). 보유 목록 + 배울 수 있는 목록(값) + 초기화. 편성 패널과 단원 카드가 같이 쓴다.
-import { JOB_ADVANCE, SKILL_RESET_GOLD, STARTER_SKILLS } from '@webrpg/engine'
+import { JOB_ADVANCE, SKILL_RESET_GOLD, STARTER_SKILLS, TRAITS } from '@webrpg/engine'
 import type { Member } from '../game/save'
 import { unlearned } from '../game/members'
-import { skillBrief, skillLabel } from '../lib/labels'
-import { SkillIcon } from './Icon'
+import { skillBrief, skillLabel, traitText } from '../lib/labels'
+import { SkillIcon, TraitIcon } from './Icon'
 
 interface Props {
   member: Member
@@ -24,10 +24,19 @@ export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
     { title: '전직', ids: m.skills.filter((id) => granted.includes(id)) },
     { title: '습득', ids: learnedExtra },
   ].filter((g) => g.ids.length > 0)
+  // 패시브 = 전직이 준 특성. 수칙에 넣지 않아도 늘 붙는다 (docs/11 §5.18).
+  // 장비가 주는 특성은 장비 절에서 보여 준다 — 여기는 "이 단원이 직업으로 가진 스킬"만
+  const passives = (m.job2 ? JOB_ADVANCE[m.job2].traits : []).filter((t) => TRAITS[t])
 
   return (
     <div className="learn">
       <h4>보유 <small>{m.skills.length}종 — 수칙에 넣어야 쓰인다</small></h4>
+      {/* 프레임 색이 종류를 말한다. 처음 보는 사람을 위해 한 줄로 */}
+      <p className="frame-legend">
+        <span><i className="learn" />배우거나 직업이 주는 스킬</span>
+        <span><i className="free" />공짜로 배우는 스킬</span>
+        <span><i className="passive" />패시브 (수칙 없이 늘 적용)</span>
+      </p>
       {groups.map((g) => (
         <div key={g.title} className="skill-group">
           <h5>{g.title} <small>{g.ids.length}</small></h5>
@@ -41,6 +50,20 @@ export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
           </ul>
         </div>
       ))}
+
+      {passives.length > 0 && (
+        <div className="skill-group">
+          <h5>패시브 <small>{passives.length} · 수칙 없이 늘 적용</small></h5>
+          <ul className="skill-list">
+            {passives.map((t) => (
+              <li key={t} className="skill-row">
+                <TraitIcon id={t} alt={TRAITS[t].label} size="md" />
+                <b>{TRAITS[t].label}</b> <small>{traitText(TRAITS[t])}</small>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
 
       <h4>배울 수 있는 스킬 <small>포인트 {m.skillPoints} · 레벨업마다 +1</small></h4>
       {list.length === 0 ? (
