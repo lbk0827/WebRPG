@@ -87,7 +87,7 @@ export function TeamGrid({ save, onSave }: { save: GameSave; onSave: (g: GameSav
   )
 }
 
-/** 단원 카드 — 도트 2배 + 받침 + 이름 · Lv 직업 + 체크박스, 체크되면 전열/후열 */
+/** 단원 카드 — 도트 1배 + 받침 + 이름 · Lv 직업 + 체크박스, 체크되면 전열/후열. 한 줄에 6장 (2026-09-14 단장 요청) */
 function TeamCard({ save, onSave, m }: { save: GameSave; onSave: (g: GameSave) => void; m: Member }) {
   const on = save.party.includes(m.id)
   const full = partyMembers(save).length >= PARTY_MAX
@@ -96,7 +96,7 @@ function TeamCard({ save, onSave, m }: { save: GameSave; onSave: (g: GameSave) =
   return (
     <li className={`team-card ${on ? 'on' : ''} ${blocked ? 'blocked' : ''}`}>
       <label title={blocked ? `출전은 ${PARTY_MAX}명까지입니다` : undefined}>
-        <span className="tile"><UnitPortrait icon={memberIcon(m)} size="xl" alt={m.name} /></span>
+        <span className="tile"><UnitPortrait icon={memberIcon(m)} size="full" alt={m.name} /></span>
         <span className="nm">{m.name}</span>
         <small>Lv.{m.level} {jobLabel(m)}</small>
         <input type="checkbox" checked={on} disabled={blocked} onChange={toggle} />
@@ -128,7 +128,7 @@ function TeamCard({ save, onSave, m }: { save: GameSave; onSave: (g: GameSave) =
 export function MonsterCard({ def, name }: { def: MonsterDef; name?: string }) {
   return (
     <li className="appear-card">
-      <span className="tile"><UnitPortrait icon={def.icon ?? def.job} size="xl" alt={name ?? def.name} /></span>
+      <span className="tile"><UnitPortrait icon={def.icon ?? def.job} size="full" alt={name ?? def.name} /></span>
       <span className="nm">{name ?? def.name}</span>
       <small>Lv.{def.level} · {ARCHETYPE_LABEL[def.archetype]}</small>
       <small>HP {monsterSetup(def, 0).stats.maxHp}</small>
