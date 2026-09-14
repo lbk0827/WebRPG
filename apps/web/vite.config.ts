@@ -36,5 +36,6 @@ export default defineConfig({
   plugins: [react(), stripNonGameFiles()],
   // assets/ 를 그대로 정적 서빙한다. /jobs/warrior.svg, /manifest.json
   publicDir: '../../assets',
-  server: { port: 5173, strictPort: true },
+  // 미리보기 도구가 창마다 다른 포트를 PORT 로 넘긴다. 없으면 5173.
+  server: { port: Number(process.env.PORT) || 5173, strictPort: true },
 })

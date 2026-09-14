@@ -89,7 +89,7 @@ function Game({ save, setSave, onNewGame }: { save: GameSave; setSave: (g: GameS
     <div className="app">
       <header className="top">
         <div className="brand">
-          <h1>교전 수칙</h1>
+          <h1>오더 앤 블레이드</h1>
           <div className="status">
             <b>{save.name}</b>
             <span>금 {save.gold}</span>

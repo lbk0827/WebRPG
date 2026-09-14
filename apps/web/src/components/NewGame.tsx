@@ -27,7 +27,7 @@ export function NewGame({ onStart, onCancel }: Props) {
     <div className="app new-game">
       <header className="top">
         <div className="brand">
-          <h1>교전 수칙</h1>
+          <h1>오더 앤 블레이드</h1>
         </div>
       </header>
       <main>
