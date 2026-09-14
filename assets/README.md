@@ -97,6 +97,44 @@
 | `../art-source/units/guildMember-female-hairsep.png` | 변환 입력 파생본 — 원본의 금발을 색상 46° 로 옮기고 얼굴 피부를 공통 피부색 밝기로 맞춤 (새로 그리지 않음) | `guildMember-female-source.png` → `tools/separate-hair-guildmember-female.py` | 원본과 동일 | 2026-09-14 |
 | `../art-source/backdrops/outskirts-source.png` | 마을 외곽 전투 배경 AI 원본 | OpenAI 내장 ImageGen — `units/adventurer-male-sheet.png`의 도트 밀도·색감 참조, docs/23 §4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
 | `backdrops/outskirts.png` | 마을 외곽 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/highway-source.png` | 가도 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/highway.png` | 가도 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/fort-source.png` | 폐허 요새 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/fort.png` | 폐허 요새 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/valley-source.png` | 늑대 골짜기 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/valley.png` | 늑대 골짜기 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/goblinCamp-source.png` | 고블린 부락 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/goblinCamp.png` | 고블린 부락 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/webwood-source.png` | 거미 숲 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/webwood.png` | 거미 숲 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/citadel-source.png` | 무너진 성채 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/citadel.png` | 무너진 성채 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/abyss-source.png` | 심연의 굴 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/abyss.png` | 심연의 굴 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/frostgate-source.png` | 서리 관문 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/frostgate.png` | 서리 관문 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/throne-source.png` | 잊힌 왕좌 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/throne.png` | 잊힌 왕좌 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/dunes-source.png` | 모래바람 황야 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/dunes.png` | 모래바람 황야 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/sunkenTemple-source.png` | 가라앉은 신전 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/sunkenTemple.png` | 가라앉은 신전 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/warfield-source.png` | 용병왕의 전장 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/warfield.png` | 용병왕의 전장 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/fallenStar-source.png` | 별이 떨어진 탑 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/fallenStar.png` | 별이 떨어진 탑 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/colosseum-source.png` | 고블린 콜로세움 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/colosseum.png` | 고블린 콜로세움 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/catacomb-source.png` | 지하 묘소 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/catacomb.png` | 지하 묘소 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/trial-source.png` | 칠요의 시련 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/trial.png` | 칠요의 시련 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/abyssGate-source.png` | 심연의 문 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/abyssGate.png` | 심연의 문 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/sandArena-source.png` | 황야의 결투장 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/sandArena.png` | 황야의 결투장 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/starSummit-source.png` | 탑의 정상 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/starSummit.png` | 탑의 정상 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
 | `../tools/process-backdrop.py` | 도구 (AI 원본 → 480×360 전투 배경 변환 · 규격 검사 · 등록표 대조, docs/23) | 자체 제작 | 저장소 소유 | 2026-09-14 |
 | `../tools/separate-hair-guildmember-female.py` | 도구 (살 영역 flood fill · 구멍 메우기 → 머리색 분리) | 자체 제작 | 저장소 소유 | 2026-09-14 |
 | `../tools/retouch-guildmember-female.mjs` | 도구 (머리 고립점 · 눈 · 입 좌표 보정, 재실행해도 동일) | 자체 제작 | 저장소 소유 | 2026-09-14 |

@@ -84,7 +84,7 @@ export function DebugBackdropGallery() {
   return (
     <details className="debug-gallery debug-backdrops" open={open} onToggle={(e) => setOpen((e.target as HTMLDetailsElement).open)}>
       <summary>디버그 · 전투 배경 <small>{ready}/{BACKDROP_KEYS.length} 도착</small></summary>
-      <p className="hint">실제 전투판과 같은 규칙(폰 1배 · 데스크톱 2배, 아래 가운데 기준)으로 그린다. 규격은 docs/23.</p>
+      <p className="hint">실제 전투판과 같은 4:3 비율로 그린다. 폰·데스크톱 모두 원경과 바닥을 함께 표시한다. 규격은 docs/23.</p>
       {/* 펼쳤을 때만 파일을 묻는다 — 닫혀 있으면 404 를 만들지 않는다 */}
       <ul>
         {BACKDROP_KEYS.map((d) => (

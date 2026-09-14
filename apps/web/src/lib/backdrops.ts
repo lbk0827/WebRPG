@@ -14,6 +14,25 @@ export const BACKDROP_H = 360
  */
 export const BACKDROP_READY: Record<string, { top: string }> = {
   outskirts: { top: '#589fee' },
+  highway: { top: '#e1804a' },
+  fort: { top: '#8194b3' },
+  valley: { top: '#7352a5' },
+  goblinCamp: { top: '#424773' },
+  webwood: { top: '#878aa5' },
+  citadel: { top: '#659ee9' },
+  abyss: { top: '#0b0e19' },
+  frostgate: { top: '#677fa9' },
+  throne: { top: '#3a383c' },
+  dunes: { top: '#e7bd83' },
+  sunkenTemple: { top: '#25b8c9' },
+  warfield: { top: '#822d3b' },
+  fallenStar: { top: '#111947' },
+  colosseum: { top: '#554f70' },
+  catacomb: { top: '#313033' },
+  trial: { top: '#4d9cf7' },
+  abyssGate: { top: '#0e1827' },
+  sandArena: { top: '#459cf9' },
+  starSummit: { top: '#081c4d' },
 }
 
 /** 모험은 제 그림이 오기 전까지 가까운 지역의 그림을 빌린다 */

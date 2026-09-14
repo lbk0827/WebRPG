@@ -1280,15 +1280,13 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .debug-gallery.dark .debug-grid b { color: #fff; }
 .debug-gallery.dark .debug-grid code, .debug-gallery.dark .debug-grid small { color: #b8b8c2; }
 
-/* ───────── 전투 배경 (docs/23). 도트 480×360 — 폰 1배 · 데스크톱 2배, 판의 아래 가운데에 맞춘다 */
+/* ───────── 전투 배경 (docs/23). 480×360 원본 비율을 판에서도 유지한다.
+   데스크톱에서 배경만 2배로 키우면 300px 높이의 판에 원경이 잘리고 바닥만 남았다. */
 .arena.has-backdrop {
-  /* 판이 그림보다 키가 크면 위쪽은 그림 맨 윗줄 색(--backdrop-top)으로 이어진다 */
-  background: var(--backdrop) center bottom / 480px 360px no-repeat, var(--backdrop-top, #2a2a33);
+  aspect-ratio: 4 / 3;
+  background: var(--backdrop) center center / cover no-repeat, var(--backdrop-top, #2a2a33);
   image-rendering: pixelated;
   border-color: rgba(0, 0, 0, 0.35);
-}
-@media (min-width: 760px) {
-  .arena.has-backdrop { background-size: 960px 720px; }
 }
 /* image-rendering 은 물려받는다. 엠블럼(벡터 img)은 부드럽게 둔다 */
 .arena.has-backdrop img { image-rendering: auto; }
