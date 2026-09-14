@@ -199,7 +199,8 @@ button.big { padding: 10px 22px; font-size: 15px; }
   --turn-ms: 900ms;
   --lunge: min(420ms, calc(var(--turn-ms) * 0.45));
   display: grid; grid-template-columns: 1fr 56px 1fr; gap: 4px; align-items: center;
-  padding: 10px 6px; border-radius: 14px; border: 1px solid var(--line);
+  /* 위 여백은 맨 윗줄 캐릭터의 말풍선 · 시전 표시 · 치켜든 무기 자리다. 판이 잘라 내므로(overflow: hidden) 넉넉히 둔다 */
+  padding: 28px 10px 10px; border-radius: 14px; border: 1px solid var(--line);
   background:
     radial-gradient(ellipse at 50% 120%, rgba(178,58,72,0.10), transparent 60%),
     linear-gradient(180deg, #ece7dc 0%, #e2dccd 100%);
@@ -334,9 +335,18 @@ button.big { padding: 10px 22px; font-size: 15px; }
 @keyframes shake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-5px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(3px); } }
 @keyframes popup-float { 0% { opacity: 0; transform: translate(-50%, 8px); } 15% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -26px); } }
 @keyframes bubble-in { from { opacity: 0; transform: translate(-50%, 4px); } to { opacity: 1; transform: translate(-50%, 0); } }
+/* 좁은 화면: 맨 바깥 열(우리 후열 · 상대 후열)은 칸이 말풍선보다 좁다. 가운데 정렬이면 바깥 절반이 판 밖으로 잘렸다(최대 29px).
+   바깥 가장자리에 붙이고 꼬리도 그쪽으로 옮긴다 */
+@media (max-width: 759px) {
+  .side.t0 .col.back .bubble { left: 0; transform: none; animation-name: bubble-in-edge; }
+  .side.t0 .col.back .bubble::after { left: 18px; }
+  .side.t1 .col.back .bubble { left: auto; right: 0; transform: none; animation-name: bubble-in-edge; }
+  .side.t1 .col.back .bubble::after { left: auto; right: 14px; }
+}
+@keyframes bubble-in-edge { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
 @media (min-width: 760px) {
-  .arena { grid-template-columns: 1fr 90px 1fr; padding: 16px 12px; min-height: 300px; }
+  .arena { grid-template-columns: 1fr 90px 1fr; padding: 34px 16px 16px; min-height: 300px; }
   .arena .headline { font-size: 16px; }
   .char img { width: 60px; height: 60px; }
   .char .unit svg { width: 96px; height: 128px; }
