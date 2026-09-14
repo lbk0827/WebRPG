@@ -11,8 +11,8 @@ export interface ItemDef {
   slot: GearSlot
   /** 무기만. 직업 화이트리스트(JOB_WEAPONS)와 대조 */
   weaponType?: WeaponType
-  /** 상점 등급 — 1 은 처음부터, 2 는 가도 해금 후, 3 은 폐허 요새 해금 후 */
-  tier: 1 | 2 | 3
+  /** 등급 — 상점은 1·2 만 판다. 3 은 제작 전용, 4·5 는 만렙 50 확장의 제작 전용 (docs/22 §6) */
+  tier: 1 | 2 | 3 | 4 | 5
   price: number
   /** 공격 가산 [물리, 마법] */
   atk?: [number, number]
@@ -84,6 +84,25 @@ const list: ItemDef[] = [
   { id: 'braceletVigor', label: '활력 팔찌', slot: 'trinket', tier: 1, price: 120, stats: { maxHp: 60 }, blurb: 'HP +60.' },
   { id: 'necklaceMemory', label: '기억의 목걸이', slot: 'trinket', tier: 3, price: 700, trait: 'extraPattern', blurb: '패턴 칸 +1. 이 게임에서 가장 비싼 한 칸.' },
   { id: 'pendantRegen', label: '재생의 펜던트', slot: 'trinket', tier: 3, price: 650, trait: 'regen', blurb: '매 차례 조금씩 아문다.' },
+
+  // ═════════ 4 · 5등급 — 만렙 50 확장, 제작 전용 (docs/22 §6) ═════════
+  // 3등급 공격 28~30 → 4등급 약 1.4배 → 5등급 약 1.9배. 기본치가 제곱근이라 가산이 크게 먹힌다 — HOF 최상위 8배는 우리 체계에서 과하다
+  { id: 'swordRune', label: '룬검', slot: 'weapon', weaponType: 'sword', tier: 4, price: 1200, atk: [42, 0], blurb: '날에 새긴 문양이 모래바람에도 닳지 않는다.' },
+  { id: 'swordStar', label: '별검', slot: 'weapon', weaponType: 'sword', tier: 5, price: 2400, atk: [56, 0], blurb: '떨어진 별의 조각을 두드려 폈다.' },
+  { id: 'daggerSand', label: '사막의 곡도', slot: 'weapon', weaponType: 'dagger', tier: 4, price: 1200, atk: [40, 0], blurb: '태양석으로 벼린 날. 쥐면 뜨겁다.' },
+  { id: 'daggerShadow', label: '그림자 송곳', slot: 'weapon', weaponType: 'dagger', tier: 5, price: 2400, atk: [54, 0], blurb: '용병왕의 암살자들이 쓰던 것. 소리가 나지 않는다.' },
+  { id: 'staffTide', label: '조수의 지팡이', slot: 'weapon', weaponType: 'staff', tier: 4, price: 1200, atk: [0, 42], blurb: '신전 바닥에서 건졌다. 아직 젖어 있다.' },
+  { id: 'staffStar', label: '별의 지팡이', slot: 'weapon', weaponType: 'staff', tier: 5, price: 2400, atk: [0, 56], blurb: '끝에 박힌 별조각이 밤마다 빛난다.' },
+  { id: 'relicTide', label: '조수의 성배', slot: 'weapon', weaponType: 'relic', tier: 4, price: 1200, atk: [0, 38], def: [0, 0, 6, 12], blurb: '물이 마르지 않는 잔.' },
+  { id: 'relicStar', label: '별의 성물', slot: 'weapon', weaponType: 'relic', tier: 5, price: 2400, atk: [0, 52], def: [0, 0, 8, 16], blurb: '탑의 꼭대기에서 누군가 기도하던 것.' },
+  { id: 'bowSand', label: '태양궁', slot: 'weapon', weaponType: 'bow', tier: 4, price: 1200, atk: [40, 0], blurb: '태양석을 박아 시위가 늘어지지 않는다.' },
+  { id: 'bowStar', label: '별화살 활', slot: 'weapon', weaponType: 'bow', tier: 5, price: 2400, atk: [54, 0], blurb: '쏜 화살이 꼬리를 끌며 떨어진다.' },
+  { id: 'armorRune', label: '룬 판금', slot: 'armor', tier: 4, price: 1100, def: [14, 26, 0, 7], blurb: '문양이 칼끝을 미끄러뜨린다.' },
+  { id: 'armorStar', label: '별의 갑주', slot: 'armor', tier: 5, price: 2200, def: [18, 34, 0, 9], trait: 'ironWill', blurb: '입으면 두려움이 먼저 빠져나간다.' },
+  { id: 'robeTide', label: '조수의 로브', slot: 'armor', tier: 4, price: 1100, def: [0, 7, 14, 28], stats: { maxSp: 45 }, blurb: '물결 무늬가 주문을 흘려 보낸다.' },
+  { id: 'robeStar', label: '별의 로브', slot: 'armor', tier: 5, price: 2200, def: [0, 9, 18, 36], stats: { maxSp: 60 }, trait: 'foresight', blurb: '다음에 무엇이 올지 조금 먼저 안다.' },
+  { id: 'pendantSandglass', label: '모래시계 펜던트', slot: 'trinket', tier: 4, price: 1300, stats: { spd: 6 }, trait: 'foresight', blurb: '모래가 떨어지는 동안은 먼저 움직인다.' },
+  { id: 'crownStar', label: '별의 관', slot: 'trinket', tier: 5, price: 2600, stats: { int: 10, luk: 10 }, trait: 'extraPattern', blurb: '쓰는 순간 생각이 한 줄 더 는다.' },
 ]
 
 export const ITEMS: Record<string, ItemDef> = Object.fromEntries(list.map((i) => [i.id, i]))

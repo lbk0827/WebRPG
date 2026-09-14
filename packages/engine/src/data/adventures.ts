@@ -88,6 +88,34 @@ export const ADVENTURES: AdventureDef[] = [
     clearDrops: [{ itemId: 'ogreCore', qty: 2 }, { itemId: 'bossSeal', qty: 1 }],
     unlock: { regionId: 'abyss', wins: 3 },
   },
+  // ── 만렙 50 확장 (docs/22 §8). 5등급 제작에 드는 왕의 증표를 확정으로 준다
+  {
+    id: 'sandArena',
+    no: 5,
+    name: '황야의 결투장',
+    brief: '족장은 모래 위에서만 결투를 받는다. 태양석을 바치면 나온다.',
+    recommended: [38, 42],
+    foes: ['duneWarlord', 'sandRaider', 'sandRaider'],
+    entry: { itemId: 'sunstone', qty: 3 },
+    cooldownMin: { win: 240, lose: 10 },
+    rewardPct: 250,
+    clearDrops: [{ itemId: 'kingSigil', qty: 1 }, { itemId: 'sunstone', qty: 2 }],
+    unlock: { regionId: 'dunes', wins: 3 },
+  },
+  {
+    id: 'starSummit',
+    no: 6,
+    name: '탑의 정상',
+    brief: '별조각 세 개로 계단이 열린다. 주인은 창자 둘을 곁에 둔다. 하루 한 번.',
+    recommended: [47, 50],
+    foes: ['towerMaster', 'starChanter', 'starChanter'],
+    entry: { itemId: 'starShard', qty: 3 },
+    cooldownMin: { win: 0, lose: 10 },
+    dailyLimit: 1,
+    rewardPct: 300,
+    clearDrops: [{ itemId: 'kingSigil', qty: 1 }, { itemId: 'starShard', qty: 3 }],
+    unlock: { regionId: 'fallenStar', wins: 3 },
+  },
 ]
 
 export const ADVENTURE_BY_ID: Record<string, AdventureDef> = Object.fromEntries(ADVENTURES.map((a) => [a.id, a]))

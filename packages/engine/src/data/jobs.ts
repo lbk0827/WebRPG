@@ -34,8 +34,8 @@ export interface JobAdvanceDef {
   traits: string[]
   /** 전직 즉시 배우는 대표 스킬 */
   grants: string[]
-  /** 이 직업만 포인트로 배울 수 있는 스킬 */
-  learnable: { skillId: string; cost: number }[]
+  /** 이 직업만 포인트로 배울 수 있는 스킬. minLevel 이 있으면 그 레벨부터 (오의 — docs/22 §7) */
+  learnable: { skillId: string; cost: number; minLevel?: number }[]
   /** 전직 시 한 번 더해지는 스탯 (분배 포인트가 아니라 기본값 보정) */
   bonus: Partial<Record<StatKey | 'maxHp' | 'maxSp' | 'def' | 'mdef', number>>
   /** 도감·전직 화면의 한 줄 설명 */
@@ -53,7 +53,7 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     hookKind: 'guard',
     traits: ['aegis', 'ironWill'],
     grants: ['bulwark'],
-    learnable: [{ skillId: 'taunt', cost: 3 }],
+    learnable: [{ skillId: 'taunt', cost: 3 }, { skillId: 'fortress', cost: 5, minLevel: 40 }],
     bonus: { maxHp: 240, def: 10, mdef: 6 },
     brief: '대신 맞는 것이 일이다. 엄호 문턱을 낮게 잡을수록 값이 나온다.',
   },
@@ -66,7 +66,7 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     hookKind: 'lowHp',
     traits: ['bloodRage'],
     grants: ['recklessSwing'],
-    learnable: [{ skillId: 'bloodlust', cost: 3 }],
+    learnable: [{ skillId: 'bloodlust', cost: 3 }, { skillId: 'lastStand', cost: 5, minLevel: 40 }],
     bonus: { maxHp: 120, str: 14, spd: 6 },
     brief: '자기 피를 태워 친다. 어디까지 태우고 어디서 멈출지가 수칙이다.',
   },
@@ -81,7 +81,7 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     hookKind: 'dot',
     traits: ['venomcraft'],
     grants: ['toxicBlade'],
-    learnable: [{ skillId: 'markPrey', cost: 3 }],
+    learnable: [{ skillId: 'markPrey', cost: 3 }, { skillId: 'plague', cost: 5, minLevel: 40 }],
     bonus: { dex: 12, spd: 8, maxSp: 20 },
     brief: '한 번에 죽이지 않는다. 독을 겹치고 기다린다.',
   },
@@ -94,7 +94,7 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     hookKind: 'interrupt',
     traits: ['disruptor', 'eager'],
     grants: ['disrupt'],
-    learnable: [{ skillId: 'smokeBomb', cost: 3 }],
+    learnable: [{ skillId: 'smokeBomb', cost: 3 }, { skillId: 'blackout', cost: 5, minLevel: 40 }],
     bonus: { dex: 8, spd: 14, maxSp: 20 },
     brief: '적이 준비 동작에 들어가는 순간이 전부다. 그 조건 하나에 수칙을 건다.',
   },
@@ -109,7 +109,7 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     hookKind: 'aoe',
     traits: ['quickCast'],
     grants: ['maelstrom'],
-    learnable: [{ skillId: 'emberfall', cost: 3 }],
+    learnable: [{ skillId: 'emberfall', cost: 3 }, { skillId: 'starfall', cost: 5, minLevel: 40 }],
     bonus: { int: 14, maxSp: 40 },
     brief: '한 번에 여럿을 친다. 적이 적을 땐 손해라 조건이 필요하다.',
   },
@@ -122,7 +122,7 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     hookKind: 'order',
     traits: ['foresight'],
     grants: ['hasten'],
-    learnable: [{ skillId: 'stasis', cost: 4 }],
+    learnable: [{ skillId: 'stasis', cost: 4 }, { skillId: 'rewind', cost: 5, minLevel: 40 }],
     bonus: { int: 10, spd: 10, maxSp: 30 },
     brief: '누구를 먼저 움직이게 할 것인가. 이 게임에서 가장 어려운 수칙을 쓴다.',
   },
@@ -137,7 +137,7 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     hookKind: 'slots',
     traits: ['highLiturgy'],
     grants: ['sanctuary'],
-    learnable: [{ skillId: 'benediction', cost: 4 }],
+    learnable: [{ skillId: 'benediction', cost: 4 }, { skillId: 'miracle', cost: 5, minLevel: 40 }],
     bonus: { int: 10, maxSp: 40, mdef: 6 },
     brief: '가장 많은 칸을 쓴다. 정교한 지시를 감당하는 직업이다.',
   },
@@ -150,7 +150,7 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     hookKind: 'smite',
     traits: ['zeal'],
     grants: ['judgment'],
-    learnable: [{ skillId: 'condemn', cost: 3 }],
+    learnable: [{ skillId: 'condemn', cost: 3 }, { skillId: 'verdict', cost: 5, minLevel: 40 }],
     bonus: { int: 12, str: 6, maxHp: 120 },
     brief: '치유만 하지 않는다. 걸어 놓고 친다.',
   },
@@ -165,7 +165,7 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     hookKind: 'snipe',
     traits: ['sniperEye', 'deadeye'],
     grants: ['volley'],
-    learnable: [{ skillId: 'snipe', cost: 3 }],
+    learnable: [{ skillId: 'snipe', cost: 3 }, { skillId: 'pinpoint', cost: 5, minLevel: 40 }],
     bonus: { dex: 14, spd: 6 },
     brief: '뒤에 선 것이 위험하다면 뒤를 친다. 치유자·시전자를 지운다.',
   },
@@ -178,7 +178,7 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     hookKind: 'control',
     traits: ['thornward'],
     grants: ['entangle'],
-    learnable: [{ skillId: 'windArrow', cost: 3 }],
+    learnable: [{ skillId: 'windArrow', cost: 3 }, { skillId: 'rootbind', cost: 5, minLevel: 40 }],
     bonus: { dex: 10, luk: 8, maxHp: 100 },
     brief: '적의 시계를 늦춘다. 시간술사와 반대쪽에서 같은 일을 한다.',
   },

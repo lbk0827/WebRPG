@@ -9,6 +9,8 @@ export interface SlotState {
   rules: RuleSet
   /** 성장 반영 스탯 (생략 시 직업 기본값) — 패턴 수 상한 계산용 */
   stats?: Stats
+  /** 레벨 — 패턴 칸의 레벨 문턱(30·45) (docs/22 §3). 생략 = 문턱 없음 */
+  level?: number
   /** 보유 스킬 (생략 시 직업 기본값) */
   skills?: string[]
 }

@@ -75,15 +75,18 @@ export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
       ) : (
         <ul className="learn-list">
           {list.map((l) => {
-            const ok = l.cost <= m.skillPoints
+            // 오의는 레벨 문턱이 있다 (docs/22 §7)
+            const levelOk = (l.minLevel ?? 0) <= m.level
+            const ok = l.cost <= m.skillPoints && levelOk
             return (
               <li key={l.skillId} className={ok ? '' : 'far'}>
                 <SkillIcon id={l.skillId} alt={skillLabel(l.skillId)} />
                 <div className="body">
                   <b>{skillLabel(l.skillId)}</b> <span className={`cost ${l.cost === 0 ? 'free' : ''}`}>{l.cost === 0 ? '공짜' : `${l.cost}pt`}</span>
+                  {l.minLevel && <span className="cost">Lv {l.minLevel} 부터</span>}
                   <small>{skillBrief(l.skillId)}</small>
                 </div>
-                <button className={ok ? 'primary' : ''} disabled={!ok} onClick={() => onLearn(l.skillId)} title={ok ? '' : `포인트 ${l.cost - m.skillPoints} 더 필요`}>
+                <button className={ok ? 'primary' : ''} disabled={!ok} onClick={() => onLearn(l.skillId)} title={ok ? '' : !levelOk ? `Lv ${l.minLevel} 부터 배울 수 있다` : `포인트 ${l.cost - m.skillPoints} 더 필요`}>
                   배우기
                 </button>
               </li>

@@ -93,6 +93,7 @@ export function UnitPanel({ save, onSave, member, initial = 'stats', onGoShop, o
     guard: member.guard,
     rules: member.rules,
     stats: memberStats(member),
+    level: member.level,
     skills: member.skills,
   }
   const setSlot = (_: number, next: SlotState) => setMember({ ...member, guard: next.guard, rules: next.rules })

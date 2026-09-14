@@ -10,8 +10,8 @@ export { MISSIONS, MISSION_BY_ID, missionTeams, missionChar, solutionOverrides, 
 export type { Mission, MissionChar, MissionLimits, MissionObjective, SlotOverride, Verdict } from './data/missions'
 export { analyze } from './analysis'
 export {
-  maxRuleRows, nextRuleRowInt, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS,
-  MAX_LEVEL, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, STAT_CAP, EXP_TABLE, EMPTY_ALLOC,
+  maxRuleRows, nextRuleRowInt, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, RULE_ROWS_LEVEL_STEPS,
+  MAX_LEVEL, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, STAT_CAP, STAT_CAP_BASE, statCapFor, EXP_TABLE, EMPTY_ALLOC,
   expToNext, grantExp, growthStats, scaleByLevel,
 } from './progression'
 export type { Alloc, ExpResult } from './progression'

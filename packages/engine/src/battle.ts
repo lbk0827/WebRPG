@@ -140,7 +140,7 @@ function takeTurn(actor: CharState, st: BattleState): void {
 
   // INT 로 정해지는 최대 패턴 수를 넘는 패턴은 평가하지 않는다 (progression.ts)
   const rows = actor.setup.rules.rows
-  const limit = Math.min(rows.length, maxRuleRows(actor.setup.stats) + traitRuleRows(actor))
+  const limit = Math.min(rows.length, maxRuleRows(actor.setup.stats, actor.setup.level) + traitRuleRows(actor))
   for (let i = 0; i < limit; i++) {
     const row = rows[i]
     if (row.disabled) continue

@@ -1,7 +1,7 @@
 // M2-2 스킬 습득 (제로식 방식): 데이터 정합성 + 미습득 스킬 실패 + 밸런스 불변.
 import { describe, expect, it } from 'vitest'
 import {
-  COMMON_LEARNABLE, DEFAULT_CONFIG, LEARNABLE, PRESETS, REGIONS, SKILLS, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS,
+  COMMON_LEARNABLE, DEFAULT_CONFIG, JOB_ADVANCES, LEARNABLE, MAX_LEVEL, PRESETS, REGIONS, SKILLS, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS,
   learnableFor, rollEncounter, simulate,
 } from '../src'
 import type { BattleEvent, CharSetup } from '../src'
@@ -74,6 +74,28 @@ describe('미습득 스킬', () => {
       const b = simulate({ seed, teams: [starter, enemy], config: DEFAULT_CONFIG, skills: SKILLS })
       expect(b.outcome).toBe(a.outcome)
       expect(b.actionCount).toBe(a.actionCount)
+    }
+  })
+})
+
+// ── 오의 (만렙 50 확장, docs/22 §7) ────
+describe('오의 — 레벨 문턱', () => {
+  const BASES = ['warrior', 'rogue', 'mage', 'priest', 'elf']
+  const tier2 = JOB_ADVANCES.filter((a) => BASES.includes(a.base))
+  it('기본 5직업의 2차 직업마다 오의가 하나, Lv40 부터', () => {
+    expect(tier2.length).toBe(10)
+    for (const a of tier2) {
+      const gated = a.learnable.filter((l) => l.minLevel !== undefined)
+      expect(gated.length, a.id).toBe(1)
+      expect(SKILLS[gated[0].skillId], `${a.id} → ${gated[0].skillId}`).toBeDefined()
+      expect(gated[0].minLevel, a.id).toBe(40)
+      expect(gated[0].minLevel!, a.id).toBeLessThan(MAX_LEVEL)
+    }
+  })
+  it('배울 수 있는 목록에 문턱이 그대로 실려 간다 — 화면·배우기 함수가 이것으로 막는다', () => {
+    for (const a of tier2) {
+      const ult = a.learnable.find((l) => l.minLevel !== undefined)!
+      expect(learnableFor(a.base, a.id).find((l) => l.skillId === ult.skillId)?.minLevel, a.id).toBe(40)
     }
   })
 })

@@ -64,7 +64,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
     setOpen((o) => ({ ...o, [rows.length]: true }))
   }
   const reset = () => onChange(sel, { ...slot, rules: structuredClone(PRESETS[slot.job].rules) })
-  const statCap = maxRuleRows(stats)
+  const statCap = maxRuleRows(stats, slot.level)
   const cap = Math.min(statCap, limits?.maxRows ?? statCap)
   const atMax = rows.length >= cap
   const nextInt = nextRuleRowInt(stats)

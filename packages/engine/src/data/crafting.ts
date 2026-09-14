@@ -21,6 +21,12 @@ export const MATERIALS: Record<string, MaterialDef> = {
   beastFang: { id: 'beastFang', label: '짐승 송곳니', blurb: '들개·박쥐의 이빨, 거미의 독니, 오우거의 어금니. 갈면 날이 선다.' },
   venomSac: { id: 'venomSac', label: '독주머니', blurb: '거미 배에서 터뜨리지 않고 꺼내야 값이 나간다.' },
   ogreCore: { id: 'ogreCore', label: '오우거의 핵', blurb: '심장 자리에 돌처럼 굳은 것. 아직 따뜻하다.' },
+  // 만렙 50 확장 (docs/22 §6) — 지역마다 하나, 그리고 숨은 보스의 희귀 재료 하나
+  sunstone: { id: 'sunstone', label: '태양석', blurb: '모래바람 황야의 돌. 해가 진 뒤에도 뜨겁다.' },
+  tideScale: { id: 'tideScale', label: '조수 비늘', blurb: '가라앉은 신전의 것들이 떨어뜨린다. 마르지 않는다.' },
+  warBanner: { id: 'warBanner', label: '전쟁 휘장', blurb: '용병왕의 전장에서 쓰러진 자들의 휘장. 5등급 무기의 손잡이에 감는다.' },
+  starShard: { id: 'starShard', label: '별조각', blurb: '별이 떨어진 탑에서 나온다. 손바닥 위에서 희미하게 빛난다.' },
+  kingSigil: { id: 'kingSigil', label: '왕의 증표', blurb: '숨은 보스만 지니고 있다. 5등급을 만들 때 하나씩 든다.' },
 }
 
 // ───────────────────────────── 강화 (§3.5)
@@ -88,6 +94,24 @@ export const RECIPES: Recipe[] = [
   { id: 'rStaffSage', itemId: 'staffSage', materials: [{ id: 'manaCrystal', qty: 8 }, { id: 'holyWater', qty: 3 }, { id: 'ogreCore', qty: 1 }], gold: 260 },
   { id: 'rRelicHoly', itemId: 'relicHoly', materials: [{ id: 'holyWater', qty: 8 }, { id: 'manaCrystal', qty: 4 }, { id: 'bossSeal', qty: 1 }], gold: 280 },
   { id: 'rRobeArch', itemId: 'robeArch', materials: [{ id: 'manaCrystal', qty: 7 }, { id: 'leather', qty: 4 }, { id: 'venomSac', qty: 2 }], gold: 240 },
+  // ── 4등급 (만렙 50 확장, docs/22 §6) — 새 지역 재료 + 기존 재료를 넉넉히
+  { id: 'rSwordRune', itemId: 'swordRune', materials: [{ id: 'sunstone', qty: 6 }, { id: 'ironScrap', qty: 12 }, { id: 'ogreCore', qty: 2 }], gold: 500 },
+  { id: 'rDaggerSand', itemId: 'daggerSand', materials: [{ id: 'sunstone', qty: 6 }, { id: 'venomSac', qty: 6 }, { id: 'beastFang', qty: 4 }], gold: 500 },
+  { id: 'rStaffTide', itemId: 'staffTide', materials: [{ id: 'tideScale', qty: 6 }, { id: 'manaCrystal', qty: 10 }], gold: 500 },
+  { id: 'rRelicTide', itemId: 'relicTide', materials: [{ id: 'tideScale', qty: 6 }, { id: 'holyWater', qty: 8 }], gold: 500 },
+  { id: 'rBowSand', itemId: 'bowSand', materials: [{ id: 'sunstone', qty: 6 }, { id: 'feather', qty: 12 }, { id: 'beastFang', qty: 4 }], gold: 500 },
+  { id: 'rArmorRune', itemId: 'armorRune', materials: [{ id: 'sunstone', qty: 4 }, { id: 'tideScale', qty: 4 }, { id: 'ironScrap', qty: 14 }], gold: 480 },
+  { id: 'rRobeTide', itemId: 'robeTide', materials: [{ id: 'tideScale', qty: 6 }, { id: 'manaCrystal', qty: 8 }, { id: 'leather', qty: 6 }], gold: 480 },
+  { id: 'rPendantSandglass', itemId: 'pendantSandglass', materials: [{ id: 'sunstone', qty: 5 }, { id: 'tideScale', qty: 3 }, { id: 'manaCrystal', qty: 6 }], gold: 520 },
+  // ── 5등급 — 왕의 증표(숨은 보스 · 모험 확정 보상) 하나씩
+  { id: 'rSwordStar', itemId: 'swordStar', materials: [{ id: 'starShard', qty: 8 }, { id: 'warBanner', qty: 6 }, { id: 'kingSigil', qty: 1 }], gold: 1200 },
+  { id: 'rDaggerShadow', itemId: 'daggerShadow', materials: [{ id: 'warBanner', qty: 8 }, { id: 'venomSac', qty: 8 }, { id: 'kingSigil', qty: 1 }], gold: 1200 },
+  { id: 'rStaffStar', itemId: 'staffStar', materials: [{ id: 'starShard', qty: 10 }, { id: 'manaCrystal', qty: 10 }, { id: 'kingSigil', qty: 1 }], gold: 1200 },
+  { id: 'rRelicStar', itemId: 'relicStar', materials: [{ id: 'starShard', qty: 8 }, { id: 'holyWater', qty: 10 }, { id: 'kingSigil', qty: 1 }], gold: 1200 },
+  { id: 'rBowStar', itemId: 'bowStar', materials: [{ id: 'starShard', qty: 8 }, { id: 'feather', qty: 14 }, { id: 'kingSigil', qty: 1 }], gold: 1200 },
+  { id: 'rArmorStar', itemId: 'armorStar', materials: [{ id: 'warBanner', qty: 8 }, { id: 'starShard', qty: 6 }, { id: 'kingSigil', qty: 1 }], gold: 1100 },
+  { id: 'rRobeStar', itemId: 'robeStar', materials: [{ id: 'starShard', qty: 8 }, { id: 'tideScale', qty: 6 }, { id: 'kingSigil', qty: 1 }], gold: 1100 },
+  { id: 'rCrownStar', itemId: 'crownStar', materials: [{ id: 'starShard', qty: 10 }, { id: 'warBanner', qty: 6 }, { id: 'kingSigil', qty: 2 }], gold: 1300 },
 ]
 
 export const RECIPE_BY_ID: Record<string, Recipe> = Object.fromEntries(RECIPES.map((r) => [r.id, r]))

@@ -1,7 +1,7 @@
 // 단원 성장 카드의 알맹이 — 레벨·경험치·스탯 분배(미리보기→확정)·파생 수치. 단원 탭과 편성 패널이 같이 쓴다.
 import { useState } from 'react'
 import type { Alloc, StatKey } from '@webrpg/engine'
-import { CRAFT_TRAIT_PCT, EMPTY_ALLOC, STAT_CAP, craftLukBonusPct, derivedStats, expToNext, lootBonusPct, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
+import { CRAFT_TRAIT_PCT, EMPTY_ALLOC, RULE_ROWS_LEVEL_STEPS, craftLukBonusPct, derivedStats, expToNext, lootBonusPct, maxRuleRows, nextRuleRowInt, statCapFor } from '@webrpg/engine'
 import type { Member } from '../game/save'
 import { allocateMany, gearSummary, memberStats } from '../game/members'
 import { STAT_HELP } from '../lib/labels'
@@ -25,13 +25,14 @@ export function MemberGrowth({ member: m, onChange, compact }: Props) {
   const previewMember: Member = used > 0 ? { ...m, alloc: { ...m.alloc, ...Object.fromEntries(STAT_KEYS.map((k) => [k, m.alloc[k] + pend[k]])) } } : m
   const s = memberStats(previewMember)
   const base = memberStats(m)
-  const d = derivedStats(s)
+  const d = derivedStats(s, m.level)
   const gear = gearSummary(m)
   const next = expToNext(m.level)
 
   // 드롭다운 (2026-09-14 단장 지시 — HOF 방식). 포인트가 많을 때 +1 을 수십 번 누르지 않고 한 번에 고른다.
   // 고를 수 있는 최대치 = 이 스탯에 이미 골라 둔 것 + 남은 포인트, 그리고 스탯 상한까지
-  const maxFor = (k: StatKey): number => Math.max(0, Math.min(left + pend[k], STAT_CAP - base[k]))
+  // 상한은 레벨을 따른다 — Lv30 까지 150, 그 뒤 레벨당 +5 (docs/22 §3)
+  const maxFor = (k: StatKey): number => Math.max(0, Math.min(left + pend[k], statCapFor(m.level) - base[k]))
   const pick = (k: StatKey, v: number) => setPend({ ...pend, [k]: Math.max(0, Math.min(v, maxFor(k))) })
   const confirm = () => { onChange(allocateMany(m, pend)); setPend(EMPTY_ALLOC) }
 
@@ -41,7 +42,7 @@ export function MemberGrowth({ member: m, onChange, compact }: Props) {
         <div className="bar exp"><i style={{ width: next ? `${Math.min(100, (m.exp / next) * 100)}%` : '100%' }} /></div>
       )}
       <small className="line">
-        {next ? `경험치 ${m.exp}/${next}` : '만렙'} · HP {s.maxHp} · SP {s.maxSp} · 패턴 {m.rules.rows.length}/{maxRuleRows(s)}{nextRuleRowInt(s) !== null ? ` (지능 ${nextRuleRowInt(s)}에서 +1)` : ''}
+        {next ? `경험치 ${m.exp}/${next}` : '만렙'} · HP {s.maxHp} · SP {s.maxSp} · 패턴 {m.rules.rows.length}/{maxRuleRows(s, m.level)}{nextRuleRowInt(s) !== null ? ` (지능 ${nextRuleRowInt(s)}에서 +1)` : ''}{RULE_ROWS_LEVEL_STEPS.some((l) => m.level < l) ? ` (Lv ${RULE_ROWS_LEVEL_STEPS.find((l) => m.level < l)}에서 +1)` : ''}
         {m.statPoints > 0 && <span className="badge">포인트 {left}{used > 0 ? `/${m.statPoints}` : ''}</span>}
       </small>
       <div className="stats">

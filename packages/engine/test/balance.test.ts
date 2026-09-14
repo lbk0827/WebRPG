@@ -203,7 +203,7 @@ describe('지역 난이도 곡선', () => {
         const m = MONSTERS[t.monsterId]
         if (m.hidden) continue // 숨김(보스)은 권장 상한을 넘어도 된다 — 그게 위협이다
         if (r.expects === 'advanced') {
-          // 전직 지역은 **상대가 나보다 세다**. 만렙이 30 이니 레벨로는 못 넘는다 — 설계로 넘는 것이다.
+          // 전직 지역은 **상대가 나보다 세다**. 권장 상한보다 높은 적이니 레벨로는 못 넘는다 — 설계로 넘는 것이다.
           // 그게 이 지역의 문장이다 (docs/18 §17)
           expect(m.level, `${r.name} → ${m.name}: 전직 지역은 상대가 더 높아야 한다`).toBeGreaterThan(r.recommended[1])
           expect(m.level, `${r.name} → ${m.name}: 그래도 한계는 있다`).toBeLessThanOrEqual(r.recommended[1] + 8)

@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   DEFAULT_CONFIG, EXP_TABLE, MAX_LEVEL, MONSTERS, PRESETS, REGIONS, SKILLS, battleRewards, expToNext, grantExp, growthStats,
-  isRegionUnlocked, maxRuleRows, monsterSetup, rollEncounter, simulate, EMPTY_ALLOC,
+  isRegionUnlocked, maxRuleRows, monsterSetup, rollEncounter, simulate, statCapFor, EMPTY_ALLOC, STAT_POINTS_PER_LEVEL,
 } from '../src'
 
 describe('몬스터 데이터', () => {
@@ -12,7 +12,8 @@ describe('몬스터 데이터', () => {
       const setup = monsterSetup(m, 0)
       for (const s of setup.skills) expect(SKILLS[s], `${m.id} → ${s}`).toBeDefined()
       for (const r of setup.rules.rows) expect(setup.skills, `${m.id} 수칙 → ${r.skillId}`).toContain(r.skillId)
-      expect(setup.rules.rows.length, m.id).toBeLessThanOrEqual(maxRuleRows(setup.stats))
+      // 엔진과 같게 레벨 문턱(30·45)까지 센다 (docs/22 §3)
+      expect(setup.rules.rows.length, m.id).toBeLessThanOrEqual(maxRuleRows(setup.stats, setup.level))
       expect(setup.monster?.exp, m.id).toBeGreaterThan(0)
     }
   })
@@ -77,7 +78,9 @@ describe('지역과 조우', () => {
 })
 
 describe('경험치와 성장', () => {
-  it('경험치 표는 단조 증가, 만렙 30', () => {
+  it('경험치 표는 단조 증가, 만렙 50', () => {
+    expect(MAX_LEVEL).toBe(50)
+    expect(EXP_TABLE.length).toBe(MAX_LEVEL)
     for (let l = 2; l < MAX_LEVEL; l++) expect(EXP_TABLE[l]).toBeGreaterThan(EXP_TABLE[l - 1])
     expect(expToNext(MAX_LEVEL)).toBeNull()
     expect(expToNext(1)).toBe(40)
@@ -89,12 +92,18 @@ describe('경험치와 성장', () => {
     expect(r.levelsGained).toBe(2)
     expect(grantExp(MAX_LEVEL, 0, 99999).level).toBe(MAX_LEVEL)
   })
-  it('growthStats: HP 레벨 스케일, INT 분배는 SP 상한도 올린다, 상한 150', () => {
+  it('growthStats: HP 레벨 스케일, INT 분배는 SP 상한도 올린다, 상한은 Lv30 까지 150 → Lv50 에 250', () => {
     const base = PRESETS.mage.stats
     const s = growthStats(base, 10, { ...EMPTY_ALLOC, int: 20 })
     expect(s.maxHp).toBe(Math.floor((base.maxHp * 145) / 100))
     expect(s.maxSp).toBe(Math.floor((base.maxSp * 127) / 100) + 40)
     expect(s.int).toBe(base.int + 20)
-    expect(growthStats(base, 1, { ...EMPTY_ALLOC, int: 999 }).int).toBe(150)
+    const max = { ...EMPTY_ALLOC, int: 999 }
+    expect(growthStats(base, 1, max).int).toBe(150)
+    expect(growthStats(base, 30, max).int).toBe(150)
+    expect(growthStats(base, 40, max).int).toBe(200)
+    expect(growthStats(base, 50, max).int).toBe(250)
+    // Lv30 이후 새 포인트는 전부 주 스탯에 넣을 수 있다 — 상한이 포인트와 같은 속도로 오른다
+    for (let l = 31; l <= MAX_LEVEL; l++) expect(statCapFor(l) - statCapFor(l - 1)).toBe(STAT_POINTS_PER_LEVEL)
   })
 })

@@ -158,7 +158,8 @@ export const REGIONS: RegionDef[] = [
     no: 9,
     name: '서리 관문',
     brief: '심연을 넘으면 관문이 있다. 지키는 것은 짐승이 아니라 훈련된 용병단이다 — 그들도 수칙을 짜고, 그들도 전직했다. 엄호를 뚫고 시전을 끊어야 한다.',
-    recommended: [26, 30],
+    // 만렙 50 확장으로 권장 밴드를 뒤로 한 칸 늘렸다 (docs/22 §4)
+    recommended: [26, 31],
     count: [4, 6],
     expects: 'advanced',
     table: [
@@ -175,7 +176,7 @@ export const REGIONS: RegionDef[] = [
     no: 10,
     name: '잊힌 왕좌',
     brief: '관문 너머, 용병단을 처음 만든 자가 앉아 있던 자리. 잊힌 단장은 여덟 줄의 수칙을 쓴다 — 이 게임에서 가장 긴 것이다. 당신의 거울이다.',
-    recommended: [28, 30],
+    recommended: [30, 34],
     count: [4, 6],
     expects: 'advanced',
     table: [
@@ -185,6 +186,80 @@ export const REGIONS: RegionDef[] = [
       { monsterId: 'forgottenCaptain', weight: 14 },
     ],
     unlock: { regionId: 'frostgate', wins: 3 },
+  },
+
+  // ═════════ 만렙 50 확장 — Lv30~50 (docs/22 §4) ═════════
+  // 전부 전직 전제. 지역마다 가르치는 것이 하나다. 앞 지역 3승이면 열린다
+  {
+    id: 'dunes',
+    no: 11,
+    name: '모래바람 황야',
+    brief: '왕좌 너머는 모래뿐이다. 사막 부족은 둔화와 정지로 박자를 뺏는다. 정화와 가속을 수칙에 넣고, 점술사의 긴 주문은 끊어라.',
+    recommended: [33, 38],
+    count: [4, 6],
+    expects: 'advanced',
+    table: [
+      { monsterId: 'sandRaider', weight: 30 },
+      { monsterId: 'duneStalker', weight: 26 },
+      { monsterId: 'sandHarpy', weight: 24 },
+      { monsterId: 'sandSeer', weight: 20 },
+      { monsterId: 'duneWarlord', weight: 5 },
+    ],
+    unlock: { regionId: 'throne', wins: 3 },
+  },
+  {
+    id: 'sunkenTemple',
+    no: 12,
+    name: '가라앉은 신전',
+    brief: '물에 잠긴 신전은 막고 되돌린다. 수호상이 앞을 막고 사제가 장막과 재생으로 되감는다. 뒤를 치지 않으면 끝나지 않는다.',
+    recommended: [37, 42],
+    count: [4, 6],
+    expects: 'advanced',
+    table: [
+      { monsterId: 'templeWarden', weight: 28 },
+      { monsterId: 'tidePriest', weight: 22 },
+      { monsterId: 'eelSwarm', weight: 26 },
+      { monsterId: 'drownedKnight', weight: 24 },
+      { monsterId: 'templeColossus', weight: 5 },
+    ],
+    unlock: { regionId: 'dunes', wins: 3 },
+  },
+  {
+    id: 'warfield',
+    no: 13,
+    name: '용병왕의 전장',
+    brief: '모든 용병단이 한 번은 거쳐 가는 전장. 여기 선 자들은 당신이 고를 수 있는 모든 2차 직업을 이미 쓴다 — 여섯 명의 거울이다.',
+    recommended: [41, 46],
+    // 5~6 명이면 훅을 겹친 정예에게 HP 를 절반 가까이 깎아도 28% 였다 — 인원이 가장 큰 손잡이다 (docs/07 §3.8g)
+    count: [3, 5],
+    expects: 'advanced',
+    table: [
+      { monsterId: 'kingsGuard', weight: 20 },
+      { monsterId: 'warBerserker', weight: 18 },
+      { monsterId: 'warAssassin', weight: 16 },
+      { monsterId: 'warElementalist', weight: 16 },
+      { monsterId: 'warBishop', weight: 14 },
+      { monsterId: 'warRanger', weight: 16 },
+      { monsterId: 'mercenaryKing', weight: 4 },
+    ],
+    unlock: { regionId: 'sunkenTemple', wins: 3 },
+  },
+  {
+    id: 'fallenStar',
+    no: 14,
+    name: '별이 떨어진 탑',
+    brief: '별이 떨어진 자리에 탑이 섰다. 창자들은 이 게임에서 가장 긴 주문을 외운다 — 끊는 사람이 없으면 전원이 쓰러진다. 꼭대기에는 주인이 있다.',
+    recommended: [45, 50],
+    count: [3, 5],
+    expects: 'advanced',
+    table: [
+      { monsterId: 'starGolem', weight: 26 },
+      { monsterId: 'voidHarpy', weight: 24 },
+      { monsterId: 'starChanter', weight: 22 },
+      { monsterId: 'riftBeast', weight: 26 },
+      { monsterId: 'towerMaster', weight: 4 },
+    ],
+    unlock: { regionId: 'warfield', wins: 3 },
   },
 ]
 

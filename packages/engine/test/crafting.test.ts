@@ -194,4 +194,25 @@ describe('상점과 공방의 역할 분담', () => {
       expect(ok, `${job} 이 만들 수 있는 3등급 무기가 없다`).toBe(true)
     }
   })
+
+  it('직업마다 1~5등급 무기가 있고, 4·5등급은 전부 제작법이 있다 (만렙 50 확장, docs/22 §6)', () => {
+    const craftable = new Set(RECIPES.map((r) => r.itemId))
+    for (const [job, types] of Object.entries(JOB_WEAPONS)) {
+      if (types.includes('ego')) continue
+      for (const tier of [1, 2, 3, 4, 5] as const) {
+        const ok = Object.values(ITEMS).some((i) => i.tier === tier && i.slot === 'weapon' && types.includes(i.weaponType as never))
+        expect(ok, `${job} 의 ${tier}등급 무기가 없다`).toBe(true)
+      }
+    }
+    const late = Object.values(ITEMS).filter((i) => i.tier >= 4 && !i.bound)
+    expect(late.length).toBeGreaterThan(0)
+    for (const i of late) expect(craftable.has(i.id), `${i.label} (${i.id}) 는 ${i.tier}등급인데 제작법이 없다`).toBe(true)
+  })
+
+  it('5등급 제작에는 왕의 증표가 든다 — 숨은 보스·모험을 거쳐야 한다', () => {
+    for (const r of RECIPES) {
+      if (ITEMS[r.itemId]?.tier !== 5) continue
+      expect(r.materials.some((m) => m.id === 'kingSigil'), `${r.itemId}`).toBe(true)
+    }
+  })
 })

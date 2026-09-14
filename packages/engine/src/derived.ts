@@ -24,7 +24,7 @@ export interface DerivedStats {
   ruleRows: number
 }
 
-export function derivedStats(s: Stats): DerivedStats {
+export function derivedStats(s: Stats, level = 0): DerivedStats {
   return {
     physBase: isqrt(s.str * 100),
     dexBase: isqrt(s.dex * 100),
@@ -33,6 +33,6 @@ export function derivedStats(s: Stats): DerivedStats {
     castReductionPct: Math.min(25, Math.floor(s.dex / 4)),
     resistMaxPct: Math.min(30, Math.floor(s.luk / 4)),
     critPct: critPct(s.luk),
-    ruleRows: maxRuleRows(s),
+    ruleRows: maxRuleRows(s, level),
   }
 }

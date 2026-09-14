@@ -1,7 +1,7 @@
 // 단원 ↔ 전투 CharSetup 변환, 성장 처리, 편성 판 조작.
 import type { Alloc, Analysis, AdventureDef, BattleResult, CharSetup, GearSlot, GearSummary, ItemDef, ItemInstance, Recipe, RuleSet, StatKey, Stats, TeamSetup } from '@webrpg/engine'
 import {
-  DEFAULT_CONFIG, DISMISS_REFUND_PCT, HERO_JOB, HIRE, ITEMS, ITEM_LIST, MATERIALS, MEMBER_MAX, PRESETS, RECIPE_BY_ID, REFINE_MAX, REGIONS, RENAME_GOLD, SKILLS, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_CAP, STAT_POINTS_PER_LEVEL, SKILL_POINTS_PER_LEVEL, WEEKDAY_LABEL,
+  DEFAULT_CONFIG, DISMISS_REFUND_PCT, HERO_JOB, HIRE, ITEMS, ITEM_LIST, MATERIALS, MEMBER_MAX, PRESETS, RECIPE_BY_ID, REFINE_MAX, REGIONS, RENAME_GOLD, SKILLS, SKILL_RESET_GOLD, STARTER_SKILLS, STAT_POINTS_PER_LEVEL, statCapFor, SKILL_POINTS_PER_LEVEL, WEEKDAY_LABEL,
   ADVANCE_RESET_GOLD, JOB_ADVANCE, advanceChain, boundWeaponFor,
   adventureRewards, adventureTeam, advancesFor, analyze, applyGearStats, applyQuirk, canAdvance, canCraft, canEquip, createRng, grantExp, growthStats, hireLevel, hirePrice, isRegionUnlocked, learnCost, learnableFor, refineCost, rollCraftTrait, rollQuirk, sellPrice, simulate, summarizeGear, tryRefine,
 } from '@webrpg/engine'
@@ -16,7 +16,7 @@ export const gearSummary = (m: Member): GearSummary => summarizeGear(gearItems(m
  * **레벨 배율을 곱한 뒤에** 더한다. 성장 전에 더하면 HP +240 이 Lv24 에서 +516 이 되어
  * 전직이 "다르게 싸우는 것"이 아니라 힘 도약이 된다 (ADR-003 위반).
  */
-function withAdvanceBonus(scaled: Stats, job2?: string): Stats {
+function withAdvanceBonus(scaled: Stats, level: number, job2?: string): Stats {
   // 전직 사슬 전체 — 주인공은 길드원의 보정 위에 용사의 보정이 쌓인다 (docs/20)
   const chain = advanceChain(job2)
   if (chain.length === 0) return scaled
@@ -26,7 +26,7 @@ function withAdvanceBonus(scaled: Stats, job2?: string): Stats {
       const key = k as keyof Stats
       const raw = (out[key] ?? 0) + (v ?? 0)
       // 분배 스탯은 상한을 함께 지킨다
-      out[key] = key === 'maxHp' || key === 'maxSp' || key === 'def' || key === 'mdef' ? raw : Math.min(STAT_CAP, raw)
+      out[key] = key === 'maxHp' || key === 'maxSp' || key === 'def' || key === 'mdef' ? raw : Math.min(statCapFor(level), raw)
     }
   }
   return out
@@ -35,7 +35,7 @@ function withAdvanceBonus(scaled: Stats, job2?: string): Stats {
 /** 성장 + 편차 + 전직 보정 + 장비 스탯 가산 */
 export const memberStats = (m: Member): Stats =>
   applyGearStats(
-    withAdvanceBonus(growthStats(applyQuirk(PRESETS[m.job].stats, m.quirk), m.level, m.alloc), m.job2),
+    withAdvanceBonus(growthStats(applyQuirk(PRESETS[m.job].stats, m.quirk), m.level, m.alloc), m.level, m.job2),
     gearSummary(m).stats,
   )
 
@@ -53,6 +53,8 @@ export function memberSetup(m: Member, idx: number): CharSetup {
     // id 앞부분은 전투 화면이 도트를 고르는 키다 (jobOf)
     id: `${memberIcon(m)}#${idx}`,
     name: m.name,
+    // 패턴 칸의 레벨 문턱(30·45)에 쓴다 (docs/22 §3)
+    level: m.level,
     row: m.row,
     guard: structuredClone(m.guard),
     stats: memberStats(m),
@@ -392,11 +394,13 @@ export function runAdventure(g: GameSave, def: AdventureDef, now = Date.now()): 
 export const unlearned = (m: Member) => learnableFor(m.job, m.job2).filter((l) => !m.skills.includes(l.skillId))
 
 /** 지금 포인트로 살 수 있는 게 있는가 */
-export const canLearnSomething = (m: Member): boolean => unlearned(m).some((l) => l.cost <= m.skillPoints)
+export const canLearnSomething = (m: Member): boolean => unlearned(m).some((l) => l.cost <= m.skillPoints && (l.minLevel ?? 0) <= m.level)
 
 export function learnSkill(m: Member, skillId: string): Member {
   const cost = learnCost(m.job, skillId, m.job2)
-  if (cost === null || m.skills.includes(skillId) || m.skillPoints < cost) return m
+  // 오의는 레벨 문턱이 있다 — 포인트가 있어도 레벨이 모자라면 못 배운다 (docs/22 §7)
+  const minLevel = learnableFor(m.job, m.job2).find((l) => l.skillId === skillId)?.minLevel ?? 0
+  if (cost === null || m.skills.includes(skillId) || m.skillPoints < cost || m.level < minLevel) return m
   return { ...m, skills: [...m.skills, skillId], skillPoints: m.skillPoints - cost, spentSkillPoints: m.spentSkillPoints + cost }
 }
 
@@ -599,7 +603,7 @@ export function renameMember(g: GameSave, m: Member, name: string): GameSave {
 
 export function allocateStat(m: Member, key: StatKey): Member {
   if (m.statPoints <= 0) return m
-  if (memberStats(m)[key] >= STAT_CAP) return m
+  if (memberStats(m)[key] >= statCapFor(m.level)) return m
   return { ...m, statPoints: m.statPoints - 1, alloc: { ...m.alloc, [key]: m.alloc[key] + 1 } }
 }
 

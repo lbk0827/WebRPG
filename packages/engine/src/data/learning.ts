@@ -7,6 +7,8 @@ import { advanceChain } from './jobs'
 export interface Learnable {
   skillId: string
   cost: number
+  /** 이 레벨부터 배울 수 있다. 포인트가 있어도 레벨이 모자라면 못 배운다 (오의 — docs/22 §7). 생략 = 제한 없음 */
+  minLevel?: number
 }
 
 /** 새 단원이 들고 시작하는 스킬. 각 직업 기본 수칙이 참조하는 스킬을 전부 포함해야 한다 (테스트로 고정) */

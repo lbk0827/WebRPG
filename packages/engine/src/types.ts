@@ -102,6 +102,8 @@ export interface Stats {
 export interface CharSetup {
   id: string
   name: string
+  /** 레벨. 패턴 칸의 레벨 문턱(30·45)에 쓴다 (docs/22 §3). 생략 = 문턱 없음 */
+  level?: number
   row: Row
   guard: GuardPolicy
   stats: Stats

@@ -1,7 +1,7 @@
 // 몬스터 (M2-1 사람 / M2-5a 짐승·괴물). 몬스터도 수칙으로 움직인다 — 별도 AI 없음 (docs/07 §3.9).
 // 지역이 깊어질수록 수칙이 정교해진다 → 몬스터 수칙 자체가 플레이어에게 교재가 된다.
 // 원형 8종: 잡몹 · 돌격 · 방벽 · 사격 · 주술(시전) · 독 · 다수 · 보스.
-import type { CharSetup, Condition, GuardPolicy, Row, RuleRow, RuleSet, StatKey, Stats } from '../types'
+import type { CharSetup, Condition, GuardPolicy, Row, RuleRow, RuleSet, StatKey, Stats, StatusId } from '../types'
 import { PRESETS } from './presets'
 import { EMPTY_ALLOC, growthStats } from '../progression'
 
@@ -57,6 +57,17 @@ const strikeOnly = rules(row(always, 'strike'))
 const sp = (v: number) => atom({ kind: 'selfSpAbs', cmp: 'gte', value: v })
 const hpBelow = (v: number) => atom({ kind: 'selfHpPct', cmp: 'lte', value: v })
 const firstAction = atom({ kind: 'selfActionCount', cmp: 'eq', value: 1 })
+// 만렙 50 확장 상대(docs/22 §5)의 수칙이 길어져서 자주 쓰는 조건에 이름을 붙였다
+const foesAlive = (n: number) => atom({ kind: 'teamAliveCount', side: 'enemy', cmp: 'gte', value: n })
+const foesCasting = atom({ kind: 'teamCastingCount', side: 'enemy', cmp: 'gte', value: 1 })
+const foesFresh = (v: number) => atom({ kind: 'teamAnyHpPct', side: 'enemy', cmp: 'gte', value: v })
+const foeStatusAtMost = (status: StatusId, v: number) => atom({ kind: 'teamStatusCount', side: 'enemy', status, cmp: 'lte', value: v })
+const foeBackRow = (n: number) => atom({ kind: 'teamRowCount', side: 'enemy', row: 'back', cmp: 'gte', value: n })
+const allyHurt = (v: number) => atom({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: v })
+const allyAvgBelow = (v: number) => atom({ kind: 'teamAvgHpPct', side: 'ally', cmp: 'lte', value: v })
+const allyAliveAtMost = (n: number) => atom({ kind: 'teamAliveCount', side: 'ally', cmp: 'lte', value: n })
+const allyDead = atom({ kind: 'teamDeadCount', side: 'ally', cmp: 'gte', value: 1 })
+const selfHpAbove = (v: number) => atom({ kind: 'selfHpPct', cmp: 'gte', value: v })
 
 /** 몬스터 정의 → 전투용 CharSetup. idx 는 팀 내 순번. id 앞부분이 아이콘 키가 된다 */
 export function monsterSetup(def: MonsterDef, idx: number): CharSetup {
@@ -68,6 +79,7 @@ export function monsterSetup(def: MonsterDef, idx: number): CharSetup {
   return {
     id: `${def.icon ?? p.id}#${idx}`,
     name: def.name,
+    level: def.level,
     row: def.row ?? p.row,
     guard: structuredClone(def.guard ?? p.guard),
     stats,
@@ -436,6 +448,315 @@ const list: MonsterDef[] = [
       row(always, 'strike'),
     ),
     drops: [{ itemId: 'bossSeal', permyriad: 10000 }], exp: 900, gold: 600,
+  },
+
+  // ═════════ 만렙 50 확장 — Lv30~50 지역의 상대 (docs/22 §5) ═════════
+  //
+  // 지역마다 가르치는 것이 하나다. 사람이거나 기존 원형 아이콘이라 새 그림이 필요 없다.
+  // 레벨은 권장 상한 + 3~6 (전직 지역 규칙). Lv30·45 가 넘으면 플레이어처럼 패턴 칸이 하나씩 는다 — 그래서 수칙이 길다.
+  // 수치는 **첫 값**이다. balance.test 의 전직 지역 계약에 맞춰 조정한다.
+
+  // ───────── 모래바람 황야 (Lv33~38): 속도 — 둔화·정지로 박자를 뺏는다
+  {
+    id: 'sandRaider', name: '사막 약탈자', job: 'rogue', archetype: 'rush', level: 40, growth: { dex: 2, spd: 1 },
+    stats: { maxHp: 1760, def: 16, int: 22 },
+    traits: ['disruptor'],
+    skills: ['strike', 'flurry', 'disrupt', 'smokeBomb', 'venomStrong'],
+    // 교재: 시전하면 끊긴다. 시전 전에 이 녀석부터
+    rules: rules(
+      row(and(sp(14), foesCasting), 'disrupt'),
+      row(and(hpBelow(40), sp(12)), 'smokeBomb', 1),
+      row(sp(8), 'venomStrong'),
+      row(sp(10), 'flurry'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'sunstone', permyriad: 3500 }, { itemId: 'leather', permyriad: 3000 }], exp: 430, gold: 245,
+  },
+  {
+    id: 'duneStalker', name: '모래 전갈', job: 'rogue', icon: 'spider', archetype: 'venom', level: 41, growth: { dex: 2, str: 1 },
+    stats: { maxHp: 2150, def: 34, int: 12 }, guard: { mode: 'never' },
+    skills: ['strike', 'venomStrong', 'entangle'],
+    // 교재: 둔화를 겹친다. 정화가 없으면 우리 차례가 점점 늦어진다
+    rules: rules(row(and(sp(12), foeStatusAtMost('spdDown', 1)), 'entangle'), row(sp(8), 'venomStrong'), row(always, 'strike')),
+    drops: [{ itemId: 'sunstone', permyriad: 3000 }, { itemId: 'venomSac', permyriad: 4000 }], exp: 450, gold: 250,
+  },
+  {
+    id: 'sandHarpy', name: '모래바람 하피', job: 'elf', icon: 'harpy', archetype: 'shooter', level: 40, growth: { dex: 2, spd: 2 },
+    stats: { maxHp: 1430, def: 12, int: 12 }, row: 'back',
+    skills: ['strike', 'windArrow', 'volley', 'pierceShot'],
+    rules: rules(row(and(sp(18), foesAlive(4)), 'volley'), row(sp(10), 'windArrow'), row(always, 'strike')),
+    drops: [{ itemId: 'feather', permyriad: 5000 }, { itemId: 'sunstone', permyriad: 2500 }], exp: 420, gold: 240,
+  },
+  {
+    id: 'sandSeer', name: '사막 점술사', job: 'mage', icon: 'shaman', archetype: 'caster', level: 42, growth: { int: 2, spd: 1 },
+    stats: { maxHp: 1330, def: 8, mdef: 24 }, row: 'back',
+    traits: ['foresight'],
+    skills: ['bolt', 'stasis', 'hasten', 'sandstorm'],
+    // 교재: 제 편은 당기고 우리 편은 늦춘다. 끊지 않으면 박자 싸움에서 진다
+    rules: rules(
+      row(and(sp(18), firstAction), 'hasten', 1),
+      row(and(sp(16), foesCasting), 'stasis'),
+      row(sp(18), 'sandstorm'),
+      row(always, 'bolt'),
+    ),
+    drops: [{ itemId: 'sunstone', permyriad: 4000 }, { itemId: 'manaCrystal', permyriad: 3000 }], exp: 470, gold: 270,
+  },
+  {
+    id: 'duneWarlord', name: '황야의 족장', job: 'warrior', archetype: 'boss', level: 44, growth: { str: 2, spd: 1 },
+    stats: { maxHp: 4950, def: 40, mdef: 28, int: 22 }, guard: { mode: 'hpAbove', pct: 40 }, hidden: true,
+    traits: ['eager', 'bloodRage'],
+    skills: ['strike', 'warCry', 'sweep', 'heavyBlow', 'recklessSwing', 'sandstorm'],
+    rules: rules(
+      row(firstAction, 'warCry', 1),
+      row(and(sp(14), foesAlive(4)), 'sweep'),
+      row(and(sp(18), foeStatusAtMost('spdDown', 1)), 'sandstorm'),
+      row(and(selfHpAbove(60), sp(10)), 'recklessSwing'),
+      row(sp(8), 'heavyBlow'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'kingSigil', permyriad: 4000 }, { itemId: 'sunstone', permyriad: 10000 }], exp: 1300, gold: 800,
+  },
+
+  // ───────── 가라앉은 신전 (Lv37~42): 보호막 · 재생 — 막고 되돌린다
+  {
+    id: 'templeWarden', name: '신전 수호상', job: 'warrior', icon: 'turtle', archetype: 'wall', level: 45, growth: { str: 2 },
+    stats: { maxHp: 4340, def: 50, mdef: 34, spd: 30, int: 12 }, guard: { mode: 'always' },
+    traits: ['aegis'],
+    skills: ['strike', 'bulwark', 'taunt', 'ironSkin'],
+    rules: rules(
+      row(firstAction, 'bulwark', 1),
+      row(and(sp(10), allyHurt(55)), 'taunt'),
+      row(and(hpBelow(50), sp(8)), 'ironSkin', 2),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'tideScale', permyriad: 4000 }, { itemId: 'ironScrap', permyriad: 4000 }], exp: 560, gold: 300,
+  },
+  {
+    id: 'tidePriest', name: '조수의 사제', job: 'priest', icon: 'shaman', archetype: 'caster', level: 45, growth: { int: 3, luk: 1 },
+    stats: { maxHp: 1750, def: 12, mdef: 30 }, row: 'back',
+    traits: ['regen', 'highLiturgy'],
+    skills: ['strike', 'tidalWard', 'mendChant', 'ward', 'resurrect', 'bolt'],
+    // 교재: 막고 되돌린다. 뒤를 치거나 장막 준비를 끊지 않으면 끝나지 않는다
+    rules: rules(
+      row(allyDead, 'resurrect'),
+      row(and(sp(20), atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 60 })), 'tidalWard'),
+      row(and(sp(12), atom({ kind: 'teamAnyHpPctBelow', side: 'ally', value: 50 })), 'mendChant'),
+      row(and(sp(10), firstAction), 'ward', 1),
+      row(sp(6), 'bolt'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'tideScale', permyriad: 4500 }, { itemId: 'holyWater', permyriad: 4000 }], exp: 580, gold: 310,
+  },
+  {
+    id: 'eelSwarm', name: '물뱀 떼', job: 'rogue', icon: 'swarm', archetype: 'horde', level: 44, growth: { dex: 3, spd: 2 },
+    stats: { maxHp: 1330, def: 10, int: 12 },
+    skills: ['strike', 'flurry', 'venom'],
+    rules: rules(row(sp(10), 'flurry'), row(sp(8), 'venom'), row(always, 'strike')),
+    drops: [{ itemId: 'tideScale', permyriad: 3000 }, { itemId: 'venomSac', permyriad: 3000 }], exp: 520, gold: 280,
+  },
+  {
+    id: 'drownedKnight', name: '익사한 기사', job: 'warrior', archetype: 'rush', level: 46, growth: { str: 3, spd: 1 },
+    stats: { maxHp: 3220, def: 36, mdef: 20, int: 12 },
+    traits: ['secondWind'],
+    skills: ['strike', 'sunder', 'heavyBlow', 'sweep'],
+    rules: rules(
+      row(and(sp(6), foesFresh(70)), 'sunder'),
+      row(and(sp(14), foesAlive(4)), 'sweep'),
+      row(sp(8), 'heavyBlow'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'tideScale', permyriad: 3500 }, { itemId: 'ironScrap', permyriad: 3500 }], exp: 570, gold: 300,
+  },
+  {
+    id: 'templeColossus', name: '신전의 거상', job: 'warrior', icon: 'ogre', archetype: 'boss', level: 48, growth: { str: 3 },
+    stats: { maxHp: 7700, def: 52, mdef: 36, spd: 40, int: 22 }, guard: { mode: 'always' }, hidden: true,
+    traits: ['aegis', 'regen'],
+    skills: ['strike', 'fortress', 'sweep', 'heavyBlow', 'ironSkin'],
+    rules: rules(
+      row(firstAction, 'fortress', 1),
+      row(and(hpBelow(50), sp(8)), 'ironSkin', 2),
+      row(and(sp(14), foesAlive(4)), 'sweep'),
+      row(sp(8), 'heavyBlow'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'kingSigil', permyriad: 5000 }, { itemId: 'tideScale', permyriad: 10000 }], exp: 1700, gold: 1000,
+  },
+
+  // ───────── 용병왕의 전장 (Lv41~46): 전원 전직 거울 — 플레이어가 고를 수 있는 2차 직업을 상대가 먼저 쓴다
+  {
+    id: 'kingsGuard', name: '왕의 친위대', job: 'warrior', archetype: 'wall', level: 49, growth: { str: 3, spd: 1 },
+    stats: { maxHp: 2700, def: 46, mdef: 32, int: 22 }, guard: { mode: 'always' },
+    traits: ['aegis', 'ironWill'],
+    skills: ['strike', 'bulwark', 'taunt', 'fortress', 'heavyBlow', 'ironSkin'],
+    rules: rules(
+      row(firstAction, 'fortress', 1),
+      row(and(sp(10), allyHurt(55)), 'taunt'),
+      row(and(sp(16), allyAliveAtMost(3)), 'bulwark', 2),
+      row(and(hpBelow(50), sp(8)), 'ironSkin', 2),
+      row(sp(8), 'heavyBlow'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'warBanner', permyriad: 4000 }, { itemId: 'ironScrap', permyriad: 4000 }], exp: 680, gold: 360,
+  },
+  {
+    id: 'warBerserker', name: '전장 광전사', job: 'warrior', archetype: 'rush', level: 48, growth: { str: 3, spd: 2 },
+    stats: { maxHp: 1940, def: 30, int: 12 },
+    traits: ['bloodRage'],
+    skills: ['strike', 'recklessSwing', 'lastStand', 'bloodlust', 'warCry'],
+    // 교재: 만피일 때만 최후의 일격. 플레이어의 피의 분노와 같은 판단이다
+    rules: rules(
+      row(firstAction, 'warCry', 1),
+      row(and(hpBelow(30), sp(12)), 'bloodlust'),
+      row(and(selfHpAbove(80), sp(16)), 'lastStand', 1),
+      row(and(selfHpAbove(55), sp(10)), 'recklessSwing'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'warBanner', permyriad: 3500 }, { itemId: 'beastFang', permyriad: 3500 }], exp: 660, gold: 350,
+  },
+  {
+    id: 'warAssassin', name: '그림자 암살자', job: 'rogue', archetype: 'venom', level: 48, growth: { dex: 3, spd: 2 },
+    stats: { maxHp: 1220, def: 14, int: 22 }, row: 'back',
+    traits: ['venomcraft', 'disruptor'],
+    skills: ['strike', 'plague', 'toxicBlade', 'disrupt', 'markPrey'],
+    rules: rules(
+      row(and(sp(14), foesCasting), 'disrupt'),
+      row(and(sp(24), foeStatusAtMost('poison', 1)), 'plague'),
+      row(and(sp(8), firstAction), 'markPrey', 1),
+      row(sp(14), 'toxicBlade'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'warBanner', permyriad: 3500 }, { itemId: 'venomSac', permyriad: 4000 }], exp: 650, gold: 345,
+  },
+  {
+    id: 'warElementalist', name: '전장 원소술사', job: 'mage', archetype: 'caster', level: 49, growth: { int: 3, spd: 1 },
+    stats: { maxHp: 1080, def: 8, mdef: 26 }, row: 'back',
+    traits: ['quickCast', 'foresight'],
+    skills: ['bolt', 'maelstrom', 'starfall', 'stasis', 'emberfall'],
+    // 교재: 유성우를 끊지 못하면 전원이 크게 다친다
+    rules: rules(
+      row(and(sp(40), foesAlive(4)), 'starfall'),
+      row(and(sp(16), foesCasting), 'stasis'),
+      row(and(sp(26), foesAlive(3)), 'maelstrom'),
+      row(sp(16), 'emberfall'),
+      row(always, 'bolt'),
+    ),
+    drops: [{ itemId: 'warBanner', permyriad: 4000 }, { itemId: 'manaCrystal', permyriad: 4000 }], exp: 690, gold: 365,
+  },
+  {
+    id: 'warBishop', name: '종군 주교', job: 'priest', archetype: 'caster', level: 49, growth: { int: 3, luk: 1 },
+    stats: { maxHp: 1220, def: 10, mdef: 30 }, row: 'back',
+    traits: ['highLiturgy'],
+    skills: ['strike', 'miracle', 'sanctuary', 'benediction', 'mend', 'resurrect', 'ward'],
+    rules: rules(
+      row(allyDead, 'resurrect'),
+      row(and(sp(40), allyAvgBelow(45)), 'miracle', 1),
+      row(and(sp(18), allyHurt(30)), 'benediction'),
+      row(and(sp(22), allyAvgBelow(65)), 'sanctuary'),
+      row(and(sp(10), allyHurt(55)), 'mend'),
+      row(and(sp(10), firstAction), 'ward', 1),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'warBanner', permyriad: 4000 }, { itemId: 'holyWater', permyriad: 4500 }], exp: 690, gold: 365,
+  },
+  {
+    id: 'warRanger', name: '전장 레인저', job: 'elf', archetype: 'shooter', level: 48, growth: { dex: 3, spd: 2 },
+    stats: { maxHp: 1170, def: 12, int: 22 }, row: 'back',
+    traits: ['sniperEye', 'deadeye'],
+    skills: ['strike', 'pinpoint', 'snipe', 'volley', 'pierceShot'],
+    rules: rules(
+      row(and(sp(22), foeBackRow(2)), 'pinpoint'),
+      row(and(sp(18), foesAlive(4)), 'volley'),
+      row(sp(14), 'snipe'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'warBanner', permyriad: 3500 }, { itemId: 'feather', permyriad: 5000 }], exp: 650, gold: 345,
+  },
+  {
+    id: 'mercenaryKing', name: '용병왕', job: 'warrior', archetype: 'boss', level: 50, growth: { str: 3, spd: 2 },
+    // 9줄(지능 50 + 레벨 문턱 둘) — 잊힌 단장보다 한 줄 길다. 훅을 넷 겹쳐 들고 나온다
+    stats: { maxHp: 5850, maxSp: 300, def: 48, mdef: 36, int: 52 }, guard: { mode: 'hpAbove', pct: 35 }, hidden: true,
+    traits: ['aegis', 'bloodRage', 'zeal', 'eager'],
+    skills: ['strike', 'warCry', 'fortress', 'lastStand', 'recklessSwing', 'sunder', 'sweep', 'heavyBlow', 'ironSkin'],
+    rules: rules(
+      row(firstAction, 'warCry', 1),
+      row(and(sp(30), allyAliveAtMost(3)), 'fortress', 1),
+      row(and(hpBelow(40), sp(8)), 'ironSkin', 3),
+      row(and(sp(6), foesFresh(75)), 'sunder'),
+      row(and(sp(14), foesAlive(4)), 'sweep'),
+      row(and(selfHpAbove(85), sp(16)), 'lastStand', 1),
+      row(and(selfHpAbove(60), sp(10)), 'recklessSwing'),
+      row(sp(8), 'heavyBlow'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'kingSigil', permyriad: 10000 }], exp: 2400, gold: 1500,
+  },
+
+  // ───────── 별이 떨어진 탑 (Lv45~50): 대형 시전 + 보스 — 끊지 못하면 전멸
+  {
+    id: 'starGolem', name: '별조각 골렘', job: 'warrior', icon: 'turtle', archetype: 'wall', level: 53, growth: { str: 2 },
+    stats: { maxHp: 4680, def: 56, mdef: 44, spd: 34, int: 22 }, guard: { mode: 'always' },
+    traits: ['aegis', 'thornward'],
+    skills: ['strike', 'bulwark', 'taunt', 'ironSkin', 'sunder'],
+    rules: rules(
+      row(firstAction, 'bulwark', 1),
+      row(and(sp(10), allyHurt(55)), 'taunt'),
+      row(and(hpBelow(50), sp(8)), 'ironSkin', 2),
+      row(and(sp(6), foesFresh(70)), 'sunder'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'starShard', permyriad: 4000 }, { itemId: 'ogreCore', permyriad: 3000 }], exp: 860, gold: 450,
+  },
+  {
+    id: 'voidHarpy', name: '공허의 하피', job: 'elf', icon: 'harpy', archetype: 'shooter', level: 52, growth: { dex: 3, spd: 2 },
+    stats: { maxHp: 1800, def: 14, int: 22 }, row: 'back',
+    traits: ['deadeye'],
+    skills: ['strike', 'pinpoint', 'windArrow', 'snipe'],
+    rules: rules(row(and(sp(22), foeBackRow(2)), 'pinpoint'), row(sp(14), 'snipe'), row(sp(10), 'windArrow'), row(always, 'strike')),
+    drops: [{ itemId: 'starShard', permyriad: 3500 }, { itemId: 'feather', permyriad: 5000 }], exp: 820, gold: 430,
+  },
+  {
+    id: 'starChanter', name: '별의 창자', job: 'mage', icon: 'shaman', archetype: 'caster', level: 54, growth: { int: 3 },
+    stats: { maxHp: 1800, def: 12, mdef: 34, spd: 40 }, row: 'back',
+    traits: ['highLiturgy'],
+    skills: ['bolt', 'starfall', 'hex', 'meditate'],
+    // 교재: 유성우의 준비는 이 게임에서 가장 길다. 끊는 사람이 없으면 이 지역은 넘지 못한다
+    rules: rules(
+      row(sp(40), 'starfall'),
+      row(and(sp(20), foeStatusAtMost('atkDown', 0)), 'hex'),
+      row(sp(6), 'bolt'),
+      row(always, 'meditate'),
+    ),
+    drops: [{ itemId: 'starShard', permyriad: 4500 }, { itemId: 'manaCrystal', permyriad: 4000 }], exp: 900, gold: 470,
+  },
+  {
+    id: 'riftBeast', name: '균열의 짐승', job: 'rogue', icon: 'beast', archetype: 'rush', level: 52, growth: { str: 2, dex: 2, spd: 2 },
+    stats: { maxHp: 2520, def: 26, int: 22 },
+    traits: ['eager'],
+    skills: ['strike', 'flurry', 'bloodlust', 'sweep'],
+    rules: rules(
+      row(and(sp(14), foesAlive(4)), 'sweep'),
+      row(and(hpBelow(50), sp(12)), 'bloodlust'),
+      row(sp(10), 'flurry'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'starShard', permyriad: 3500 }, { itemId: 'beastFang', permyriad: 5000 }], exp: 840, gold: 440,
+  },
+  {
+    id: 'towerMaster', name: '탑의 주인', job: 'warrior', icon: 'ogre', archetype: 'boss', level: 55, growth: { str: 3, spd: 1 },
+    stats: { maxHp: 9600, maxSp: 400, def: 54, mdef: 42, int: 52 }, guard: { mode: 'hpAbove', pct: 30 }, hidden: true,
+    traits: ['aegis', 'regen', 'ironWill'],
+    skills: ['strike', 'warCry', 'fortress', 'starfall', 'sweep', 'sunder', 'heavyBlow', 'ironSkin'],
+    rules: rules(
+      row(firstAction, 'warCry', 1),
+      row(and(sp(30), hpBelow(60)), 'fortress', 1),
+      row(and(sp(40), foesAlive(3)), 'starfall'),
+      row(and(hpBelow(35), sp(8)), 'ironSkin', 3),
+      row(and(sp(6), foesFresh(75)), 'sunder'),
+      row(and(sp(14), foesAlive(4)), 'sweep'),
+      row(sp(8), 'heavyBlow'),
+      row(always, 'strike'),
+    ),
+    drops: [{ itemId: 'kingSigil', permyriad: 10000 }], exp: 3000, gold: 2000,
   },
 ]
 

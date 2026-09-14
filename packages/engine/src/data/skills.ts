@@ -508,6 +508,95 @@ const list: Skill[] = [
     target: { side: 'enemy', scope: 'multi', hits: 2 }, charge: 0, stiff: 50, ignoreCover: true,
     effects: [{ kind: 'damage', school: 'phys', power: 75, scaleBy: 'dex' }],
   },
+
+  // ───────── 오의 — 2차 직업마다 하나, Lv40 부터 배운다 (만렙 50 확장, docs/22 §7)
+  // HOF·제로식의 후반 기술처럼 **조건부 · 1회 제한 · 긴 준비**를 붙였다. 세지만 "언제 쓰나"를 수칙이 답해야 한다
+  {
+    id: 'fortress', label: '요새', spCost: 30,
+    target: { side: 'ally', scope: 'all', hits: 1 }, charge: 300, stiff: 100, isSupport: true, perBattle: 1,
+    // 수호기사: 전원을 두 번 막는다. 한 번뿐이라 "언제 세우나"가 수칙이다
+    effects: [{ kind: 'shield', hits: 2 }, { kind: 'applyStatus', status: 'defUp', duration: 4, magnitude: 35 }],
+  },
+  {
+    id: 'lastStand', label: '최후의 일격', spCost: 16,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, charge: 50, stiff: 150,
+    // 광전사: 남은 HP 의 절반을 태운다. 만피에서 쓰면 피의 분노가 가장 크게 붙는다 — 빈사에서 쓰면 자멸이다
+    effects: [
+      { kind: 'recoil', pct: 50, gauge: 150, ofCurrent: true },
+      { kind: 'damage', school: 'phys', power: 230 },
+    ],
+  },
+  {
+    id: 'plague', label: '역병', spCost: 24,
+    target: { side: 'enemy', scope: 'all', hits: 1 }, charge: 250, stiff: 100, ignoreCover: true,
+    // 암살자: 적 전원에 독. 독술(세기 +50%)이 전원에게 붙는다
+    effects: [
+      { kind: 'damage', school: 'phys', power: 40, scaleBy: 'dex' },
+      { kind: 'applyStatus', status: 'poison', duration: 5, magnitude: 9 },
+    ],
+  },
+  {
+    id: 'blackout', label: '암전', spCost: 22,
+    target: { side: 'enemy', scope: 'all', hits: 1 }, charge: 0, stiff: 100, ignoreCover: true, cooldown: 4,
+    // 파괴공작원: 적 전원의 게이지를 깎고 한 차례 입을 막는다. 교란(깎는 세기 +80%)이 붙는다
+    effects: [{ kind: 'modifyGauge', delta: -400 }, { kind: 'applyStatus', status: 'silence', duration: 1 }],
+  },
+  {
+    id: 'starfall', label: '유성우', spCost: 40,
+    target: { side: 'enemy', scope: 'all', hits: 1 }, charge: 800, stiff: 150, ignoreCover: true,
+    // 원소술사: 이 게임에서 가장 긴 준비. 끊기면 아무 일도 없다 — 상대의 끊기꾼을 먼저 치울 것
+    effects: [{ kind: 'damage', school: 'magic', power: 210 }],
+  },
+  {
+    id: 'rewind', label: '되감기', spCost: 30,
+    target: { side: 'ally', scope: 'all', hits: 1 }, charge: 0, stiff: 100, isSupport: true, perBattle: 1,
+    // 시간술사: 아군 전원의 박자를 크게 당긴다. 한 번뿐이다
+    effects: [{ kind: 'modifyGauge', delta: 500 }],
+  },
+  {
+    id: 'miracle', label: '기적', spCost: 40,
+    target: { side: 'ally', scope: 'all', hits: 1 }, charge: 400, stiff: 100, isSupport: true, perBattle: 1,
+    // 주교: 전원을 크게 되돌리고 약화를 지운다. 한 번뿐이라 문턱을 잘 그어야 한다
+    effects: [{ kind: 'heal', power: 150 }, { kind: 'removeStatus', category: 'debuff' }],
+  },
+  {
+    id: 'verdict', label: '최후 심판', spCost: 24,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, priority: { mode: 'require', by: 'debuffed' },
+    charge: 200, stiff: 100, ignoreCover: true,
+    // 심문관: 약화된 적만 노린다. 열의(약화된 적 +35%)가 붙는다
+    effects: [{ kind: 'damage', school: 'magic', power: 340 }],
+  },
+  {
+    id: 'pinpoint', label: '일점 저격', spCost: 22,
+    target: { side: 'enemy', scope: 'single', hits: 1 }, priority: { mode: 'prefer', by: 'backRow' },
+    charge: 200, stiff: 100, ignoreCover: true,
+    // 레인저: 후열을 방어 무시로 꿰뚫는다. 저격안·매의 눈이 붙는다
+    effects: [{ kind: 'damage', school: 'phys', power: 260, scaleBy: 'dex', pierce: true }],
+  },
+  {
+    id: 'rootbind', label: '대지의 속박', spCost: 24,
+    target: { side: 'enemy', scope: 'all', hits: 1 }, charge: 150, stiff: 100, ignoreCover: true,
+    // 수호자: 적 전원을 늦춘다. 가시 수호(세기 +25%)가 둔화에 붙는다
+    effects: [
+      { kind: 'damage', school: 'phys', power: 45, scaleBy: 'dex' },
+      { kind: 'applyStatus', status: 'spdDown', duration: 4, magnitude: 45 },
+      { kind: 'modifyGauge', delta: -250 },
+    ],
+  },
+
+  // ───────── 만렙 50 확장 상대 전용 (docs/22 §5)
+  {
+    id: 'sandstorm', label: '모래폭풍', spCost: 18,
+    target: { side: 'enemy', scope: 'all', hits: 1 }, charge: 300, stiff: 100, ignoreCover: true,
+    // 모래바람 황야의 교재: 전원을 늦춘다. 정화·가속이 없으면 박자를 계속 뺏긴다
+    effects: [{ kind: 'damage', school: 'magic', power: 60 }, { kind: 'applyStatus', status: 'spdDown', duration: 3, magnitude: 30 }],
+  },
+  {
+    id: 'tidalWard', label: '조수의 장막', spCost: 20,
+    target: { side: 'ally', scope: 'all', hits: 1 }, charge: 250, stiff: 50, isSupport: true,
+    // 가라앉은 신전의 교재: 전원을 한 번 막고 조금 되돌린다. 연타로 보호막을 먼저 벗기거나 사제를 끊어라
+    effects: [{ kind: 'shield', hits: 1 }, { kind: 'heal', power: 40 }],
+  },
 ]
 
 export const SKILLS: SkillBook = Object.fromEntries(list.map((s) => [s.id, s]))
