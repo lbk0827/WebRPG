@@ -1234,7 +1234,16 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .debug-grid { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
 .debug-grid li { display: grid; gap: 2px; padding: 6px; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); min-width: 0; }
 .debug-grid li.stand-in { border-style: dashed; }
-.debug-grid .poses { display: flex; gap: 4px; overflow-x: auto; }
+.debug-grid .poses { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px; }
+/* 포즈 틀 — 크기는 포즈마다 상자 밖 범위만큼 (DebugCharacterGallery.tsx PoseFrame) */
+.debug-frame { position: relative; display: block; flex: none; }
+.debug-frame .art { position: absolute; display: block; }
+.debug-frame .art svg { display: block; width: 100%; height: 100%; overflow: visible; image-rendering: pixelated; }
+.debug-frame .f { opacity: 0; }
+.debug-frame.p0 .f0, .debug-frame.p1 .f1, .debug-frame.p2 .f2 { opacity: 1; }
+/* 게임 상자 48×64 — 카드 초상은 이 안만 보인다 */
+.debug-frame .box { position: absolute; border: 1px dashed rgba(178, 58, 72, 0.45); pointer-events: none; }
+.debug-frame.fallback { width: 48px; height: 48px; border-radius: 50%; }
 /* 2배면 포즈 셋(96px × 3)이 한 칸에 들어가게 칸을 넓힌다 */
 .debug-gallery.x2 .debug-grid { grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); }
 .debug-grid b { font-size: 12px; }
@@ -1243,6 +1252,3 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .debug-gallery.dark .debug-grid li { background: #2a2a33; border-color: #444450; }
 .debug-gallery.dark .debug-grid b { color: #fff; }
 .debug-gallery.dark .debug-grid code, .debug-gallery.dark .debug-grid small { color: #b8b8c2; }
-/* 포즈 고르기 — 초상은 기본으로 f0 만 보인다 */
-.debug-pose-1 .portrait .f0, .debug-pose-2 .portrait .f0 { opacity: 0; }
-.debug-pose-1 .portrait .f1, .debug-pose-2 .portrait .f2 { opacity: 1; }
