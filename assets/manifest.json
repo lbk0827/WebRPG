@@ -56,7 +56,7 @@
       "name": "길드원(여)",
       "icon": "jobs/rogue.svg",
       "color": "#315fb2",
-      "pixelPalette": { "h": "#6f573b", "m": "#b99b70", "H": "#f0d0a0" },
+      "pixelPalette": { "h": "#7a6a3a", "m": "#a89858", "H": "#e2d292" },
       "role": "주인공 · 길드 검사"
     }
   },

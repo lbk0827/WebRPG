@@ -1,5 +1,8 @@
-// 48×64 길드원(여) 얼굴/머리 경계 손픽셀 보정.
-// 자동 변환 뒤에만 실행한다. 좌표를 직접 지정하므로 재실행해도 동일하다.
+// 48×64 길드원(여) 머리 · 얼굴 손픽셀 보정.
+// separate-hair-guildmember-female.py → png-to-px.mjs 뒤에만 실행한다. 좌표를 직접 지정하므로 재실행해도 동일하다.
+//
+// 2026-09-14: 금발과 피부를 원본에서 떼어 낸 변환(hairsep)에 맞춰 다시 짰다.
+// 이전 좌표(Codex 1 · 2차)는 머리와 얼굴이 한 덩어리였던 변환 기준이라 눈이 머리칼 위에 찍혔다.
 import { readFileSync, writeFileSync } from 'node:fs'
 import { join, dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -17,33 +20,51 @@ for (let i = 0; i < lines.length; i++) {
   }
 }
 
-function pixel(layer, x, y, value) {
-  const lineIndex = layers.get(layer)[y]
-  const row = [...lines[lineIndex]]
+const get = (layer, x, y) => lines[layers.get(layer)[y]]?.[x] ?? '.'
+function set(layer, x, y, value) {
+  const i = layers.get(layer)[y]
+  const row = [...lines[i]]
   row[x] = value
-  lines[lineIndex] = row.join('')
+  lines[i] = row.join('')
 }
 
-// 눈은 2×2 덩어리+한 칸 반사, 입은 피부 그림자 한 칸으로 통일한다.
-const faces = [
-  ['pose0', 36, 22],
-  ['pose1', 39, 23],
-  ['pose2', 38, 24],
+const HAIR = 'hmH'
+const HEAD_ROWS = [8, 34] // 머리가 있는 줄. 갑옷 · 칼의 흰색은 이 밖이거나 머리색 이웃이 없다
+
+// 1. 금발 안의 고립점 — 네 이웃 중 셋 이상이 머리색인 칸만 고친다 (외곽선 · 눈은 이웃이 머리색이 아니다)
+//    검정 → 머리 중간색 m (결의 그림자로 남는다), 흰색 · 은색 → 머리 밝은색 H (하이라이트가 흰색으로 스냅된 것)
+let specks = 0
+for (const layer of layers.keys()) {
+  const fixes = []
+  for (let y = HEAD_ROWS[0]; y < HEAD_ROWS[1]; y++) {
+    for (let x = 0; x < lines[layers.get(layer)[y]].length; x++) {
+      const c = get(layer, x, y)
+      if (!'kws'.includes(c)) continue
+      const hair = [[x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]].filter(([nx, ny]) => HAIR.includes(get(layer, nx, ny))).length
+      if (hair >= 3) fixes.push([x, y, c === 'k' ? 'm' : 'H'])
+    }
+  }
+  for (const [x, y, c] of fixes) set(layer, x, y, c)
+  specks += fixes.length
+}
+
+// 2. 눈: 2×2 (왼쪽 위 반사 w + 검정 셋), 입: 눈 오른쪽 아래 그림자 한 칸
+const EYES = [
+  ['pose0', 31, 24],
+  ['pose2', 31, 28],
+  // pose1 은 변환 그대로 눈이 읽힌다
 ]
-for (const [layer, x, y] of faces) {
-  pixel(layer, x, y, 'w')
-  pixel(layer, x + 1, y, 'k')
-  pixel(layer, x, y + 1, 'k')
-  pixel(layer, x + 1, y + 1, 'k')
-  pixel(layer, x + 1, y + 3, 'F')
+for (const [layer, x, y] of EYES) {
+  set(layer, x, y, 'w')
+  set(layer, x + 1, y, 'k')
+  set(layer, x, y + 1, 'k')
+  set(layer, x + 1, y + 1, 'k')
+  set(layer, x + 1, y + 3, 'F')
 }
-
-// 얼굴과 금발 사이 경계를 한 줄로 되살리고, 관자놀이에는 밝은 머리 한 칸.
-for (const [layer, x, y] of [['pose0', 34, 20], ['pose1', 37, 21], ['pose2', 36, 22]]) {
-  pixel(layer, x, y, 'k')
-  pixel(layer, x - 1, y, 'H')
-  pixel(layer, x, y + 1, 'F')
-}
+// pose0: 이마에 가로로 번진 검은 띠(선글라스처럼 보였다)를 살로 되돌리고, 먼 쪽 눈은 한 칸
+set('pose0', 29, 24, 'f')
+set('pose0', 30, 24, 'f')
+set('pose0', 28, 25, 'k')
 
 writeFileSync(path, `${lines.join('\n')}\n`, 'utf8')
-console.log('guildMember-female.px 얼굴·머리 경계 손픽셀 보정 완료')
+console.log(`guildMember-female.px 보정 — 머리 고립점 ${specks}칸, 눈 ${EYES.length + 1}곳`)
