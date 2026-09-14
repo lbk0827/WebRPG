@@ -95,6 +95,8 @@
 | `units/guildMember-male-sheet.png` | 10배 검수 시트 | `guildMember-male.px`에서 생성 | 원본과 동일 | 2026-09-14 |
 | `../art-source/units/guildMember-female-source.png` | AI 생성 도트 시트 초안 (길드원 여, 긴 애쉬 블론드·남색 망토·에고 소드 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `guildMember-male-source.png` 참조, 투명 배경 정리 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
 | `../art-source/units/guildMember-female-hairsep.png` | 변환 입력 파생본 — 원본의 금발을 색상 46° 로 옮기고 얼굴 피부를 공통 피부색 밝기로 맞춤 (새로 그리지 않음) | `guildMember-female-source.png` → `tools/separate-hair-guildmember-female.py` | 원본과 동일 | 2026-09-14 |
+| `../art-source/backdrops/outskirts-source.png` | 마을 외곽 전투 배경 AI 원본 | OpenAI 내장 ImageGen — `units/adventurer-male-sheet.png`의 도트 밀도·색감 참조, docs/23 §4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `backdrops/outskirts.png` | 마을 외곽 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
 | `../tools/process-backdrop.py` | 도구 (AI 원본 → 480×360 전투 배경 변환 · 규격 검사 · 등록표 대조, docs/23) | 자체 제작 | 저장소 소유 | 2026-09-14 |
 | `../tools/separate-hair-guildmember-female.py` | 도구 (살 영역 flood fill · 구멍 메우기 → 머리색 분리) | 자체 제작 | 저장소 소유 | 2026-09-14 |
 | `../tools/retouch-guildmember-female.mjs` | 도구 (머리 고립점 · 눈 · 입 좌표 보정, 재실행해도 동일) | 자체 제작 | 저장소 소유 | 2026-09-14 |

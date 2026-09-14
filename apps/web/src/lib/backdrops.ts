@@ -13,6 +13,7 @@ export const BACKDROP_H = 360
  * process-backdrop.py 가 변환할 때 알려 준다. 새 그림이 오면 한 줄 추가한다.
  */
 export const BACKDROP_READY: Record<string, { top: string }> = {
+  outskirts: { top: '#589fee' },
 }
 
 /** 모험은 제 그림이 오기 전까지 가까운 지역의 그림을 빌린다 */
