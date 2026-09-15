@@ -87,10 +87,23 @@ export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Prop
         <div className="faq">
           <h2>{save.name}</h2>
           <dl>
-            <dt>이건 무슨 게임?</dt>
-            <dd>용병단을 이끌고 의뢰를 받아 싸우는 게임. 다만 전투 중엔 손을 못 댄다.</dd>
-            <dt>그럼 뭘 하나?</dt>
-            <dd>출전 전에 단원마다 <b>교전 수칙</b>을 적는다 — "이런 상황이면 이걸 해라" 목록. 실력은 반사신경이 아니라 설계다.</dd>
+            <dt>게임 소개</dt>
+            <dd>
+              용병단을 이끌고 몬스터와 싸우는 <b>자동 전투 시뮬레이션 RPG</b>.<br />
+              전투가 시작되면 단원들은 단장이 설정한 <b>교전 수칙</b>에 따라 싸운다.
+            </dd>
+            <dt>단장의 임무</dt>
+            <dd>
+              <ul>
+                <li>싸우기 전에 단원마다 <b>교전 수칙</b>을 설정한다.</li>
+                <li>
+                  교전 수칙은 <b>상황과 조건에 따라 단원이 취할 행동</b>을 정해 두는 것이다.
+                  <span className="faq-example">예) 아군 HP가 절반 아래면 → 치유</span>
+                  <span className="faq-example">예) 적이 셋 이상이면 → 광역 공격</span>
+                </li>
+                <li>승패는 손놀림이 아니라 <b>수칙 설계</b>에서 갈린다.</li>
+              </ul>
+            </dd>
             <dt>뭐부터?</dt>
             <dd>
               처음엔 주인공 혼자다. <b>전투 → 마을 외곽</b>은 혼자서도 이긴다. 금이 모이면 <b>마을 → 용병소</b>에서 동료를 고용하자 — 자리가 있으면 바로 출전한다.
