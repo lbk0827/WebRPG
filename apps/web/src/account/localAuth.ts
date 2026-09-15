@@ -104,6 +104,7 @@ export function createLocalAuth(store: KV): AuthService {
 
     // 로컬 저장은 바로 쓰므로 모아 둔 것이 없다
     async flush() {},
+    markSynced() {},
     onSaveStatus() {
       return () => {}
     },

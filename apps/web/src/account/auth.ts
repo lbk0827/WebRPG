@@ -26,6 +26,8 @@ export interface AuthService {
   /** 서버 구현은 몇 초 모아서 보낸다. 바로 보내야 하면 flush */
   writeSave(s: Session, save: unknown): Promise<void>
   flush(): Promise<void>
+  /** 불러와서 모양을 고친(migrate) 저장이 서버 것과 같다고 알린다 — 로그인 직후 같은 내용을 다시 보내지 않게 (docs/26 §5.1) */
+  markSynced(s: Session, save: unknown): void
   /** 저장 상태 구독. 돌려준 함수를 부르면 해제 */
   onSaveStatus(cb: (s: SaveStatus) => void): () => void
   /** 용병단 이름을 이 계정 것으로 잡는다. 다른 계정이 쓰고 있으면 실패 (단장 결정: 중복 불가) */

@@ -4,8 +4,8 @@ import { fail, ok, type AuthResult, type AuthService, type SaveStatus, type Sess
 import { LOGIN_EMAIL_DOMAIN, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from './config'
 import { LOGIN_ID_TAKEN, SIGN_IN_FAILED, TEAM_NAME_TAKEN, checkLoginId, checkPassword, checkTeamName, cleanTeamName, normalizeLoginId } from './rules'
 
-/** 바뀐 저장을 모아 보내는 간격 — 버튼 누를 때마다 서버에 쓰지 않는다 (docs/25 §6) */
-const SAVE_DELAY_MS = 2000
+/** 바뀐 저장을 모아 보내는 간격 — 버튼 누를 때마다 서버에 쓰지 않는다 (docs/25 §6). 중요한 순간은 부르는 쪽이 flush (docs/26 §5.1) */
+const SAVE_DELAY_MS = 8000
 /** 저장 실패 뒤 다시 시도 */
 const RETRY_MS = 10_000
 
@@ -26,7 +26,9 @@ function describe(e: { status?: number; code?: string } | null, fallback: string
 export function createSupabaseAuth(client: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: { persistSession: true, autoRefreshToken: true, storageKey: 'webrpg.supabase.auth' },
 })): AuthService {
-  let pending: { s: Session; save: unknown } | null = null
+  let pending: { s: Session; save: unknown; json: string } | null = null
+  /** 마지막으로 서버와 맞춘 내용 (계정 id + JSON). 같으면 보내지 않는다 (docs/26 §5.1) */
+  let lastSynced: { userId: string; json: string } | null = null
   let timer: ReturnType<typeof setTimeout> | undefined
   let chain: Promise<void> = Promise.resolve()
   const listeners = new Set<(s: SaveStatus) => void>()
@@ -42,6 +44,7 @@ export function createSupabaseAuth(client: SupabaseClient = createClient(SUPABAS
     pending = null
     setStatus('saving')
     const { error } = await client.from('saves').upsert({ user_id: job.s.userId, data: job.save })
+    if (!error) lastSynced = { userId: job.s.userId, json: job.json }
     if (error) {
       // 그 사이 더 새 저장이 들어왔으면 그것을 보낸다. 아니면 실패한 것을 다시
       pending ??= job
@@ -98,6 +101,7 @@ export function createSupabaseAuth(client: SupabaseClient = createClient(SUPABAS
 
     async signOut() {
       await flush()
+      lastSynced = null
       await client.auth.signOut()
     },
 
@@ -105,16 +109,30 @@ export function createSupabaseAuth(client: SupabaseClient = createClient(SUPABAS
       const { data, error } = await client.from('saves').select('data').eq('user_id', s.userId).maybeSingle()
       // 못 읽었는데 "저장 없음"으로 넘기면 새 게임이 기존 진행을 덮는다 — 반드시 오류로 올린다
       if (error) throw new Error(describe(error, `저장을 불러오지 못했습니다 (${error.code})`))
+      lastSynced = data ? { userId: s.userId, json: JSON.stringify(data.data) } : null
       return data?.data ?? null
     },
 
     async writeSave(s, save) {
-      pending = { s, save }
+      const json = JSON.stringify(save)
+      if (lastSynced?.userId === s.userId && lastSynced.json === json) {
+        // 서버와 같다 — 기다리던 것도 필요 없다
+        pending = null
+        if (timer !== undefined) clearTimeout(timer)
+        timer = undefined
+        return
+      }
+      if (pending?.s.userId === s.userId && pending.json === json) return
+      pending = { s, save, json }
       if (timer !== undefined) clearTimeout(timer)
       timer = setTimeout(() => void flush(), SAVE_DELAY_MS)
     },
 
     flush,
+
+    markSynced(s, save) {
+      lastSynced = { userId: s.userId, json: JSON.stringify(save) }
+    },
 
     onSaveStatus(cb) {
       listeners.add(cb)

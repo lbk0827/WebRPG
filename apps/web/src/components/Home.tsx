@@ -154,7 +154,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown, loginId, onRename
       <Section
         title="최근 전투"
         note={`${save.battles}전 ${save.wins}승 · 기록 ${save.log.length}건`}
-        help="전투는 결정론입니다. 시드와 양 팀 편성만 저장해 두면 언제든 그때 그 판을 똑같이 다시 볼 수 있습니다. 진 판을 다시 보는 것이 수칙을 고치는 가장 빠른 길입니다."
+        help="전투는 결정론입니다. 시드와 양 팀 편성만 저장해 두면 언제든 그때 그 판을 똑같이 다시 볼 수 있습니다. 진 판을 다시 보는 것이 수칙을 고치는 가장 빠른 길입니다. 기록은 서버 용량을 아끼려고 이 기기(브라우저)에만 남습니다 — 다른 기기에서 로그인하면 비어 보입니다."
       >
         {save.log.length === 0 ? (
           <p className="hint">아직 나간 적이 없다. 기록은 여기 쌓인다 — 언제든 다시 볼 수 있다.</p>

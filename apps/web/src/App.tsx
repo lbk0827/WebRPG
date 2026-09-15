@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { archiveLegacyGame, loadLegacyGame, migrate, newGame, type GameSave } from './game/save'
 import { cellOf, partySummary } from './game/members'
 import { adoptLegacyProgress, loadProgress, saveProgress, type MissionProgress } from './missionState'
+import { attachLocalLog, saveLocalLog, serverCopy } from './game/localLog'
 import { auth, setRememberedId, type SaveStatus, type Session } from './account'
 import { QuestBoard } from './components/QuestBoard'
 import { TrainingGround } from './components/TrainingGround'
@@ -50,8 +51,13 @@ export function App() {
       await auth.signOut()
       return setPhase({ kind: 'title', notice: e instanceof Error ? e.message : '저장을 불러오지 못했습니다' })
     }
-    const save = raw ? migrate(raw) : null
-    if (save) return setPhase({ kind: 'game', session, save })
+    const loaded = raw ? migrate(raw) : null
+    // 전투 기록은 서버에 없다 — 이 브라우저의 기록을 붙인다 (docs/26 §5.1)
+    if (loaded) {
+      // migrate 가 칸 순서를 다시 짜서 서버 원문과 글자가 다르다 — 같은 내용으로 보고 다시 보내지 않는다
+      auth.markSynced(session, serverCopy(loaded))
+      return setPhase({ kind: 'game', session, save: attachLocalLog(session.userId, loaded) })
+    }
     const legacy = loadLegacyGame()
     setPhase(legacy ? { kind: 'legacy', session, legacy } : { kind: 'newgame', session })
   }
@@ -71,7 +77,8 @@ export function App() {
     const claimed = await auth.claimTeamName(session, teamName)
     if (!claimed.ok) return claimed.error
     const named = { ...save, name: claimed.value }
-    await auth.writeSave(session, named)
+    saveLocalLog(session.userId, named.log)
+    await auth.writeSave(session, serverCopy(named))
     await auth.flush()
     setPhase({ kind: 'game', session, save: named })
     window.scrollTo(0, 0)
@@ -168,7 +175,18 @@ function Game({ session, save, setSave, onLogout }: GameProps) {
 
   const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved')
   useEffect(() => auth.onSaveStatus(setSaveStatus), [])
-  useEffect(() => { void auth.writeSave(session, save) }, [session, save])
+  /**
+   * 저장 (docs/26 §5.1): 서버에는 기록을 뺀 사본을 몇 초 모아 보내고, 기록은 이 브라우저에만.
+   * 전투가 끝났거나 금 · 단원 수가 바뀐 순간(보상 · 구매 · 강화 · 고용)은 바로 보낸다 — 창이 갑자기 닫혀도 잃지 않게.
+   */
+  const prevSave = useRef(save)
+  useEffect(() => {
+    const prev = prevSave.current
+    prevSave.current = save
+    if (prev.log !== save.log) saveLocalLog(session.userId, save.log)
+    void auth.writeSave(session, serverCopy(save))
+    if (prev !== save && (prev.battles !== save.battles || prev.gold !== save.gold || prev.members.length !== save.members.length)) void auth.flush()
+  }, [session, save])
   useEffect(() => saveProgress(session.userId, progress), [session, progress])
 
   const summary = useMemo(() => partySummary(save), [save])
