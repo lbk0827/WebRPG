@@ -58,6 +58,33 @@
       "color": "#315fb2",
       "pixelPalette": { "h": "#7a6a3a", "m": "#a89858", "H": "#e2d292" },
       "role": "주인공 · 길드 검사"
+    },
+    "wanderer-male": {
+      "name": "떠돌이(남)",
+      "icon": "jobs/warrior.svg",
+      "color": "#5f7a3a",
+      "pixelPalette": { "h": "#4d2d1d", "m": "#8f542e", "H": "#d18445" },
+      "role": "주인공 · 양손검 선봉"
+    },
+    "wanderer-female": {
+      "name": "떠돌이(여)",
+      "icon": "jobs/rogue.svg",
+      "color": "#5f7a3a",
+      "pixelPalette": { "h": "#4d2d1d", "m": "#9f5b32", "H": "#d98a4a" },
+      "role": "주인공 · 양손검 선봉"
+    },
+    "magicSwordsman-male": {
+      "name": "마검사(남) 시안",
+      "icon": "jobs/warrior.svg",
+      "color": "#7a2440",
+      "role": "시험용 · 흑철 마검사"
+    },
+    "magicSwordsman-female": {
+      "name": "마검사(여) 시안",
+      "icon": "jobs/rogue.svg",
+      "color": "#7a2440",
+      "pixelPalette": { "h": "#7a5529", "m": "#c58a3c", "H": "#f0c76a" },
+      "role": "시험용 · 흑철 마검사"
     }
   },
   "$monsterComment": "몬스터 아이콘. 키는 엔진 MonsterDef.icon (원형 8종). 여러 몬스터가 한 아이콘을 공유한다",
@@ -180,6 +207,22 @@
     "guildMember-female": {
       "name": "길드원(여)",
       "sprite": "units/guildMember-female.svg"
+    },
+    "wanderer-male": {
+      "name": "떠돌이(남)",
+      "sprite": "units/wanderer-male.svg"
+    },
+    "wanderer-female": {
+      "name": "떠돌이(여)",
+      "sprite": "units/wanderer-female.svg"
+    },
+    "magicSwordsman-male": {
+      "name": "마검사(남) 시안",
+      "sprite": "units/magicSwordsman-male.svg"
+    },
+    "magicSwordsman-female": {
+      "name": "마검사(여) 시안",
+      "sprite": "units/magicSwordsman-female.svg"
     }
   },
   "palette": {

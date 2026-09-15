@@ -286,6 +286,72 @@ function findCells(mask, w, h, cols) {
   return merged
 }
 
+/**
+ * 긴 무기가 이웃 칸의 x 범위까지 뻗어 빈 세로줄이 사라진 시트용.
+ * 침식 마스크에서 가장 큰 연결 성분 <cols>개를 포즈로 보고 각각 별도 마스크로 만든다.
+ * 원본 가장자리까지 색을 되살릴 수 있도록 성분을 2픽셀 팽창한다.
+ */
+function findConnectedPoses(mask, w, h, cols) {
+  const seen = new Uint8Array(w * h)
+  const components = []
+  const directions = [-1, 0, 1].flatMap((dy) => [-1, 0, 1].map((dx) => [dx, dy]))
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w; x++) {
+      const start = y * w + x
+      if (!mask[start] || seen[start]) continue
+      const pixels = [start]
+      seen[start] = 1
+      for (let i = 0; i < pixels.length; i++) {
+        const p = pixels[i]
+        const px = p % w
+        const py = Math.floor(p / w)
+        for (const [dx, dy] of directions) {
+          if (dx === 0 && dy === 0) continue
+          const nx = px + dx
+          const ny = py + dy
+          if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue
+          const np = ny * w + nx
+          if (!mask[np] || seen[np]) continue
+          seen[np] = 1
+          pixels.push(np)
+        }
+      }
+      components.push(pixels)
+    }
+  }
+  components.sort((a, b) => b.length - a.length)
+  const poses = components.slice(0, cols)
+  if (poses.length !== cols) throw new Error(`연결 성분이 ${poses.length}개뿐이다. 요청한 칸수 ${cols}개를 찾지 못했다`)
+  const expanded = poses.map((pixels) => {
+    const out = new Uint8Array(w * h)
+    for (const p of pixels) {
+      const px = p % w
+      const py = Math.floor(p / w)
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          const nx = px + dx
+          const ny = py + dy
+          if (nx >= 0 && nx < w && ny >= 0 && ny < h) out[ny * w + nx] = 1
+        }
+      }
+    }
+    return out
+  })
+  expanded.sort((a, b) => {
+    const center = (m) => {
+      let sum = 0
+      let count = 0
+      for (let i = 0; i < m.length; i++) if (m[i]) {
+        sum += i % w
+        count++
+      }
+      return sum / count
+    }
+    return center(a) - center(b)
+  })
+  return expanded
+}
+
 // ── 칸 하나 → 48×64 격자 ──────────────────────────────────
 function cellBounds(mask, w, h, cx0, cx1) {
   let x0 = cx1
@@ -319,7 +385,7 @@ function cellBounds(mask, w, h, cx0, cx1) {
   return { x0: x0 - 1, x1: x1 + 1, y0: y0 - 1, y1: y1 + 1, feet, sw: x1 - x0 + 3, sh: y1 - y0 + 3 }
 }
 
-function cellToGrid(img, bg, bounds, scale, origin, gridW, gridH) {
+function cellToGrid(img, bg, bounds, scale, origin, gridW, gridH, poseMask = null) {
   const { x0, y0, sw, sh, feet } = bounds
   const dw = Math.max(1, Math.round(sw / scale))
   const dh = Math.max(1, Math.round(sh / scale))
@@ -346,7 +412,7 @@ function cellToGrid(img, bg, bounds, scale, origin, gridW, gridH) {
         for (let x = bx0; x < bx1 && x < img.width; x++) {
           const o = (y * img.width + x) * 4
           total++
-          if (isBg(bg, img.data[o], img.data[o + 1], img.data[o + 2], img.data[o + 3])) {
+          if ((poseMask && !poseMask[y * img.width + x]) || isBg(bg, img.data[o], img.data[o + 1], img.data[o + 2], img.data[o + 3])) {
             bgCount++
             continue
           }
@@ -366,7 +432,7 @@ function cellToGrid(img, bg, bounds, scale, origin, gridW, gridH) {
 }
 
 // ── 실행 ──────────────────────────────────────────────────
-const [src, key, colsArg] = process.argv.slice(2)
+const [src, key, colsArg, splitMode] = process.argv.slice(2)
 if (!src || !key) {
   console.log('사용: node tools/png-to-px.mjs <시트.png> <키> [칸수=3]')
   process.exit(1)
@@ -387,9 +453,10 @@ const PALETTE = [
 const img = decodePng(readFileSync(src))
 const bg = backgroundOf(img)
 const mask = contentMask(img, bg)
-const cells = findCells(mask, img.width, img.height, cols)
+const poseMasks = splitMode === 'components' ? findConnectedPoses(mask, img.width, img.height, cols) : null
+const cells = poseMasks ? poseMasks.map(() => ({ x0: 0, x1: img.width - 1 })) : findCells(mask, img.width, img.height, cols)
 const bounds = cells.map((c, i) => {
-  const found = cellBounds(mask, img.width, img.height, c.x0, c.x1)
+  const found = cellBounds(poseMasks?.[i] ?? mask, img.width, img.height, c.x0, c.x1)
   if (!found) throw new Error(`${i + 1}번째 칸이 비어 있다. 칸수(${cols})가 맞는지 볼 것`)
   return found
 })
@@ -413,7 +480,7 @@ const overT = Math.max(0, ...reach.map((r) => r.up - (FOOT + 1))) // 위로
 const origin = { x: overL, y: overT }
 const gridW = W + overL + overR
 const gridH = H + overT
-const grids = bounds.map((box) => cellToGrid(img, bg, box, scale, origin, gridW, gridH))
+const grids = bounds.map((box, i) => cellToGrid(img, bg, box, scale, origin, gridW, gridH, poseMasks?.[i] ?? null))
 bounds.forEach((b, i) => {
   const r = reach[i]
   const spill = [

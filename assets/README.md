@@ -141,6 +141,26 @@
 | `units/guildMember-female.px` | 도트 전투 스프라이트 원본 (길드원 여) — 금발 · 피부 분리 후 재변환, 머리 고립점 · 눈 손픽셀 보정 | `guildMember-female-hairsep.png` → `png-to-px.mjs` → `retouch-guildmember-female.mjs` | 원본과 동일 | 2026-09-14 |
 | `units/guildMember-female.svg` | 48×64 게임용 생성물 | `guildMember-female.px`에서 생성 | 원본과 동일 | 2026-09-14 |
 | `units/guildMember-female-sheet.png` | 10배 검수 시트 | `guildMember-female.px`에서 생성 | 원본과 동일 | 2026-09-14 |
+| `../art-source/units/wanderer-male-twohand-v4-transparent.png` | AI 생성 원화 채택본 (떠돌이 남, 양손 에고 블레이드 3포즈 · 2프레임 날 방향 교정) | OpenAI 내장 ImageGen — 자체 제작 떠돌이 v3 편집·배경 추출 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-15 |
+| `../art-source/units/wanderer-male-twohand-pixel-v1.png` | 16비트 JRPG 도트 원본 (떠돌이 남, 3포즈) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-15 |
+| `units/wanderer-male.px` | 도트 전투 스프라이트 원본 (떠돌이 남) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-15 |
+| `units/wanderer-male.svg` | 48×64 게임용 생성물 | `wanderer-male.px`에서 생성 | 원본과 동일 | 2026-09-15 |
+| `units/wanderer-male-sheet.png` | 10배 검수 시트 | `wanderer-male.px`에서 생성 | 원본과 동일 | 2026-09-15 |
+| `../art-source/units/wanderer-female-twohand-v4-transparent.png` | AI 생성 원화 채택본 (떠돌이 여, 남성과 같은 길이의 양손 에고 블레이드 3포즈 · 2프레임 날 방향 교정) | OpenAI 내장 ImageGen — 자체 제작 떠돌이 v3 편집·배경 추출 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-15 |
+| `../art-source/units/wanderer-female-twohand-pixel-v1.png` | 16비트 JRPG 도트 원본 (떠돌이 여, 3포즈) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-15 |
+| `units/wanderer-female.px` | 도트 전투 스프라이트 원본 (떠돌이 여) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-15 |
+| `units/wanderer-female.svg` | 48×64 게임용 생성물 | `wanderer-female.px`에서 생성 | 원본과 동일 | 2026-09-15 |
+| `units/wanderer-female-sheet.png` | 10배 검수 시트 | `wanderer-female.px`에서 생성 | 원본과 동일 | 2026-09-15 |
+| `../art-source/units/magic-swordsman-male-concept-v5-transparent.png` | AI 생성 원화 채택본 (마검사 남, 흑철 중갑·양손 마검 3포즈 · 2프레임 날이 아래 공격 궤적을 향함) | OpenAI 내장 ImageGen — 자체 제작 마검사 v3 편집·배경 추출 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-15 |
+| `../art-source/units/magic-swordsman-male-pixel-v1.png` | 16비트 JRPG 도트 원본 (마검사 남, 3포즈) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-15 |
+| `units/magicSwordsman-male.px` | 도트 전투 스프라이트 원본 (마검사 남 시안) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-15 |
+| `units/magicSwordsman-male.svg` | 48×64 게임용 생성물 | `magicSwordsman-male.px`에서 생성 | 원본과 동일 | 2026-09-15 |
+| `units/magicSwordsman-male-sheet.png` | 10배 검수 시트 | `magicSwordsman-male.px`에서 생성 | 원본과 동일 | 2026-09-15 |
+| `../art-source/units/magic-swordsman-female-concept-v5-transparent.png` | AI 생성 원화 채택본 (마검사 여, 금발·경량 흑철 갑옷·양손 마검 3포즈 · 2프레임 날이 아래 공격 궤적을 향함) | OpenAI 내장 ImageGen — 자체 제작 마검사 v3 편집, 떠돌이 여성 2프레임 자세 참고·배경 추출 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-15 |
+| `../art-source/units/magic-swordsman-female-pixel-v1.png` | 16비트 JRPG 도트 원본 (마검사 여, 3포즈) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-15 |
+| `units/magicSwordsman-female.px` | 도트 전투 스프라이트 원본 (마검사 여 시안) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-15 |
+| `units/magicSwordsman-female.svg` | 48×64 게임용 생성물 | `magicSwordsman-female.px`에서 생성 | 원본과 동일 | 2026-09-15 |
+| `units/magicSwordsman-female-sheet.png` | 10배 검수 시트 | `magicSwordsman-female.px`에서 생성 | 원본과 동일 | 2026-09-15 |
 | `manifest.json` | 매니페스트 | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `../tools/build-icons.mjs` | 도구 (요청서 87종 SVG 생성·매니페스트·원장 동기화) | 자체 제작 | 저장소 소유 | 2026-09-12 |
 | `../tools/pixelate-icons.py` | 도구 (도형 SVG → 24×24 제한 팔레트 도트 SVG) | 자체 제작 | 저장소 소유 | 2026-09-13 |

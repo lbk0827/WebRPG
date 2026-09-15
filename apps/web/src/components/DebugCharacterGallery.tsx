@@ -85,8 +85,15 @@ const MONSTERS: Entry[] = MONSTER_ICONS.map((icon) => ({
   note: MONSTER_LIST.filter((m) => m.icon === icon).map((m) => m.name).join(' · '),
 }))
 
+/** 아직 엔진 직업으로 확정되지 않은 외형 시험용 시안 */
+const PROTOTYPES: Entry[] = [
+  { key: 'magicSwordsman-male', name: '마검사(남)', note: '3차 전직 외형 시안' },
+  { key: 'magicSwordsman-female', name: '마검사(여)', note: '3차 전직 외형 시안' },
+]
+
 const GROUPS: [string, Entry[]][] = [
   ['주인공 계보', HERO],
+  ['전직 시안', PROTOTYPES],
   ['기본 직업', JOBS],
   ['몬스터 원형', MONSTERS],
 ]
