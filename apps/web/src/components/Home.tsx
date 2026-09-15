@@ -11,6 +11,8 @@ import { Replay } from './Replay'
 import { Section } from './Section'
 import { Board } from './Board'
 import type { Facility } from './Town'
+import { DebugCheatPanel } from './DebugCheatPanel'
+import { DEBUG } from '../lib/debug'
 
 export type Tab = 'home' | 'formation' | 'characters' | 'battle' | 'adventure' | 'town' | 'training'
 
@@ -194,6 +196,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Prop
         <textarea value={io} onChange={(e) => setIo(e.target.value)} rows={4} placeholder="내보내기를 누르거나, 저장 JSON 을 붙여넣으세요" />
       </details>
       </Section>
+      {DEBUG && <DebugCheatPanel save={save} onSave={onSave} />}
     </section>
   )
 }
