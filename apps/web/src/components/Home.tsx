@@ -3,7 +3,8 @@ import { useMemo, useState } from 'react'
 import { UnitPortrait } from './UnitPortrait'
 import { ADVENTURES, DEFAULT_CONFIG, HIRE, ITEMS, JOB_WEAPONS, MEMBER_MAX, MISSIONS, REGIONS, REGION_BY_ID, SKILLS, isRegionUnlocked, simulate } from '@webrpg/engine'
 import type { BattleRecord, GameSave } from '../game/save'
-import { DEFAULT_NAME, PARTY_MAX, exportGame, importGame } from '../game/save'
+import { PARTY_MAX, exportGame, importGame } from '../game/save'
+import { TEAM_NAME_MAX } from '../account/rules'
 import { adventureGate, canHire, canLearnSomething, craftableNow, memberIcon, partyMembers } from '../game/members'
 import type { MissionProgress } from '../missionState'
 import { jobOf, outcomeText, timeAgo, type Names } from '../lib/labels'
@@ -22,8 +23,10 @@ interface Props {
   progress: MissionProgress
   onGo: (tab: Tab) => void
   onGoTown: (f?: Facility) => void
-  /** 새 게임 화면(성별·이름)으로 간다. 거기서 취소하면 지금 진행으로 돌아온다 */
-  onNewGame: () => void
+  loginId: string
+  /** 용병단 이름 바꾸기 — 다른 계정과 겹치면 문구 (docs/25 §8-4) */
+  onRename: (name: string) => Promise<string | null>
+  onLogout: () => void
 }
 
 interface Todo {
@@ -32,7 +35,7 @@ interface Todo {
   go: () => void
 }
 
-export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Props) {
+export function Home({ save, onSave, progress, onGo, onGoTown, loginId, onRename, onLogout }: Props) {
   const [replayAt, setReplayAt] = useState<number | null>(null)
   const [io, setIo] = useState('')
   const [msg, setMsg] = useState('')
@@ -86,24 +89,8 @@ export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Prop
       {fresh && (
         <div className="faq">
           <h2>{save.name}</h2>
+          {/* 게임 소개 · 단장의 임무는 로그인 전 타이틀로 옮겼다 (GameIntro, docs/25 §4 ①). 여기는 시작 직후 안내만 */}
           <dl>
-            <dt>게임 소개</dt>
-            <dd>
-              용병단을 이끌고 몬스터와 싸우는 <b>자동 전투 시뮬레이션 RPG</b>.<br />
-              전투가 시작되면 단원들은 단장이 설정한 <b>교전 수칙</b>에 따라 싸운다.
-            </dd>
-            <dt>단장의 임무</dt>
-            <dd>
-              <ul>
-                <li>싸우기 전에 단원마다 <b>교전 수칙</b>을 설정한다.</li>
-                <li>
-                  교전 수칙은 <b>상황과 조건에 따라 단원이 취할 행동</b>을 정해 두는 것이다.
-                  <span className="faq-example">예) 아군 HP가 절반 아래면 → 치유</span>
-                  <span className="faq-example">예) 적이 셋 이상이면 → 광역 공격</span>
-                </li>
-                <li>승패는 손놀림이 아니라 <b>수칙 설계</b>에서 갈린다.</li>
-              </ul>
-            </dd>
             <dt>뭐부터?</dt>
             <dd>
               처음엔 주인공 혼자다. <b>전투 → 마을 외곽</b>은 혼자서도 이긴다. 금이 모이면 <b>마을 → 용병소</b>에서 동료를 고용하자 — 자리가 있으면 바로 출전한다.
@@ -186,24 +173,18 @@ export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Prop
         )}
       </Section>
 
-      <Section title="용병단" help="이름은 전투 기록과 비교 카드에 그대로 나옵니다. 저장은 이 브라우저에만 있습니다.">
-      <label className="rename">
-        <span>이름</span>
-        <input
-          value={save.name}
-          maxLength={20}
-          placeholder={DEFAULT_NAME}
-          onChange={(e) => onSave({ ...save, name: e.target.value })}
-          onBlur={(e) => { if (!e.target.value.trim()) onSave({ ...save, name: DEFAULT_NAME }) }}
-        />
-      </label>
+      <Section title="용병단" help="이름은 전투 기록과 비교 카드에 그대로 나옵니다. 다른 용병단과 겹칠 수 없습니다. 지금은 로컬 모드라 계정과 진행이 이 브라우저에만 저장됩니다.">
+      <RenameTeam current={save.name} onRename={onRename} />
+      <div className="account-row">
+        <span>계정 <b>{loginId}</b></span>
+        <button onClick={onLogout}>로그아웃</button>
+      </div>
       <details className="saveio">
         <summary>저장 관리</summary>
-        <p className="hint">진행은 이 브라우저에 저장됩니다. 다른 기기로 옮기거나 백업하려면 내보내기 → 가져오기. 단원 · 장비 · 재료 · 전투 기록 · 수칙 프리셋이 전부 함께 갑니다.</p>
+        <p className="hint">백업용 내보내기 → 가져오기. 단원 · 장비 · 재료 · 전투 기록 · 수칙 프리셋이 전부 함께 갑니다. 가져와도 용병단 이름은 지금 이름을 유지합니다.</p>
         <div className="run-bar">
           <button onClick={() => { setIo(exportGame(save)); setMsg('아래 상자의 내용을 복사해 두세요.') }}>내보내기</button>
-          <button onClick={() => { const g = importGame(io); if (g) { onSave(g); setMsg('가져왔습니다.') } else setMsg('형식이 맞지 않습니다.') }}>가져오기</button>
-          <button onClick={() => { if (window.confirm('새로 시작할까요? 주인공의 성별과 이름을 고르는 화면으로 갑니다. 시작을 누르면 지금 진행은 지워지고, 거기서 취소하면 그대로 돌아옵니다.')) onNewGame() }}>새 게임</button>
+          <button onClick={() => { const g = importGame(io); if (g) { onSave({ ...g, name: save.name }); setMsg('가져왔습니다.') } else setMsg('형식이 맞지 않습니다.') }}>가져오기</button>
           <small>{msg}</small>
         </div>
         <textarea value={io} onChange={(e) => setIo(e.target.value)} rows={4} placeholder="내보내기를 누르거나, 저장 JSON 을 붙여넣으세요" />
@@ -211,6 +192,31 @@ export function Home({ save, onSave, progress, onGo, onGoTown, onNewGame }: Prop
       </Section>
       {DEBUG && <DebugCheatPanel save={save} onSave={onSave} />}
     </section>
+  )
+}
+
+/** 용병단 이름 바꾸기 — 누를 때 중복을 확인한다 (계정제 전에는 입력하는 대로 바뀌었다) */
+function RenameTeam({ current, onRename }: { current: string; onRename: (name: string) => Promise<string | null> }) {
+  const [draft, setDraft] = useState(current)
+  const [msg, setMsg] = useState<{ bad: boolean; text: string } | null>(null)
+  const [busy, setBusy] = useState(false)
+  const changed = draft.trim() !== current
+
+  const submit = async () => {
+    if (!changed || busy) return
+    setBusy(true)
+    const err = await onRename(draft)
+    setBusy(false)
+    setMsg(err ? { bad: true, text: err } : { bad: false, text: '바꿨습니다.' })
+  }
+
+  return (
+    <div className="rename">
+      <span>이름</span>
+      <input value={draft} maxLength={TEAM_NAME_MAX} onChange={(e) => { setDraft(e.target.value); setMsg(null) }} onKeyDown={(e) => { if (e.key === 'Enter') void submit() }} />
+      <button disabled={!changed || busy} onClick={() => void submit()}>바꾸기</button>
+      {msg && <small className={msg.bad ? 'auth-error' : ''}>{msg.text}</small>}
+    </div>
   )
 }
 

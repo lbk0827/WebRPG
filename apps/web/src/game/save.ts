@@ -1,4 +1,5 @@
-// 게임 저장 (M2-1, v2 는 ADR-004, v3 는 편성 판). 서버 없음 — localStorage + JSON 내보내기/가져오기. 스키마 버전 + 마이그레이션.
+// 게임 저장 (M2-1, v2 는 ADR-004, v3 는 편성 판). 모양 · 새 게임 · 마이그레이션 · JSON 내보내기/가져오기.
+// 어디에 저장하는지는 계정 인증 서비스(src/account, docs/25)가 정한다.
 import type { GearSlot, GuardPolicy, ItemInstance, Outcome, Quirk, Row, RuleSet, TeamSetup } from '@webrpg/engine'
 import { ADVENTURE_BY_ID, EMPTY_ALLOC, HERO_JOB, HERO_START_WEAPON, boundWeaponFor, ITEMS, MATERIALS, MEMBER_MAX, PRESETS, REFINE_MAX, SKILL_POINTS_PER_LEVEL, STARTER_SKILLS, TRAITS, type Alloc } from '@webrpg/engine'
 
@@ -312,23 +313,26 @@ export function migrate(raw: unknown): GameSave | null {
   }
 }
 
-/** 저장이 없으면 null — 화면은 새 게임(성별·이름 고르기)으로 간다. 기존 저장은 그대로 불러온다 */
-export function loadGame(): GameSave | null {
+/**
+ * 계정제 이전(2026-09-15 전)의 브라우저 저장. 없으면 null.
+ * 이제 저장은 계정 인증 서비스가 맡고(src/account), 이 키는 첫 로그인 때 "예전 진행 가져오기"로만 읽는다 (docs/25 §6).
+ */
+export function loadLegacyGame(): GameSave | null {
   try {
     const raw = localStorage.getItem(SAVE_KEY)
-    if (raw) {
-      const g = migrate(JSON.parse(raw))
-      if (g) return g
-    }
+    if (raw) return migrate(JSON.parse(raw))
   } catch {
     /* ignore */
   }
   return null
 }
 
-export function saveGame(g: GameSave): void {
+/** 가져간 뒤에는 다른 계정이 또 가져가지 않게 치운다. 지우지 않고 이름만 바꿔 백업으로 둔다 */
+export function archiveLegacyGame(): void {
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(g))
+    const raw = localStorage.getItem(SAVE_KEY)
+    if (raw) localStorage.setItem(`${SAVE_KEY}.imported`, raw)
+    localStorage.removeItem(SAVE_KEY)
   } catch {
     /* ignore */
   }

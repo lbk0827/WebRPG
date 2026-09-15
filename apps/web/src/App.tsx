@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
-import { loadGame, saveGame, type GameSave } from './game/save'
+import { archiveLegacyGame, loadLegacyGame, migrate, newGame, type GameSave } from './game/save'
 import { cellOf, partySummary } from './game/members'
-import { loadProgress, saveProgress, type MissionProgress } from './missionState'
+import { adoptLegacyProgress, loadProgress, saveProgress, type MissionProgress } from './missionState'
+import { auth, setRememberedId, type Session } from './account'
 import { QuestBoard } from './components/QuestBoard'
 import { TrainingGround } from './components/TrainingGround'
 import { Home } from './components/Home'
@@ -10,6 +11,9 @@ import { Characters } from './components/Characters'
 import { Adventure } from './components/Adventure'
 import { Town, type Facility } from './components/Town'
 import { NewGame } from './components/NewGame'
+import { Title } from './components/Title'
+import { SignUp } from './components/SignUp'
+import { LegacyImport } from './components/LegacyImport'
 
 /** 탭 7개 (단장 지시 2026-09-11). 시설은 탭을 늘리지 않고 전부 마을 안에 붙인다 */
 type Tab = 'home' | 'formation' | 'characters' | 'battle' | 'adventure' | 'town' | 'training'
@@ -24,37 +28,147 @@ const TABS: { key: Tab; label: string }[] = [
   { key: 'training', label: '훈련장' },
 ]
 
-/**
- * 저장이 없으면 새 게임 화면(주인공 성별·이름, docs/20)부터.
- * 본부의 "새 게임"으로 들어오면 지금 진행을 잡아 두었다가 취소하면 돌려준다 — 시작을 누르기 전에는 저장을 덮지 않는다.
- */
-export function App() {
-  const [save, setSave] = useState<GameSave | null>(loadGame)
-  const [prev, setPrev] = useState<GameSave | null>(null)
+/** 접속 흐름 (docs/25 §3): 타이틀·로그인 → (가입) → 저장 있으면 본부 / 없으면 (예전 진행 가져오기) → 모험가 만들기 */
+type Phase =
+  | { kind: 'loading' }
+  | { kind: 'title' }
+  | { kind: 'signup' }
+  | { kind: 'legacy'; session: Session; legacy: GameSave }
+  | { kind: 'newgame'; session: Session }
+  | { kind: 'game'; session: Session; save: GameSave }
 
-  if (!save) {
-    return (
-      <NewGame
-        onStart={(g) => { setPrev(null); setSave(g) }}
-        onCancel={prev ? () => { setSave(prev); setPrev(null) } : undefined}
-      />
-    )
+export function App() {
+  const [phase, setPhase] = useState<Phase>({ kind: 'loading' })
+
+  /** 로그인된 계정으로 들어간다 — 저장이 있으면 본부, 없으면 예전 진행 확인 → 모험가 만들기 */
+  const enter = async (session: Session) => {
+    const raw = await auth.loadSave(session)
+    const save = raw ? migrate(raw) : null
+    if (save) return setPhase({ kind: 'game', session, save })
+    const legacy = loadLegacyGame()
+    setPhase(legacy ? { kind: 'legacy', session, legacy } : { kind: 'newgame', session })
   }
-  return <Game save={save} setSave={setSave} onNewGame={() => { setPrev(save); setSave(null) }} />
+
+  useEffect(() => {
+    void auth.restore().then((s) => (s ? enter(s) : setPhase({ kind: 'title' })))
+  }, [])
+
+  const logout = async () => {
+    await auth.signOut()
+    setPhase({ kind: 'title' })
+    window.scrollTo(0, 0)
+  }
+
+  /** 용병단 이름을 잡고 첫 저장까지 한다. 실패하면 문구 */
+  const begin = async (session: Session, teamName: string, save: GameSave): Promise<string | null> => {
+    const claimed = await auth.claimTeamName(session, teamName)
+    if (!claimed.ok) return claimed.error
+    const named = { ...save, name: claimed.value }
+    await auth.writeSave(session, named)
+    setPhase({ kind: 'game', session, save: named })
+    window.scrollTo(0, 0)
+    return null
+  }
+
+  switch (phase.kind) {
+    case 'loading':
+      return <div className="app front"><main><p className="hint">불러오는 중…</p></main></div>
+    case 'title':
+      return (
+        <Title
+          onSignUp={() => setPhase({ kind: 'signup' })}
+          onSignIn={async (id, pw, remember) => {
+            const r = await auth.signIn(id, pw)
+            if (!r.ok) return r.error
+            setRememberedId(remember ? r.value.loginId : null)
+            await enter(r.value)
+            return null
+          }}
+        />
+      )
+    case 'signup':
+      return (
+        <SignUp
+          onBack={() => setPhase({ kind: 'title' })}
+          onSubmit={async (id, pw) => {
+            const r = await auth.signUp(id, pw)
+            if (!r.ok) return r.error
+            await enter(r.value)
+            return null
+          }}
+        />
+      )
+    case 'legacy': {
+      const { session, legacy } = phase
+      return (
+        <LegacyImport
+          loginId={session.loginId}
+          legacy={legacy}
+          onLogout={logout}
+          onSkip={() => setPhase({ kind: 'newgame', session })}
+          onImport={async (teamName) => {
+            const err = await begin(session, teamName, legacy)
+            if (!err) {
+              adoptLegacyProgress(session.userId)
+              archiveLegacyGame()
+            }
+            return err
+          }}
+        />
+      )
+    }
+    case 'newgame': {
+      const { session } = phase
+      return (
+        <NewGame
+          loginId={session.loginId}
+          onLogout={logout}
+          onStart={(c) => begin(session, c.teamName, newGame({ gender: c.gender, heroName: c.heroName }))}
+        />
+      )
+    }
+    case 'game': {
+      const { session, save } = phase
+      return (
+        <Game
+          key={session.userId}
+          session={session}
+          save={save}
+          setSave={(g) => setPhase((p) => (p.kind === 'game' ? { ...p, save: g } : p))}
+          onLogout={logout}
+        />
+      )
+    }
+  }
 }
 
-function Game({ save, setSave, onNewGame }: { save: GameSave; setSave: (g: GameSave) => void; onNewGame: () => void }) {
-  const [progress, setProgress] = useState<MissionProgress>(loadProgress)
+interface GameProps {
+  session: Session
+  save: GameSave
+  setSave: (g: GameSave) => void
+  onLogout: () => void
+}
+
+function Game({ session, save, setSave, onLogout }: GameProps) {
+  const [progress, setProgress] = useState<MissionProgress>(() => loadProgress(session.userId))
   const [tab, setTab] = useState<Tab>('home')
   /** 마을에 들어갈 때 바로 열 시설 */
   const [townAt, setTownAt] = useState<Facility>('hub')
   /** 편성 탭에 들어갈 때 미리 고를 칸 */
   const [formationCell, setFormationCell] = useState<number | null>(null)
 
-  useEffect(() => saveGame(save), [save])
-  useEffect(() => saveProgress(progress), [progress])
+  useEffect(() => { void auth.writeSave(session, save) }, [session, save])
+  useEffect(() => saveProgress(session.userId, progress), [session, progress])
 
   const summary = useMemo(() => partySummary(save), [save])
+
+  /** 용병단 이름 바꾸기 — 다른 계정과 겹치면 문구 */
+  const rename = async (name: string): Promise<string | null> => {
+    const r = await auth.claimTeamName(session, name)
+    if (!r.ok) return r.error
+    setSave({ ...save, name: r.value })
+    return null
+  }
 
   const go = (t: Tab) => {
     setTab(t)
@@ -96,13 +210,14 @@ function Game({ save, setSave, onNewGame }: { save: GameSave; setSave: (g: GameS
             <span>출전 {summary.count}/{save.members.length}</span>
             {summary.count > 0 && <span>평균 Lv {summary.avgLevel}</span>}
             <span>{save.battles}전 {save.wins}승</span>
+            {auth.mode === 'local' && <span className="local-mode" title="서버 연결 전 — 계정과 진행이 이 브라우저에만 저장됩니다">로컬 모드</span>}
           </div>
         </div>
         <nav className="tabs desktop">{nav}</nav>
       </header>
 
       <main>
-        {tab === 'home' && <Home save={save} onSave={setSave} progress={progress} onGo={go} onGoTown={goTown} onNewGame={onNewGame} />}
+        {tab === 'home' && <Home save={save} onSave={setSave} progress={progress} onGo={go} onGoTown={goTown} loginId={session.loginId} onRename={rename} onLogout={onLogout} />}
         {tab === 'formation' && <Formation save={save} onSave={setSave} initialCell={formationCell} onGoShop={() => goTown('shop')} />}
         {tab === 'characters' && (
           <Characters
