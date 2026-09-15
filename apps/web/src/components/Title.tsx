@@ -28,6 +28,8 @@ export function FrontShell({ children, wide }: { children: ReactNode; wide?: boo
 }
 
 interface Props {
+  /** 들어오자마자 보여 줄 문구 (예: 저장을 불러오지 못해 돌아왔을 때) */
+  notice?: string
   onSignIn: (loginId: string, password: string, remember: boolean) => Promise<string | null>
   onSignUp: () => void
 }
@@ -35,12 +37,12 @@ interface Props {
 /** 샘플 전투 — 훈련 팀끼리. 엔진이 결정론이라 시드 하나로 항상 같은 판이 나온다 (단장 결정 §8-8) */
 const SAMPLE_SEED = 7
 
-export function Title({ onSignIn, onSignUp }: Props) {
+export function Title({ notice, onSignIn, onSignUp }: Props) {
   const remembered = rememberedId()
   const [loginId, setLoginId] = useState(remembered)
   const [password, setPassword] = useState('')
   const [remember, setRemember] = useState(!!remembered)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<string | null>(notice ?? null)
   const [busy, setBusy] = useState(false)
 
   const sample = useMemo(() => {

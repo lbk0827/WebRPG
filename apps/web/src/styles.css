@@ -1193,6 +1193,8 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .auth-who { font-size: 12px; font-weight: normal; color: var(--muted); margin-left: 6px; }
 .legacy-summary { margin: 6px 0 10px; padding-left: 1.2em; line-height: 1.7; }
 .local-mode { background: var(--warn); color: var(--ink); border-radius: 6px; padding: 0 6px; font-size: 11px; font-weight: 700; }
+.save-state { font-size: 11px; opacity: 0.8; }
+.save-state.bad { background: var(--bad); color: #fff; border-radius: 6px; padding: 0 6px; opacity: 1; font-weight: 700; }
 .account-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); margin: 8px 0 4px; }
 
 /* 모험가 만들기 — 주인공 성별·이름 (docs/20) */

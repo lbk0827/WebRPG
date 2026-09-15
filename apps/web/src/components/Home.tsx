@@ -173,7 +173,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown, loginId, onRename
         )}
       </Section>
 
-      <Section title="용병단" help="이름은 전투 기록과 비교 카드에 그대로 나옵니다. 다른 용병단과 겹칠 수 없습니다. 지금은 로컬 모드라 계정과 진행이 이 브라우저에만 저장됩니다.">
+      <Section title="용병단" help="이름은 전투 기록과 비교 카드에 그대로 나옵니다. 다른 용병단과 겹칠 수 없습니다. 진행은 계정에 자동으로 저장됩니다.">
       <RenameTeam current={save.name} onRename={onRename} />
       <div className="account-row">
         <span>계정 <b>{loginId}</b></span>

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { archiveLegacyGame, loadLegacyGame, migrate, newGame, type GameSave } from './game/save'
 import { cellOf, partySummary } from './game/members'
 import { adoptLegacyProgress, loadProgress, saveProgress, type MissionProgress } from './missionState'
-import { auth, setRememberedId, type Session } from './account'
+import { auth, setRememberedId, type SaveStatus, type Session } from './account'
 import { QuestBoard } from './components/QuestBoard'
 import { TrainingGround } from './components/TrainingGround'
 import { Home } from './components/Home'
@@ -31,7 +31,7 @@ const TABS: { key: Tab; label: string }[] = [
 /** 접속 흐름 (docs/25 §3): 타이틀·로그인 → (가입) → 저장 있으면 본부 / 없으면 (예전 진행 가져오기) → 모험가 만들기 */
 type Phase =
   | { kind: 'loading' }
-  | { kind: 'title' }
+  | { kind: 'title'; notice?: string }
   | { kind: 'signup' }
   | { kind: 'legacy'; session: Session; legacy: GameSave }
   | { kind: 'newgame'; session: Session }
@@ -42,7 +42,14 @@ export function App() {
 
   /** 로그인된 계정으로 들어간다 — 저장이 있으면 본부, 없으면 예전 진행 확인 → 모험가 만들기 */
   const enter = async (session: Session) => {
-    const raw = await auth.loadSave(session)
+    let raw: unknown
+    try {
+      raw = await auth.loadSave(session)
+    } catch (e) {
+      // 못 읽었을 때 새 게임으로 보내면 기존 진행을 덮는다 — 타이틀로 돌려보내고 알린다
+      await auth.signOut()
+      return setPhase({ kind: 'title', notice: e instanceof Error ? e.message : '저장을 불러오지 못했습니다' })
+    }
     const save = raw ? migrate(raw) : null
     if (save) return setPhase({ kind: 'game', session, save })
     const legacy = loadLegacyGame()
@@ -50,7 +57,7 @@ export function App() {
   }
 
   useEffect(() => {
-    void auth.restore().then((s) => (s ? enter(s) : setPhase({ kind: 'title' })))
+    void auth.restore().then((s) => (s ? enter(s) : setPhase({ kind: 'title' })), () => setPhase({ kind: 'title' }))
   }, [])
 
   const logout = async () => {
@@ -65,6 +72,7 @@ export function App() {
     if (!claimed.ok) return claimed.error
     const named = { ...save, name: claimed.value }
     await auth.writeSave(session, named)
+    await auth.flush()
     setPhase({ kind: 'game', session, save: named })
     window.scrollTo(0, 0)
     return null
@@ -76,6 +84,7 @@ export function App() {
     case 'title':
       return (
         <Title
+          notice={phase.notice}
           onSignUp={() => setPhase({ kind: 'signup' })}
           onSignIn={async (id, pw, remember) => {
             const r = await auth.signIn(id, pw)
@@ -157,6 +166,8 @@ function Game({ session, save, setSave, onLogout }: GameProps) {
   /** 편성 탭에 들어갈 때 미리 고를 칸 */
   const [formationCell, setFormationCell] = useState<number | null>(null)
 
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>('saved')
+  useEffect(() => auth.onSaveStatus(setSaveStatus), [])
   useEffect(() => { void auth.writeSave(session, save) }, [session, save])
   useEffect(() => saveProgress(session.userId, progress), [session, progress])
 
@@ -211,6 +222,8 @@ function Game({ session, save, setSave, onLogout }: GameProps) {
             {summary.count > 0 && <span>평균 Lv {summary.avgLevel}</span>}
             <span>{save.battles}전 {save.wins}승</span>
             {auth.mode === 'local' && <span className="local-mode" title="서버 연결 전 — 계정과 진행이 이 브라우저에만 저장됩니다">로컬 모드</span>}
+            {saveStatus === 'saving' && <span className="save-state">저장 중…</span>}
+            {saveStatus === 'error' && <span className="save-state bad" title="서버에 저장하지 못했습니다. 10초마다 다시 시도합니다">저장 실패 · 재시도 중</span>}
           </div>
         </div>
         <nav className="tabs desktop">{nav}</nav>

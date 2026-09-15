@@ -1,8 +1,9 @@
-// 지금 쓰는 인증 서비스 하나. B 단계(서버 연결)에서는 이 줄만 서버 구현으로 바꾼다 (docs/25 §7).
-import { createLocalAuth } from './localAuth'
+// 지금 쓰는 인증 서비스 하나 (docs/25 §7). A 단계는 로컬 모드(createLocalAuth), B 단계부터 Supabase.
+// 로컬 구현은 테스트(test/account.test.ts)와 서버 없이 화면을 볼 때를 위해 남겨 둔다.
+import { createSupabaseAuth } from './supabaseAuth'
 
-export const auth = createLocalAuth(window.localStorage)
-export type { AuthService, AuthResult, Session } from './auth'
+export const auth = createSupabaseAuth()
+export type { AuthService, AuthResult, SaveStatus, Session } from './auth'
 
 const REMEMBER_ID_KEY = 'webrpg.rememberId'
 
