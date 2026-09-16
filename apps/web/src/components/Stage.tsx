@@ -1,7 +1,7 @@
 // 전투 스테이지 렌더러 (docs/06 §4). 재생기의 cursor 가 가리키는 "현재 턴"의 이벤트를 연출로 바꾼다.
 // 상태(HP/SP/생사)는 roster 에서, 연출(돌진·피격·팝업·말풍선)은 현재 턴의 이벤트 슬라이스에서 나온다.
 import { useMemo, type CSSProperties } from 'react'
-import type { BattleEvent, CharRef } from '@webrpg/engine'
+import { STATUS_DEFS, type BattleEvent, type CharRef } from '@webrpg/engine'
 import { skillLabel, statusLabel, traitLabel } from '../lib/labels'
 import type { Roster, RosterChar } from '../lib/roster'
 import { UnitSprite } from './UnitSprite'
@@ -194,25 +194,28 @@ function Char({ team, index, c, job, fx, cursor }: { team: 0 | 1; index: number;
         <div className="bar hp"><i style={{ width: `${(c.hp / c.maxHp) * 100}%` }} /></div>
         <div className="bar sp"><i style={{ width: `${c.maxSp ? (c.sp / c.maxSp) * 100 : 0}%` }} /></div>
       </div>
-      <div className="sprite">
-        <UnitSprite icon={job} />
-        {c.casting && c.alive && <span className="castmark">{skillLabel(c.casting)}</span>}
+      {/* 도트 자리. 상태 칸은 이 위에 겹쳐 띄운다 — 줄로 두면 칸이 생기고 사라질 때마다 캐릭터가 위아래로 밀렸다 */}
+      <div className="body">
+        <div className="sprite">
+          <UnitSprite icon={job} />
+          {c.casting && c.alive && <span className="castmark">{skillLabel(c.casting)}</span>}
+        </div>
+        {/* 상태는 글자 대신 네모 칸 아이콘으로, 도트 왼쪽 아래부터 차곡차곡 (단장 요청 2026-09-17).
+            칸 오른쪽 아래 삼각형이 좋고 나쁨을 말한다: 초록 ▲ 이로움 · 빨강 ▼ 해로움. 이름은 칸에 올리면 뜬다 */}
+        {c.statuses.length > 0 && c.alive && (
+          <div className="statuses">
+            {c.statuses.map((s) => (
+              <span key={s} className={`status-frame ${STATUS_DEFS[s].category}`} title={statusLabel(s)}>
+                <StatusIcon id={s} alt={statusLabel(s)} size="sm" />
+              </span>
+            ))}
+          </div>
+        )}
       </div>
       <div className="nm">
         {c.level !== undefined && <span className="lv">Lv.{c.level}</span>}
         {c.name}
       </div>
-      {/* 칩이 좁아 글자만으로는 훑기 어렵다. 아이콘을 앞세운다 (M2-8) */}
-      {c.statuses.length > 0 && c.alive && (
-        <div className="tags">
-          {c.statuses.map((s) => (
-            <span key={s} className="tag">
-              <StatusIcon id={s} alt={statusLabel(s)} size="sm" />
-              {statusLabel(s)}
-            </span>
-          ))}
-        </div>
-      )}
       <div key={`p${cursor}`} className="popups">
         {popups.map((p, i) => (
           <span key={i} className={`popup ${p.kind}`} style={{ animationDelay: `${i * 140}ms` }}>{p.text}</span>
