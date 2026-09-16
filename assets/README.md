@@ -173,6 +173,21 @@
 | `units/brave-male.px` | 도트 전투 스프라이트 원본 (용사 남) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 · 12색 팔레트 | 원본과 동일 | 2026-09-16 |
 | `units/brave-male.svg` | 48×64 게임용 생성물 | `brave-male.px`에서 생성 | 원본과 동일 | 2026-09-16 |
 | `units/brave-male-sheet.png` | 10배 검수 시트 | `brave-male.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `../art-source/units/brave-female-concept-v1.png` | AI 생성 원화 채택본 (용사 여, 애쉬 블론드 묶은 머리·청록 망토·기사 방패·한손검 3포즈) | OpenAI 내장 ImageGen — 용사 남 채택본, docs/21 §4-1·§4-2 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-16 |
+| `../art-source/units/brave-female-pixel-v1.png` | 16비트 JRPG 도트 원본 (용사 여, 3포즈) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-16 |
+| `units/brave-female.px` | 도트 전투 스프라이트 원본 (용사 여) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 · 12색 팔레트 | 원본과 동일 | 2026-09-16 |
+| `units/brave-female.svg` | 48×64 게임용 생성물 | `brave-female.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `units/brave-female-sheet.png` | 10배 검수 시트 | `brave-female.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `../art-source/units/fallenHero-male-concept-v1.png` | AI 생성 원화 채택본 (타락 용사 남, 검붉은 망토·한 팔 흑철·다크 블레이드 3포즈) | OpenAI 내장 ImageGen — `wanderer-male-sheet.png`, docs/21 §4-1 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-16 |
+| `../art-source/units/fallenHero-male-pixel-v1.png` | 16비트 JRPG 도트 원본 (타락 용사 남, 3포즈) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-16 |
+| `units/fallenHero-male.px` | 도트 전투 스프라이트 원본 (타락 용사 남) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 · 12색 팔레트 | 원본과 동일 | 2026-09-16 |
+| `units/fallenHero-male.svg` | 48×64 게임용 생성물 | `fallenHero-male.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `units/fallenHero-male-sheet.png` | 10배 검수 시트 | `fallenHero-male.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `../art-source/units/fallenHero-female-concept-v1.png` | AI 생성 원화 채택본 (타락 용사 여, 긴 갈색 머리·검붉은 망토·한 팔 흑철·다크 블레이드 3포즈) | OpenAI 내장 ImageGen — `fallenHero-male-sheet.png`, `wanderer-female-sheet.png`, docs/21 §4-1·§4-2 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-16 |
+| `../art-source/units/fallenHero-female-pixel-v1.png` | 16비트 JRPG 도트 원본 (타락 용사 여, 3포즈) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-16 |
+| `units/fallenHero-female.px` | 도트 전투 스프라이트 원본 (타락 용사 여) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 · 12색 팔레트 | 원본과 동일 | 2026-09-16 |
+| `units/fallenHero-female.svg` | 48×64 게임용 생성물 | `fallenHero-female.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `units/fallenHero-female-sheet.png` | 10배 검수 시트 | `fallenHero-female.px`에서 생성 | 원본과 동일 | 2026-09-16 |
 | `manifest.json` | 매니페스트 | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `../tools/build-icons.mjs` | 도구 (요청서 87종 SVG 생성·매니페스트·원장 동기화) | 자체 제작 | 저장소 소유 | 2026-09-12 |
 | `../tools/pixelate-icons.py` | 도구 (도형 SVG → 24×24 제한 팔레트 도트 SVG) | 자체 제작 | 저장소 소유 | 2026-09-13 |

@@ -256,14 +256,11 @@ export const jobIcon = (key: string): string => {
 }
 
 /**
- * 그림이 아직 없는 키 → 임시로 쓸 기존 그림. 용사 남까지 도착했고 용사 여 · 타락 용사 남/여는 주문 대기다 (docs/21).
+ * 그림이 아직 없는 키 → 임시로 쓸 기존 그림. docs/21 주인공 계보 남녀 10종은 모두 도착했다.
  * 그림이 도착하면 해당 키를 지운다.
  */
 const ART_STANDIN: Record<string, string> = {
   adventurer: 'warrior',
-  'brave-female': 'rogue',
-  'fallenHero-male': 'warrior',
-  'fallenHero-female': 'rogue',
 }
 export const artKey = (key: string): string => ART_STANDIN[key] ?? key
 
