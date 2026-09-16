@@ -346,6 +346,20 @@ const list: Skill[] = [
     ],
   },
   {
+    // 적 전용 (docs/30 봉화 조). 끊지 않으면 저쪽 전원이 세지고 빨라진다. 준비가 길어 끊을 틈이 분명하다
+    id: 'signalFire',
+    label: '봉화',
+    spCost: 16,
+    target: { side: 'ally', scope: 'all', hits: 1 },
+    charge: 700,
+    stiff: 100,
+    isSupport: true,
+    effects: [
+      { kind: 'applyStatus', status: 'atkUp', duration: 3, magnitude: 70 },
+      { kind: 'modifyGauge', delta: 300 },
+    ],
+  },
+  {
     // 적 전용 대형 시전. 끊지 않으면 전열이 통째로 무너진다 (docs/18 §6 B)
     id: 'hex',
     label: '주박',

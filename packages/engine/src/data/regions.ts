@@ -27,6 +27,24 @@ export interface RegionDef {
    * 그래서 문턱을 레벨이 아니라 **설계**로 옮겼다 — 기준 편성은 지고, 전직 + 훅 수칙이어야 해볼 만하다.
    */
   expects?: 'base' | 'advanced'
+  /**
+   * 엘리트 조우 (docs/30). 판마다 `pct`% 확률로 무작위 조우 대신 **고정 조합**이 통째로 나온다.
+   * 기본 수칙의 약점을 찌르는 조합이라 "몬스터가 교재" 를 가장 직접 보여 준다.
+   * 확률은 별도 난수로 굴린다 — 엘리트가 아닌 판은 이 필드가 없을 때와 같은 적이 나온다.
+   */
+  elites?: EliteDef[]
+}
+
+export interface EliteDef {
+  id: string
+  /** 표시 이름 ("봉화 조") */
+  name: string
+  /** 한 줄 설명 — 무엇을 조심해야 하나 */
+  brief: string
+  /** 판당 등장 확률 % */
+  pct: number
+  /** 고정 상대 (몬스터 id 순서대로) */
+  foes: string[]
 }
 
 export const REGIONS: RegionDef[] = [
@@ -56,6 +74,11 @@ export const REGIONS: RegionDef[] = [
       { monsterId: 'banditBoss', weight: 8 },
     ],
     unlock: { regionId: 'outskirts', wins: 3 },
+    elites: [{
+      id: 'signalCrew', name: '봉화 조', pct: 12,
+      brief: '뒤의 신호수 둘이 번갈아 봉화를 올린다. 올라갈 때마다 단검수가 세지고 빨라진다 — 준비 동작을 끊어라.',
+      foes: ['banditKnife', 'banditKnife', 'banditSignaller', 'banditSignaller'],
+    }],
   },
   {
     id: 'fort',
@@ -72,6 +95,11 @@ export const REGIONS: RegionDef[] = [
       { monsterId: 'rivalElf', weight: 18 },
     ],
     unlock: { regionId: 'highway', wins: 3 },
+    elites: [{
+      id: 'shieldWall', name: '방벽 조', pct: 12,
+      brief: '방패수 둘이 늘 엄호하고 뒤에서 프리스트가 되돌린다. 치유 주문을 끊을 SP 를 독에 쓰지 마라.',
+      foes: ['rivalBulwark', 'rivalBulwark', 'rivalRogue', 'rivalPriest', 'rivalMage'],
+    }],
   },
   {
     id: 'valley',
@@ -101,6 +129,11 @@ export const REGIONS: RegionDef[] = [
       { monsterId: 'goblinChief', weight: 8 },
     ],
     unlock: { regionId: 'valley', wins: 3 },
+    elites: [{
+      id: 'disruptors', name: '방해꾼 조', pct: 12,
+      brief: '방해꾼 둘이 긴 준비 동작을 보는 족족 끊는다. 큰 기술은 그들이 쓰러진 뒤로 미뤄라.',
+      foes: ['goblinChief', 'goblinFighter', 'goblinDisruptor', 'goblinDisruptor'],
+    }],
   },
   {
     id: 'webwood',
@@ -272,6 +305,8 @@ export function isRegionUnlocked(region: RegionDef, wins: Record<string, number>
 
 /** 조우 생성. 같은 시드면 같은 편성 — 리플레이는 시드만 저장하면 된다 */
 export function rollEncounter(region: RegionDef, seed: number): TeamSetup {
+  const elite = rollElite(region, seed)
+  if (elite) return { ...namedTeam(region.name, elite.foes), elite: elite.name }
   const rng = createRng(seed ^ 0x5eed)
   const n = region.count[0] + rng.int(region.count[1] - region.count[0] + 1)
   const total = region.table.reduce((s, t) => s + t.weight, 0)
@@ -286,7 +321,23 @@ export function rollEncounter(region: RegionDef, seed: number): TeamSetup {
       }
     }
   }
-  // 같은 이름이 겹치면 번호를 붙인다
+  return namedTeam(region.name, picks)
+}
+
+/** 이 판이 엘리트 조우인가. 무작위 조우와 다른 난수를 쓴다 — 엘리트가 아닌 판의 편성은 바뀌지 않는다 */
+function rollElite(region: RegionDef, seed: number): EliteDef | undefined {
+  if (!region.elites?.length) return undefined
+  const rng = createRng(seed ^ 0xe117e)
+  let r = rng.int(100)
+  for (const e of region.elites) {
+    r -= e.pct
+    if (r < 0) return e
+  }
+  return undefined
+}
+
+/** 몬스터 id 목록 → 팀. 같은 이름이 겹치면 번호를 붙인다 */
+function namedTeam(name: string, picks: string[]): TeamSetup {
   const seen: Record<string, number> = {}
   const members = picks.map((id, idx) => {
     const def = MONSTERS[id]
@@ -302,7 +353,7 @@ export function rollEncounter(region: RegionDef, seed: number): TeamSetup {
       m.name = `${m.name} ${counter[m.name]}`
     }
   }
-  return { name: region.name, members }
+  return { name, members }
 }
 
 export interface Rewards {

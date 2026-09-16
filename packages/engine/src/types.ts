@@ -122,6 +122,8 @@ export interface CharSetup {
 export interface TeamSetup {
   name: string
   members: CharSetup[]
+  /** 엘리트 조우면 그 조의 이름 (docs/30). 표시용 — 전투 판정에는 쓰지 않는다 */
+  elite?: string
 }
 
 // ───────────────────────────── 스킬 (§6)

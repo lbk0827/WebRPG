@@ -124,6 +124,14 @@ const list: MonsterDef[] = [
     drops: [{ itemId: 'bossSeal', permyriad: 10000 }], exp: 90, gold: 60,
   },
 
+  {
+    // 엘리트 봉화 조 (docs/30). 둘이 번갈아 봉화를 올린다 — 침묵할 SP 를 남겨 두지 않으면 세 번째를 못 끊는다
+    id: 'banditSignaller', name: '도적단 신호수', job: 'priest', icon: 'outlawCaster', archetype: 'caster', level: 5, growth: { int: 2, spd: 1 },
+    stats: { maxSp: 50 }, row: 'back', guard: { mode: 'never' }, skills: ['strike', 'signalFire'],
+    rules: rules(row(sp(16), 'signalFire'), row(always, 'strike')),
+    drops: [{ itemId: 'feather', permyriad: 3000 }, { itemId: 'leather', permyriad: 3000 }], exp: 40, gold: 26,
+  },
+
   // ───────── 폐허 요새: 경쟁 용병단. 우리와 같은 직업, 제대로 된 수칙 (프리셋 기본 수칙)
   {
     id: 'rivalWarrior', name: '경쟁 용병 전사', job: 'warrior', archetype: 'mob', level: 8, growth: { str: 3, spd: 1, luk: 1 },
@@ -156,6 +164,14 @@ const list: MonsterDef[] = [
     id: 'rivalElf', name: '경쟁 용병 엘프', job: 'elf', archetype: 'shooter', level: 8, growth: { dex: 4, spd: 1 },
     rules: structuredClone(PRESETS.elf.rules),
     drops: [{ itemId: 'feather', permyriad: 4500 }, { itemId: 'leather', permyriad: 2000 }], exp: 55, gold: 30,
+  },
+
+  {
+    // 엘리트 방벽 조 (docs/30). 늘 엄호하고 스스로 굳힌다 — 휩쓸기로 흩뿌리면 뒤의 프리스트가 다 되돌린다
+    id: 'rivalBulwark', name: '경쟁 용병 방패수', job: 'warrior', archetype: 'wall', level: 9, growth: { str: 2, spd: 1 },
+    stats: { maxHp: 900, def: 34 }, guard: { mode: 'always' }, skills: ['strike', 'ironSkin', 'heavyBlow'],
+    rules: rules(row(and(sp(8), hpBelow(70)), 'ironSkin', 2), row(sp(8), 'heavyBlow'), row(always, 'strike')),
+    drops: [{ itemId: 'ironScrap', permyriad: 5000 }, { itemId: 'leather', permyriad: 2000 }], exp: 70, gold: 40,
   },
 
   // ───────── 늑대 골짜기: 첫 짐승. 다수형과 돌격형 — "빠른 것이 먼저 때린다"
@@ -213,6 +229,14 @@ const list: MonsterDef[] = [
     skills: ['strike', 'heavyBlow', 'sweep', 'warCry'],
     rules: rules(row(firstAction, 'warCry', 1), row(atom({ kind: 'teamAliveCount', side: 'enemy', cmp: 'gte', value: 4 }), 'sweep'), row(sp(8), 'heavyBlow'), row(always, 'strike')),
     drops: [{ itemId: 'bossSeal', permyriad: 10000 }], exp: 260, gold: 150,
+  },
+
+  {
+    // 엘리트 방해꾼 조 (docs/30). 플레이어의 끊기 도구를 그대로 쓴다 — 긴 시전은 보이는 족족 끊긴다
+    id: 'goblinDisruptor', name: '고블린 방해꾼', job: 'rogue', icon: 'goblin', archetype: 'caster', level: 14, growth: { dex: 3, spd: 2 },
+    stats: { maxHp: 900, def: 16 }, row: 'back', guard: { mode: 'never' }, skills: ['strike', 'hush', 'stagger'],
+    rules: rules(row(foesCasting, 'hush'), row(foesCasting, 'stagger'), row(always, 'strike')),
+    drops: [{ itemId: 'manaCrystal', permyriad: 4000 }, { itemId: 'leather', permyriad: 3000 }], exp: 115, gold: 62,
   },
 
   // ───────── 거미 숲: 독과 사격. "정화를 준비해라"

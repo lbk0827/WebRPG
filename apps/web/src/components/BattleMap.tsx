@@ -179,7 +179,7 @@ export function BattleMap({ save, onSave, region, group, icon, onBack, onGoForma
           <div className="multi-list">
             {outs.map((o, i) => (
               <button key={i} className={`${i === view ? 'on' : ''} ${o.result.outcome === 'team0' ? 'win' : 'lose'}`} onClick={() => setView(i)}>
-                {i + 1}판 {outcomeText(o.result.outcome)} <small>+{o.exp}</small>
+                {i + 1}판 {o.enemy.elite && '⚔ '}{outcomeText(o.result.outcome)} <small>+{o.exp}</small>
               </button>
             ))}
           </div>
@@ -187,6 +187,7 @@ export function BattleMap({ save, onSave, region, group, icon, onBack, onGoForma
       )}
       {out && names && jobs && (
         <div className={`verdict ${out.result.outcome === 'team0' ? 'ok' : 'fail'}`}>
+          {out.enemy.elite && <span className="elite-badge">⚔ 엘리트 · {out.enemy.elite}</span>}
           <b>{region.name} — {outcomeText(out.result.outcome)}</b> · 경험치 +{out.exp} · 금 +{out.gold}
           {out.drops.length > 0 && ` · 재료 ${dropsText(out.drops)}`}
           {levelUps.length > 0 && (
@@ -237,6 +238,20 @@ export function BattleMap({ save, onSave, region, group, icon, onBack, onGoForma
         ))}
         {foes.hidden && <RumorCard />}
       </ul>
+
+      {region.elites?.map((e) => (
+        <div key={e.id} className="elite-group">
+          <h3 className="bar-title">
+            ⚔ 엘리트 조우 · {e.name} <small>판마다 {e.pct}% 확률로 이 조합이 통째로 나온다</small>
+          </h3>
+          <p className="brief">{e.brief}</p>
+          <ul className="appear">
+            {e.foes.map((id, i) => (
+              <MonsterCard key={i} def={MONSTERS[id]} />
+            ))}
+          </ul>
+        </div>
+      ))}
     </section>
   )
 }
