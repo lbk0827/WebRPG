@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64" shape-rendering="crispEdges">
+  <title>낙오자 시전자</title>
+  <path fill="#1d1d24" d="M4 1h5v2H4zM2 3h7v8H2zM1 7h3v3H1zM5 10h3v11H5zM3 20h7v3H3zM11 5h7v2h-7zM10 7h10v11H10zM8 17h14v4H8z"/>
+  <path fill="#6b5535" d="M5 2h3v2H5zM3 4h4v5H3zM6 11h1v9H6zM12 8h6v8h-6zM10 17h10v2H10z"/>
+  <path fill="#9a6540" d="M4 4h2v4H4zM13 9h4v2h-4z"/>
+  <path fill="#e9e4d8" d="M3 6h4v1H3zM13 7h4v1h-4z"/>
+</svg>

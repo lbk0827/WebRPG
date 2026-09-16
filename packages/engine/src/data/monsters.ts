@@ -6,7 +6,10 @@ import { PRESETS } from './presets'
 import { EMPTY_ALLOC, growthStats } from '../progression'
 
 /** 몬스터 전용 아이콘 (assets/monsters/*.svg). 없으면 job 의 직업 아이콘을 쓴다 */
-export const MONSTER_ICONS = ['goblin', 'beast', 'turtle', 'harpy', 'shaman', 'spider', 'swarm', 'ogre'] as const
+export const MONSTER_ICONS = [
+  'goblin', 'beast', 'turtle', 'harpy', 'shaman', 'spider', 'swarm', 'ogre',
+  'outlawSoldier', 'outlawRaider', 'outlawArcher', 'outlawCaster', 'outlawCaptain',
+] as const
 export type MonsterIcon = (typeof MONSTER_ICONS)[number]
 const ICON_SET: ReadonlySet<string> = new Set(MONSTER_ICONS)
 export const isMonsterIcon = (key: string): boolean => ICON_SET.has(key)
@@ -93,29 +96,29 @@ export function monsterSetup(def: MonsterDef, idx: number): CharSetup {
 const list: MonsterDef[] = [
   // ───────── 마을 외곽: 탈영병. 훈련 안 된 전사. 수칙 1줄
   {
-    id: 'deserter', name: '탈영병', job: 'warrior', archetype: 'mob', level: 1,
+    id: 'deserter', name: '탈영병', job: 'warrior', icon: 'outlawSoldier', archetype: 'mob', level: 1,
     stats: { maxHp: 320, str: 32, def: 10 }, guard: { mode: 'never' }, rules: strikeOnly,
     drops: [{ itemId: 'ironScrap', permyriad: 3000 }, { itemId: 'leather', permyriad: 2000 }], exp: 14, gold: 8,
   },
   {
-    id: 'deserterArcher', name: '탈영 궁수', job: 'elf', archetype: 'shooter', level: 2,
+    id: 'deserterArcher', name: '탈영 궁수', job: 'elf', icon: 'outlawArcher', archetype: 'shooter', level: 2,
     stats: { maxHp: 240 }, rules: rules(row(sp(12), 'pierceShot'), row(always, 'strike')),
     drops: [{ itemId: 'feather', permyriad: 3500 }, { itemId: 'leather', permyriad: 1500 }], exp: 18, gold: 10,
   },
 
   // ───────── 가도: 도적단. 독과 저격. 수칙 2줄
   {
-    id: 'banditKnife', name: '도적단 단검수', job: 'rogue', archetype: 'venom', level: 4, growth: { dex: 2, spd: 1 },
+    id: 'banditKnife', name: '도적단 단검수', job: 'rogue', icon: 'outlawRaider', archetype: 'venom', level: 4, growth: { dex: 2, spd: 1 },
     rules: rules(row(sp(8), 'venom'), row(always, 'strike')),
     drops: [{ itemId: 'leather', permyriad: 3500 }, { itemId: 'ironScrap', permyriad: 2000 }], exp: 30, gold: 18,
   },
   {
-    id: 'banditArcher', name: '도적단 궁수', job: 'elf', archetype: 'shooter', level: 4, growth: { dex: 2 },
+    id: 'banditArcher', name: '도적단 궁수', job: 'elf', icon: 'outlawArcher', archetype: 'shooter', level: 4, growth: { dex: 2 },
     rules: rules(row(sp(12), 'pierceShot'), row(always, 'strike')),
     drops: [{ itemId: 'feather', permyriad: 4000 }, { itemId: 'leather', permyriad: 1500 }], exp: 30, gold: 16,
   },
   {
-    id: 'banditBoss', name: '도적 두목', job: 'warrior', archetype: 'boss', level: 6, growth: { str: 3, spd: 1 },
+    id: 'banditBoss', name: '도적 두목', job: 'warrior', icon: 'outlawCaptain', archetype: 'boss', level: 6, growth: { str: 3, spd: 1 },
     guard: { mode: 'always' }, hidden: true,
     rules: rules(row(firstAction, 'warCry', 1), row(sp(8), 'heavyBlow'), row(always, 'strike')),
     drops: [{ itemId: 'bossSeal', permyriad: 10000 }], exp: 90, gold: 60,

@@ -73,6 +73,13 @@
       "pixelPalette": { "h": "#4d2d1d", "m": "#9f5b32", "H": "#d98a4a" },
       "role": "주인공 · 양손검 선봉"
     },
+    "brave-male": {
+      "name": "용사(남)",
+      "icon": "jobs/warrior.svg",
+      "color": "#3aa0a0",
+      "pixelPalette": { "g": "#d4a017" },
+      "role": "주인공 · 기사 방패 수호자"
+    },
     "magicSwordsman-male": {
       "name": "마검사(남) 시안",
       "icon": "jobs/warrior.svg",
@@ -141,6 +148,36 @@
       "name": "오우거",
       "icon": "monsters/ogre.svg",
       "color": "#7a3b2e",
+      "archetype": "보스"
+    },
+    "outlawSoldier": {
+      "name": "낙오자 병사",
+      "icon": "monsters/outlawSoldier.svg",
+      "color": "#6b5535",
+      "archetype": "방벽"
+    },
+    "outlawRaider": {
+      "name": "낙오자 약탈자",
+      "icon": "monsters/outlawRaider.svg",
+      "color": "#6b5535",
+      "archetype": "독"
+    },
+    "outlawArcher": {
+      "name": "낙오자 궁수",
+      "icon": "monsters/outlawArcher.svg",
+      "color": "#6b5535",
+      "archetype": "사격"
+    },
+    "outlawCaster": {
+      "name": "낙오자 시전자",
+      "icon": "monsters/outlawCaster.svg",
+      "color": "#6b5535",
+      "archetype": "주술"
+    },
+    "outlawCaptain": {
+      "name": "낙오자 대장",
+      "icon": "monsters/outlawCaptain.svg",
+      "color": "#6b5535",
       "archetype": "보스"
     }
   },
@@ -221,6 +258,30 @@
     "wanderer-female": {
       "name": "떠돌이(여)",
       "sprite": "units/wanderer-female.svg"
+    },
+    "brave-male": {
+      "name": "용사(남)",
+      "sprite": "units/brave-male.svg"
+    },
+    "outlawSoldier": {
+      "name": "낙오자 병사",
+      "sprite": "units/outlawSoldier.svg"
+    },
+    "outlawRaider": {
+      "name": "낙오자 약탈자",
+      "sprite": "units/outlawRaider.svg"
+    },
+    "outlawArcher": {
+      "name": "낙오자 궁수",
+      "sprite": "units/outlawArcher.svg"
+    },
+    "outlawCaster": {
+      "name": "낙오자 시전자",
+      "sprite": "units/outlawCaster.svg"
+    },
+    "outlawCaptain": {
+      "name": "낙오자 대장",
+      "sprite": "units/outlawCaptain.svg"
     },
     "magicSwordsman-male": {
       "name": "마검사(남) 시안",

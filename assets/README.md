@@ -167,6 +167,11 @@
 | `units/killerMaid-female.px` | 도트 전투 스프라이트 원본 (킬러 메이드 여 시안) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-15 |
 | `units/killerMaid-female.svg` | 48×64 게임용 생성물 | `killerMaid-female.px`에서 생성 | 원본과 동일 | 2026-09-15 |
 | `units/killerMaid-female-sheet.png` | 10배 검수 시트 | `killerMaid-female.px`에서 생성 | 원본과 동일 | 2026-09-15 |
+| `../art-source/units/brave-male-concept-v1.png` | AI 생성 원화 채택본 (용사 남, 청록 망토·기사 방패·한손검 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `warrior-sheet.png`, docs/21 §4-1 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-16 |
+| `../art-source/units/brave-male-pixel-v1.png` | 16비트 JRPG 도트 원본 (용사 남, 3포즈) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-16 |
+| `units/brave-male.px` | 도트 전투 스프라이트 원본 (용사 남) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 · 12색 팔레트 | 원본과 동일 | 2026-09-16 |
+| `units/brave-male.svg` | 48×64 게임용 생성물 | `brave-male.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `units/brave-male-sheet.png` | 10배 검수 시트 | `brave-male.px`에서 생성 | 원본과 동일 | 2026-09-16 |
 | `manifest.json` | 매니페스트 | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `../tools/build-icons.mjs` | 도구 (요청서 87종 SVG 생성·매니페스트·원장 동기화) | 자체 제작 | 저장소 소유 | 2026-09-12 |
 | `../tools/pixelate-icons.py` | 도구 (도형 SVG → 24×24 제한 팔레트 도트 SVG) | 자체 제작 | 저장소 소유 | 2026-09-13 |
@@ -176,6 +181,36 @@
 | `../tools/preview.html` | 생성물 (`node tools/build-preview.mjs`) | 자체 제작 | 저장소 소유 | 2026-09-10 |
 
 <!-- generated-monster-units:start -->
+| `../art-source/units/outlawSoldier-concept-v1.png` | AI 생성 원화 채택본 (낙오자 병사, 방패·창 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `warrior-sheet.png`, docs/28 §7 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-16 |
+| `../art-source/units/outlawSoldier-pixel-v1.png` | 16비트 JRPG 도트 원본 (낙오자 병사) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-16 |
+| `units/outlawSoldier.px` | 도트 전투 스프라이트 원본 (낙오자 병사) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-16 |
+| `units/outlawSoldier.svg` | 48×64 게임용 생성물 | `outlawSoldier.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `units/outlawSoldier-sheet.png` | 10배 검수 시트 | `outlawSoldier.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `monsters/outlawSoldier.svg` | 24×24 낙오자 병사 엠블럼 | 자체 제작 도트 SVG (방패·창) | 저장소 소유 | 2026-09-16 |
+| `../art-source/units/outlawRaider-concept-v1.png` | AI 생성 원화 채택본 (낙오자 약탈자, 쌍단검 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `warrior-sheet.png`, docs/28 §7 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-16 |
+| `../art-source/units/outlawRaider-pixel-v1.png` | 16비트 JRPG 도트 원본 (낙오자 약탈자) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-16 |
+| `units/outlawRaider.px` | 도트 전투 스프라이트 원본 (낙오자 약탈자) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-16 |
+| `units/outlawRaider.svg` | 48×64 게임용 생성물 | `outlawRaider.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `units/outlawRaider-sheet.png` | 10배 검수 시트 | `outlawRaider.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `monsters/outlawRaider.svg` | 24×24 낙오자 약탈자 엠블럼 | 자체 제작 도트 SVG (쌍단검) | 저장소 소유 | 2026-09-16 |
+| `../art-source/units/outlawArcher-concept-v1.png` | AI 생성 원화 채택본 (낙오자 궁수, 짧은 활 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `warrior-sheet.png`, docs/28 §7 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-16 |
+| `../art-source/units/outlawArcher-pixel-v1.png` | 16비트 JRPG 도트 원본 (낙오자 궁수) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-16 |
+| `units/outlawArcher.px` | 도트 전투 스프라이트 원본 (낙오자 궁수) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-16 |
+| `units/outlawArcher.svg` | 48×64 게임용 생성물 | `outlawArcher.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `units/outlawArcher-sheet.png` | 10배 검수 시트 | `outlawArcher.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `monsters/outlawArcher.svg` | 24×24 낙오자 궁수 엠블럼 | 자체 제작 도트 SVG (활·화살) | 저장소 소유 | 2026-09-16 |
+| `../art-source/units/outlawCaster-concept-v1.png` | AI 생성 원화 채택본 (낙오자 시전자, 지팡이 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `warrior-sheet.png`, docs/28 §7 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-16 |
+| `../art-source/units/outlawCaster-pixel-v2.png` | 16비트 JRPG 도트 원본 (낙오자 시전자, 3프레임 도달 거리 교정) | 위 채택본 → OpenAI 내장 ImageGen 도트화·3프레임 국소 교정 | 원본과 동일 | 2026-09-16 |
+| `units/outlawCaster.px` | 도트 전투 스프라이트 원본 (낙오자 시전자) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-16 |
+| `units/outlawCaster.svg` | 48×64 게임용 생성물 | `outlawCaster.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `units/outlawCaster-sheet.png` | 10배 검수 시트 | `outlawCaster.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `monsters/outlawCaster.svg` | 24×24 낙오자 시전자 엠블럼 | 자체 제작 도트 SVG (후드·지팡이) | 저장소 소유 | 2026-09-16 |
+| `../art-source/units/outlawCaptain-concept-v1.png` | AI 생성 원화 채택본 (낙오자 대장, 망토·대검 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `warrior-sheet.png`, docs/28 §7 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-16 |
+| `../art-source/units/outlawCaptain-pixel-v1.png` | 16비트 JRPG 도트 원본 (낙오자 대장) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-16 |
+| `units/outlawCaptain.px` | 도트 전투 스프라이트 원본 (낙오자 대장) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-16 |
+| `units/outlawCaptain.svg` | 48×64 게임용 생성물 | `outlawCaptain.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `units/outlawCaptain-sheet.png` | 10배 검수 시트 | `outlawCaptain.px`에서 생성 | 원본과 동일 | 2026-09-16 |
+| `monsters/outlawCaptain.svg` | 24×24 낙오자 대장 엠블럼 | 자체 제작 도트 SVG (뿔 투구·대검) | 저장소 소유 | 2026-09-16 |
 | `../art-source/units/goblin-source.png` | AI 생성 도트 시트 초안 (고블린, 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `warrior-sheet.png`만 사용 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
 | `units/goblin.px` | 도트 전투 스프라이트 원본 (고블린, AI 초안 변환 후 검수) | `goblin-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-12 |
 | `units/goblin.svg` | 생성물 (`node tools/build-units.mjs`) | `goblin.px`에서 생성 | 원본과 동일 | 2026-09-12 |

@@ -256,13 +256,14 @@ export const jobIcon = (key: string): string => {
 }
 
 /**
- * 그림이 아직 없는 키 → 임시로 쓸 기존 그림. 모험가 · 길드원 · 떠돌이 남/여는 도착했고 용사 · 타락 용사 4장은 주문 대기다 (docs/21).
+ * 그림이 아직 없는 키 → 임시로 쓸 기존 그림. 용사 남까지 도착했고 용사 여 · 타락 용사 남/여는 주문 대기다 (docs/21).
  * 그림이 도착하면 해당 키를 지운다.
  */
-const HERO_ART_KEYS = ['brave', 'fallenHero']
 const ART_STANDIN: Record<string, string> = {
   adventurer: 'warrior',
-  ...Object.fromEntries(HERO_ART_KEYS.flatMap((k) => [[`${k}-male`, 'warrior'], [`${k}-female`, 'rogue']])),
+  'brave-female': 'rogue',
+  'fallenHero-male': 'warrior',
+  'fallenHero-female': 'rogue',
 }
 export const artKey = (key: string): string => ART_STANDIN[key] ?? key
 

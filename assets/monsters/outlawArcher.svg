@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64" shape-rendering="crispEdges">
+  <title>낙오자 궁수</title>
+  <path fill="#1d1d24" d="M16 1h2v2h-2zM18 3h2v3h-2zM20 6h2v12h-2zM18 18h2v3h-2zM16 21h2v2h-2zM4 11h15v2H4zM2 10h3v4H2zM6 8h2v8H6z"/>
+  <path fill="#6b5535" d="M17 2h1v2h-1zM19 5h1v3h-1zM20 8h1v8h-1zM19 16h1v3h-1zM17 20h1v2h-1z"/>
+  <path fill="#cfd6e0" d="M3 11h2v2H3zM7 9h1v6H7z"/>
+  <path fill="#e9e4d8" d="M8 11h10v1H8z"/>
+  <path fill="#9a6540" d="M9 13h2v3H9z"/>
+</svg>
