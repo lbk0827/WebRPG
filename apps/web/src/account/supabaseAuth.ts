@@ -1,7 +1,8 @@
 // Supabase 인증 · 저장 (docs/25 B 단계). 테이블과 보안 규칙은 supabase/schema.sql.
-import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import type { SupabaseClient } from '@supabase/supabase-js'
 import { fail, ok, type AuthResult, type AuthService, type SaveStatus, type Session } from './auth'
-import { LOGIN_EMAIL_DOMAIN, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from './config'
+import { LOGIN_EMAIL_DOMAIN } from './config'
+import { supabase } from './client'
 import { LOGIN_ID_TAKEN, SIGN_IN_FAILED, TEAM_NAME_TAKEN, checkLoginId, checkPassword, checkTeamName, cleanTeamName, normalizeLoginId } from './rules'
 
 /** 바뀐 저장을 모아 보내는 간격 — 버튼 누를 때마다 서버에 쓰지 않는다 (docs/25 §6). 중요한 순간은 부르는 쪽이 flush (docs/26 §5.1) */
@@ -23,9 +24,7 @@ function describe(e: { status?: number; code?: string } | null, fallback: string
   return fallback
 }
 
-export function createSupabaseAuth(client: SupabaseClient = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: { persistSession: true, autoRefreshToken: true, storageKey: 'webrpg.supabase.auth' },
-})): AuthService {
+export function createSupabaseAuth(client: SupabaseClient = supabase): AuthService {
   let pending: { s: Session; save: unknown; json: string } | null = null
   /** 마지막으로 서버와 맞춘 내용 (계정 id + JSON). 같으면 보내지 않는다 (docs/26 §5.1) */
   let lastSynced: { userId: string; json: string } | null = null

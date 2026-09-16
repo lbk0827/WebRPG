@@ -5,6 +5,7 @@ import { ADVENTURES, DEFAULT_CONFIG, HIRE, ITEMS, JOB_WEAPONS, MEMBER_MAX, MISSI
 import type { BattleRecord, GameSave } from '../game/save'
 import { PARTY_MAX, exportGame, importGame } from '../game/save'
 import { TEAM_NAME_MAX } from '../account/rules'
+import { shareRecord } from '../account/sharedLogs'
 import { adventureGate, canHire, canLearnSomething, craftableNow, memberIcon, partyMembers } from '../game/members'
 import type { MissionProgress } from '../missionState'
 import { jobOf, outcomeText, timeAgo, type Names } from '../lib/labels'
@@ -168,6 +169,7 @@ export function Home({ save, onSave, progress, onGo, onGoTown, loginId, onRename
         {replay && record && (
           <div className="record-replay">
             <p className="hint">{recordPlace(record)} · {outcomeText(record.outcome)} · 시드 {record.seed}</p>
+            <ShareRecordButton key={record.at} record={record} />
             <Replay result={replay.result} names={replay.names} jobs={replay.jobs} autoPlay={false} backdrop={record.regionId.replace(/^adv:/, '')} />
           </div>
         )}
@@ -220,8 +222,39 @@ function RenameTeam({ current, onRename }: { current: string; onRename: (name: s
   )
 }
 
+/**
+ * 전투 공유 링크 (docs/26 §5.2). 누르면 이 기록 하나만 서버에 올리고 링크를 클립보드에 넣는다.
+ * 같은 전투를 또 누르면 서버가 기존 링크를 돌려준다. 계정당 최근 20개 · 30일.
+ */
+function ShareRecordButton({ record }: { record: BattleRecord }) {
+  const [state, setState] = useState<{ busy?: boolean; url?: string; copied?: boolean; error?: string }>({})
+
+  const share = async () => {
+    setState({ busy: true })
+    const r = await shareRecord(record)
+    if (!r.ok) return setState({ error: r.error })
+    let copied = false
+    try {
+      await navigator.clipboard.writeText(r.url)
+      copied = true
+    } catch {
+      /* 클립보드가 막힌 브라우저 — 아래 칸에서 직접 복사 */
+    }
+    setState({ url: r.url, copied })
+  }
+
+  return (
+    <div className="share-row">
+      <button onClick={() => void share()} disabled={state.busy}>{state.busy ? '링크 만드는 중…' : '🔗 링크 복사'}</button>
+      {state.url && state.copied && <small className="share-ok">복사했습니다 · 로그인하지 않아도 30일 동안 열립니다</small>}
+      {state.url && !state.copied && <input readOnly value={state.url} onFocus={(e) => e.target.select()} aria-label="공유 링크" />}
+      {state.error && <small className="auth-error">{state.error}</small>}
+    </div>
+  )
+}
+
 /** 기록의 장소 이름 — 지역이면 지역명, 모험이면 모험명 */
-function recordPlace(r: BattleRecord): string {
+export function recordPlace(r: BattleRecord): string {
   if (r.regionId.startsWith('adv:')) return ADVENTURES.find((a) => a.id === r.regionId.slice(4))?.name ?? '모험'
   return REGION_BY_ID[r.regionId]?.name ?? r.regionId
 }

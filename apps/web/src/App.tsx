@@ -15,6 +15,8 @@ import { NewGame } from './components/NewGame'
 import { Title } from './components/Title'
 import { SignUp } from './components/SignUp'
 import { LegacyImport } from './components/LegacyImport'
+import { SharedLogView } from './components/SharedLogView'
+import { clearSharedLogFromUrl, sharedLogIdFromUrl } from './account/sharedLogs'
 
 /** 탭 7개 (단장 지시 2026-09-11). 시설은 탭을 늘리지 않고 전부 마을 안에 붙인다 */
 type Tab = 'home' | 'formation' | 'characters' | 'battle' | 'adventure' | 'town' | 'training'
@@ -40,6 +42,8 @@ type Phase =
 
 export function App() {
   const [phase, setPhase] = useState<Phase>({ kind: 'loading' })
+  /** 공유 링크(?log=)로 들어왔으면 그 전투부터 보여 준다 — 로그인 흐름은 뒤에서 그대로 준비된다 (docs/26 §5.2) */
+  const [sharedId, setSharedId] = useState<string | null>(sharedLogIdFromUrl)
 
   /** 로그인된 계정으로 들어간다 — 저장이 있으면 본부, 없으면 예전 진행 확인 → 모험가 만들기 */
   const enter = async (session: Session) => {
@@ -85,6 +89,10 @@ export function App() {
     setPhase({ kind: 'game', session, save: named })
     window.scrollTo(0, 0)
     return null
+  }
+
+  if (sharedId) {
+    return <SharedLogView id={sharedId} onExit={() => { clearSharedLogFromUrl(); setSharedId(null); window.scrollTo(0, 0) }} />
   }
 
   switch (phase.kind) {

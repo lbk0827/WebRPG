@@ -226,17 +226,16 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .side.t1 .col.front { order: 1; } .side.t1 .col.back { order: 2; }
 /* 위아래 간격은 거의 두지 않는다 — 도트 상자에 이미 머리 위 · 발밑 빈칸이 있어 사이가 멀어 보였다 (단장 요청 2026-09-16) */
 .col { display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; min-height: 60px; --sprite-scale: 1; }
-/* 뒷줄은 투명도가 아니라 크기로 멀리 보이게 한다 — 투명하면 "유령", 작으면 "뒤에 선 사람"으로 읽힌다.
-   한 열에 4명 이상이면 더 줄여서 줄 전체가 배경의 바닥 띠 안에 들어오게 한다 */
-.col.back { --sprite-scale: 0.88; }
+/* 뒷줄도 앞줄과 같은 크기다 (단장 결정 2026-09-17). 88% 로 줄였더니 뒷줄 직업이 약해 보이고,
+   정수 배율이 아니라 도트가 고르지 않았다. 우리 판은 뒷줄이 앞줄 옆에 서서 거리감 효과도 약했다.
+   한 열에 4명 이상이면 줄 전체가 배경의 바닥 띠 안에 들어오게 줄인다 */
 .col:has(> .char:nth-child(4)) { --sprite-scale: 0.8; }
-.col.back:has(> .char:nth-child(4)) { --sprite-scale: 0.72; }
 .char { position: relative; text-align: center; width: 100%; }
 /* 블록 + 글자폭 — inline-block 이면 이름표와 한 줄에 서거나 아래에 글줄 여백이 생겼다 */
 .char .sprite { position: relative; display: block; width: fit-content; margin: 0 auto; transform: scale(var(--sprite-scale)); transform-origin: bottom center; }
 .char img { width: 40px; height: 40px; display: block; margin: 0 auto; transition: filter 0.3s, transform 0.3s; }
-.char .nm { font-size: 10px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
-.char .nm .lv { margin-right: 3px; font-weight: 700; color: var(--muted); }
+.char .nm { font-size: 9px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.char .nm .lv { margin-right: 3px; font-size: 0.85em; font-weight: 700; color: var(--muted); }
 .char .bar { height: 4px; margin: 2px 4px 0; }
 /* HP · SP — 머리 위에 붙인 얇은 두 줄. 사이 간격 없이 한 틀에 넣는다.
    도트 상자(48×64)는 머리 위 8칸 · 발밑 5칸이 비어 있다. 게이지는 그 빈칸으로 내려 머리 바로 위에 뜨게 하고,
@@ -244,7 +243,7 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .char { --px: 1px; }
 .char .gauges {
   /* 폭은 도트 몸통 폭에 맞춘다 — 캐릭터보다 넓으면 게이지가 커 보인다 (단장 의견 2026-09-16) */
-  position: relative; z-index: 1; width: 24px; margin: 0 auto;
+  position: relative; z-index: 1; width: 36px; margin: 0 auto;
   border: 1px solid rgba(20, 16, 12, 0.75); border-radius: 2px; overflow: hidden; background: rgba(29, 29, 36, 0.6);
 }
 .arena .char .gauges .bar { height: 3px; margin: 0; border-radius: 0; background: transparent; }
@@ -254,8 +253,31 @@ button.big { padding: 10px 22px; font-size: 15px; }
   transform: translateY(calc((1 - var(--sprite-scale)) * var(--px) * 56));
 }
 .char:has(.unit) .nm { margin-top: calc(var(--px) * -4); }
-.char .tags { display: flex; justify-content: center; gap: 2px; flex-wrap: wrap; margin-top: 2px; }
-.char .tag { font-size: 9px; padding: 0 4px; white-space: nowrap; }
+/* 상태 칸 — 아이콘을 어두운 네모 칸에 담고, 오른쪽 아래에 좋고 나쁨 삼각형 (단장 요청 2026-09-17)
+   칸 18px · 아이콘 16px — 24px 1배는 캐릭터에 비해 컸다 (단장 선택). 정수 배율이 아니라서 최근접 대신 부드럽게 줄인다
+   초록 ▲ = 이로운 상태(STATUS_DEFS category buff) · 빨강 ▼ = 해로운 상태(debuff). 삼각형은 검은 테두리 위에 색 삼각형을 겹친다 */
+/* 도트 자리(.body)는 크기를 줄이지 않는 틀 — 뒷줄 축소(.sprite)가 상태 칸까지 줄이지 않게 따로 둔다 */
+.char .body { position: relative; width: fit-content; margin: 0 auto; }
+/* 도트 위에 겹쳐 왼쪽 아래부터 오른쪽으로, 한 줄이 차면 위로 쌓는다 (wrap-reverse). 캐릭터 높이는 변하지 않는다 */
+.char .statuses {
+  position: absolute; left: 0; bottom: calc(var(--px) * 3); z-index: 2; max-width: 100%;
+  display: flex; flex-wrap: wrap-reverse; gap: 1px;
+}
+.status-frame {
+  position: relative; display: grid; place-items: center; flex: none;
+  width: 18px; height: 18px; box-sizing: border-box; border-radius: 2px;
+  background: linear-gradient(180deg, #4a4a55 0%, #2c2c34 100%); border: 1px solid #1d1d24;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.status-frame::before, .status-frame::after { content: ''; position: absolute; }
+/* .dot-icon.sm(24px) 보다 뒤에 오지 않으므로 선택자를 한 단계 높인다 */
+.char .status-frame .dot-icon { width: 16px; height: 16px; image-rendering: auto; }
+.status-frame::before { right: -2px; bottom: -2px; width: 8px; height: 7px; background: #1d1d24; }
+.status-frame::after { right: 0; bottom: 0; width: 4px; height: 3px; }
+.status-frame.buff::before, .status-frame.buff::after { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+.status-frame.buff::after { background: #45c35e; }
+.status-frame.debuff::before, .status-frame.debuff::after { clip-path: polygon(0 0, 100% 0, 50% 100%); }
+.status-frame.debuff::after { background: #e0463b; }
 .char.dead img { filter: grayscale(1) brightness(0.7); transform: rotate(75deg) translateY(6px); opacity: 0.45; }
 .char.dead .nm { color: var(--muted); text-decoration: line-through; }
 .side.t0 .char.acting img { animation: lunge-r var(--lunge) ease-out; }
@@ -386,10 +408,10 @@ button.big { padding: 10px 22px; font-size: 15px; }
   .char img { width: 60px; height: 60px; }
   .char .unit svg { width: 96px; height: 128px; }
   .arena.has-backdrop .char .sprite::before { width: 46px; height: 9px; }
-  .char .nm { font-size: 12px; }
+  .char .nm { font-size: 10px; }
   .char .bar { margin: 3px 10px 0; }
   .char { --px: 2px; }
-  .char .gauges { width: 32px; }
+  .char .gauges { width: 48px; }
   .bubble { font-size: 12px; }
   .popup { font-size: 16px; }
   @keyframes lunge-r { 0% { transform: translateX(0); } 40% { transform: translateX(36px) scale(1.1); } 100% { transform: translateX(0); } }
@@ -1224,6 +1246,14 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .auth-who { font-size: 12px; font-weight: normal; color: var(--muted); margin-left: 6px; }
 .legacy-summary { margin: 6px 0 10px; padding-left: 1.2em; line-height: 1.7; }
 .local-mode { background: var(--warn); color: var(--ink); border-radius: 6px; padding: 0 6px; font-size: 11px; font-weight: 700; }
+/* 전투 공유 링크 (docs/26 §5.2) */
+.share-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; margin: 4px 0 8px; }
+.share-row input { flex: 1 1 220px; min-width: 0; background: var(--card); border: 1px solid var(--line); border-radius: 8px; padding: 6px 8px; font-size: 12px; }
+.share-ok { color: var(--good); }
+.shared-log { margin: 12px 0; display: flex; flex-direction: column; gap: 8px; }
+.shared-log h2 { margin: 0; }
+.shared-log-head { margin: 0; font-size: 15px; }
+.shared-log-exit { justify-content: center; margin: 12px 0 0; }
 .save-state { font-size: 11px; opacity: 0.8; }
 .save-state.bad { background: var(--bad); color: #fff; border-radius: 6px; padding: 0 6px; opacity: 1; font-weight: 700; }
 .account-row { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--muted); margin: 8px 0 4px; }
