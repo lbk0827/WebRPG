@@ -261,6 +261,8 @@ export interface CharRef {
 export interface CharSnapshot {
   id: string
   name: string
+  /** 레벨 — 전투판 이름표의 "Lv.N" 에 쓴다. CharSetup 에 레벨이 없으면(훈련 상대 등) 생략 */
+  level?: number
   hp: number
   maxHp: number
   sp: number

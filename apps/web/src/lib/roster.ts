@@ -5,6 +5,8 @@ import type { BattleEvent, StatusId } from '@webrpg/engine'
 export interface RosterChar {
   id: string
   name: string
+  /** 없으면 이름표에 레벨을 붙이지 않는다 (예전 기록 · 레벨 없는 훈련 상대) */
+  level?: number
   hp: number
   maxHp: number
   sp: number
@@ -88,10 +90,11 @@ export function rosterAt(events: BattleEvent[], cursor: number): Roster | null {
   return roster
 }
 
-function fromSnapshot(team: { id: string; name: string; hp: number; maxHp: number; sp: number; maxSp: number; alive: boolean; row: 'front' | 'back'; casting?: string; statuses: { id: StatusId }[] }[]): RosterChar[] {
+function fromSnapshot(team: { id: string; name: string; level?: number; hp: number; maxHp: number; sp: number; maxSp: number; alive: boolean; row: 'front' | 'back'; casting?: string; statuses: { id: StatusId }[] }[]): RosterChar[] {
   return team.map((c) => ({
     id: c.id,
     name: c.name,
+    level: c.level,
     hp: c.hp,
     maxHp: c.maxHp,
     sp: c.sp,

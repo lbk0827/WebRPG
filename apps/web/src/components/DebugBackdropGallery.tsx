@@ -2,7 +2,7 @@
 // 지역을 열지 않고도 배경 20장을 실제 전투판(.arena)과 같은 규칙으로 본다 — 캐릭터 · 이름 · HP 바를 올려 가독성까지.
 // 파일은 왔는데 lib/backdrops.ts 의 BACKDROP_READY 에 아직 안 적은 그림도 미리 보여 준다.
 import { useEffect, useState, type CSSProperties } from 'react'
-import { ADVENTURE_BACKDROP_FALLBACK, BACKDROP_KEYS, BACKDROP_READY, backdropFor, backdropUrl, type BackdropDef } from '../lib/backdrops'
+import { BACKDROP_KEYS, BACKDROP_READY, backdropFloorUrl, backdropUrl, type BackdropDef } from '../lib/backdrops'
 import { UnitSprite } from './UnitSprite'
 
 /** 그 경로에 그림이 있는가 (없으면 콘솔에 404 가 찍힌다 — 디버그에서만 묻는다) */
@@ -25,40 +25,47 @@ function useFileExists(url: string, enabled: boolean): boolean | null {
 function MockChar({ icon, name, hp }: { icon: string; name: string; hp: number }) {
   return (
     <div className="char">
+      {/* 실제 전투판(Stage.tsx Char)과 같은 순서 — 게이지는 머리 위, 이름은 발밑 */}
+      <div className="gauges">
+        <div className="bar hp"><i style={{ width: `${hp}%` }} /></div>
+        <div className="bar sp"><i style={{ width: '45%' }} /></div>
+      </div>
       <div className="sprite">
         <UnitSprite icon={icon} />
       </div>
-      <div className="nm">{name}</div>
-      <div className="bar hp"><i style={{ width: `${hp}%` }} /></div>
-      <div className="bar sp"><i style={{ width: '45%' }} /></div>
+      <div className="nm"><span className="lv">Lv.12</span>{name}</div>
     </div>
   )
 }
 
 function BackdropPreview({ def, probe }: { def: BackdropDef; probe: boolean }) {
-  const resolved = backdropFor(def.key)
   const exists = useFileExists(backdropUrl(def.key), probe && !BACKDROP_READY[def.key])
   // 등록 전이라도 파일이 있으면 그 그림으로 미리 본다
   const own = BACKDROP_READY[def.key] || exists
-  const url = own ? backdropUrl(def.key) : resolved?.url
-  const top = BACKDROP_READY[def.key]?.top ?? resolved?.top ?? '#2a2a33'
-  const style = url ? ({ '--backdrop': `url("${url}")`, '--backdrop-top': top } as CSSProperties) : undefined
+  const url = own ? backdropUrl(def.key) : undefined
+  const top = BACKDROP_READY[def.key]?.top ?? '#2a2a33'
+  const bottom = BACKDROP_READY[def.key]?.bottom ?? top
+  const style = url
+    ? ({
+        '--backdrop': `url("${url}")`,
+        '--backdrop-floor': `url("${backdropFloorUrl(def.key)}")`,
+        '--backdrop-top': top,
+        '--backdrop-bottom': bottom,
+      } as CSSProperties)
+    : undefined
   const status = BACKDROP_READY[def.key]
     ? '등록됨'
     : exists
       ? '파일 있음 · 등록 전 — lib/backdrops.ts 의 BACKDROP_READY 에 추가'
-      : resolved
-        ? `빌린 그림: ${resolved.key}`
-        : exists === null && probe
-          ? '확인 중'
-          : '그림 없음 — 그라디언트'
+      : exists === null && probe
+        ? '확인 중'
+        : '그림 없음 — 그라디언트'
 
   return (
     <li className={own ? 'ready' : ''}>
       <header>
         <b>{def.kind === 'region' ? def.no : `모험 ${def.no}`}. {def.name}</b>
         <code>{def.key}</code>
-        {def.kind === 'adventure' && <small>없으면 → {ADVENTURE_BACKDROP_FALLBACK[def.key]}</small>}
         <em>{status}</em>
       </header>
       <div className={`arena${url ? ' has-backdrop' : ''}`} style={style}>

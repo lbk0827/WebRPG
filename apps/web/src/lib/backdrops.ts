@@ -1,7 +1,8 @@
 // 전투 배경 (docs/23). 지역마다 한 장, 모험마다 한 장 — "JRPG 픽셀 전투 배경".
-// 그림은 assets/backdrops/<키>.png (480×360 도트). 폰 1배 · 데스크톱 2배, 판의 아래 가운데에 맞춘다.
+// 그림은 assets/backdrops/<키>.png (480×360 도트). 전투판 위쪽에 4:3 으로 깔고,
+// 단원이 많아 판이 더 길어지면 아래를 바닥색(bottom)으로 이어 붙인다 (styles.css · docs/23 §8).
 //
-// 그림이 도착하기 전에는 지금의 종이색 그라디언트가 그대로 나온다 — 캐릭터 도트처럼 한 장씩 갈아 끼운다.
+// 그림이 없는 키(새 지역 · 모험을 추가했을 때)는 종이색 그라디언트가 그대로 나온다.
 // 없는 파일을 매번 요청하지 않도록 **도착한 키만** BACKDROP_READY 에 적는다 (tools/process-backdrop.py --check 가 파일과 맞춰 본다).
 import { ADVENTURES, REGIONS } from '@webrpg/engine'
 
@@ -9,40 +10,33 @@ export const BACKDROP_W = 480
 export const BACKDROP_H = 360
 
 /**
- * 도착한 배경. `top` 은 그림 맨 윗줄의 색 — 판이 그림보다 키가 크면(단원이 많을 때) 위쪽을 이 색으로 채운다.
- * process-backdrop.py 가 변환할 때 알려 준다. 새 그림이 오면 한 줄 추가한다.
+ * 도착한 배경.
+ * - `top` — 그림 맨 윗줄의 색. 판 둘레를 메울 때 쓴다
+ * - `bottom` — 바닥 띠의 대표색. 단원이 많아 판이 그림보다 길어지면 **아래를 이 색으로 이어 붙인다**
+ *
+ * 둘 다 process-backdrop.py 가 변환할 때 알려 준다. 새 그림이 오면 한 줄 추가한다.
  */
-export const BACKDROP_READY: Record<string, { top: string }> = {
-  outskirts: { top: '#589fee' },
-  highway: { top: '#e1804a' },
-  fort: { top: '#8194b3' },
-  valley: { top: '#7352a5' },
-  goblinCamp: { top: '#424773' },
-  webwood: { top: '#878aa5' },
-  citadel: { top: '#659ee9' },
-  abyss: { top: '#0b0e19' },
-  frostgate: { top: '#677fa9' },
-  throne: { top: '#3a383c' },
-  dunes: { top: '#e7bd83' },
-  sunkenTemple: { top: '#25b8c9' },
-  warfield: { top: '#822d3b' },
-  fallenStar: { top: '#111947' },
-  colosseum: { top: '#554f70' },
-  catacomb: { top: '#313033' },
-  trial: { top: '#4d9cf7' },
-  abyssGate: { top: '#0e1827' },
-  sandArena: { top: '#459cf9' },
-  starSummit: { top: '#081c4d' },
-}
-
-/** 모험은 제 그림이 오기 전까지 가까운 지역의 그림을 빌린다 */
-export const ADVENTURE_BACKDROP_FALLBACK: Record<string, string> = {
-  colosseum: 'goblinCamp',
-  catacomb: 'abyss',
-  trial: 'citadel',
-  abyssGate: 'abyss',
-  sandArena: 'dunes',
-  starSummit: 'fallenStar',
+export const BACKDROP_READY: Record<string, { top: string; bottom: string }> = {
+  outskirts: { top: '#589fee', bottom: '#c28748' },
+  highway: { top: '#e1804a', bottom: '#6b5b4f' },
+  fort: { top: '#8194b3', bottom: '#484749' },
+  valley: { top: '#7352a5', bottom: '#97592e' },
+  goblinCamp: { top: '#424773', bottom: '#523527' },
+  webwood: { top: '#878aa5', bottom: '#1b1f29' },
+  citadel: { top: '#659ee9', bottom: '#5a5e6c' },
+  abyss: { top: '#0b0e19', bottom: '#242f48' },
+  frostgate: { top: '#677fa9', bottom: '#acbad9' },
+  throne: { top: '#3a383c', bottom: '#67292a' },
+  dunes: { top: '#e7bd83', bottom: '#603e2d' },
+  sunkenTemple: { top: '#25b8c9', bottom: '#34493b' },
+  warfield: { top: '#822d3b', bottom: '#201511' },
+  fallenStar: { top: '#111947', bottom: '#131622' },
+  colosseum: { top: '#554f70', bottom: '#83472c' },
+  catacomb: { top: '#313033', bottom: '#47413f' },
+  trial: { top: '#4d9cf7', bottom: '#667048' },
+  abyssGate: { top: '#0e1827', bottom: '#262d3d' },
+  sandArena: { top: '#459cf9', bottom: '#bb7837' },
+  starSummit: { top: '#081c4d', bottom: '#374058' },
 }
 
 export interface BackdropDef {
@@ -61,10 +55,11 @@ export const BACKDROP_KEYS: BackdropDef[] = [
 
 export const backdropUrl = (key: string): string => `${import.meta.env.BASE_URL}backdrops/${key}.png`
 
-/** 이 지역 · 모험에서 쓸 배경. 제 그림 → 빌린 그림 → 없음(그라디언트) */
-export function backdropFor(key: string): { key: string; url: string; top: string } | null {
-  for (const k of [key, ADVENTURE_BACKDROP_FALLBACK[key]]) {
-    if (k && BACKDROP_READY[k]) return { key: k, url: backdropUrl(k), top: BACKDROP_READY[k].top }
-  }
-  return null
+/** 바닥 이음 조각 — 판이 그림보다 길어졌을 때 아래로 반복해 깐다 (process-backdrop.py --floors 가 그림에서 잘라 만든다) */
+export const backdropFloorUrl = (key: string): string => `${import.meta.env.BASE_URL}backdrops/floor/${key}.png`
+
+/** 이 지역 · 모험에서 쓸 배경. 등록된 그림이 없으면 null(그라디언트) */
+export function backdropFor(key: string): { key: string; url: string; floor: string; top: string; bottom: string } | null {
+  const ready = BACKDROP_READY[key]
+  return ready ? { key, url: backdropUrl(key), floor: backdropFloorUrl(key), top: ready.top, bottom: ready.bottom } : null
 }

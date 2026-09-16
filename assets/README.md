@@ -135,7 +135,8 @@
 | `backdrops/sandArena.png` | 황야의 결투장 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
 | `../art-source/backdrops/starSummit-source.png` | 탑의 정상 전투 배경 AI 원본 | OpenAI 내장 ImageGen — 마을 외곽 승인본 화풍 참조, docs/23 §3·§4 주문문 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
 | `backdrops/starSummit.png` | 탑의 정상 전투 배경 (480×360, 48색) | 위 AI 원본을 `tools/process-backdrop.py`로 변환 | 원본과 동일 | 2026-09-14 |
-| `../tools/process-backdrop.py` | 도구 (AI 원본 → 480×360 전투 배경 변환 · 규격 검사 · 등록표 대조, docs/23) | 자체 제작 | 저장소 소유 | 2026-09-14 |
+| `backdrops/floor/*.png` (20장) | 바닥 이음 조각 (480×40) — 단원이 많아 전투판이 그림보다 길어지면 아래로 반복해 깐다 (docs/23 §8) | 위 배경 20장에서 `tools/process-backdrop.py --floors` 로 잘라냄 (새로 그리지 않음) | 각 배경 원본과 동일 | 2026-09-16 |
+| `../tools/process-backdrop.py` | 도구 (AI 원본 → 480×360 전투 배경 변환 · 바닥 이음 조각 생성 · 규격 검사 · 등록표 대조, docs/23) | 자체 제작 | 저장소 소유 | 2026-09-14 |
 | `../tools/separate-hair-guildmember-female.py` | 도구 (살 영역 flood fill · 구멍 메우기 → 머리색 분리) | 자체 제작 | 저장소 소유 | 2026-09-14 |
 | `../tools/retouch-guildmember-female.mjs` | 도구 (머리 고립점 · 눈 · 입 좌표 보정, 재실행해도 동일) | 자체 제작 | 저장소 소유 | 2026-09-14 |
 | `units/guildMember-female.px` | 도트 전투 스프라이트 원본 (길드원 여) — 금발 · 피부 분리 후 재변환, 머리 고립점 · 눈 손픽셀 보정 | `guildMember-female-hairsep.png` → `png-to-px.mjs` → `retouch-guildmember-female.mjs` | 원본과 동일 | 2026-09-14 |

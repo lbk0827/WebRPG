@@ -262,6 +262,7 @@ export function snapshotChar(c: CharState): CharSnapshot {
   return {
     id: c.setup.id,
     name: c.setup.name,
+    ...(c.setup.level !== undefined ? { level: c.setup.level } : {}),
     hp: c.hp,
     maxHp: c.setup.stats.maxHp,
     sp: c.sp,

@@ -205,7 +205,12 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .arena {
   --turn-ms: 900ms;
   --lunge: min(420ms, calc(var(--turn-ms) * 0.45));
-  display: grid; grid-template-columns: 1fr 56px 1fr; gap: 4px; align-items: center;
+  /* 바닥 기준 정렬 — 단원이 몇이든 맨 앞줄 발 높이는 그대로고 줄이 위로만 자란다 (docs/23 §8).
+     가운데 정렬이면 인원이 늘 때 위아래로 벌어져 윗사람이 배경의 하늘로 올라갔다.
+     양쪽 칸은 늘려 두고(stretch) 줄 안에서 아래로 붙인다(.col) — align-items: end 로 하면
+     칸이 판보다 길어졌을 때(폰 · 3명 한 열) 아래로 넘쳐 발이 잘린다 */
+  /* minmax(0, …) — 긴 이름표("Lv.4 도적단 궁수")가 칸을 밀어 넓혀 판 밖으로 잘리지 않게. 넘치면 말줄임 */
+  display: grid; grid-template-columns: minmax(0, 1fr) 56px minmax(0, 1fr); gap: 4px; align-items: stretch;
   /* 위 여백은 맨 윗줄 캐릭터의 말풍선 · 시전 표시 · 치켜든 무기 자리다. 판이 잘라 내므로(overflow: hidden) 넉넉히 둔다 */
   padding: 28px 10px 10px; border-radius: 14px; border: 1px solid var(--line);
   background:
@@ -213,21 +218,44 @@ button.big { padding: 10px 22px; font-size: 15px; }
     linear-gradient(180deg, #ece7dc 0%, #e2dccd 100%);
   overflow: hidden; min-height: 240px;
 }
-.arena .center { text-align: center; }
+.arena .center { text-align: center; align-self: center; }
 .arena .headline { font-weight: 800; font-size: 13px; }
 .arena .sub { font-size: 11px; color: var(--muted); }
-.side { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.side { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 4px; }
 .side.t0 .col.back { order: 1; } .side.t0 .col.front { order: 2; }
 .side.t1 .col.front { order: 1; } .side.t1 .col.back { order: 2; }
-.col { display: flex; flex-direction: column; justify-content: center; gap: 8px; min-height: 60px; }
-.col.back { opacity: 0.92; }
+/* 위아래 간격은 거의 두지 않는다 — 도트 상자에 이미 머리 위 · 발밑 빈칸이 있어 사이가 멀어 보였다 (단장 요청 2026-09-16) */
+.col { display: flex; flex-direction: column; justify-content: flex-end; gap: 2px; min-height: 60px; --sprite-scale: 1; }
+/* 뒷줄은 투명도가 아니라 크기로 멀리 보이게 한다 — 투명하면 "유령", 작으면 "뒤에 선 사람"으로 읽힌다.
+   한 열에 4명 이상이면 더 줄여서 줄 전체가 배경의 바닥 띠 안에 들어오게 한다 */
+.col.back { --sprite-scale: 0.88; }
+.col:has(> .char:nth-child(4)) { --sprite-scale: 0.8; }
+.col.back:has(> .char:nth-child(4)) { --sprite-scale: 0.72; }
 .char { position: relative; text-align: center; width: 100%; }
-.char .sprite { position: relative; display: inline-block; }
+/* 블록 + 글자폭 — inline-block 이면 이름표와 한 줄에 서거나 아래에 글줄 여백이 생겼다 */
+.char .sprite { position: relative; display: block; width: fit-content; margin: 0 auto; transform: scale(var(--sprite-scale)); transform-origin: bottom center; }
 .char img { width: 40px; height: 40px; display: block; margin: 0 auto; transition: filter 0.3s, transform 0.3s; }
 .char .nm { font-size: 10px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+.char .nm .lv { margin-right: 3px; font-weight: 700; color: var(--muted); }
 .char .bar { height: 4px; margin: 2px 4px 0; }
+/* HP · SP — 머리 위에 붙인 얇은 두 줄. 사이 간격 없이 한 틀에 넣는다.
+   도트 상자(48×64)는 머리 위 8칸 · 발밑 5칸이 비어 있다. 게이지는 그 빈칸으로 내려 머리 바로 위에 뜨게 하고,
+   이름표는 발밑 빈칸으로 올린다. --px 는 도트 한 칸의 화면 크기(폰 1 · PC 2) */
+.char { --px: 1px; }
+.char .gauges {
+  /* 폭은 도트 몸통 폭에 맞춘다 — 캐릭터보다 넓으면 게이지가 커 보인다 (단장 의견 2026-09-16) */
+  position: relative; z-index: 1; width: 24px; margin: 0 auto;
+  border: 1px solid rgba(20, 16, 12, 0.75); border-radius: 2px; overflow: hidden; background: rgba(29, 29, 36, 0.6);
+}
+.arena .char .gauges .bar { height: 3px; margin: 0; border-radius: 0; background: transparent; }
+.char:has(.unit) .gauges {
+  margin-bottom: calc(var(--px) * -7);
+  /* 뒷줄은 도트가 발을 기준으로 줄어 머리가 내려간다 — 게이지도 그만큼 따라 내린다 (머리 위치 = 발밑에서 56칸) */
+  transform: translateY(calc((1 - var(--sprite-scale)) * var(--px) * 56));
+}
+.char:has(.unit) .nm { margin-top: calc(var(--px) * -4); }
 .char .tags { display: flex; justify-content: center; gap: 2px; flex-wrap: wrap; margin-top: 2px; }
-.char .tag { font-size: 9px; padding: 0 4px; }
+.char .tag { font-size: 9px; padding: 0 4px; white-space: nowrap; }
 .char.dead img { filter: grayscale(1) brightness(0.7); transform: rotate(75deg) translateY(6px); opacity: 0.45; }
 .char.dead .nm { color: var(--muted); text-decoration: line-through; }
 .side.t0 .char.acting img { animation: lunge-r var(--lunge) ease-out; }
@@ -353,12 +381,15 @@ button.big { padding: 10px 22px; font-size: 15px; }
 @keyframes bubble-in-edge { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.55; } }
 @media (min-width: 760px) {
-  .arena { grid-template-columns: 1fr 90px 1fr; padding: 34px 16px 16px; min-height: 300px; }
+  .arena { grid-template-columns: minmax(0, 1fr) 90px minmax(0, 1fr); padding: 34px 16px 16px; min-height: 300px; }
   .arena .headline { font-size: 16px; }
   .char img { width: 60px; height: 60px; }
   .char .unit svg { width: 96px; height: 128px; }
+  .arena.has-backdrop .char .sprite::before { width: 46px; height: 9px; }
   .char .nm { font-size: 12px; }
   .char .bar { margin: 3px 10px 0; }
+  .char { --px: 2px; }
+  .char .gauges { width: 32px; }
   .bubble { font-size: 12px; }
   .popup { font-size: 16px; }
   @keyframes lunge-r { 0% { transform: translateX(0); } 40% { transform: translateX(36px) scale(1.1); } 100% { transform: translateX(0); } }
@@ -1315,17 +1346,38 @@ button.big { padding: 10px 22px; font-size: 15px; }
 /* ───────── 전투 배경 (docs/23). 480×360 원본 비율을 판에서도 유지한다.
    데스크톱에서 배경만 2배로 키우면 300px 높이의 판에 원경이 잘리고 바닥만 남았다. */
 .arena.has-backdrop {
-  aspect-ratio: 4 / 3;
-  background: var(--backdrop) center center / cover no-repeat, var(--backdrop-top, #2a2a33);
+  /* 그림은 판 위쪽에 가로 폭을 꽉 채워 깔고(4:3), 판이 더 길면(단원이 많을 때)
+     남는 아래를 **그림에서 잘라낸 바닥 조각**으로 이어 붙인다. 단색으로 메우면 도트 느낌이 끊긴다 */
+  background:
+    var(--backdrop) center top / 100% auto no-repeat,
+    var(--backdrop-floor) center bottom / 100% auto repeat-y,
+    var(--backdrop-bottom, var(--backdrop-top, #2a2a33));
   image-rendering: pixelated;
   border-color: rgba(0, 0, 0, 0.35);
 }
+/* 판 높이의 **최소값**만 4:3 으로 잡는 받침 칸. 단원이 많아 줄이 이보다 길어지면 판이 아래로 늘어난다
+   (높이를 4:3 으로 못 박으면 폰에서 한 열 3명의 발이 판 밖으로 잘렸다).
+   세 칸(단원 · 가운데 · 상대) 과 같은 줄에 깔리도록 자리를 직접 지정한다 */
+.arena.has-backdrop::before { content: ''; grid-area: 1 / 1 / 2 / 4; width: 100%; aspect-ratio: 4 / 3; pointer-events: none; }
+.arena > .side { grid-row: 1; }
+.arena > .side.t0 { grid-column: 1; }
+.arena > .center { grid-column: 2; grid-row: 1; }
+.arena > .side.t1 { grid-column: 3; }
 /* image-rendering 은 물려받는다. 엠블럼(벡터 img)은 부드럽게 둔다 */
 .arena.has-backdrop img { image-rendering: auto; }
 /* 그림 위에서도 읽히게 — 이름 · 행동 제목에 종이색 받침, HP · SP 바의 빈 칸은 어둡게 */
-.arena.has-backdrop .char .nm { display: inline-block; max-width: 100%; vertical-align: top; padding: 0 5px; border-radius: 6px; background: rgba(243, 240, 234, 0.86); }
+/* 이름표는 블록으로 — inline-block 이면 칸이 넓을 때 도트 옆 같은 줄에 붙어 머리 옆에 떴다. 폭은 글자만큼, 가운데 */
+.arena.has-backdrop .char .nm { display: block; width: fit-content; max-width: 100%; margin-left: auto; margin-right: auto; padding: 0 5px; border-radius: 6px; background: rgba(243, 240, 234, 0.86); }
 .arena.has-backdrop .headline, .arena.has-backdrop .sub { display: inline-block; padding: 1px 8px; border-radius: 8px; background: rgba(243, 240, 234, 0.86); }
 .arena.has-backdrop .char .bar { background: rgba(29, 29, 36, 0.55); }
+/* 발밑 그림자 — 그림 위에 서 있다는 느낌을 준다. ::before 라 도트 위가 아니라 아래에 깔린다.
+   도트 느낌을 지키려고 흐림 없이 납작한 타원 하나만 쓴다 */
+.arena.has-backdrop .char .sprite::before {
+  /* 발바닥은 상자 아래에서 5칸 위(y=59) — 그림자 가운데를 그 줄에 맞춘다 */
+  content: ''; position: absolute; left: 50%; bottom: calc(var(--px, 1px) * 2); transform: translateX(-50%);
+  width: 28px; height: 6px; border-radius: 50%; background: rgba(24, 18, 12, 0.3);
+}
+.arena.has-backdrop .char.dead .sprite::before { opacity: 0.4; }
 
 /* 디버그 · 전투 배경 목록 */
 .debug-backdrops > ul { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 14px; }

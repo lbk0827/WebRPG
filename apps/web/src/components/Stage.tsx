@@ -138,7 +138,14 @@ export function Stage({ events, cursor, roster, jobs, turnMs, headline, sub, bac
   const bd = backdrop ? backdropFor(backdrop) : null
   const style = {
     '--turn-ms': `${turnMs}ms`,
-    ...(bd ? { '--backdrop': `url("${bd.url}")`, '--backdrop-top': bd.top } : {}),
+    ...(bd
+      ? {
+          '--backdrop': `url("${bd.url}")`,
+          '--backdrop-floor': `url("${bd.floor}")`,
+          '--backdrop-top': bd.top,
+          '--backdrop-bottom': bd.bottom,
+        }
+      : {}),
   } as CSSProperties
 
   return (
@@ -182,13 +189,19 @@ function Char({ team, index, c, job, fx, cursor }: { team: 0 | 1; index: number;
       {isActor && fx.bubble && (
         <div key={`b${cursor}`} className={`bubble ${fx.bubble.kind}`}>{fx.bubble.text}</div>
       )}
+      {/* HP · SP 는 머리 위에 붙인 얇은 두 줄 (단장 요청 2026-09-16) */}
+      <div className="gauges">
+        <div className="bar hp"><i style={{ width: `${(c.hp / c.maxHp) * 100}%` }} /></div>
+        <div className="bar sp"><i style={{ width: `${c.maxSp ? (c.sp / c.maxSp) * 100 : 0}%` }} /></div>
+      </div>
       <div className="sprite">
         <UnitSprite icon={job} />
         {c.casting && c.alive && <span className="castmark">{skillLabel(c.casting)}</span>}
       </div>
-      <div className="nm">{c.name}</div>
-      <div className="bar hp"><i style={{ width: `${(c.hp / c.maxHp) * 100}%` }} /></div>
-      <div className="bar sp"><i style={{ width: `${c.maxSp ? (c.sp / c.maxSp) * 100 : 0}%` }} /></div>
+      <div className="nm">
+        {c.level !== undefined && <span className="lv">Lv.{c.level}</span>}
+        {c.name}
+      </div>
       {/* 칩이 좁아 글자만으로는 훑기 어렵다. 아이콘을 앞세운다 (M2-8) */}
       {c.statuses.length > 0 && c.alive && (
         <div className="tags">

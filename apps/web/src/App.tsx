@@ -3,7 +3,7 @@ import { archiveLegacyGame, loadLegacyGame, migrate, newGame, type GameSave } fr
 import { cellOf, partySummary } from './game/members'
 import { adoptLegacyProgress, loadProgress, saveProgress, type MissionProgress } from './missionState'
 import { attachLocalLog, saveLocalLog, serverCopy } from './game/localLog'
-import { auth, setRememberedId, type SaveStatus, type Session } from './account'
+import { auth, devSignIn, setRememberedId, type SaveStatus, type Session } from './account'
 import { QuestBoard } from './components/QuestBoard'
 import { TrainingGround } from './components/TrainingGround'
 import { Home } from './components/Home'
@@ -63,7 +63,9 @@ export function App() {
   }
 
   useEffect(() => {
-    void auth.restore().then((s) => (s ? enter(s) : setPhase({ kind: 'title' })), () => setPhase({ kind: 'title' }))
+    // 개발 중 VITE_DEV_LOGIN=1 이면 로그인 화면을 건너뛴다 (account/index.ts · 배포 빌드에서는 꺼진다)
+    const first = async (): Promise<Session | null> => (await auth.restore()) ?? (await devSignIn())
+    void first().then((s) => (s ? enter(s) : setPhase({ kind: 'title' })), () => setPhase({ kind: 'title' }))
   }, [])
 
   const logout = async () => {

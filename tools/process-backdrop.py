@@ -22,6 +22,10 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR = ROOT / "assets" / "backdrops"
+# 바닥 이음 조각 (docs/23 §8). 단원이 많아 판이 그림보다 길어지면 이 조각을 아래로 반복해 바닥을 잇는다.
+# 배경 그림에서 잘라낸 것이라 새로 그리지 않는다. 검사(--check)가 키로 오해하지 않게 하위 폴더에 둔다
+FLOOR_DIR = OUT_DIR / "floor"
+FLOOR_BAND = (296, 336)  # 그림에서 잘라낼 줄 — 맨 끝(풀포기 · 돌 장식)은 피한다
 W, H = 480, 360
 COLORS = 48  # 변환이 줄이는 색 수
 MAX_COLORS = 64  # 검사 한도 (손으로 다듬어 몇 색 늘어나는 것은 허용)
@@ -56,6 +60,25 @@ def top_color(img):
     return "#%02x%02x%02x" % best[:3]
 
 
+def bottom_color(img):
+    """바닥 띠의 대표색 — 판이 그림보다 길어지면(폰 · 한 열 3명) 이 색으로 바닥을 아래로 이어 붙인다 (styles.css).
+    맨 끝 줄은 풀포기 · 돌 같은 장식이 몰려 있어 대표색으로 맞지 않는다. 조금 위(83~94%)에서 고른다"""
+    y0, y1 = img.height * 83 // 100, img.height * 94 // 100
+    rows = [img.getpixel((x, y)) for y in range(y0, y1) for x in range(img.width)]
+    best = max(set(rows), key=rows.count)
+    return "#%02x%02x%02x" % best[:3]
+
+
+def make_floor(img, key):
+    """바닥 띠를 잘라 이음 조각으로 저장한다 — 판이 길어졌을 때 아래로 반복해 깐다"""
+    FLOOR_DIR.mkdir(parents=True, exist_ok=True)
+    out = FLOOR_DIR / f"{key}.png"
+    band = img.crop((0, FLOOR_BAND[0], img.width, FLOOR_BAND[1]))
+    # 색이 몇 안 되는 조각이라 팔레트로 저장한다 (20장 합쳐 400KB → 60KB 남짓)
+    band.quantize(colors=COLORS, method=Image.Quantize.MEDIANCUT, dither=Image.Dither.NONE).save(out, optimize=True)
+    return out
+
+
 def convert(src, key):
     if key not in known_keys():
         raise SystemExit(f"모르는 키: {key} — 지역 · 모험 id 여야 한다")
@@ -72,8 +95,10 @@ def convert(src, key):
     OUT_DIR.mkdir(parents=True, exist_ok=True)
     out = OUT_DIR / f"{key}.png"
     im.save(out, optimize=True)
+    floor = make_floor(im, key)
     print(f"{out.relative_to(ROOT)}  {W}×{H}  색 {len(im.getcolors(W * H))}")
-    print(f"lib/backdrops.ts 의 BACKDROP_READY 에 추가:  {key}: {{ top: '{top_color(im)}' }},")
+    print(f"{floor.relative_to(ROOT)}  바닥 이음 조각 {W}×{FLOOR_BAND[1] - FLOOR_BAND[0]}")
+    print(f"lib/backdrops.ts 의 BACKDROP_READY 에 추가:  {key}: {{ top: '{top_color(im)}', bottom: '{bottom_color(im)}' }},")
 
 
 def band_stats(img):
@@ -137,6 +162,10 @@ def main():
     args = sys.argv[1:]
     if args == ["--check"]:
         sys.exit(check())
+    if args == ["--floors"]:  # 이미 있는 배경 전부에서 바닥 이음 조각을 다시 만든다
+        for path in sorted(OUT_DIR.glob("*.png")):
+            print(make_floor(Image.open(path).convert("RGB"), path.stem).relative_to(ROOT))
+        sys.exit(0)
     if len(args) != 2:
         print(__doc__)
         sys.exit(2)
