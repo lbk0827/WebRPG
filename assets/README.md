@@ -86,7 +86,7 @@
 | `units/adventurer-male.svg` | 생성물 (`node tools/build-units.mjs`) | `adventurer-male.px`에서 생성 | 원본과 동일 | 2026-09-14 |
 | `units/adventurer-male-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs adventurer-male 10`) | `adventurer-male.px`에서 생성 | 원본과 동일 | 2026-09-14 |
 | `../art-source/units/adventurer-female-source.png` | AI 생성 도트 시트 초안 (모험가 여, 청록 망토·땋은 머리·몽둥이 3포즈) | OpenAI 내장 ImageGen — 입력은 자체 제작 `adventurer-male-source.png`만 사용, 체형·대표색 수정 및 투명 배경 정리 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
-| `units/adventurer-female.px` | 도트 전투 스프라이트 원본 (모험가 여) | `adventurer-female-source.png` → `png-to-px.mjs` | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
+| `units/adventurer-female.px` | 도트 전투 스프라이트 원본 (모험가 여) — 2026-09-15 청록 망토를 남과 같은 주황(`#c07a2c`/`#83531e`)으로 팔레트 교체, 같은 글자를 쓰던 머리 리본 54픽셀은 흰색(`w`/`s`)으로 분리 (단장 요청 · docs/21 §0-3 남녀 같은 색) | `adventurer-female-source.png` → `png-to-px.mjs` → 팔레트 수정 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-15 |
 | `units/adventurer-female.svg` | 생성물 (`node tools/build-units.mjs`) | `adventurer-female.px`에서 생성 | 원본과 동일 | 2026-09-14 |
 | `units/adventurer-female-sheet.png` | 검수용 생성물 (`node tools/px-to-png.mjs adventurer-female 10`) | `adventurer-female.px`에서 생성 | 원본과 동일 | 2026-09-14 |
 | `../art-source/units/guildMember-male-source.png` | AI 생성 도트 시트 초안 (길드원 남, 남색 망토·에고 소드 3포즈) | OpenAI 내장 ImageGen — 자체 제작 `adventurer-male-source.png` 참조 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-14 |
@@ -161,6 +161,12 @@
 | `units/magicSwordsman-female.px` | 도트 전투 스프라이트 원본 (마검사 여 시안) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-15 |
 | `units/magicSwordsman-female.svg` | 48×64 게임용 생성물 | `magicSwordsman-female.px`에서 생성 | 원본과 동일 | 2026-09-15 |
 | `units/magicSwordsman-female-sheet.png` | 10배 검수 시트 | `magicSwordsman-female.px`에서 생성 | 원본과 동일 | 2026-09-15 |
+| `(저장소 미보관)` | 킬러 메이드(여) 분위기 참고용 제3자 그림 | 제3자 참고 그림 · 단장이 GPT에 직접 첨부 · 저장소 미보관 · 흑백 대비·긴 흑발·메이드풍·쌍검 분위기만 참고 | 라이선스 미확인 · 게임 배포 미포함 | 2026-09-15 |
+| `../art-source/units/killer-maid-female-concept-v2-transparent.png` | AI 생성 원화 채택본 (킬러 메이드 여, 망토 없는 흑백 메이드 전투복·직검 쌍검 3포즈) | OpenAI 내장 ImageGen — docs/27 §6 및 단장 직접 첨부 참고 그림·길드원 여 시트의 등신 참고, v1의 망토 제거 v2 채택 | OpenAI 이용 약관 적용 · 최종 사용 전 법무 검토 | 2026-09-15 |
+| `../art-source/units/killer-maid-female-pixel-v1.png` | 16비트 JRPG 도트 원본 (킬러 메이드 여, 3포즈) | 위 채택본 → OpenAI 내장 ImageGen 도트화 | 원본과 동일 | 2026-09-15 |
+| `units/killerMaid-female.px` | 도트 전투 스프라이트 원본 (킬러 메이드 여 시안) | 위 도트 원본 → `png-to-px.mjs` 연결 성분 분리 | 원본과 동일 | 2026-09-15 |
+| `units/killerMaid-female.svg` | 48×64 게임용 생성물 | `killerMaid-female.px`에서 생성 | 원본과 동일 | 2026-09-15 |
+| `units/killerMaid-female-sheet.png` | 10배 검수 시트 | `killerMaid-female.px`에서 생성 | 원본과 동일 | 2026-09-15 |
 | `manifest.json` | 매니페스트 | 자체 제작 | 저장소 소유 | 2026-09-10 |
 | `../tools/build-icons.mjs` | 도구 (요청서 87종 SVG 생성·매니페스트·원장 동기화) | 자체 제작 | 저장소 소유 | 2026-09-12 |
 | `../tools/pixelate-icons.py` | 도구 (도형 SVG → 24×24 제한 팔레트 도트 SVG) | 자체 제작 | 저장소 소유 | 2026-09-13 |

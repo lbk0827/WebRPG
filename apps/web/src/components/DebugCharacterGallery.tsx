@@ -89,6 +89,7 @@ const MONSTERS: Entry[] = MONSTER_ICONS.map((icon) => ({
 const PROTOTYPES: Entry[] = [
   { key: 'magicSwordsman-male', name: '마검사(남)', note: '3차 전직 외형 시안' },
   { key: 'magicSwordsman-female', name: '마검사(여)', note: '3차 전직 외형 시안' },
+  { key: 'killerMaid-female', name: '킬러 메이드(여)', note: '히든 영웅 외형 시안' },
 ]
 
 const GROUPS: [string, Entry[]][] = [

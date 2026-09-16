@@ -85,6 +85,12 @@
       "color": "#7a2440",
       "pixelPalette": { "h": "#7a5529", "m": "#c58a3c", "H": "#f0c76a" },
       "role": "시험용 · 흑철 마검사"
+    },
+    "killerMaid-female": {
+      "name": "킬러 메이드(여) 시안",
+      "icon": "jobs/rogue.svg",
+      "color": "#3aa0a0",
+      "role": "시험용 · 히든 영웅"
     }
   },
   "$monsterComment": "몬스터 아이콘. 키는 엔진 MonsterDef.icon (원형 8종). 여러 몬스터가 한 아이콘을 공유한다",
@@ -223,6 +229,10 @@
     "magicSwordsman-female": {
       "name": "마검사(여) 시안",
       "sprite": "units/magicSwordsman-female.svg"
+    },
+    "killerMaid-female": {
+      "name": "킬러 메이드(여) 시안",
+      "sprite": "units/killerMaid-female.svg"
     }
   },
   "palette": {
