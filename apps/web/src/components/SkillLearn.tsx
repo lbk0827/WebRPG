@@ -36,7 +36,7 @@ export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
       {/* 프레임 색이 종류를 말한다. 처음 보는 사람을 위해 한 줄로 */}
       <p className="frame-legend">
         <span><i className="learn" />배우거나 직업이 주는 스킬</span>
-        <span><i className="free" />공짜로 배우는 스킬</span>
+        <span><i className="free" />Free 스킬</span>
         <span><i className="passive" />패시브 (수칙 없이 늘 적용)</span>
       </p>
       {groups.map((g) => (
@@ -82,7 +82,7 @@ export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
               <li key={l.skillId} className={ok ? '' : 'far'}>
                 <SkillIcon id={l.skillId} alt={skillLabel(l.skillId)} />
                 <div className="body">
-                  <b>{skillLabel(l.skillId)}</b> <span className={`cost ${l.cost === 0 ? 'free' : ''}`}>{l.cost === 0 ? '공짜' : `${l.cost}pt`}</span>
+                  <b>{skillLabel(l.skillId)}</b> <span className={`cost ${l.cost === 0 ? 'free' : ''}`}>{l.cost === 0 ? 'Free' : `${l.cost}pt`}</span>
                   {l.minLevel && <span className="cost">Lv {l.minLevel} 부터</span>}
                   <small>{skillBrief(l.skillId)}</small>
                 </div>

@@ -105,10 +105,10 @@ export function skillBrief(id: string): string {
 /** 이 스킬을 가질 수 있는 직업들 (시작 또는 습득) */
 export const skillJobs = (id: string): string[] => Object.keys(PRESETS).filter((job) => jobSkillPool(job).includes(id)).map((job) => PRESETS[job].name)
 
-/** 도감용: "전사 기본 · 엘프 2pt · 공용 공짜" */
+/** 도감용: "전사 기본 · 엘프 2pt · 공용 Free" */
 export function skillSources(id: string): string {
   const out: string[] = []
-  if (COMMON_LEARNABLE.some((l) => l.skillId === id)) out.push('공용 공짜')
+  if (COMMON_LEARNABLE.some((l) => l.skillId === id)) out.push('공용 Free')
   for (const job of Object.keys(PRESETS)) {
     if (STARTER_SKILLS[job]?.includes(id)) out.push(`${PRESETS[job].name} 기본`)
     const l = LEARNABLE[job]?.find((x) => x.skillId === id)
