@@ -98,10 +98,9 @@ function TeamCard({ save, onSave, m }: { save: GameSave; onSave: (g: GameSave) =
       <label title={blocked ? `출전은 ${PARTY_MAX}명까지입니다` : undefined}>
         <span className="tile"><UnitPortrait icon={memberIcon(m)} size="full" alt={m.name} /></span>
         <span className="nm" title={m.name}>{m.name}</span>
-        {/* 레벨과 직업을 각각 한 줄에 — "Lv.6 프리스트"처럼 붙여 두면 카드에 따라 개행이 갈려
+        {/* 글자를 줄여 한 줄에 담는다 — "Lv.6 프리스트"가 개행되면 그 카드만 한 줄 높아져
             체크박스와 전열/후열 줄이 어긋났다 (단장 지시 2026-09-17) */}
-        <small className="lv">Lv.{m.level}</small>
-        <small className="job" title={jobLabel(m)}>{jobLabel(m)}</small>
+        <small className="who" title={`Lv.${m.level} ${jobLabel(m)}`}>Lv.{m.level} {jobLabel(m)}</small>
         <input type="checkbox" checked={on} disabled={blocked} onChange={toggle} />
       </label>
       {on && (
