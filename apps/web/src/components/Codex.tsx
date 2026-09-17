@@ -4,8 +4,8 @@ import { UnitPortrait } from './UnitPortrait'
 import type { StatKey, StatusId } from '@webrpg/engine'
 import { ARCHETYPE_LABEL, CRAFT_TRAIT_PCT, ITEMS, ITEM_LIST, MATERIALS, MONSTERS, PRESETS, RECIPES, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, SLOT_LABEL, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, monsterSetup } from '@webrpg/engine'
 import { KIND_SPECS, PICKER_GROUPS, STAT_LABEL } from '../lib/condition'
-import { STAT_HELP, STATUS_HELP, jobName, skillParts, skillSources, traitText } from '../lib/labels'
-import { ItemSpec } from './Spec'
+import { STAT_HELP, STATUS_HELP, jobName, skillPartGroups, skillSources, statAxis, statusAxis, traitText, type Axis } from '../lib/labels'
+import { ItemSpec, Spec } from './Spec'
 import { ItemIcon, SkillIcon, StatusIcon, TraitIcon } from './Icon'
 
 type Section = 'skills' | 'items' | 'status' | 'traits' | 'conditions' | 'stats' | 'regions'
@@ -21,6 +21,9 @@ const SECTIONS: { key: Section; label: string }[] = [
 ]
 
 const STAT_KEYS: StatKey[] = ['str', 'int', 'dex', 'spd', 'luk']
+
+/** 색 축 클래스 — 이름만 나오는 칸(스탯 · 상태 · 표 머리)에 장비 · 스킬과 같은 색을 입힌다 (docs/11 §5.20) */
+const ax = (a: Axis) => (a === 'plain' ? undefined : `ax-${a}`)
 
 export function Codex({ onBack }: { onBack: () => void }) {
   const [sec, setSec] = useState<Section>('skills')
@@ -44,16 +47,16 @@ export function Codex({ onBack }: { onBack: () => void }) {
             </thead>
             <tbody>
               {Object.values(SKILLS).map((s) => {
-                const p = skillParts(s.id)!
+                const g = skillPartGroups(s.id)!
                 return (
                   <tr key={s.id}>
                     <td className="nm"><SkillIcon id={s.id} size="sm" /> {s.label}</td>
                     <td>{skillSources(s.id)}</td>
-                    <td className="num">{s.spCost}</td>
-                    <td>{p.target}</td>
-                    <td>{p.timing}</td>
-                    <td>{p.effects}</td>
-                    <td className="muted">{p.notes}</td>
+                    <td className="num ax-cost">{s.spCost}</td>
+                    <td><Spec parts={[g.target]} /></td>
+                    <td>{g.timing.text}</td>
+                    <td><Spec parts={g.effects} /></td>
+                    <td><Spec parts={g.notes} /></td>
                   </tr>
                 )
               })}
@@ -118,7 +121,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
                 const d = STATUS_DEFS[id]
                 return (
                   <tr key={id}>
-                    <td className="nm"><StatusIcon id={id} inline /> {d.label}</td>
+                    <td className="nm"><StatusIcon id={id} inline /> <span className={ax(statusAxis(id))}>{d.label}</span></td>
                     <td>{d.category === 'buff' ? '강화' : '약화'}</td>
                     <td className="num">{d.defaultMagnitude}</td>
                     <td>{STATUS_HELP[id]}</td>
@@ -171,9 +174,9 @@ export function Codex({ onBack }: { onBack: () => void }) {
             <thead><tr><th>스탯</th><th>하는 일</th></tr></thead>
             <tbody>
               {STAT_KEYS.map((k) => (
-                <tr key={k}><td className="nm">{STAT_LABEL[k]}</td><td>{STAT_HELP[k]}</td></tr>
+                <tr key={k}><td className="nm"><span className={ax(statAxis(k))}>{STAT_LABEL[k]}</span></td><td>{STAT_HELP[k]}</td></tr>
               ))}
-              <tr><td className="nm">HP · SP</td><td>레벨마다 HP +5%, SP +3%. 지능에 찍은 포인트 하나당 SP +2. 분배 스탯이 아니다.</td></tr>
+              <tr><td className="nm"><span className="ax-life">HP</span> · <span className="ax-cost">SP</span></td><td>레벨마다 HP +5%, SP +3%. 지능에 찍은 포인트 하나당 SP +2. 분배 스탯이 아니다.</td></tr>
             </tbody>
           </table>
           <h3>패턴 칸 수 <small>지능 기준</small></h3>
@@ -186,7 +189,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
           <p className="hint">기본 {RULE_ROWS_BASE}칸. 레벨업마다 스탯 5 · 스킬 2 포인트.</p>
           <h3>직업 기본값</h3>
           <table className="codex-table compact">
-            <thead><tr><th>직업</th><th>HP</th><th>SP</th>{STAT_KEYS.map((k) => <th key={k}>{STAT_LABEL[k]}</th>)}<th>방어</th><th>마방</th></tr></thead>
+            <thead><tr><th>직업</th><th><span className="ax-life">HP</span></th><th><span className="ax-cost">SP</span></th>{STAT_KEYS.map((k) => <th key={k}><span className={ax(statAxis(k))}>{STAT_LABEL[k]}</span></th>)}<th><span className="ax-guard">방어</span></th><th><span className="ax-mguard">마방</span></th></tr></thead>
             <tbody>
               {Object.values(PRESETS).map((p) => (
                 <tr key={p.id}>
@@ -209,7 +212,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
               <p className="hint">{r.brief}</p>
               <div className="tablewrap">
                 <table className="codex-table compact">
-                  <thead><tr><th>상대</th><th>원형</th><th>Lv</th><th>HP</th><th>패턴</th><th>경험치</th><th>금</th></tr></thead>
+                  <thead><tr><th>상대</th><th>원형</th><th>Lv</th><th><span className="ax-life">HP</span></th><th>패턴</th><th>경험치</th><th>금</th></tr></thead>
                   <tbody>
                     {r.table.filter((t) => !MONSTERS[t.monsterId].hidden).map((t) => {
                       const d = MONSTERS[t.monsterId]

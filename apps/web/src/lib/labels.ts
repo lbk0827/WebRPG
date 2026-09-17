@@ -49,6 +49,12 @@ const STATUS_AXIS: Record<StatusId, Axis> = {
   barrier: 'guard',
 }
 
+/** 스탯 이름의 색 축 — 도감 표 머리처럼 이름만 나오는 자리에 쓴다 */
+export const statAxis = (k: string): Axis => STAT_AXIS[k] ?? 'plain'
+
+/** 상태이상 이름의 색 축 */
+export const statusAxis = (id: StatusId): Axis => STATUS_AXIS[id] ?? 'plain'
+
 /** 효과 한 줄의 축 — 피해는 물리/마법, 회복은 생명, SP 는 자원, 보호막은 방어, 내 HP 를 태우는 것은 주의 */
 function effectAxis(e: Effect): Axis {
   switch (e.kind) {
@@ -165,21 +171,36 @@ export function skillParts(id: string): SkillParts | null {
   }
 }
 
+export interface SkillPartGroups {
+  cost: Part
+  target: Part
+  timing: Part
+  effects: Part[]
+  notes: Part[]
+}
+
+/** `skillPartList()` 를 칸별로 — 도감처럼 소비 · 대상 · 효과 · 제약을 다른 칸에 그리는 자리 */
+export function skillPartGroups(id: string): SkillPartGroups | null {
+  const s = SKILLS[id]
+  const p = skillParts(id)
+  if (!s || !p) return null
+  return {
+    cost: { text: p.cost, axis: 'cost' },
+    // 적은 공격색, 아군·자신은 생명색 — 제로식의 enemy 빨강 / friend 녹과 같은 대비축
+    target: { text: p.target, axis: s.target.side === 'enemy' ? 'atk' : s.target.side === 'any' ? 'plain' : 'life' },
+    timing: { text: p.timing, axis: 'plain' },
+    effects: s.effects.map((e) => ({ text: effectText(e), axis: effectAxis(e) })),
+    notes: p.notes ? p.notes.split(' · ').map((note) => ({ text: note, axis: 'caveat' as const })) : [],
+  }
+}
+
 /**
  * 스킬 정보 한 줄을 색 축과 함께: "SP 8 · 적 1명 · 즉시 · 물리 300% · 엄호 무시".
  * 축은 제로식의 슬롯을 그대로 옮겼다 — 소비(자원) · 대상(적/아군) · 시간(무채) · 효과(계열) · 제약(주의).
  */
 export function skillPartList(id: string): Part[] {
-  const s = SKILLS[id]
-  const p = skillParts(id)
-  if (!s || !p) return []
-  const out: Part[] = [{ text: p.cost, axis: 'cost' }]
-  // 적은 공격색, 아군·자신은 생명색 — 제로식의 enemy 빨강 / friend 녹과 같은 대비축
-  out.push({ text: p.target, axis: s.target.side === 'enemy' ? 'atk' : s.target.side === 'any' ? 'plain' : 'life' })
-  out.push({ text: p.timing, axis: 'plain' })
-  for (const e of s.effects) out.push({ text: effectText(e), axis: effectAxis(e) })
-  if (p.notes) for (const note of p.notes.split(' · ')) out.push({ text: note, axis: 'caveat' })
-  return out
+  const g = skillPartGroups(id)
+  return g ? [g.cost, g.target, g.timing, ...g.effects, ...g.notes] : []
 }
 
 /** 같은 내용의 평문 — 검색 · `title` 처럼 색을 쓸 수 없는 자리 */

@@ -777,13 +777,18 @@ Lv 과 직업을 두 줄로 나누는 방식(10px 유지, 카드 한 줄 높아�
 |---|---|
 | 축 타입 · 스탯/상태 축 표 · 효과별 축 | `lib/labels.ts` — `Axis` `Part` `STAT_AXIS` `STATUS_AXIS` `effectAxis()` |
 | 장비 옵션 토막 | `itemParts(def, inst)` |
-| 스킬 정보 토막 | `skillPartList(id)` |
+| 스킬 정보 토막 | `skillPartList(id)` — 칸별로 나눠 그릴 때는 `skillPartGroups(id)` (소비 · 대상 · 시간 · 효과 · 제약) |
+| 이름만 나오는 자리 | `statAxis(k)` · `statusAxis(id)` — 도감의 스탯 이름 · 상태 이름 · 표 머리 |
 | 평문 (검색 · `title` · 표) | `itemBrief()` · `skillBrief()` — 둘 다 이제 `partsText(parts)` 로 같은 내용을 낸다 |
 | 그리기 | `components/Spec.tsx` — `Spec` · `ItemSpec` · `SkillSpec`. 구분자 ` · ` 에는 색을 주지 않는다 |
 | 색값 | `styles.css` `:root` 의 `--atk` … `--caveat` 일곱 개 + `.ax-*` 일곱 줄 |
 
 적용한 화면: 상점(`Shop`) · 장비(`GearPanel`, 잘리는 줄에는 평문 `title` 함께) · 제작소(`Workshop`) ·
 도감(`Codex`) · 스킬 습득(`SkillLearn`) · 수칙 편집기(`RuleEditor`).
+
+도감은 2026-09-17 에 탭 전체로 넓혔다 (단장 지시): 장비 옵션 · 스킬 표의 SP · 대상 · 효과 · 비고 칸 ·
+상태이상 이름 · 스탯 이름 · 직업 기본값 표 머리(HP · SP · 스탯 · 방어 · 마방) · 지역 상대 표의 HP 머리.
+표 머리는 `.codex-table th` 의 회색이 클래스보다 강해서 글자를 `span` 으로 감싸 색을 준다.
 
 **특성 `[이름]` 에는 색을 주지 않았다.** 대괄호와 하늘색 프레임(§5.18)이 이미 그 일을 하고,
 한 줄에 여덟 번째 색을 더하면 축이 무너진다.
