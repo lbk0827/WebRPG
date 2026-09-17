@@ -501,6 +501,171 @@
       "name": "침묵",
       "icon": "skills/hush.png",
       "color": "#5b4b8a"
+    },
+    "bulwark": {
+      "name": "방벽 선언",
+      "icon": "skills/bulwark.png",
+      "color": "#3e8e5a"
+    },
+    "taunt": {
+      "name": "도발",
+      "icon": "skills/taunt.png",
+      "color": "#5b4b8a"
+    },
+    "recklessSwing": {
+      "name": "무모한 일격",
+      "icon": "skills/recklessSwing.png",
+      "color": "#b23a48"
+    },
+    "bloodlust": {
+      "name": "혈갈",
+      "icon": "skills/bloodlust.png",
+      "color": "#b23a48"
+    },
+    "toxicBlade": {
+      "name": "맹독 칼날",
+      "icon": "skills/toxicBlade.png",
+      "color": "#b23a48"
+    },
+    "markPrey": {
+      "name": "표적 지정",
+      "icon": "skills/markPrey.png",
+      "color": "#5b4b8a"
+    },
+    "disrupt": {
+      "name": "차단",
+      "icon": "skills/disrupt.png",
+      "color": "#5b4b8a"
+    },
+    "smokeBomb": {
+      "name": "연막",
+      "icon": "skills/smokeBomb.png",
+      "color": "#5b4b8a"
+    },
+    "maelstrom": {
+      "name": "난류",
+      "icon": "skills/maelstrom.png",
+      "color": "#2f6fd6"
+    },
+    "emberfall": {
+      "name": "잔불",
+      "icon": "skills/emberfall.png",
+      "color": "#2f6fd6"
+    },
+    "hasten": {
+      "name": "가속",
+      "icon": "skills/hasten.png",
+      "color": "#3e8e5a"
+    },
+    "stasis": {
+      "name": "정지",
+      "icon": "skills/stasis.png",
+      "color": "#5b4b8a"
+    },
+    "sanctuary": {
+      "name": "성역",
+      "icon": "skills/sanctuary.png",
+      "color": "#3e8e5a"
+    },
+    "benediction": {
+      "name": "은사",
+      "icon": "skills/benediction.png",
+      "color": "#3e8e5a"
+    },
+    "judgment": {
+      "name": "심판",
+      "icon": "skills/judgment.png",
+      "color": "#2f6fd6"
+    },
+    "condemn": {
+      "name": "단죄",
+      "icon": "skills/condemn.png",
+      "color": "#5b4b8a"
+    },
+    "volley": {
+      "name": "화살비",
+      "icon": "skills/volley.png",
+      "color": "#b23a48"
+    },
+    "entangle": {
+      "name": "얽매기",
+      "icon": "skills/entangle.png",
+      "color": "#5b4b8a"
+    },
+    "windArrow": {
+      "name": "바람 화살",
+      "icon": "skills/windArrow.png",
+      "color": "#b23a48"
+    },
+    "hex": {
+      "name": "주박",
+      "icon": "skills/hex.png",
+      "color": "#2f6fd6"
+    },
+    "mendChant": {
+      "name": "치유 주문",
+      "icon": "skills/mendChant.png",
+      "color": "#3e8e5a"
+    },
+    "sandstorm": {
+      "name": "모래폭풍",
+      "icon": "skills/sandstorm.png",
+      "color": "#2f6fd6"
+    },
+    "tidalWard": {
+      "name": "조수의 장막",
+      "icon": "skills/tidalWard.png",
+      "color": "#3e8e5a"
+    },
+    "fortress": {
+      "name": "요새",
+      "icon": "skills/fortress.png",
+      "color": "#3e8e5a"
+    },
+    "lastStand": {
+      "name": "최후의 일격",
+      "icon": "skills/lastStand.png",
+      "color": "#b23a48"
+    },
+    "plague": {
+      "name": "역병",
+      "icon": "skills/plague.png",
+      "color": "#b23a48"
+    },
+    "blackout": {
+      "name": "암전",
+      "icon": "skills/blackout.png",
+      "color": "#5b4b8a"
+    },
+    "starfall": {
+      "name": "유성우",
+      "icon": "skills/starfall.png",
+      "color": "#2f6fd6"
+    },
+    "rewind": {
+      "name": "되감기",
+      "icon": "skills/rewind.png",
+      "color": "#3e8e5a"
+    },
+    "miracle": {
+      "name": "기적",
+      "icon": "skills/miracle.png",
+      "color": "#3e8e5a"
+    },
+    "verdict": {
+      "name": "최후 심판",
+      "icon": "skills/verdict.png",
+      "color": "#2f6fd6"
+    },
+    "pinpoint": {
+      "name": "일점 저격",
+      "icon": "skills/pinpoint.png",
+      "color": "#b23a48"
+    },
+    "rootbind": {
+      "name": "대지의 속박",
+      "icon": "skills/rootbind.png",
+      "color": "#5b4b8a"
     }
   },
   "items": {
@@ -515,6 +680,26 @@
     "swordLong": {
       "name": "장검",
       "icon": "items/swordLong.png"
+    },
+    "woodenClub": {
+      "name": "나무 몽둥이",
+      "icon": "items/woodenClub.png"
+    },
+    "egoSword": {
+      "name": "에고 소드",
+      "icon": "items/egoSword.png"
+    },
+    "egoBlade": {
+      "name": "에고 블레이드",
+      "icon": "items/egoBlade.png"
+    },
+    "braveSword": {
+      "name": "용사의 검",
+      "icon": "items/braveSword.png"
+    },
+    "darkBlade": {
+      "name": "다크 블레이드",
+      "icon": "items/darkBlade.png"
     },
     "daggerPlain": {
       "name": "단도",
@@ -655,6 +840,90 @@
     "ogreCore": {
       "name": "오우거의 핵",
       "icon": "items/ogreCore.png"
+    },
+    "swordRune": {
+      "name": "룬검",
+      "icon": "items/swordRune.png"
+    },
+    "swordStar": {
+      "name": "별검",
+      "icon": "items/swordStar.png"
+    },
+    "daggerSand": {
+      "name": "사막의 곡도",
+      "icon": "items/daggerSand.png"
+    },
+    "daggerShadow": {
+      "name": "그림자 송곳",
+      "icon": "items/daggerShadow.png"
+    },
+    "staffTide": {
+      "name": "조수의 지팡이",
+      "icon": "items/staffTide.png"
+    },
+    "staffStar": {
+      "name": "별의 지팡이",
+      "icon": "items/staffStar.png"
+    },
+    "relicTide": {
+      "name": "조수의 성배",
+      "icon": "items/relicTide.png"
+    },
+    "relicStar": {
+      "name": "별의 성물",
+      "icon": "items/relicStar.png"
+    },
+    "bowSand": {
+      "name": "태양궁",
+      "icon": "items/bowSand.png"
+    },
+    "bowStar": {
+      "name": "별화살 활",
+      "icon": "items/bowStar.png"
+    },
+    "armorRune": {
+      "name": "룬 판금",
+      "icon": "items/armorRune.png"
+    },
+    "armorStar": {
+      "name": "별의 갑주",
+      "icon": "items/armorStar.png"
+    },
+    "robeTide": {
+      "name": "조수의 로브",
+      "icon": "items/robeTide.png"
+    },
+    "robeStar": {
+      "name": "별의 로브",
+      "icon": "items/robeStar.png"
+    },
+    "pendantSandglass": {
+      "name": "모래시계 펜던트",
+      "icon": "items/pendantSandglass.png"
+    },
+    "crownStar": {
+      "name": "별의 관",
+      "icon": "items/crownStar.png"
+    },
+    "sunstone": {
+      "name": "태양석",
+      "icon": "items/sunstone.png"
+    },
+    "tideScale": {
+      "name": "조수 비늘",
+      "icon": "items/tideScale.png"
+    },
+    "warBanner": {
+      "name": "전쟁 휘장",
+      "icon": "items/warBanner.png"
+    },
+    "starShard": {
+      "name": "별조각",
+      "icon": "items/starShard.png"
+    },
+    "kingSigil": {
+      "name": "왕의 증표",
+      "icon": "items/kingSigil.png"
     }
   },
   "status": {
@@ -727,6 +996,42 @@
     "regen": {
       "name": "재생",
       "icon": "traits/regen.png"
+    },
+    "aegis": {
+      "name": "수호",
+      "icon": "traits/aegis.png"
+    },
+    "bloodRage": {
+      "name": "피의 분노",
+      "icon": "traits/bloodRage.png"
+    },
+    "venomcraft": {
+      "name": "독술",
+      "icon": "traits/venomcraft.png"
+    },
+    "disruptor": {
+      "name": "교란",
+      "icon": "traits/disruptor.png"
+    },
+    "foresight": {
+      "name": "예지",
+      "icon": "traits/foresight.png"
+    },
+    "highLiturgy": {
+      "name": "고전례",
+      "icon": "traits/highLiturgy.png"
+    },
+    "zeal": {
+      "name": "열의",
+      "icon": "traits/zeal.png"
+    },
+    "deadeye": {
+      "name": "매의 눈",
+      "icon": "traits/deadeye.png"
+    },
+    "thornward": {
+      "name": "가시 수호",
+      "icon": "traits/thornward.png"
     }
   }
 }

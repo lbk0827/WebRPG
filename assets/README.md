@@ -438,6 +438,76 @@
 | `skills/backstep.png` | 물러서기 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 (2026-09-14 제로식 규격 재변환) | 원본과 동일 | 2026-09-14 |
 | `../art-source/icons/skills/hush-source.png` | 침묵 AI 원본 | OpenAI 내장 ImageGen, 외부 이미지 입력 없음 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-13 |
 | `skills/hush.png` | 침묵 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 (2026-09-14 제로식 규격 재변환) | 원본과 동일 | 2026-09-14 |
+| `../art-source/icons/skills/bulwark-source.png` | bulwark AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/bulwark.png` | bulwark 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/taunt-source.png` | taunt AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/taunt.png` | taunt 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/recklessSwing-source.png` | recklessSwing AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/recklessSwing.png` | recklessSwing 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/bloodlust-source.png` | bloodlust AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/bloodlust.png` | bloodlust 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/toxicBlade-source.png` | toxicBlade AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/toxicBlade.png` | toxicBlade 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/markPrey-source.png` | markPrey AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/markPrey.png` | markPrey 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/disrupt-source.png` | disrupt AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/disrupt.png` | disrupt 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/smokeBomb-source.png` | smokeBomb AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/smokeBomb.png` | smokeBomb 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/maelstrom-source.png` | maelstrom AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/maelstrom.png` | maelstrom 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/emberfall-source.png` | emberfall AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/emberfall.png` | emberfall 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/hasten-source.png` | hasten AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/hasten.png` | hasten 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/stasis-source.png` | stasis AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/stasis.png` | stasis 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/sanctuary-source.png` | sanctuary AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/sanctuary.png` | sanctuary 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/benediction-source.png` | benediction AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/benediction.png` | benediction 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/judgment-source.png` | judgment AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/judgment.png` | judgment 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/condemn-source.png` | condemn AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/condemn.png` | condemn 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/volley-source.png` | volley AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/volley.png` | volley 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/entangle-source.png` | entangle AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/entangle.png` | entangle 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/windArrow-source.png` | windArrow AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/windArrow.png` | windArrow 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/hex-source.png` | hex AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/hex.png` | hex 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/mendChant-source.png` | mendChant AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/mendChant.png` | mendChant 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/sandstorm-source.png` | sandstorm AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/sandstorm.png` | sandstorm 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/tidalWard-source.png` | tidalWard AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/tidalWard.png` | tidalWard 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
++| `../art-source/icons/skills/fortress-source.png` | fortress AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/fortress.png` | fortress 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/lastStand-source.png` | lastStand AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/lastStand.png` | lastStand 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/plague-source.png` | plague AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/plague.png` | plague 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/blackout-source.png` | blackout AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/blackout.png` | blackout 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/starfall-source.png` | starfall AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/starfall.png` | starfall 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/rewind-source.png` | rewind AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/rewind.png` | rewind 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/miracle-source.png` | miracle AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/miracle.png` | miracle 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/verdict-source.png` | verdict AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/verdict.png` | verdict 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/pinpoint-source.png` | pinpoint AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/pinpoint.png` | pinpoint 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/rootbind-source.png` | rootbind AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `skills/rootbind.png` | rootbind 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/order29-D-proof-1x.png` | 주문서 29 D묶음 1배 검수판 | 신규 오의·장비·재료와 등급·윗단계 짝을 밝은·어두운 바탕에 1배 배치 | 각 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/order29-D-proof-4x.png` | 주문서 29 D묶음 4배 검수판 | 위 검수 구성을 최근접 정수 4배로 배치 | 각 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/order29-B-proof-1x.png` | 주문서 29 B묶음 1배 검수판 | 신규 스킬과 모든 구별 대상을 밝은·어두운 바탕에 1배 배치 | 각 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/order29-B-proof-4x.png` | 주문서 29 B묶음 4배 검수판 | 위 검수 구성을 최근접 정수 4배로 배치 | 각 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/skills/all-skills-proof.png` | 스킬 32종 전체 검수판 | 게임용 PNG를 4배 최근접 확대해 배치 | 각 원본과 동일 | 2026-09-13 |
 | `../art-source/icons/skills/physical-proof-01.png` | 물리 스킬 초기 검수판 | 게임용 PNG를 4배 최근접 확대해 배치 | 각 원본과 동일 | 2026-09-13 |
 <!-- jrpg-skills:end -->
@@ -522,6 +592,60 @@
 | `items/swordTraining.png` | swordTraining 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 (2026-09-14 제로식 규격 재변환) | 원본과 동일 | 2026-09-14 |
 | `../art-source/icons/items/venomSac-source.png` | venomSac AI 원본 | OpenAI 내장 ImageGen, 외부 이미지 입력 없음 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-13 |
 | `items/venomSac.png` | venomSac 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 (2026-09-14 제로식 규격 재변환) | 원본과 동일 | 2026-09-14 |
+| `../art-source/icons/items/woodenClub-source.png` | woodenClub AI 원본 | OpenAI 내장 ImageGen, 주인공 계보 스프라이트를 무기 디자인 레퍼런스로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/woodenClub.png` | woodenClub 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/egoSword-source.png` | egoSword AI 원본 | OpenAI 내장 ImageGen, 주인공 계보 스프라이트를 무기 디자인 레퍼런스로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/egoSword.png` | egoSword 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/egoBlade-source.png` | egoBlade AI 원본 | OpenAI 내장 ImageGen, 주인공 계보 스프라이트를 무기 디자인 레퍼런스로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/egoBlade.png` | egoBlade 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/braveSword-source.png` | braveSword AI 원본 | OpenAI 내장 ImageGen, 주인공 계보 스프라이트를 무기 디자인 레퍼런스로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/braveSword.png` | braveSword 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/darkBlade-source.png` | darkBlade AI 원본 | OpenAI 내장 ImageGen, 주인공 계보 스프라이트를 무기 디자인 레퍼런스로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/darkBlade.png` | darkBlade 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
++| `../art-source/icons/items/swordRune-source.png` | swordRune AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/swordRune.png` | swordRune 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/swordStar-source.png` | swordStar AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/swordStar.png` | swordStar 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/daggerSand-source.png` | daggerSand AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/daggerSand.png` | daggerSand 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/daggerShadow-source.png` | daggerShadow AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/daggerShadow.png` | daggerShadow 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/staffTide-source.png` | staffTide AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/staffTide.png` | staffTide 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/staffStar-source.png` | staffStar AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/staffStar.png` | staffStar 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/relicTide-source.png` | relicTide AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/relicTide.png` | relicTide 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/relicStar-source.png` | relicStar AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/relicStar.png` | relicStar 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/bowSand-source.png` | bowSand AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/bowSand.png` | bowSand 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/bowStar-source.png` | bowStar AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/bowStar.png` | bowStar 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/armorRune-source.png` | armorRune AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/armorRune.png` | armorRune 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/armorStar-source.png` | armorStar AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/armorStar.png` | armorStar 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/robeTide-source.png` | robeTide AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/robeTide.png` | robeTide 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/robeStar-source.png` | robeStar AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/robeStar.png` | robeStar 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/pendantSandglass-source.png` | pendantSandglass AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/pendantSandglass.png` | pendantSandglass 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/crownStar-source.png` | crownStar AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/crownStar.png` | crownStar 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/sunstone-source.png` | sunstone AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/sunstone.png` | sunstone 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/tideScale-source.png` | tideScale AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/tideScale.png` | tideScale 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/warBanner-source.png` | warBanner AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/warBanner.png` | warBanner 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/starShard-source.png` | starShard AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/starShard.png` | starShard 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/kingSigil-source.png` | kingSigil AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `items/kingSigil.png` | kingSigil 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/order29-A-proof-1x.png` | 주문서 29 A묶음 1배 검수판 | 게임용 PNG와 구별 대상 2종을 밝은·어두운 바탕에 1배 배치 | 각 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/order29-A-proof-4x.png` | 주문서 29 A묶음 4배 검수판 | 위 검수 구성을 최근접 정수 4배로 배치 | 각 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/items/all-items-proof.png` | 아이템·재료 전체 검수판 | 게임용 PNG를 4배 최근접 확대해 배치 | 각 원본과 동일 | 2026-09-13 |
 <!-- jrpg-items:end -->
 
@@ -572,6 +696,26 @@
 | `traits/secondWind.png` | secondWind 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 (2026-09-14 제로식 규격 재변환) | 원본과 동일 | 2026-09-14 |
 | `../art-source/icons/traits/sniperEye-source.png` | sniperEye AI 원본 | OpenAI 내장 ImageGen, 외부 이미지 입력 없음 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-13 |
 | `traits/sniperEye.png` | sniperEye 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 (2026-09-14 제로식 규격 재변환) | 원본과 동일 | 2026-09-14 |
+| `../art-source/icons/traits/aegis-source.png` | aegis AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `traits/aegis.png` | aegis 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/traits/bloodRage-source.png` | bloodRage AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `traits/bloodRage.png` | bloodRage 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/traits/venomcraft-source.png` | venomcraft AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `traits/venomcraft.png` | venomcraft 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/traits/disruptor-source.png` | disruptor AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `traits/disruptor.png` | disruptor 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/traits/foresight-source.png` | foresight AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `traits/foresight.png` | foresight 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/traits/highLiturgy-source.png` | highLiturgy AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `traits/highLiturgy.png` | highLiturgy 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/traits/zeal-source.png` | zeal AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `traits/zeal.png` | zeal 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/traits/deadeye-source.png` | deadeye AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `traits/deadeye.png` | deadeye 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/traits/thornward-source.png` | thornward AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
+| `traits/thornward.png` | thornward 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/order29-C-proof-1x.png` | 주문서 29 C묶음 1배 검수판 | 신규 특성과 구별 대상을 밝은·어두운 바탕에 1배 배치 | 각 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/order29-C-proof-4x.png` | 주문서 29 C묶음 4배 검수판 | 위 검수 구성을 최근접 정수 4배로 배치 | 각 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/traits/all-traits-proof.png` | 특성 전체 검수판 | 게임용 PNG를 4배 최근접 확대해 배치 | 각 원본과 동일 | 2026-09-13 |
 <!-- jrpg-traits:end -->
 ## 규약
