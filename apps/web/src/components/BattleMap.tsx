@@ -2,18 +2,18 @@
 //
 // 흐름: 전투 탭 → 지역 목록(QuestBoard) → 이 페이지. 여기서 편성하고 바로 싸운다.
 // 제로식 한 페이지를 위에서 아래로 그대로 옮겼다:
-//   편성 저장(모험단 LOAD·DEL / SAVE) → 싸우자! · 3번 싸우자! · 선택초기화
-//   → 단원(체크박스) → 한 번 더 싸우자 → 등장 몬스터(MonsterAppearance)
+//   편성 세이브/로드(모험단 LOAD·DEL / SAVE) → 단원(체크박스)
+//   → 싸우자! · 3번 싸우자! · 선택초기화 → 등장 몬스터(MonsterAppearance)
 // 편성 부품은 모험 맵과 함께 쓴다 (MapParts).
 //
 // 우리와 다른 점 하나 — 우리 엔진은 **전열/후열**이 있다. 제로식처럼 체크박스로 "누가 가나"를 고르고,
 // 체크된 단원 카드에 전열/후열 토글을 붙여 "어디 서나"를 정한다. 같은 열 안의 칸 순서까지 만지려면 편성 탭.
 //
-// 싸우자 버튼을 위아래 두 벌 둔다. 전에는 "페이지가 길어서 생긴 땜질"이라 뺐지만(docs/11 §5.9),
-// 단원이 30명까지 늘면 카드 격자가 길어져 실제로 필요하다.
+// 싸우자 줄은 단원 격자 아래 한 벌만 둔다 (단장 지시 2026-09-17). 편성 세이브/로드 바로 밑에도 한 벌 있었지만,
+// 체크하기 전에 놓인 버튼이라 순서가 어긋났다 — 고르고 나서 누르는 자리 하나로 모았다.
 //
 // 가져오지 않은 것: "Save this party" 체크박스. 우리는 체크하는 즉시 편성이 저장된다.
-// 맵마다 다른 편성은 맨 위의 편성 저장(프리셋)으로 한다.
+// 맵마다 다른 편성은 맨 위의 편성 세이브/로드(프리셋)으로 한다.
 import { useState } from 'react'
 import type { Analysis, BattleResult, TeamSetup } from '@webrpg/engine'
 import { DEFAULT_CONFIG, MONSTERS, REGIONS, SKILLS, analyze, battleRewards, isRegionUnlocked, rollEncounter, simulate, type RegionDef } from '@webrpg/engine'
@@ -217,10 +217,8 @@ export function BattleMap({ save, onSave, region, group, icon, onBack, onGoForma
         </p>
       )}
 
-      <h3 className="bar-title" title="맵마다 다른 편성을 저장해 두고 불러온다">편성 저장</h3>
+      <h3 className="bar-title" title="맵마다 다른 편성을 저장해 두고 불러온다">편성 세이브/로드</h3>
       <PresetBox save={save} onSave={onSave} onGoFormation={onGoFormation} />
-
-      {fightBar}
 
       <h3 className="bar-title">
         단원 <small>체크하면 출전 · {party.length}/{PARTY_MAX}명 · Lv 합 {us.levelSum} · HP 합 {us.hpSum}</small>

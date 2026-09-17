@@ -1281,12 +1281,16 @@ button.big { padding: 10px 22px; font-size: 15px; }
   display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 6px;
 }
 .team-card, .appear-card { text-align: center; flex: 0 0 calc((100% - 30px) / 6); max-width: 96px; min-width: 0; }
-.team-card label { display: grid; justify-items: center; gap: 2px; padding: 2px; border-radius: 10px; cursor: pointer; }
+/* 카드 속 다섯 줄(받침 · 이름 · Lv · 직업 · 체크박스)의 높이를 못 박는다 —
+   직업 이름이 길어도 체크박스와 전열/후열 줄이 카드마다 어긋나지 않는다 (단장 지시 2026-09-17) */
+.team-card label { display: grid; grid-template-rows: 84px 16px 13px 13px 20px; align-content: start; justify-items: center; gap: 2px; padding: 2px; border-radius: 10px; cursor: pointer; }
 .team-card.blocked label { cursor: not-allowed; }
 .team-card .nm, .appear-card .nm { display: block; max-width: 100%; font-weight: 700; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .team-card:not(.on) .nm { color: var(--muted); }
 .team-card small, .appear-card small { display: block; color: var(--muted); font-size: 10px; line-height: 1.3; }
-.team-card input[type='checkbox'] { width: 16px; height: 16px; margin: 2px 0 0; cursor: inherit; }
+/* 단원 카드만 한 줄 유지 — 넘치면 …로 자르고 전체 글자는 title 로 본다. 몬스터 카드는 개행되어도 줄이 어긋날 것이 없어 그대로 */
+.team-card small { max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.team-card input[type='checkbox'] { width: 16px; height: 16px; margin: 0; cursor: inherit; }
 
 /* 받침 — 제로식의 마름모 발판 */
 .tile { position: relative; display: grid; place-items: end center; width: 100%; height: 84px; }
@@ -1312,9 +1316,10 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .elite-group .appear-card .tile::before { background: linear-gradient(180deg, #b7a2e0, var(--cast)); }
 
 /* 전열 / 후열 토글 */
-/* 폰에서는 카드가 약 53px 이라 두 버튼이 한 줄에 안 들어간다 — 넘치면 아래로 */
-.row-toggle { display: flex; flex-wrap: wrap; justify-content: center; gap: 2px; margin-top: 3px; }
-.row-toggle button { padding: 1px 6px; font-size: 10px; border-radius: 999px; }
+/* 폰에서는 카드가 약 53px 이라 두 버튼이 한 줄에 안 들어간다. 전에는 넘치면 아래로 흘렸는데,
+   넘치는 카드와 안 넘치는 카드가 섞이면 줄이 들쭉날쭉해진다 — 반씩 나눠 늘 한 줄에 담는다 */
+.row-toggle { display: grid; grid-template-columns: 1fr 1fr; justify-content: center; gap: 2px; margin-top: 3px; }
+.row-toggle button { padding: 1px 2px; font-size: 10px; border-radius: 999px; white-space: nowrap; }
 .row-toggle button.on { background: var(--ink); color: #fff; border-color: var(--ink); }
 
 
