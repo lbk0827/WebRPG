@@ -4,6 +4,75 @@ import { COMMON_LEARNABLE, ITEMS, JOB_ADVANCE, LEARNABLE, MATERIALS, PRESETS, SK
 
 // ───────────────────────────── 도감 · 요약 문장 (ADR-004)
 
+// ───────────────────────────── 능력치 색 축 (docs/11 §5.20)
+//
+// 제로식은 능력치 이름마다 색을 고정하고 그 이름이 나오는 모든 곳 — 장비 옵션 · 스킬 버프/디버프 · 패시브 —
+// 에서 같은 색을 쓴다. 색이 곧 "이게 무슨 값인지"를 말해 주므로 한 줄에 값 아홉 개를 붙여도 읽힌다.
+// 우리도 그 방식을 따르되 색은 여덟 축만 쓴다. 우리는 한글 이름이 늘 붙으므로 색은 잉여 채널이다
+// (종이 배경 · 적록 색약 측정 근거는 docs/11 §5.20 C).
+
+/** 글자에 입히는 색 축. `plain` 은 색을 주지 않는다 (보조 정보) */
+export type Axis = 'atk' | 'magic' | 'guard' | 'mguard' | 'life' | 'cost' | 'caveat' | 'plain'
+
+/** 색을 입힌 한 토막. 화면은 `Spec` 부품이 그린다 */
+export interface Part {
+  text: string
+  axis: Axis
+}
+
+/** 스탯 가산은 그 스탯이 키우는 축의 색을 물려받는다 — 힘·손재주는 물리, 지능은 마법, 속도·운은 색 없음 */
+const STAT_AXIS: Record<string, Axis> = {
+  str: 'atk',
+  dex: 'atk',
+  int: 'magic',
+  spd: 'plain',
+  luk: 'plain',
+  maxHp: 'life',
+  maxSp: 'cost',
+  def: 'guard',
+  mdef: 'mguard',
+}
+
+/**
+ * 상태이상은 그것이 건드리는 능력치의 색을 쓴다 — 제로식이 `Atk-15%` 를 Atk 색으로, `Def+2%` 를
+ * Def 색으로 칠하는 것과 같은 규칙. 강화든 약화든 색은 같고, 강화/약화는 이름이 말한다.
+ */
+const STATUS_AXIS: Record<StatusId, Axis> = {
+  poison: 'atk',      // 지속 피해
+  atkUp: 'atk',
+  atkDown: 'atk',
+  defUp: 'guard',
+  defDown: 'guard',
+  spdUp: 'plain',     // 속도는 색을 주지 않는 축
+  spdDown: 'plain',
+  silence: 'magic',   // 시전을 끊는 것 — 마법 축
+  barrier: 'guard',
+}
+
+/** 효과 한 줄의 축 — 피해는 물리/마법, 회복은 생명, SP 는 자원, 보호막은 방어, 내 HP 를 태우는 것은 주의 */
+function effectAxis(e: Effect): Axis {
+  switch (e.kind) {
+    case 'damage':
+      return e.school === 'phys' ? 'atk' : 'magic'
+    case 'heal':
+    case 'revive':
+      return 'life'
+    case 'restoreSp':
+    case 'damageSp':
+      return 'cost'
+    case 'drain':
+      return e.resource === 'hp' ? 'life' : 'cost'
+    case 'shield':
+      return 'guard'
+    case 'recoil':
+      return 'caveat'
+    case 'applyStatus':
+      return STATUS_AXIS[e.status] ?? 'plain'
+    default:
+      return 'plain'
+  }
+}
+
 export const STAT_HELP: Record<StatKey, string> = {
   str: '물리 공격의 위력. 기본 공격·강타·휩쓸기 같은 힘 기술이 세진다.',
   int: '마법·회복의 위력과 최대 SP. 10·20·35·50·70 을 넘을 때마다 패턴 칸이 하나 늘어난다.',
@@ -96,10 +165,27 @@ export function skillParts(id: string): SkillParts | null {
   }
 }
 
-export function skillBrief(id: string): string {
+/**
+ * 스킬 정보 한 줄을 색 축과 함께: "SP 8 · 적 1명 · 즉시 · 물리 300% · 엄호 무시".
+ * 축은 제로식의 슬롯을 그대로 옮겼다 — 소비(자원) · 대상(적/아군) · 시간(무채) · 효과(계열) · 제약(주의).
+ */
+export function skillPartList(id: string): Part[] {
+  const s = SKILLS[id]
   const p = skillParts(id)
-  if (!p) return ''
-  return [p.cost, p.target, p.timing, p.effects, p.notes].filter(Boolean).join(' · ')
+  if (!s || !p) return []
+  const out: Part[] = [{ text: p.cost, axis: 'cost' }]
+  // 적은 공격색, 아군·자신은 생명색 — 제로식의 enemy 빨강 / friend 녹과 같은 대비축
+  out.push({ text: p.target, axis: s.target.side === 'enemy' ? 'atk' : s.target.side === 'any' ? 'plain' : 'life' })
+  out.push({ text: p.timing, axis: 'plain' })
+  for (const e of s.effects) out.push({ text: effectText(e), axis: effectAxis(e) })
+  if (p.notes) for (const note of p.notes.split(' · ')) out.push({ text: note, axis: 'caveat' })
+  return out
+}
+
+/** 같은 내용의 평문 — 검색 · `title` 처럼 색을 쓸 수 없는 자리 */
+export function skillBrief(id: string): string {
+  const parts = skillPartList(id)
+  return parts.length ? partsText(parts) : ''
 }
 
 /** 이 스킬을 가질 수 있는 직업들 (시작 또는 습득) */
@@ -152,21 +238,38 @@ export function traitText(t: TraitDef): string {
     .join(', ')
 }
 
-/** 장비 한 줄: "물리 +18 · 방어 5% +10 · 마방 +5 · 운 +10 · [방벽]". 인스턴스를 주면 강화·보너스 특성 반영 */
-export function itemBrief(def: ItemDef, inst?: ItemInstance): string {
-  const out: string[] = []
+/**
+ * 장비 옵션 한 줄을 색 축과 함께: "물리 +18 · 방어 5% +10 · 마방 +5 · 운 +10 · [방벽]".
+ * 인스턴스를 주면 강화·보너스 특성 반영. 값은 라벨과 한 색으로 묶는다 (docs/11 §5.20 D 1).
+ */
+export function itemParts(def: ItemDef, inst?: ItemInstance): Part[] {
+  const out: Part[] = []
+  if (def.weaponType) out.push({ text: WEAPON_TYPE_LABEL[def.weaponType], axis: 'plain' })
   const n = inst ? refinedNumbers(def, inst.refine) : { atk: def.atk ?? [0, 0], def: def.def ?? [0, 0, 0, 0] }
-  if (n.atk[0]) out.push(`물리 +${n.atk[0]}`)
-  if (n.atk[1]) out.push(`마법 +${n.atk[1]}`)
+  if (n.atk[0]) out.push({ text: `물리 +${n.atk[0]}`, axis: 'atk' })
+  if (n.atk[1]) out.push({ text: `마법 +${n.atk[1]}`, axis: 'magic' })
   const [pp, pf, mp, mf] = n.def
-  if (pp || pf) out.push(`방어${pp ? ` ${pp}%` : ''}${pf ? ` +${pf}` : ''}`)
-  if (mp || mf) out.push(`마방${mp ? ` ${mp}%` : ''}${mf ? ` +${mf}` : ''}`)
-  if (def.stats) for (const [k, v] of Object.entries(def.stats)) out.push(`${GEAR_STAT_LABEL[k] ?? k} ${v > 0 ? '+' : ''}${v}`)
-  if (def.trait) out.push(`[${traitLabel(def.trait)}] ${TRAITS[def.trait] ? traitText(TRAITS[def.trait]) : ''}`)
-  if (inst?.trait && inst.trait !== def.trait) out.push(`[${traitLabel(inst.trait)}] ${TRAITS[inst.trait] ? traitText(TRAITS[inst.trait]) : ''} (제작 보너스)`)
-  if (def.weaponType) out.unshift(WEAPON_TYPE_LABEL[def.weaponType])
-  return out.join(' · ')
+  if (pp || pf) out.push({ text: `방어${pp ? ` ${pp}%` : ''}${pf ? ` +${pf}` : ''}`, axis: 'guard' })
+  if (mp || mf) out.push({ text: `마방${mp ? ` ${mp}%` : ''}${mf ? ` +${mf}` : ''}`, axis: 'mguard' })
+  if (def.stats) {
+    for (const [k, v] of Object.entries(def.stats)) {
+      // 마이너스 옵션은 값이 싼 대가다 — 축 색이 아니라 주의색으로 눈에 걸리게 한다
+      out.push({ text: `${GEAR_STAT_LABEL[k] ?? k} ${v > 0 ? '+' : ''}${v}`, axis: v < 0 ? 'caveat' : STAT_AXIS[k] ?? 'plain' })
+    }
+  }
+  // 특성은 색을 주지 않는다 — 대괄호와 하늘색 프레임(§5.18)이 이미 그 일을 하고, 한 줄에 아홉 번째 색을 더하면 축이 무너진다
+  if (def.trait) out.push({ text: `[${traitLabel(def.trait)}] ${TRAITS[def.trait] ? traitText(TRAITS[def.trait]) : ''}`, axis: 'plain' })
+  if (inst?.trait && inst.trait !== def.trait) {
+    out.push({ text: `[${traitLabel(inst.trait)}] ${TRAITS[inst.trait] ? traitText(TRAITS[inst.trait]) : ''} (제작 보너스)`, axis: 'plain' })
+  }
+  return out
 }
+
+/** 같은 내용의 평문 — 검색 · `title` · 표 정렬처럼 색을 쓸 수 없는 자리 */
+export const itemBrief = (def: ItemDef, inst?: ItemInstance): string => partsText(itemParts(def, inst))
+
+/** 색 토막들을 평문 한 줄로 */
+export const partsText = (parts: Part[]): string => parts.map((p) => p.text).join(' · ')
 
 /**
  * 장비 하나가 주는 수치 (강화 반영). 비교에 쓴다.

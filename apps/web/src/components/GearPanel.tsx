@@ -13,6 +13,7 @@ import { ITEMS, SLOT_LABEL, WEAPON_TYPE_LABEL } from '@webrpg/engine'
 import type { GameSave, Member } from '../game/save'
 import { equipItem, equippableFor, gearSummary, takeFrom, unequipItem, wornByOthers } from '../game/members'
 import { gearDelta, gearWorth, itemBrief, itemName, traitDelta, traitLabel } from '../lib/labels'
+import { ItemSpec } from './Spec'
 import { ItemIcon } from './Icon'
 import { TraitIcon } from './Icon'
 
@@ -87,7 +88,7 @@ export function GearPanel({ save, onSave, member, onGoShop }: Props) {
                 <>
                   <ItemIcon id={cur.itemId} alt={curDef.label} size="lg" />
                   <span className="nm">{itemName(cur)}</span>
-                  <small>{itemBrief(curDef, cur)}</small>
+                  <small><ItemSpec def={curDef} inst={cur} /></small>
                   {curDef.bound ? (
                     <small className="bound" title="주인공 전용 — 벗을 수 없고 전직하면 진화한다">전용 · 전직으로 진화</small>
                   ) : (
@@ -107,7 +108,7 @@ export function GearPanel({ save, onSave, member, onGoShop }: Props) {
                   <li key={it.uid}>
                     <ItemIcon id={it.itemId} alt={ITEMS[it.itemId]?.label ?? ''} />
                     <span className="nm">{itemName(it)}</span>
-                    <small className="spec">{itemBrief(ITEMS[it.itemId], it)}</small>
+                    <small className="spec" title={itemBrief(ITEMS[it.itemId], it)}><ItemSpec def={ITEMS[it.itemId]} inst={it} /></small>
                     <DeltaChips next={it} cur={cur} />
                     <button className="primary mini" onClick={() => onSave(equipItem(save, member.id, it.uid))}>끼기</button>
                   </li>
@@ -116,7 +117,7 @@ export function GearPanel({ save, onSave, member, onGoShop }: Props) {
                   <li key={it.uid} className="borrowed">
                     <ItemIcon id={it.itemId} alt={ITEMS[it.itemId]?.label ?? ''} />
                     <span className="nm">{itemName(it)}</span>
-                    <small className="spec">{itemBrief(ITEMS[it.itemId], it)}</small>
+                    <small className="spec" title={itemBrief(ITEMS[it.itemId], it)}><ItemSpec def={ITEMS[it.itemId]} inst={it} /></small>
                     <DeltaChips next={it} cur={cur} />
                     <button
                       className="mini"

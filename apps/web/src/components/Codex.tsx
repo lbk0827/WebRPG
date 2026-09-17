@@ -4,7 +4,8 @@ import { UnitPortrait } from './UnitPortrait'
 import type { StatKey, StatusId } from '@webrpg/engine'
 import { ARCHETYPE_LABEL, CRAFT_TRAIT_PCT, ITEMS, ITEM_LIST, MATERIALS, MONSTERS, PRESETS, RECIPES, REGIONS, RULE_ROWS_BASE, RULE_ROWS_INT_STEPS, SKILLS, SLOT_LABEL, STATUS_DEFS, TRAITS, WEAPON_TYPE_LABEL, monsterSetup } from '@webrpg/engine'
 import { KIND_SPECS, PICKER_GROUPS, STAT_LABEL } from '../lib/condition'
-import { STAT_HELP, STATUS_HELP, itemBrief, jobName, skillParts, skillSources, traitText } from '../lib/labels'
+import { STAT_HELP, STATUS_HELP, jobName, skillParts, skillSources, traitText } from '../lib/labels'
+import { ItemSpec } from './Spec'
 import { ItemIcon, SkillIcon, StatusIcon, TraitIcon } from './Icon'
 
 type Section = 'skills' | 'items' | 'status' | 'traits' | 'conditions' | 'stats' | 'regions'
@@ -73,7 +74,7 @@ export function Codex({ onBack }: { onBack: () => void }) {
                   <td>{SLOT_LABEL[i.slot]}{i.weaponType ? ` (${WEAPON_TYPE_LABEL[i.weaponType]})` : ''}</td>
                   <td className="num">{i.tier}</td>
                   <td className="num">{i.price}</td>
-                  <td>{itemBrief(i)}</td>
+                  <td><ItemSpec def={i} /></td>
                 </tr>
               ))}
             </tbody>

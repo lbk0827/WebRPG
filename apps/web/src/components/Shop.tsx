@@ -9,7 +9,8 @@ import type { GearSlot, WeaponType } from '@webrpg/engine'
 import { ITEMS, JOB_WEAPONS, PRESETS, REGIONS, SLOT_LABEL, WEAPON_TYPE_LABEL, sellPrice } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { buyItem, sellItem, shopStock, shopTier } from '../game/members'
-import { itemBrief, itemName } from '../lib/labels'
+import { itemName } from '../lib/labels'
+import { ItemSpec } from './Spec'
 import { ItemIcon } from './Icon'
 
 interface Props {
@@ -56,7 +57,7 @@ export function Shop({ save, onSave, onBack, onGoFormation }: Props) {
               <div className="body">
                 <b>{i.label}</b> <span className="tier">{i.tier}등급</span>
                 {i.weaponType && <small className="who">{whoUses(i.weaponType)} 용 {WEAPON_TYPE_LABEL[i.weaponType as WeaponType]}</small>}
-                <small>{itemBrief(i)}</small>
+                <small><ItemSpec def={i} /></small>
                 <small className="blurb">{i.blurb}</small>
               </div>
               <button className={ok ? 'primary' : ''} disabled={!ok} onClick={() => onSave(buyItem(save, i.id))}>금 {i.price}</button>
@@ -78,7 +79,7 @@ export function Shop({ save, onSave, onBack, onGoFormation }: Props) {
                 <ItemIcon id={it.itemId} alt={d.label} size="lg" />
                 <div className="body">
                   <b>{itemName(it)}</b> <span className="tier">{SLOT_LABEL[d.slot]}</span>
-                  <small>{itemBrief(d, it)}</small>
+                  <small><ItemSpec def={d} inst={it} /></small>
                 </div>
                 <button onClick={() => { if (window.confirm(`${d.label} 을(를) 금 ${sellPrice(d)} 에 팝니다.`)) onSave(sellItem(save, it.uid)) }}>팔기 금 {sellPrice(d)}</button>
               </li>

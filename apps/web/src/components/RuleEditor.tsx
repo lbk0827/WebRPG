@@ -4,7 +4,8 @@ import type { MissionLimits, RuleRow } from '@webrpg/engine'
 import { PRESETS, SKILLS, maxRuleRows, nextRuleRowInt } from '@webrpg/engine'
 import type { SlotState } from '../state'
 import type { RulePreset } from '../game/save'
-import { jobName, skillBrief, skillLabel } from '../lib/labels'
+import { jobName, skillLabel } from '../lib/labels'
+import { SkillSpec } from './Spec'
 import { SkillIcon } from './Icon'
 import { describeCondition, fromCondition, toCondition } from '../lib/condition'
 import { GUARDS, guardByKey, guardKey } from '../lib/guards'
@@ -175,7 +176,7 @@ export function RuleEditor({ slots, onChange, editable, limits, initial = 0, nam
                       <span>회만</span>
                     </label>
                   </div>
-                  <div className="skill-brief">{skillBrief(row.skillId)}</div>
+                  <div className="skill-brief"><SkillSpec id={row.skillId} /></div>
                 </>
               )}
             </li>

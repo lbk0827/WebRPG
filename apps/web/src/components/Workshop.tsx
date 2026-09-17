@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { CRAFT_TRAIT_PCT, ITEMS, MATERIALS, RECIPES, REFINE_MAX, refineCost, refineRate } from '@webrpg/engine'
 import type { GameSave } from '../game/save'
 import { allItems, canRefine, craftItem, refineItem } from '../game/members'
-import { itemBrief, itemName, materialLabel, traitLabel } from '../lib/labels'
+import { itemName, materialLabel, traitLabel } from '../lib/labels'
+import { ItemSpec } from './Spec'
 import { ItemIcon } from './Icon'
 
 interface Props {
@@ -82,7 +83,7 @@ export function Workshop({ save, onSave, onBack, onGoQuest }: Props) {
                     <ItemIcon id={it.itemId} alt={d.label} size="lg" />
                     <div className="body">
                       <b>{itemName(it)}</b> <span className="tier">{owner ? `${owner.name} 착용` : '창고'}</span>
-                      <small>{itemBrief(d, it)}</small>
+                      <small><ItemSpec def={d} inst={it} /></small>
                       {c && <small className="cost-line">다음 +{it.refine + 1}: 금 {c.gold} · 성공 {refineRate(it.refine)}%</small>}
                       {maxed && <small className="cost-line">최대 강화</small>}
                     </div>
@@ -116,7 +117,7 @@ export function Workshop({ save, onSave, onBack, onGoQuest }: Props) {
                   <ItemIcon id={r.itemId} alt={d.label} size="lg" />
                   <div className="body">
                     <b>{d.label}</b> <span className="tier">{d.tier}등급</span>
-                    <small>{itemBrief(d)}</small>
+                    <small><ItemSpec def={d} /></small>
                     <small className="cost-line">
                       금 {r.gold}{' · '}
                       {r.materials.map((m, i) => {

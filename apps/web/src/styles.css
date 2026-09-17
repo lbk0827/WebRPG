@@ -13,7 +13,26 @@
   --bad: #b23a48;
   --good: #3e8e5a;
   --cast: #5b4b8a;
+  /* 능력치 색 축 (docs/11 §5.20) — 능력치 이름마다 색을 고정하고 장비 옵션 · 스킬 · 버프/디버프
+     어디서나 같은 색을 쓴다. 종이(#f3f0ea) · 카드(#fff) 배경에서 전부 WCAG AA(4.5:1) 를 넘는 값이다.
+     바에 쓰는 --hp · --sp 는 글자에 쓰면 대비가 3.54 · 4.23 으로 모자라서 글자용을 따로 둔다 */
+  --atk: #b23a48;     /* 물리 공격 · 피해 · 적 (5.14) */
+  --magic: #5b4b8a;   /* 마법 · 시전 (6.55) */
+  --guard: #3f6076;   /* 물리 방어 (5.87) */
+  --mguard: #146058;  /* 마법 방어 (6.60) */
+  --life: #2f7347;    /* 생명 · 회복 · 아군 (5.04) */
+  --cost: #2557a8;    /* 자원 소비 — SP · 금 · 재료 (6.14) */
+  --caveat: #8a5a00;  /* 예외 · 제한 · 마이너스 옵션 (5.21) — 물리 적색과 색상각 46° 를 벌려 둔다 */
 }
+
+/* 능력치 색 축 — 이 여덟 줄이 색 규칙 전부다. 새 색을 늘리기 전에 기존 축에 접히는지 먼저 본다 */
+.ax-atk { color: var(--atk); }
+.ax-magic { color: var(--magic); }
+.ax-guard { color: var(--guard); }
+.ax-mguard { color: var(--mguard); }
+.ax-life { color: var(--life); }
+.ax-cost { color: var(--cost); }
+.ax-caveat { color: var(--caveat); }
 * { box-sizing: border-box; }
 html, body { margin: 0; background: var(--paper); color: var(--ink); font: 14px/1.45 system-ui, -apple-system, "Segoe UI", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif; }
 button, select, input { font: inherit; color: inherit; }

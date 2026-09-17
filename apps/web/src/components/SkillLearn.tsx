@@ -2,7 +2,8 @@
 import { SKILL_RESET_GOLD, STARTER_SKILLS, TRAITS, advanceChain } from '@webrpg/engine'
 import type { Member } from '../game/save'
 import { unlearned } from '../game/members'
-import { skillBrief, skillLabel, traitText } from '../lib/labels'
+import { skillLabel, traitText } from '../lib/labels'
+import { SkillSpec } from './Spec'
 import { SkillIcon, TraitIcon } from './Icon'
 
 interface Props {
@@ -46,7 +47,7 @@ export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
             {g.ids.map((id) => (
               <li key={id} className="skill-row">
                 <SkillIcon id={id} alt={skillLabel(id)} />
-                <b>{skillLabel(id)}</b> <small>{skillBrief(id)}</small>
+                <b>{skillLabel(id)}</b> <small><SkillSpec id={id} /></small>
               </li>
             ))}
           </ul>
@@ -84,7 +85,7 @@ export function SkillLearn({ member: m, gold, onLearn, onReset }: Props) {
                 <div className="body">
                   <b>{skillLabel(l.skillId)}</b> <span className={`cost ${l.cost === 0 ? 'free' : ''}`}>{l.cost === 0 ? 'Free' : `${l.cost}pt`}</span>
                   {l.minLevel && <span className="cost">Lv {l.minLevel} 부터</span>}
-                  <small>{skillBrief(l.skillId)}</small>
+                  <small><SkillSpec id={l.skillId} /></small>
                 </div>
                 <button className={ok ? 'primary' : ''} disabled={!ok} onClick={() => onLearn(l.skillId)} title={ok ? '' : !levelOk ? `Lv ${l.minLevel} 부터 배울 수 있다` : `포인트 ${l.cost - m.skillPoints} 더 필요`}>
                   배우기
