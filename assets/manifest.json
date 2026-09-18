@@ -666,6 +666,11 @@
       "name": "대지의 속박",
       "icon": "skills/rootbind.png",
       "color": "#5b4b8a"
+    },
+    "signalFire": {
+      "name": "봉화",
+      "icon": "skills/signalFire.png",
+      "color": "#3e8e5a"
     }
   },
   "items": {

@@ -504,6 +504,8 @@
 | `skills/pinpoint.png` | pinpoint 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/skills/rootbind-source.png` | rootbind AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
 | `skills/rootbind.png` | rootbind 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/skills/signalFire-source.png` | signalFire AI 원본 | OpenAI 내장 ImageGen, 외부 이미지 입력 없음 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-18 |
+| `skills/signalFire.png` | signalFire 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-18 |
 | `../art-source/icons/order29-D-proof-1x.png` | 주문서 29 D묶음 1배 검수판 | 신규 오의·장비·재료와 등급·윗단계 짝을 밝은·어두운 바탕에 1배 배치 | 각 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/order29-D-proof-4x.png` | 주문서 29 D묶음 4배 검수판 | 위 검수 구성을 최근접 정수 4배로 배치 | 각 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/order29-B-proof-1x.png` | 주문서 29 B묶음 1배 검수판 | 신규 스킬과 모든 구별 대상을 밝은·어두운 바탕에 1배 배치 | 각 원본과 동일 | 2026-09-17 |
