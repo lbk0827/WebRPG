@@ -1,0 +1,431 @@
+// M2-5b 전직. 2차 직업이 "스탯이 좋은 직업"이 아니라 **수칙 훅**이라는 것을 고정한다 (ADR-003).
+import { describe, expect, it } from 'vitest'
+import {
+  DEFAULT_CONFIG,
+  HERO_JOB,
+  ITEMS,
+  JOB_ADVANCES,
+  JOB_ADVANCE,
+  PRESETS,
+  SKILLS,
+  TRAITS,
+  advanceChain,
+  advanceLevel,
+  advancesFor,
+  boundWeaponFor,
+  canAdvance,
+  jobSkillPool,
+  learnableFor,
+  simulate,
+} from '../src'
+import type { CharSetup, TeamSetup } from '../src'
+
+const JOBS = ['warrior', 'rogue', 'mage', 'priest', 'elf']
+
+describe('2차 직업 정의', () => {
+  it('1차 직업마다 정확히 2개', () => {
+    for (const j of JOBS) expect(advancesFor(j), j).toHaveLength(2)
+    // 5직업 × 2 + 주인공 계보 4 (길드원 · 떠돌이 · 용사 · 타락 용사)
+    expect(JOB_ADVANCES).toHaveLength(14)
+  })
+
+  it('id 가 겹치지 않고 앞 단계(1차 직업 또는 앞 전직)가 실재한다', () => {
+    const ids = new Set(JOB_ADVANCES.map((j) => j.id))
+    expect(ids.size).toBe(JOB_ADVANCES.length)
+    for (const j of JOB_ADVANCES) expect(PRESETS[j.base] ?? JOB_ADVANCE[j.base], `${j.id} 의 앞 단계`).toBeDefined()
+  })
+
+  it('전직 레벨은 18~22 (docs/07 §3.3) — 주인공 계보는 단장 기획대로 15 · 30', () => {
+    for (const j of JOB_ADVANCES.filter((x) => advanceChain(x.id)[0].base !== HERO_JOB)) {
+      expect(j.level, j.id).toBeGreaterThanOrEqual(18)
+      expect(j.level, j.id).toBeLessThanOrEqual(22)
+    }
+  })
+
+  it('모든 특성·스킬 id 가 실재한다', () => {
+    for (const j of JOB_ADVANCES) {
+      for (const t of j.traits) expect(TRAITS[t], `${j.id} → 특성 ${t}`).toBeDefined()
+      for (const s of j.grants) expect(SKILLS[s], `${j.id} → 스킬 ${s}`).toBeDefined()
+      for (const l of j.learnable) expect(SKILLS[l.skillId], `${j.id} → 습득 ${l.skillId}`).toBeDefined()
+    }
+  })
+
+  it('직업마다 훅이 하나씩 있고 문구가 비어 있지 않다', () => {
+    const kinds = new Set(JOB_ADVANCES.map((j) => j.hookKind))
+    expect(kinds.size, '훅이 겹치면 고를 이유가 없다').toBe(JOB_ADVANCES.length)
+    for (const j of JOB_ADVANCES) {
+      expect(j.traits.length, `${j.id} 는 훅 특성이 있어야 한다`).toBeGreaterThan(0)
+      expect(j.hook.length, j.id).toBeGreaterThan(10)
+    }
+  })
+
+  it('스탯 보정은 방향만 잡는 정도 — 한 항목이 과하지 않다', () => {
+    for (const j of JOB_ADVANCES) {
+      for (const [k, v] of Object.entries(j.bonus)) {
+        const cap = k === 'maxHp' ? 260 : k === 'maxSp' ? 60 : 16
+        expect(v ?? 0, `${j.id}.${k}`).toBeLessThanOrEqual(cap)
+      }
+    }
+  })
+
+  it('전직 가능 판정', () => {
+    expect(canAdvance('rogue', undefined, 17)).toBe(false)
+    expect(canAdvance('rogue', undefined, 18)).toBe(true)
+    expect(canAdvance('warrior', undefined, 18)).toBe(false)
+    expect(canAdvance('warrior', undefined, 20)).toBe(true)
+    expect(canAdvance('warrior', 'guardian', 30), '이미 전직했으면 못 한다').toBe(false)
+    expect(canAdvance(HERO_JOB, undefined, 14)).toBe(false)
+    expect(canAdvance(HERO_JOB, undefined, 15)).toBe(true)
+    expect(canAdvance(HERO_JOB, 'guildMember', 29), '주인공은 30 에 한 번 더').toBe(false)
+    expect(canAdvance(HERO_JOB, 'guildMember', 30)).toBe(true)
+    expect(canAdvance(HERO_JOB, 'brave', 30), '50 전직은 기획 중').toBe(false)
+    expect(advanceLevel('rogue')).toBe(18)
+    expect(advanceLevel('warrior')).toBe(20)
+  })
+
+  it('2차 스킬 목록이 1차 목록에 섞이지 않는다', () => {
+    const base = learnableFor('warrior').map((l) => l.skillId)
+    const adv = learnableFor('warrior', 'guardian').map((l) => l.skillId)
+    expect(adv.length).toBeGreaterThan(base.length)
+    for (const s of base) expect(adv).toContain(s)
+    expect(jobSkillPool('warrior', 'guardian')).toContain('bulwark')
+    expect(jobSkillPool('warrior')).not.toContain('bulwark')
+  })
+
+  it('주인공 전직은 이어진다 — 모험가 →(15) 길드원·떠돌이 →(30) 용사·타락 용사, 계보 고정 (docs/20)', () => {
+    expect(advancesFor(HERO_JOB).map((j) => j.id).sort()).toEqual(['guildMember', 'wanderer'])
+    expect(advancesFor('guildMember').map((j) => j.id)).toEqual(['brave'])
+    expect(advancesFor('wanderer').map((j) => j.id)).toEqual(['fallenHero'])
+    for (const j of advancesFor(HERO_JOB)) expect(j.level, j.id).toBe(15)
+    expect(JOB_ADVANCE.brave.level).toBe(30)
+    expect(JOB_ADVANCE.fallenHero.level).toBe(30)
+    expect(advanceChain('brave').map((j) => j.id)).toEqual(['guildMember', 'brave'])
+    expect(advanceChain('guardian').map((j) => j.id)).toEqual(['guardian'])
+    expect(advanceChain(undefined)).toEqual([])
+    // 사슬의 스킬이 전부 쌓인다 — 용사가 되어도 길드원 때 받은 것을 잃지 않는다
+    expect(jobSkillPool(HERO_JOB, 'brave')).toEqual(expect.arrayContaining(['warCry', 'bulwark']))
+    expect(learnableFor(HERO_JOB, 'brave').map((l) => l.skillId)).toEqual(expect.arrayContaining(['taunt', 'benediction']))
+  })
+
+  it('주인공 전용 무기는 전직으로 진화하고, 진화할수록 세다', () => {
+    expect(boundWeaponFor(undefined)).toBe('woodenClub')
+    expect(boundWeaponFor('guildMember')).toBe('egoSword')
+    expect(boundWeaponFor('wanderer')).toBe('egoBlade')
+    expect(boundWeaponFor('brave')).toBe('braveSword')
+    expect(boundWeaponFor('fallenHero')).toBe('darkBlade')
+    for (const id of ['woodenClub', 'egoSword', 'egoBlade', 'braveSword', 'darkBlade']) {
+      expect(ITEMS[id]?.bound, id).toBe(true)
+      expect(ITEMS[id].weaponType, id).toBe('ego')
+    }
+    const atk = (id: string): number => ITEMS[id].atk?.[0] ?? 0
+    expect(atk('egoSword')).toBeGreaterThan(atk('woodenClub'))
+    expect(atk('egoBlade')).toBeGreaterThan(atk('woodenClub'))
+    expect(atk('braveSword')).toBeGreaterThan(atk('egoSword'))
+    expect(atk('darkBlade')).toBeGreaterThan(atk('egoBlade'))
+  })
+})
+
+// ── 훅이 실제로 전투에서 작동하는가 ────────────────────────
+function lone(over: Partial<CharSetup>, job = 'warrior'): CharSetup {
+  const p = structuredClone(PRESETS[job])
+  return { ...p, id: `${job}#0`, rules: { rows: [{ condition: { op: 'always' }, skillId: 'strike' }] }, ...over }
+}
+const team = (name: string, m: CharSetup[]): TeamSetup => ({ name, members: m })
+
+/** 한 판 돌려 team0 이 준 총 피해 */
+function damageDealt(attacker: CharSetup, defender: CharSetup, seed = 5): number {
+  const r = simulate({ seed, teams: [team('a', [attacker]), team('b', [defender])], config: DEFAULT_CONFIG, skills: SKILLS })
+  let n = 0
+  for (const e of r.events) if (e.t === 'damage' && e.source.team === 0) n += e.amount
+  return n
+}
+
+describe('수칙 훅이 전투에서 작동한다', () => {
+  it('암살자의 독술 — 같은 독이 더 아프다', () => {
+    const rules = { rows: [{ condition: { op: 'always' as const }, skillId: 'venom' }] }
+    const target = () => lone({ id: 'dummy#0', stats: { ...PRESETS.warrior.stats, maxHp: 9000 } })
+    const plain = simulate({
+      seed: 3,
+      teams: [team('a', [lone({ rules, skills: ['venom', 'strike'] }, 'rogue')]), team('b', [target()])],
+      config: DEFAULT_CONFIG,
+      skills: SKILLS,
+    })
+    const hooked = simulate({
+      seed: 3,
+      teams: [team('a', [lone({ rules, skills: ['venom', 'strike'], traits: ['venomcraft'] }, 'rogue')]), team('b', [target()])],
+      config: DEFAULT_CONFIG,
+      skills: SKILLS,
+    })
+    const tick = (r: typeof plain) => r.events.filter((e) => e.t === 'statusTick').reduce((s, e) => s + (e.t === 'statusTick' ? e.amount : 0), 0)
+    expect(tick(hooked), '독술이 붙으면 지속 피해가 커야 한다').toBeGreaterThan(tick(plain))
+  })
+
+  it('심문관의 열의 — 디버프 걸린 적에게 더 아프다', () => {
+    const target = (debuffed: boolean) =>
+      lone({
+        id: 'dummy#0',
+        stats: { ...PRESETS.warrior.stats, maxHp: 9000 },
+        rules: { rows: [{ condition: { op: 'always' }, skillId: debuffed ? 'venom' : 'strike' }] },
+        skills: ['strike', 'venom'],
+      })
+    // 상대가 스스로 독을 뒤집어쓰지는 않으므로, 디버프는 우리가 건다
+    const zealot = lone({
+      rules: { rows: [{ condition: { op: 'atom', atom: { kind: 'selfActionCount', cmp: 'eq', value: 1 } }, skillId: 'venom', maxUses: 1 }, { condition: { op: 'always' }, skillId: 'strike' }] },
+      skills: ['strike', 'venom'],
+      traits: ['zeal'],
+    })
+    const plainZ = { ...zealot, traits: [] }
+    expect(damageDealt(zealot, target(false)), '열의가 붙으면 더 아프다').toBeGreaterThan(damageDealt(plainZ, target(false)))
+  })
+
+  it('주교의 고전례 — 5번째·6번째 칸까지 읽는다', () => {
+    // INT 5 → 기본 칸 4개. 앞 5줄은 항상 거짓, 6번째 줄(index 5)만 참.
+    // 특성이 없으면 4줄까지만 읽어 우물쭈물하고, +2 가 붙으면 6번째가 발동한다.
+    const never = { op: 'atom' as const, atom: { kind: 'selfHpPct' as const, cmp: 'lte' as const, value: 0 } }
+    const rows = [
+      ...Array.from({ length: 5 }, () => ({ condition: never, skillId: 'strike' })),
+      { condition: { op: 'always' as const }, skillId: 'strike' },
+    ]
+    const base = lone({ rules: { rows }, stats: { ...PRESETS.priest.stats, int: 5 }, skills: ['strike'] }, 'priest')
+    const bishop = { ...base, traits: ['highLiturgy'] }
+    const firedRow5 = (c: CharSetup) => {
+      const r = simulate({ seed: 1, teams: [team('a', [c]), team('b', [lone({ id: 'd#0' })])], config: DEFAULT_CONFIG, skills: SKILLS })
+      return r.events.some((e) => e.t === 'ruleFired' && e.actor.team === 0 && e.ruleIndex === 5)
+    }
+    expect(firedRow5(base), '칸이 4개면 6번째 줄은 읽히지 않는다').toBe(false)
+    expect(firedRow5(bishop), '고전례가 붙으면 6번째 줄이 발동한다').toBe(true)
+  })
+
+  it('전부 결정론 — 같은 훅·같은 시드면 같은 결과', () => {
+    const a = () => lone({ traits: ['venomcraft', 'zeal'], skills: ['strike', 'venom'] }, 'rogue')
+    const run = () => simulate({ seed: 11, teams: [team('a', [a()]), team('b', [lone({ id: 'd#0' })])], config: DEFAULT_CONFIG, skills: SKILLS })
+    expect(JSON.stringify(run().events)).toBe(JSON.stringify(run().events))
+  })
+})
+
+// ── 전직은 "다르게 싸우는 것"이지 힘 도약이 아니다 (ADR-003) ──
+import { EMPTY_ALLOC, REGIONS, STAT_POINTS_PER_LEVEL, growthStats, rollEncounter } from '../src'
+import type { StatKey, Stats } from '../src'
+
+const PRIMARY: Record<string, StatKey> = { warrior: 'str', rogue: 'dex', mage: 'int', priest: 'int', elf: 'dex' }
+
+/**
+ * 웹의 memberStats 와 **같은 순서**로 계산한다: 레벨 배율을 먹인 뒤 전직 보정을 더한다.
+ * 순서가 뒤집히면 HP +240 이 Lv23 에서 +500 이 넘어 전직이 힘 도약이 된다 (2026-09-12 실제로 그랬다).
+ */
+function advStats(scaled: Stats, job2?: string): Stats {
+  const adv = job2 ? JOB_ADVANCE[job2] : undefined
+  if (!adv) return scaled
+  const out = { ...scaled }
+  for (const [k, v] of Object.entries(adv.bonus)) out[k as keyof Stats] = (out[k as keyof Stats] ?? 0) + (v ?? 0)
+  return out
+}
+
+function advParty(level: number, advanced: Record<string, string>): TeamSetup {
+  return {
+    name: '측정',
+    members: JOBS.map((j, i) => {
+      const p = structuredClone(PRESETS[j])
+      const j2 = advanced[j]
+      const adv = j2 ? JOB_ADVANCE[j2] : undefined
+      const alloc = { ...EMPTY_ALLOC, [PRIMARY[j]]: (level - 1) * STAT_POINTS_PER_LEVEL }
+      return {
+        ...p,
+        id: `${j}#${i}`,
+        stats: advStats(growthStats(p.stats, level, alloc), j2),
+        skills: [...new Set([...p.skills, ...(adv?.grants ?? [])])],
+        traits: adv?.traits ?? [],
+      }
+    }),
+  }
+}
+
+function winAt(level: number, regionIdx: number, t: TeamSetup, n = 80): number {
+  let w = 0
+  for (let s = 1; s <= n; s++) {
+    const e = rollEncounter(REGIONS[regionIdx], s)
+    if (simulate({ seed: s, teams: [t, e], config: DEFAULT_CONFIG, skills: SKILLS }).outcome === 'team0') w++
+  }
+  return Math.round((w / n) * 100)
+}
+
+describe('전직은 힘 도약이 아니다', () => {
+  const REGION = 7 // 심연의 굴
+  const LV = REGIONS[REGION].recommended[0]
+  const base = winAt(LV, REGION, advParty(LV, {}))
+
+  it('수칙을 그대로 둔 채 전직만 하면 값이 크게 뛰지 않는다', () => {
+    for (const a of JOB_ADVANCES) {
+      const got = winAt(LV, REGION, advParty(LV, { [a.base]: a.id }))
+      // 위: 전직이 수칙을 대체해 버리면 안 된다. 아래: 전직이 손해여도 안 된다
+      expect(got - base, `${a.name}: 기준 ${base}% → ${got}%`).toBeLessThanOrEqual(14)
+      expect(got - base, `${a.name}: 기준 ${base}% → ${got}%`).toBeGreaterThanOrEqual(-6)
+    }
+  })
+
+  it('전원 전직해도 마찬가지 (한 명씩의 합이 폭발하지 않는다)', () => {
+    const all = { warrior: 'guardian', rogue: 'assassin', mage: 'elementalist', priest: 'bishop', elf: 'ranger' }
+    const got = winAt(LV, REGION, advParty(LV, all))
+    expect(got - base, `전원 전직: 기준 ${base}% → ${got}%`).toBeLessThanOrEqual(30)
+    console.log(`\n전직 전 ${base}% → 전원 전직 ${got}% (수칙은 그대로)\n`)
+  })
+})
+
+// ── 광전사: 패시브가 아니라 **결정**이다 (docs/18 §12) ────────────
+//
+// 2026-09-12 실측에서 광전사의 훅만 값이 음수(−2)였다. 훅이 "HP 40% 아래면 공격 +55%" 방아쇠라
+// 적이 알아서 깎아 주었고, 수칙으로 살릴 것이 없었다. 태운 만큼 세지는 쪽으로 바꿨다.
+// 아래 넷이 그 성질을 고정한다.
+describe('광전사의 피의 분노', () => {
+  const dummy = () => lone({ id: 'dummy#0', stats: { ...PRESETS.warrior.stats, maxHp: 99999, def: 0 } })
+  const burner = (hpPct: number, traits: string[]): CharSetup => {
+    const base = PRESETS.warrior.stats
+    return lone({
+      // 현재 HP 를 직접 못 주므로 최대 HP 를 줄여 "남은 피가 적은 상태"를 만든다.
+      // 태운 양은 최대 HP 대비로 재므로, 비율이 같으면 배율도 같아야 한다 — 그래서 다르게 만든다
+      stats: { ...base, maxHp: Math.floor((base.maxHp * hpPct) / 100) },
+      skills: ['recklessSwing', 'strike'],
+      traits,
+      rules: { rows: [{ condition: { op: 'always' }, skillId: 'recklessSwing' }] },
+    })
+  }
+  /** 첫 무모한 일격이 적에게 준 피해 */
+  const firstHit = (c: CharSetup): number => {
+    const r = simulate({ seed: 4, teams: [team('a', [c]), team('b', [dummy()])], config: DEFAULT_CONFIG, skills: SKILLS })
+    const e = r.events.find((x) => x.t === 'damage' && x.source.team === 0 && x.target.team === 1)
+    return e && e.t === 'damage' ? e.amount : 0
+  }
+
+  it('태우는 기술을 쓰지 않으면 훅은 아무 값도 없다 — 패시브가 아니다', () => {
+    const plain = lone({ skills: ['strike'], rules: { rows: [{ condition: { op: 'always' }, skillId: 'strike' }] } })
+    const raged = { ...plain, traits: ['bloodRage'] }
+    expect(firstHit(raged), '기본 공격에는 분노가 붙지 않는다').toBe(firstHit(plain))
+  })
+
+  it('태운 만큼 세진다 — 훅이 붙으면 같은 기술이 훨씬 아프다', () => {
+    expect(firstHit(burner(100, ['bloodRage']))).toBeGreaterThan(firstHit(burner(100, [])) * 2)
+  })
+
+  it('태울 피가 없으면 값도 줄어든다 — "언제 태우나"가 판단이 된다', () => {
+    // 최대 HP 가 작으면 25% 를 태워도 절대량이 작고, 배율은 최대 HP 대비이므로 위력도 작다.
+    // 스탯이 같으므로 차이는 전부 태운 양에서 온다
+    const big = firstHit(burner(100, ['bloodRage']))
+    const small = firstHit(burner(30, ['bloodRage']))
+    expect(small, `만피 ${big} vs 작은 그릇 ${small}`).toBeLessThan(big)
+  })
+
+  it('자해로 죽을 수 있다 — 1 을 남겨 주지 않는다', () => {
+    // 남은 HP 의 25% 씩 태우면 언젠가 1 미만이 되어 스스로 쓰러진다.
+    // 안전판이 있으면 "끝까지 태우기"가 공짜가 되어 멈출 이유가 없어진다
+    const c = lone({
+      stats: { ...PRESETS.warrior.stats, maxHp: 12 },
+      skills: ['recklessSwing'],
+      traits: ['bloodRage'],
+      rules: { rows: [{ condition: { op: 'always' }, skillId: 'recklessSwing' }] },
+    })
+    const r = simulate({ seed: 4, teams: [team('a', [c]), team('b', [dummy()])], config: DEFAULT_CONFIG, skills: SKILLS })
+    expect(r.events.some((e) => e.t === 'death' && e.target.team === 0), '스스로 쓰러져야 한다').toBe(true)
+  })
+})
+
+// ── 훅을 잘못 쓰면 손해다: 무조건 태우는 수칙 < 멈출 선을 그은 수칙 ──
+describe('광전사 수칙의 값', () => {
+  const LV = REGIONS[7].recommended[0] // 심연의 굴 Lv23
+  /** 광전사 한 명을 끼운 5인 파티. INT 에 투자해 6칸을 쓴다 */
+  function withRules(rows: { condition: any; skillId: string; maxUses?: number }[]): TeamSetup {
+    const t = advParty(LV, { warrior: 'berserker' })
+    return {
+      ...t,
+      members: t.members.map((m) => {
+        if (!m.id.startsWith('warrior')) return m
+        const pool = (LV - 1) * STAT_POINTS_PER_LEVEL
+        return {
+          ...m,
+          stats: advStats(growthStats(PRESETS.warrior.stats, LV, { ...EMPTY_ALLOC, str: pool - 120, int: 120 }), 'berserker'),
+          rules: { rows },
+        }
+      }),
+    }
+  }
+  const atomOf = (a: any) => ({ op: 'atom' as const, atom: a })
+  const BURN_ALWAYS = [
+    { condition: atomOf({ kind: 'selfSpAbs', cmp: 'gte', value: 10 }), skillId: 'recklessSwing' },
+    { condition: { op: 'always' as const }, skillId: 'strike' },
+  ]
+  const GATED = [
+    { condition: atomOf({ kind: 'selfActionCount', cmp: 'eq', value: 1 }), skillId: 'warCry', maxUses: 1 },
+    { condition: atomOf({ kind: 'selfHpPct', cmp: 'lte', value: 32 }), skillId: 'bloodlust' },
+    { condition: atomOf({ kind: 'teamAliveCount', side: 'enemy', cmp: 'gte', value: 4 }), skillId: 'sweep' },
+    { condition: atomOf({ kind: 'teamAnyHpPct', side: 'enemy', cmp: 'lte', value: 30 }), skillId: 'recklessSwing' },
+    { condition: atomOf({ kind: 'selfHpPct', cmp: 'gte', value: 60 }), skillId: 'recklessSwing' },
+    { condition: { op: 'always' as const }, skillId: 'strike' },
+  ]
+
+  it('멈출 선을 그은 수칙이 무조건 태우는 수칙을 크게 이긴다', () => {
+    const burn = winAt(LV, 7, withRules(BURN_ALWAYS))
+    const gate = winAt(LV, 7, withRules(GATED))
+    console.log(`\n광전사 — 무조건 태우기 ${burn}% vs 멈출 선 ${gate}%\n`)
+    expect(gate - burn, `무조건 ${burn}% / 멈출 선 ${gate}%`).toBeGreaterThanOrEqual(6)
+  })
+})
+
+// ── 프리스트의 두 갈래가 **둘 다 답이어야 한다** (docs/18 §13) ────
+//
+// 2026-09-13 측정: 프리스트 칸은 차례를 대개 치유에 쓴다. 그래서 "걸고 친다"로 겨루려던 심문관은
+// 남는 두세 차례에만 훅이 붙어 주교에게 구조적으로 밀렸다 (66 vs 59).
+// 심문관의 훅을 **치유 수요를 줄이는 쪽**으로 돌려(단죄를 적 전원 약화로) 격차를 닫았다.
+// 이 테스트는 다시 벌어지는 것을 막는다.
+describe('프리스트: 주교와 심문관이 둘 다 답이다', () => {
+  const REGION2 = 7 // 심연의 굴
+  const LV2 = REGIONS[REGION2].recommended[0]
+  const at = (a: any) => ({ op: 'atom' as const, atom: a })
+  const ROW = (condition: any, skillId: string, maxUses?: number) => ({ condition, skillId, ...(maxUses ? { maxUses } : {}) })
+
+  /**
+   * 프리스트 칸에만 수칙을 갈아 끼운 파티.
+   * `advParty` 는 전직 즉시 받는 스킬(grants)만 준다 — 여기서는 **포인트로 배우는 것까지** 준다.
+   * 주교의 은사·심문관의 단죄가 각자의 훅을 쓰는 핵심 도구이므로, 없으면 비교가 성립하지 않는다
+   */
+  function priestWith(job2: string, rows: ReturnType<typeof ROW>[]): TeamSetup {
+    const t = advParty(LV2, { priest: job2 })
+    const extra = JOB_ADVANCE[job2].learnable.map((l) => l.skillId)
+    return {
+      ...t,
+      members: t.members.map((m) =>
+        m.id.startsWith('priest') ? { ...m, skills: [...new Set([...m.skills, ...extra])], rules: { rows } } : m,
+      ),
+    }
+  }
+
+  /** 주교 — 칸 7개로 "지금 어느 치유가 맞나"를 잘게 가른다 */
+  const BISHOP = [
+    ROW(at({ kind: 'teamDeadCount', side: 'ally', cmp: 'gte', value: 1 }), 'resurrect'),
+    ROW(at({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: 30 }), 'benediction'),
+    ROW(at({ kind: 'teamAvgHpPct', side: 'ally', cmp: 'lte', value: 60 }), 'sanctuary'),
+    ROW(at({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: 55 }), 'mend'),
+    ROW(at({ kind: 'teamStatusCount', side: 'ally', status: 'poison', cmp: 'gte', value: 1 }), 'cleanse'),
+    ROW(at({ kind: 'selfActionCount', cmp: 'eq', value: 1 }), 'ward', 1),
+    ROW({ op: 'always' as const }, 'strike'),
+  ]
+  /** 심문관 — 예방이 치료보다 싸다. 적 전원 약화를 유지하고 친다 */
+  const INQUISITOR = [
+    ROW(at({ kind: 'teamDeadCount', side: 'ally', cmp: 'gte', value: 1 }), 'resurrect'),
+    ROW(at({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: 40 }), 'mend'),
+    ROW(at({ kind: 'teamStatusCount', side: 'enemy', status: 'atkDown', cmp: 'lte', value: 1 }), 'condemn'),
+    ROW(at({ kind: 'teamAnyHpPct', side: 'ally', cmp: 'lte', value: 65 }), 'mend'),
+    ROW({ op: 'always' as const }, 'judgment'),
+  ]
+
+  it('두 길의 승률 차이가 5%p 안에 있다 — 한쪽이 정답이면 고를 이유가 없다', () => {
+    const bishop = winAt(LV2, REGION2, priestWith('bishop', BISHOP))
+    const inquisitor = winAt(LV2, REGION2, priestWith('inquisitor', INQUISITOR))
+    console.log(`\n프리스트 — 주교 ${bishop}% vs 심문관 ${inquisitor}%\n`)
+    expect(Math.abs(bishop - inquisitor), `주교 ${bishop}% / 심문관 ${inquisitor}%`).toBeLessThanOrEqual(5)
+  })
+
+  it('심문관의 단죄는 적 전원을 약화시킨다 — 치유 한 차례를 대신하는 값이다', () => {
+    const s = SKILLS.condemn
+    expect(s.target.scope, '단일 대상이면 주교와 겨룰 수 없다').toBe('all')
+    expect(s.effects.some((e) => e.kind === 'applyStatus' && e.status === 'atkDown')).toBe(true)
+  })
+})

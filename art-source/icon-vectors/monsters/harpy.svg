@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>하피</title>
+  <circle cx="64" cy="64" r="60" fill="#3f6f8f"/>
+  <circle cx="64" cy="64" r="60" fill="none" stroke="#1d1d24" stroke-width="4"/>
+  <!-- wings -->
+  <path d="M58 56 C40 40 22 40 12 54 C26 56 34 62 40 72 C30 70 22 72 16 78 C30 82 40 88 48 98 Z" fill="#8fd3ff" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M70 56 C88 40 106 40 116 54 C102 56 94 62 88 72 C98 70 106 72 112 78 C98 82 88 88 80 98 Z" fill="#8fd3ff" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <!-- body -->
+  <path d="M64 30 C74 30 80 40 80 54 L80 84 C80 94 73 100 64 100 C55 100 48 94 48 84 L48 54 C48 40 54 30 64 30 Z" fill="#e9e4d8" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <!-- eyes + beak -->
+  <circle cx="56" cy="50" r="3.5" fill="#1d1d24"/>
+  <circle cx="72" cy="50" r="3.5" fill="#1d1d24"/>
+  <polygon points="64,58 74,66 64,74 58,66" fill="#d4a017" stroke="#1d1d24" stroke-width="3" stroke-linejoin="round"/>
+</svg>

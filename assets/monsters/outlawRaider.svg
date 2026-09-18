@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="64" height="64" shape-rendering="crispEdges">
+  <title>낙오자 약탈자</title>
+  <path fill="#1d1d24" d="M4 2h3v3H4zM17 2h3v3h-3zM6 4h3v3H6zM15 4h3v3h-3zM8 6h8v2H8zM6 8h12v8H6zM8 16h8v3H8zM4 18h5v3H4zM15 18h5v3h-5z"/>
+  <path fill="#cfd6e0" d="M4 2h2v2H4zM18 2h2v2h-2zM6 4h2v2H6zM16 4h2v2h-2z"/>
+  <path fill="#6b5535" d="M8 9h8v6H8zM9 16h6v2H9zM5 19h3v1H5zM16 19h3v1h-3z"/>
+  <path fill="#9a6540" d="M9 10h6v2H9z"/>
+  <path fill="#e9e4d8" d="M9 7h6v1H9z"/>
+</svg>
