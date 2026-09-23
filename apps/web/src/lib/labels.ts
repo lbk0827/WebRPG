@@ -283,6 +283,8 @@ export function itemParts(def: ItemDef, inst?: ItemInstance): Part[] {
   if (inst?.trait && inst.trait !== def.trait) {
     out.push({ text: `[${traitLabel(inst.trait)}] ${TRAITS[inst.trait] ? traitText(TRAITS[inst.trait]) : ''} (제작 보너스)`, axis: 'plain' })
   }
+  // 무기 스킬 — 이 무기를 든 동안만 쓸 수 있는 스킬 (docs/31). 특성과 같은 이유로 색을 주지 않는다
+  if (def.skills?.length) out.push({ text: `무기 스킬 ${def.skills.map(skillLabel).join(' · ')}`, axis: 'plain' })
   return out
 }
 
