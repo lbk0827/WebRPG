@@ -22,6 +22,8 @@ export interface StatusInstance {
   /** 보유자 자신의 차례 기준 남은 횟수 */
   remaining: number
   magnitude: number
+  /** 누적 상태의 겹 수 (docs/31 §6). 누적이 아닌 상태에는 없다 */
+  stacks?: number
 }
 
 export interface PendingCast {
@@ -163,6 +165,11 @@ export function teamOf(st: BattleState, c: CharState): CharState[] {
 
 export function enemiesOf(st: BattleState, c: CharState): CharState[] {
   return st.teams[c.ref.team === 0 ? 1 : 0]
+}
+
+/** 누적 상태의 겹 수. 없으면 0 */
+export function statusStacks(c: CharState, id: StatusId): number {
+  return c.statuses.find((s) => s.id === id)?.stacks ?? 0
 }
 
 export function hasStatus(c: CharState, id: StatusId): boolean {

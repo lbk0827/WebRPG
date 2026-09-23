@@ -25,8 +25,8 @@ const JOBS = ['warrior', 'rogue', 'mage', 'priest', 'elf']
 describe('2차 직업 정의', () => {
   it('1차 직업마다 정확히 2개', () => {
     for (const j of JOBS) expect(advancesFor(j), j).toHaveLength(2)
-    // 5직업 × 2 + 주인공 계보 4 (길드원 · 떠돌이 · 용사 · 타락 용사)
-    expect(JOB_ADVANCES).toHaveLength(14)
+    // 5직업 × 2 + 주인공 계보 6 (길드원 · 떠돌이 · 용사 · 타락 용사 · 영웅 · 마검사 — docs/31 §6)
+    expect(JOB_ADVANCES).toHaveLength(16)
   })
 
   it('id 가 겹치지 않고 앞 단계(1차 직업 또는 앞 전직)가 실재한다', () => {
@@ -35,7 +35,7 @@ describe('2차 직업 정의', () => {
     for (const j of JOB_ADVANCES) expect(PRESETS[j.base] ?? JOB_ADVANCE[j.base], `${j.id} 의 앞 단계`).toBeDefined()
   })
 
-  it('전직 레벨은 18~22 (docs/07 §3.3) — 주인공 계보는 단장 기획대로 15 · 30', () => {
+  it('전직 레벨은 18~22 (docs/07 §3.3) — 주인공 계보는 단장 기획대로 15 · 30 · 50', () => {
     for (const j of JOB_ADVANCES.filter((x) => advanceChain(x.id)[0].base !== HERO_JOB)) {
       expect(j.level, j.id).toBeGreaterThanOrEqual(18)
       expect(j.level, j.id).toBeLessThanOrEqual(22)

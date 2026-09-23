@@ -28,8 +28,9 @@ describe('장비 데이터', () => {
     expect(canEquip('mage', ITEMS.swordSteel)).toBe(false)
     expect(canEquip('mage', ITEMS.armorPlate)).toBe(true)
     // 주인공 전용 무기는 주인공만 든다
+    // 나무 몽둥이 · 에고 소드 · 에고 블레이드 · 용사의 검 · 다크 블레이드 + Lv50 둘 (docs/31 §6)
     const bound = ITEM_LIST.filter((i) => i.bound)
-    expect(bound.length).toBe(5)
+    expect(bound.length).toBe(7)
     for (const i of bound) for (const job of Object.keys(PRESETS)) expect(canEquip(job, i), `${job} ${i.id}`).toBe(job === HERO_JOB)
   })
   it('합산: 공격·방어·스탯·특성·무기 타입', () => {

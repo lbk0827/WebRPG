@@ -39,6 +39,22 @@ const list: TraitDef[] = [
     // (2026-09-13 측정: 그냥 때리는 쪽으로는 못 겨룬다 — docs/18 §13)
     effects: [{ kind: 'statusPowerPct', pct: 20 }, { kind: 'damageVsDebuffedPct', pct: 35 }],
   },
+  // ───────── 주인공 3차 전직의 훅 (Lv50, docs/31 §6). 전용 무기에 붙는다 — 벗을 수 없으니 사실상 계보의 훅이다
+  {
+    id: 'chaosBlade',
+    label: '혼돈',
+    // 때릴 때마다 혼돈이 한 겹. 겹당 **그 순간 내 공격력의 15%** 가 저장되고, 그 적의 차례마다 그만큼 아프다.
+    // 중독과 달리 육성(힘·무기·강화)이 값을 키운다. 12겹 상한 · 마지막으로 때린 뒤 4차례 유지.
+    // 한 명에게 모아야 세지고, 공격↑ 을 켜고 쌓아야 더 아프다 — 거기가 수칙이 답할 자리다
+    effects: [{ kind: 'onHitStatus', status: 'chaos', power: 15 }],
+  },
+  {
+    id: 'oathLight',
+    label: '서약의 빛',
+    // 자기 차례마다 한 겹 모인다 (상한 10). 모으기만 해서는 아무 일도 없다 —
+    // 「서약」으로 소모해야 값이 된다. 적게 모아 일찍 쓸까, 채워서 크게 쓸까가 수칙의 판단이다
+    effects: [{ kind: 'trigger', on: 'turnStart', effect: { kind: 'applyStatus', status: 'oath', duration: 99, magnitude: 1 } }],
+  },
   { id: 'deadeye', label: '매의 눈', effects: [{ kind: 'damageVsRowPct', row: 'back', pct: 15 }] },
   { id: 'thornward', label: '가시 수호', effects: [{ kind: 'statusPowerPct', pct: 25 }, { kind: 'resistPct', pct: 10 }] },
 ]

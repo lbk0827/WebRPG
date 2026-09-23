@@ -24,6 +24,8 @@ export const KIND_SPECS: Record<ConditionAtom['kind'], KindSpec> = {
   selfSpAbs: { label: '내 SP', fields: ['value', 'cmp'], unit: '', defaultValue: 20 },
   selfRow: { label: '내 위치가', fields: ['row'], unit: '', defaultValue: 0 },
   selfHasStatus: { label: '내가', fields: ['status'], unit: '상태', defaultValue: 0 },
+  selfStatusStacks: { label: '내 누적 상태', fields: ['status', 'value', 'cmp'], unit: '겹', defaultValue: 6 },
+  teamAnyStatusStacks: { label: '{side} 중 누적 상태', fields: ['status', 'value', 'cmp'], unit: '겹 이상인 자', defaultValue: 8 },
   selfActionCount: { label: '내 행동 횟수', fields: ['value', 'cmp'], unit: '회', defaultValue: 1 },
   teamAliveCount: { label: '{side} 생존자', fields: ['value', 'cmp'], unit: '명', defaultValue: 3 },
   teamDeadCount: { label: '{side} 전사자', fields: ['value', 'cmp'], unit: '명', defaultValue: 1 },
@@ -51,8 +53,8 @@ export interface PickerItem {
 }
 
 // 피커에 보이는 종류. teamAnyHpPctBelow · teamSpPctBelow 는 teamAnyHpPct · teamAnySpPct 의 '이하' 특수형이라 숨기고, 읽을 때 변환한다
-const SELF_KINDS: ConditionAtom['kind'][] = ['selfHpPct', 'selfHpAbs', 'selfSpPct', 'selfSpAbs', 'selfRow', 'selfHasStatus', 'selfActionCount', 'selfActionEvery', 'selfStat']
-const TEAM_KINDS: ConditionAtom['kind'][] = ['teamAnyHpPct', 'teamAnyHpAbs', 'teamAliveCount', 'teamDeadCount', 'teamAvgHpPct', 'teamCastingCount', 'teamStatusCount', 'teamRowCount', 'teamAnySpPct', 'teamAvgSpPct']
+const SELF_KINDS: ConditionAtom['kind'][] = ['selfHpPct', 'selfHpAbs', 'selfSpPct', 'selfSpAbs', 'selfRow', 'selfHasStatus', 'selfStatusStacks', 'selfActionCount', 'selfActionEvery', 'selfStat']
+const TEAM_KINDS: ConditionAtom['kind'][] = ['teamAnyHpPct', 'teamAnyHpAbs', 'teamAliveCount', 'teamDeadCount', 'teamAvgHpPct', 'teamCastingCount', 'teamStatusCount', 'teamAnyStatusStacks', 'teamRowCount', 'teamAnySpPct', 'teamAvgSpPct']
 
 export const PICKER_GROUPS: { group: string; items: PickerItem[] }[] = [
   { group: '자신', items: SELF_KINDS.map((kind) => ({ key: kind, kind, label: KIND_SPECS[kind].label })) },
@@ -77,6 +79,10 @@ export function makeAtom(kind: ConditionAtom['kind'], side: Side = 'ally'): Cond
       return { kind, cmp: 'eq', value: v }
     case 'selfRow':
       return { kind, row: 'front' }
+    case 'selfStatusStacks':
+      return { kind, status: 'oath', cmp: 'gte', value: v }
+    case 'teamAnyStatusStacks':
+      return { kind, side, status: 'chaos', cmp: 'gte', value: v }
     case 'selfHasStatus':
       return { kind, status: 'poison' }
     case 'teamAliveCount':
@@ -171,6 +177,10 @@ export function describeAtom(a: ConditionAtom): string {
       return `내가 ${rowText(a.row)}`
     case 'selfHasStatus':
       return `내가 [${statusText(a.status)}] 상태`
+    case 'selfStatusStacks':
+      return `내 [${statusText(a.status)}] ${a.value}겹 ${cmpText(a.cmp)}`
+    case 'teamAnyStatusStacks':
+      return `${sideText(a.side)} 중 [${statusText(a.status)}] ${a.value}겹 ${cmpText(a.cmp)}인 자 있음`
     case 'selfActionCount':
       return a.cmp === 'eq' ? `내 ${a.value}번째 행동` : `내 행동 횟수 ${a.value}회 ${cmpText(a.cmp)}`
     case 'teamAliveCount':

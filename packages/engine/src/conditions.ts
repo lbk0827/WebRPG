@@ -1,7 +1,7 @@
 // 조건식 평가 (§5). 순수 함수 — 상태를 바꾸지 않는다. 단 chance 는 rng 를 소비한다.
 import type { Cmp, Condition, ConditionAtom, Side } from './types'
 import type { BattleState, CharState } from './state'
-import { enemiesOf, hasStatus, hpPct, isCasting, spPct, teamOf } from './state'
+import { enemiesOf, hasStatus, hpPct, isCasting, spPct, statusStacks, teamOf } from './state'
 
 const MAX_DEPTH = 3
 
@@ -89,6 +89,11 @@ function evalAtom(atom: ConditionAtom, actor: CharState, st: BattleState): boole
       const sum = list.reduce((acc, c) => acc + spPct(c), 0)
       return cmp(Math.floor(sum / list.length), atom.cmp, atom.value)
     }
+    case 'teamAnyStatusStacks':
+      return alive(sideOf(st, actor, atom.side)).some((c) => cmp(statusStacks(c, atom.status), atom.cmp, atom.value))
+    case 'selfStatusStacks':
+      return cmp(statusStacks(actor, atom.status), atom.cmp, atom.value)
+
     case 'selfActionEvery':
       // N 이 0 이하면 성립하지 않는다. 이번 행동(actionCount+1)이 N 의 배수일 때.
       return atom.value > 0 && (actor.actionCount + 1) % atom.value === 0

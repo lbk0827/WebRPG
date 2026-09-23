@@ -4,6 +4,7 @@ import { GAUGE_MAX, pctOf } from './fixed'
 import type { BattleState, CharState } from './state'
 import { CRIT_MULT_PCT, DELAY_TAKEN_CAP, critPct, emit, findStatus, gaugeDamagePct, hpPct, resistPct, statusPowerPct } from './state'
 import { STATUS_DEFS } from './data/statuses'
+import type { StatusDef } from './data/statuses'
 import { TRAITS } from './data/traits'
 import { calcDamage, calcHeal, calcSpDamage, calcSpRestore } from './damage'
 
@@ -19,6 +20,8 @@ export interface EffectCtx {
   recoil: boolean
   /** 이번 행동에서 태운 HP — 최대 HP 의 몇 %인가. 태운 만큼 그 타격이 세진다 */
   recoilPaidPct: number
+  /** consumeStatus 가 이번 행동에서 소모한 겹 수 (여러 대상에게 한 번만 소모하기 위한 것) */
+  consumedStacks?: number
 }
 
 export const freshCtx = (): EffectCtx => ({ hitIndex: 0, viaCover: false, lastDamage: 0, recoil: false, recoilPaidPct: 0 })
@@ -61,7 +64,12 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
       ctx.lastDamage = amount
       emit(st, { t: 'damage', source: actor.ref, target: target.ref, amount, school: effect.school, ...(crit ? { crit: true } : {}) })
       if (target.hp === 0) kill(target, st)
-      else runTriggers(target, 'damaged', st)
+      else {
+        runTriggers(target, 'damaged', st)
+        // 수칙 훅 (Lv50 마검사): 때릴 때마다 혼돈이 한 겹 쌓인다.
+        // **거는 순간의 내 공격력**으로 값을 재서 더하므로, 공격↑ 을 켜고 쌓은 혼돈이 더 아프다 (docs/31 §6.1)
+        applyOnHitStatuses(actor, target, st)
+      }
       return
     }
 
@@ -142,18 +150,59 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
       const baseMag = effect.magnitude ?? STATUS_DEFS[effect.status].defaultMagnitude
       const boost = STATUS_DEFS[effect.status].category === 'debuff' ? statusPowerPct(actor) : 0
       const magnitude = boost ? Math.max(1, pctOf(baseMag, 100 + boost)) : baseMag
+      const def = STATUS_DEFS[effect.status]
       const existing = findStatus(target, effect.status)
-      if (existing) {
+      if (existing && def.stack) {
+        // 누적 상태 (docs/31 §6): 덮어쓰지 않고 **겹을 더한다.** 상한에 닿으면 더 쌓이지 않는다
+        const cap = def.maxStacks ?? Infinity
+        if ((existing.stacks ?? 0) < cap) {
+          existing.stacks = (existing.stacks ?? 0) + 1
+          existing.magnitude += magnitude
+        }
+        existing.remaining = Math.max(existing.remaining, effect.duration)
+      } else if (existing) {
         existing.remaining = Math.max(existing.remaining, effect.duration)
         existing.magnitude = magnitude
       } else {
-        target.statuses.push({ id: effect.status, remaining: effect.duration, magnitude })
+        target.statuses.push({ id: effect.status, remaining: effect.duration, magnitude, ...(def.stack ? { stacks: 1 } : {}) })
       }
       emit(st, { t: 'statusApply', target: target.ref, status: effect.status, duration: effect.duration, magnitude })
       // 침묵은 진행 중인 시전을 끊는다 (끊기의 "취소" 계열)
       if (effect.status === 'silence' && target.pending) {
         emit(st, { t: 'castInterrupted', target: target.ref, skillId: target.pending.skillId })
         target.pending = undefined
+      }
+      return
+    }
+
+    case 'consumeStatus': {
+      if (!target.alive) return
+      // 여러 대상에게 쓰는 스킬이면 **첫 대상에서 한 번만** 소모하고, 그 겹 수를 모두에게 똑같이 적용한다
+      if (ctx.consumedStacks === undefined) {
+        const mine = findStatus(actor, effect.status)
+        ctx.consumedStacks = mine?.stacks ?? 0
+        if (mine) {
+          actor.statuses = actor.statuses.filter((s) => s !== mine)
+          emit(st, { t: 'statusExpire', target: actor.ref, status: effect.status })
+        }
+      }
+      const stacks = ctx.consumedStacks
+      if (stacks <= 0) return
+      if (effect.healPerStack) {
+        const amount = Math.min(calcHeal(effect.healPerStack * stacks, actor), target.setup.stats.maxHp - target.hp)
+        if (amount > 0) {
+          target.hp += amount
+          emit(st, { t: 'heal', source: actor.ref, target: target.ref, amount })
+        }
+      }
+      if (effect.shieldPerStacks) {
+        const hits = Math.min(effect.shieldMax ?? Infinity, Math.floor(stacks / effect.shieldPerStacks))
+        if (hits > 0) {
+          const cur = findStatus(target, 'barrier')
+          if (cur) cur.magnitude = Math.max(cur.magnitude, hits)
+          else target.statuses.push({ id: 'barrier', remaining: 99, magnitude: hits })
+          emit(st, { t: 'statusApply', target: target.ref, status: 'barrier', duration: 99, magnitude: hits })
+        }
       }
       return
     }
@@ -222,6 +271,29 @@ export function applyEffect(effect: Effect, actor: CharState, target: CharState,
  * - turnStart: 자기 차례 시작 시
  * - damaged: 피해를 받고 살아남았을 때 (lowHp 트리거는 HP 조건이 맞을 때 함께 검사)
  */
+/**
+ * 적을 때린 뒤 부르는 것 — 특성 `onHitStatus` 를 가진 시전자가 그 대상에 누적 상태를 건다 (docs/31 §6.1).
+ * 세기는 **지금 내 공격력**으로 잰다. 같은 스킬이라도 공격↑ 을 켜고 친 쪽이 더 아픈 혼돈을 남긴다.
+ */
+export function applyOnHitStatuses(actor: CharState, target: CharState, st: BattleState): void {
+  if (!target.alive) return
+  for (const id of actor.setup.traits ?? []) {
+    const t = TRAITS[id]
+    if (!t) continue
+    for (const e of t.effects) {
+      if (e.kind !== 'onHitStatus') continue
+      const def: StatusDef = STATUS_DEFS[e.status]
+      const cur = findStatus(target, e.status)
+      if (def.maxStacks !== undefined && (cur?.stacks ?? 0) >= def.maxStacks) continue
+      const per = calcDamage({ school: 'phys', power: e.power }, actor, target)
+      applyEffect({ kind: 'applyStatus', status: e.status, duration: CHAOS_DURATION, magnitude: per }, actor, target, st, freshCtx())
+    }
+  }
+}
+
+/** 혼돈이 유지되는 차례 수 — 마지막으로 때린 뒤 이만큼. 내버려 두면 흩어진다 (docs/31 §6.1) */
+export const CHAOS_DURATION = 4
+
 export function runTriggers(c: CharState, on: 'turnStart' | 'damaged', st: BattleState): void {
   if (!c.alive) return
   for (const id of c.setup.traits ?? []) {

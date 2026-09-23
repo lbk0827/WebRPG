@@ -14,6 +14,8 @@ export type HookKind =
   | 'guard' | 'lowHp' | 'dot' | 'interrupt' | 'aoe' | 'order' | 'slots' | 'smite' | 'snipe' | 'control'
   // 주인공 계보 (docs/20) — 임시 훅. 기획이 나오면 바꾼다
   | 'guild' | 'wander' | 'brave' | 'fallen'
+  // 3차 전직 (Lv50, docs/31 §6). 훅은 전용 무기의 특성으로 붙는다
+  | 'oath' | 'chaos'
 
 export interface JobAdvanceDef {
   id: string
@@ -242,6 +244,36 @@ export const JOB_ADVANCES: JobAdvanceDef[] = [
     learnable: [{ skillId: 'bloodlust', cost: 3 }],
     bonus: { str: 14, spd: 6, maxHp: 80 },
     brief: '에고 블레이드가 어둠을 삼켰다. 힘은 피로 산다.',
+  },
+  // ───────── 주인공 3차 (Lv50, docs/31 §6). 도트는 `assets/units/magicSwordsman-*` 가 이미 있다.
+  // 훅은 **전용 무기**(성검 엑스칼리버 · 마검 아포칼립스)의 특성으로 붙는다 — 벗을 수 없으니 계보의 훅과 같다.
+  {
+    id: 'hero',
+    name: '영웅',
+    base: 'brave',
+    level: 50,
+    weapon: 'excalibur',
+    hook: '자기 차례마다 서약의 빛이 한 겹 모인다. 「서약」으로 전부 소모해 아군 전원에게 보호막과 회복을 나눈다',
+    hookKind: 'oath',
+    traits: ['oathLight'],
+    grants: [],
+    learnable: [{ skillId: 'fortress', cost: 5 }],
+    bonus: { maxHp: 240, str: 10, def: 12, mdef: 10 },
+    brief: '용사의 검이 제 주인을 인정했다. 지키는 면적이 파티 전체로 넓어진다.',
+  },
+  {
+    id: 'magicSwordsman',
+    name: '마검사',
+    base: 'fallenHero',
+    level: 50,
+    weapon: 'apocalypse',
+    hook: '때릴 때마다 상대에게 혼돈이 쌓인다. 한 명에게 모을수록, 공격을 올리고 쌓을수록 아프다',
+    hookKind: 'chaos',
+    traits: ['chaosBlade'],
+    grants: [],
+    learnable: [{ skillId: 'bloodlust', cost: 3 }],
+    bonus: { str: 16, spd: 10, maxHp: 180 },
+    brief: '다크 블레이드가 삼킨 것을 토해 낸다. 검에 먹힌 것이 이제 상대에게도 일어난다.',
   },
 ]
 

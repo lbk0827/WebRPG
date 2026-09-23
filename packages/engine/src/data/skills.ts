@@ -440,6 +440,20 @@ const list: Skill[] = [
     ],
   },
   {
+    // 영웅(Lv50)의 무기 스킬. 모은 서약의 빛을 **전부 소모**해 아군 전원에게 나눠 준다 (docs/31 §6.4).
+    // 2겹마다 보호막 1회(최대 5회) + 겹당 회복. 10겹까지 모으려면 열 차례가 걸린다 —
+    // 적의 큰 기술 앞에 맞추는 것이 최선이라 "언제 쓰나"가 수칙의 판단이 된다
+    id: 'oathCall',
+    label: '서약',
+    spCost: 20,
+    target: { side: 'ally', scope: 'all', hits: 1 },
+    charge: 0,
+    stiff: 100,
+    isSupport: true,
+    requires: { weaponType: ['ego'] },
+    effects: [{ kind: 'consumeStatus', status: 'oath', healPerStack: 20, shieldPerStacks: 2, shieldMax: 5 }],
+  },
+  {
     // 적 전용 (docs/30 봉화 조). 끊지 않으면 저쪽 전원이 세지고 빨라진다. 준비가 길어 끊을 틈이 분명하다
     id: 'signalFire',
     label: '봉화',

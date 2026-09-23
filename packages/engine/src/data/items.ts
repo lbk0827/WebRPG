@@ -71,6 +71,9 @@ const list: ItemDef[] = [
   { id: 'egoSword', label: '에고 소드', slot: 'weapon', weaponType: 'ego', tier: 2, price: 220, atk: [22, 0], def: [0, 5, 0, 0], stats: { maxHp: 60 }, skills: ['headKnock', 'rally', 'wedge'], bound: true, blurb: '길드에 들던 날 몽둥이가 검이 되었다. 가끔 말을 건다.' },
   { id: 'egoBlade', label: '에고 블레이드', slot: 'weapon', weaponType: 'ego', tier: 2, price: 220, atk: [24, 0], stats: { maxHp: 40, spd: 6 }, skills: ['headKnock', 'rally', 'plunge'], bound: true, blurb: '길 위에서 몽둥이가 날을 세웠다. 혼자일 때 더 가볍다.' },
   { id: 'braveSword', label: '용사의 검', slot: 'weapon', weaponType: 'ego', tier: 3, price: 600, atk: [32, 0], def: [0, 8, 0, 6], stats: { maxHp: 120 }, trait: 'bulwark', skills: ['headKnock', 'rally', 'wedge', 'breakingEdge'], bound: true, blurb: '에고 소드가 제 이름을 찾았다. 방패를 함께 든다.' },
+  // Lv50 3차 전용 무기 (2026-09-23 단장이 이름 결정 · docs/31 §3·§6). 훅 특성이 여기 붙는다
+  { id: 'excalibur', label: '성검 엑스칼리버', slot: 'weapon', weaponType: 'ego', tier: 5, price: 2400, atk: [56, 0], def: [0, 12, 0, 10], stats: { maxHp: 200 }, skills: ['headKnock', 'rally', 'wedge', 'breakingEdge', 'oathCall'], bound: true, blurb: '용사의 검이 제 주인을 인정했다. 든 사람 주위로 빛이 모인다.' },
+  { id: 'apocalypse', label: '마검 아포칼립스', slot: 'weapon', weaponType: 'ego', tier: 5, price: 2400, atk: [60, 0], stats: { maxHp: 100, spd: 10 }, skills: ['headKnock', 'rally', 'plunge', 'darkRelease'], bound: true, blurb: '다크 블레이드가 삼킨 것을 토해 낸다. 벤 자리에 혼돈이 남는다.' },
   { id: 'darkBlade', label: '다크 블레이드', slot: 'weapon', weaponType: 'ego', tier: 3, price: 600, atk: [38, 0], stats: { maxHp: 60, spd: 8 }, skills: ['headKnock', 'rally', 'plunge', 'darkRelease'], bound: true, blurb: '에고 블레이드가 어둠을 삼켰다. 힘을 주고 대가를 받는다.' },
 
   // ── 방어구 (전열용 갑옷 / 후열용 로브)

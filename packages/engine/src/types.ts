@@ -19,6 +19,10 @@ export type StatusId =
   | 'spdDown'
   | 'silence'
   | 'barrier'
+  /** 혼돈 — 마검사가 때릴 때마다 쌓인다. 쌓인 만큼 그 대상의 차례마다 아프다 (docs/31 §6.1) */
+  | 'chaos'
+  /** 서약의 빛 — 영웅이 자기 차례마다 모은다. 「서약」으로 한 번에 나눠 준다 (docs/31 §6.4) */
+  | 'oath'
 
 // ───────────────────────────── 조건 (§5)
 
@@ -51,6 +55,10 @@ export type ConditionAtom =
   | { kind: 'teamAvgSpPct'; side: Side; cmp: Cmp; value: number }
   /** 자신의 N번째 행동마다 (N, 2N, 3N …) — 주기 버프용 */
   | { kind: 'selfActionEvery'; value: number }
+  /** 누적 상태(혼돈 · 서약의 빛)가 N 겹 이상 쌓인 대상이 있다 (docs/31 §6) */
+  | { kind: 'teamAnyStatusStacks'; side: Side; status: StatusId; cmp: Cmp; value: number }
+  /** 내가 가진 누적 상태의 겹 수 */
+  | { kind: 'selfStatusStacks'; status: StatusId; cmp: Cmp; value: number }
 
 /** 조건에서 비교할 수 있는 능력치 — 분배 스탯 5 + 방어 2 */
 export type CondStat = StatKey | 'def' | 'mdef'
@@ -171,6 +179,20 @@ export type Effect =
   | { kind: 'modifyGauge'; delta: number }
   | { kind: 'revive'; hpPct: number }
   | { kind: 'shield'; hits: number }
+  /**
+   * 시전자에게 쌓인 상태를 **전부 소모**해 그 겹 수만큼 일한다 (docs/31 §6.4 서약).
+   * 여러 대상에게 쓰는 스킬이면 **첫 대상에서 한 번만 소모**하고 그 겹 수를 모든 대상에 똑같이 적용한다.
+   */
+  | {
+      kind: 'consumeStatus'
+      status: StatusId
+      /** 겹당 회복 위력 */
+      healPerStack?: number
+      /** 몇 겹마다 보호막 1회인가 */
+      shieldPerStacks?: number
+      /** 보호막 상한 (회) */
+      shieldMax?: number
+    }
 
 export interface Skill {
   id: SkillId
@@ -220,6 +242,11 @@ export type TraitEffect =
    */
   | { kind: 'recoilPowerPct'; pct: number }
   | { kind: 'trigger'; on: 'turnStart' | 'damaged' | 'lowHp'; hpPct?: number; perBattle?: number; effect: Effect }
+  /**
+   * 적을 때릴 때마다 그 대상에 누적 상태를 건다 (docs/31 §6.1 마검사의 혼돈).
+   * 세기는 **거는 순간의 내 공격력**으로 계산해 더한다 — 그래서 공격↑ 을 켜고 쌓은 것이 더 아프다.
+   */
+  | { kind: 'onHitStatus'; status: StatusId; power: number }
 
 export interface TraitDef {
   id: string

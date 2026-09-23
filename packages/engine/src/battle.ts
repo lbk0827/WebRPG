@@ -256,6 +256,19 @@ function resolveSkill(
 // ───────────────────────────── 상태 진행 (§4.6, §6.4)
 
 function tickStatuses(c: CharState, st: BattleState): void {
+  // 혼돈 (docs/31 §6.1): 쌓을 때 이미 방어까지 적용해 둔 값이라 그대로 깎는다.
+  // 중독(최대 HP 의 %)과 달리 **건 사람의 공격력**이 값을 정한다
+  const chaos = c.statuses.find((s) => s.id === 'chaos')
+  if (chaos && chaos.magnitude > 0) {
+    const amount = Math.max(1, chaos.magnitude)
+    c.hp = Math.max(0, c.hp - amount)
+    emit(st, { t: 'statusTick', target: c.ref, status: 'chaos', amount })
+    if (c.hp === 0) {
+      kill(c, st)
+      return
+    }
+  }
+
   const poison = c.statuses.find((s) => s.id === 'poison')
   if (poison) {
     const amount = Math.max(1, pctOf(c.setup.stats.maxHp, poison.magnitude))

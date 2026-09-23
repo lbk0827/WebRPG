@@ -39,6 +39,8 @@ const STAT_AXIS: Record<string, Axis> = {
  */
 const STATUS_AXIS: Record<StatusId, Axis> = {
   poison: 'atk',      // 지속 피해
+  chaos: 'atk',       // 지속 피해 (마검사)
+  oath: 'guard',      // 모았다가 아군을 지킨다 (영웅)
   atkUp: 'atk',
   atkDown: 'atk',
   defUp: 'guard',
@@ -89,6 +91,8 @@ export const STAT_HELP: Record<StatKey, string> = {
 
 export const STATUS_HELP: Record<StatusId, string> = {
   poison: '매 차례 시작에 HP 피해. 크기가 피해량.',
+  chaos: '마검사가 때릴 때마다 한 겹 쌓인다 (최대 12겹 · 마지막으로 맞은 뒤 4차례). 겹마다 **건 사람의 그때 공격력**만큼이 저장되어, 매 차례 시작에 합쳐서 아프다. 한 명에게 모을수록, 공격을 올리고 쌓을수록 세다.',
+  oath: '영웅이 자기 차례마다 한 겹 모은다 (최대 10겹). 모으기만 해서는 아무 일도 없고, 「서약」으로 전부 소모해야 아군 전원에게 보호막(2겹당 1회, 최대 5회)과 회복이 간다.',
   atkUp: '주는 피해 +N%.',
   atkDown: '주는 피해 −N%.',
   defUp: '받는 피해 −N%.',
@@ -120,6 +124,12 @@ export function effectText(e: Effect): string {
       return `${e.school === 'phys' ? '물리' : '마법'} ${e.power}%${e.scaleBy === 'dex' ? ' (손재주)' : ''}${e.pierce ? ' 관통' : ''}${e.falloff ? ` 점감 ${e.falloff}%` : ''}${e.rowBonus ? ` (열 조건 ${e.rowBonus.power}%)` : ''}`
     case 'heal':
       return `회복 ${e.power}%`
+    case 'consumeStatus':
+      // 모은 것을 전부 소모한다 (docs/31 §6.4 서약)
+      return `[${STATUS_DEFS[e.status].label}] 전부 소모 — ${[
+        e.healPerStack ? `겹당 회복 ${e.healPerStack}%` : '',
+        e.shieldPerStacks ? `${e.shieldPerStacks}겹마다 보호막 1회${e.shieldMax ? ` (최대 ${e.shieldMax})` : ''}` : '',
+      ].filter(Boolean).join(' · ')}`
     case 'restoreSp':
       return `SP 회복 ${e.power}%`
     case 'applyStatus':
@@ -234,6 +244,9 @@ export function traitText(t: TraitDef): string {
           return `시전 준비 시간 ${e.pct}%`
         case 'coverDamagePct':
           return `엄호할 때 받는 피해 ${e.pct}%`
+        case 'onHitStatus':
+          // 때릴 때마다 누적 상태 한 겹 (docs/31 §6.1 혼돈)
+          return `때릴 때마다 [${STATUS_DEFS[e.status].label}] 한 겹 (겹당 공격력의 ${e.power}%)`
         case 'damageVsRowPct':
           return `${rowText(e.row)} 상대에게 피해 +${e.pct}%`
         case 'startGauge':
