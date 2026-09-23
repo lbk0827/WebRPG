@@ -1327,6 +1327,9 @@ button.big { padding: 10px 22px; font-size: 15px; }
 .appear-card.rumor .q { position: relative; margin-bottom: 22px; font-size: 26px; font-weight: 700; color: var(--muted); }
 .appear-card.rumor .nm { font-style: italic; color: var(--muted); }
 
+.gear-total .weapon-skills { display: block; margin-top: 4px; }
+.gear-total .weapon-skills small { display: block; margin-top: 2px; color: var(--muted); font-size: 11px; }
+
 /* 엘리트 조우 (docs/30) — 고정 조합이 가끔 통째로 나온다 */
 .elite-badge {
   display: inline-block; margin-right: 6px; padding: 1px 8px; border-radius: 999px;

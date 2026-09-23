@@ -12,10 +12,10 @@ import type { GearSlot, ItemInstance } from '@webrpg/engine'
 import { ITEMS, SLOT_LABEL, WEAPON_TYPE_LABEL } from '@webrpg/engine'
 import type { GameSave, Member } from '../game/save'
 import { equipItem, equippableFor, gearSummary, takeFrom, unequipItem, wornByOthers } from '../game/members'
-import { gearDelta, gearWorth, itemBrief, itemName, traitDelta, traitLabel } from '../lib/labels'
+import { gearDelta, gearWorth, itemBrief, itemName, skillLabel, traitDelta, traitLabel } from '../lib/labels'
 import { ItemSpec } from './Spec'
 import { ItemIcon } from './Icon'
-import { TraitIcon } from './Icon'
+import { SkillIcon, TraitIcon } from './Icon'
 
 const GEAR_SLOTS: GearSlot[] = ['weapon', 'armor', 'trinket']
 const STAT_LABEL: Record<string, string> = { str: '힘', int: '지능', dex: '손재주', spd: '속도', luk: '운', maxHp: 'HP', maxSp: 'SP', def: '방어', mdef: '마방' }
@@ -68,6 +68,13 @@ export function GearPanel({ save, onSave, member, onGoShop }: Props) {
         {g.traits.length > 0 && (
           <span className="traits">
             특성 {g.traits.map((t) => <span key={t} className="chip"><TraitIcon id={t} alt={traitLabel(t)} />{traitLabel(t)}</span>)}
+          </span>
+        )}
+        {/* 무기 스킬 — 배운 것이 아니라 **든 것**이다. 수칙에 넣을 수 있다 (docs/31) */}
+        {g.skills.length > 0 && (
+          <span className="traits weapon-skills">
+            무기 스킬 {g.skills.map((k) => <span key={k} className="chip"><SkillIcon id={k} alt={skillLabel(k)} />{skillLabel(k)}</span>)}
+            <small>무기를 든 동안만 쓴다 · 수칙에 넣어야 쓰인다</small>
           </span>
         )}
       </div>

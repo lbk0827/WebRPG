@@ -22,6 +22,12 @@ export interface ItemDef {
   stats?: Partial<Stats>
   /** 특성 0~1 (data/traits.ts) */
   trait?: string
+  /**
+   * 이 장비가 쥐여 주는 **무기 스킬** (docs/31). 든 동안만 쓸 수 있다 —
+   * 스킬 쪽에도 `requires.weaponType` 이 걸려 있어 다른 무기로 바꾸면 그 줄은 건너뛴다.
+   * 주인공 무기는 벗을 수 없으니 사실상 계보의 스킬이고, 진화해도 앞 단계 것을 잃지 않는다 (에고의 기억)
+   */
+  skills?: string[]
   /** 주인공 전용 (docs/20). 상점·제작·판매·해제 없음 — 전직하면 진화한다. 강화(금)는 된다 */
   bound?: true
   blurb: string
@@ -61,11 +67,11 @@ const list: ItemDef[] = [
   // 주인공 전용 무기 (2026-09-14 단장 기획, docs/20). 사거나 만들 수 없고 벗을 수 없다 — 전직하면 진화한다. 강화(금)는 된다.
   // 모험가 나무 몽둥이 →(15) 길드원 에고 소드 / 떠돌이 에고 블레이드 →(30) 용사의 검 / 다크 블레이드.
   // 수치는 같은 무렵의 무기보다 조금 높다 — 바꿔 낄 수 없고 제작 보너스 특성도 붙지 않는다. price 는 강화비 계산에만 쓴다
-  { id: 'woodenClub', label: '나무 몽둥이', slot: 'weapon', weaponType: 'ego', tier: 1, price: 60, atk: [9, 0], bound: true, blurb: '모험을 떠나던 날 주운 몽둥이. 이상하게 손에 붙는다.' },
-  { id: 'egoSword', label: '에고 소드', slot: 'weapon', weaponType: 'ego', tier: 2, price: 220, atk: [22, 0], bound: true, blurb: '길드에 들던 날 몽둥이가 검이 되었다. 가끔 말을 건다.' },
-  { id: 'egoBlade', label: '에고 블레이드', slot: 'weapon', weaponType: 'ego', tier: 2, price: 220, atk: [20, 0], stats: { spd: 6 }, bound: true, blurb: '길 위에서 몽둥이가 날을 세웠다. 혼자일 때 더 가볍다.' },
-  { id: 'braveSword', label: '용사의 검', slot: 'weapon', weaponType: 'ego', tier: 3, price: 600, atk: [34, 0], bound: true, blurb: '에고 소드가 제 이름을 찾았다.' },
-  { id: 'darkBlade', label: '다크 블레이드', slot: 'weapon', weaponType: 'ego', tier: 3, price: 600, atk: [36, 0], stats: { spd: 6 }, bound: true, blurb: '에고 블레이드가 어둠을 삼켰다. 힘을 주고 대가를 받는다.' },
+  { id: 'woodenClub', label: '나무 몽둥이', slot: 'weapon', weaponType: 'ego', tier: 1, price: 60, atk: [9, 0], skills: ['headKnock'], bound: true, blurb: '모험을 떠나던 날 주운 몽둥이. 이상하게 손에 붙는다.' },
+  { id: 'egoSword', label: '에고 소드', slot: 'weapon', weaponType: 'ego', tier: 2, price: 220, atk: [22, 0], def: [0, 5, 0, 0], stats: { maxHp: 60 }, skills: ['headKnock', 'rally', 'wedge'], bound: true, blurb: '길드에 들던 날 몽둥이가 검이 되었다. 가끔 말을 건다.' },
+  { id: 'egoBlade', label: '에고 블레이드', slot: 'weapon', weaponType: 'ego', tier: 2, price: 220, atk: [24, 0], stats: { maxHp: 40, spd: 6 }, skills: ['headKnock', 'rally', 'plunge'], bound: true, blurb: '길 위에서 몽둥이가 날을 세웠다. 혼자일 때 더 가볍다.' },
+  { id: 'braveSword', label: '용사의 검', slot: 'weapon', weaponType: 'ego', tier: 3, price: 600, atk: [32, 0], def: [0, 8, 0, 6], stats: { maxHp: 120 }, trait: 'bulwark', skills: ['headKnock', 'rally', 'wedge', 'breakingEdge'], bound: true, blurb: '에고 소드가 제 이름을 찾았다. 방패를 함께 든다.' },
+  { id: 'darkBlade', label: '다크 블레이드', slot: 'weapon', weaponType: 'ego', tier: 3, price: 600, atk: [38, 0], stats: { maxHp: 60, spd: 8 }, skills: ['headKnock', 'rally', 'plunge', 'darkRelease'], bound: true, blurb: '에고 블레이드가 어둠을 삼켰다. 힘을 주고 대가를 받는다.' },
 
   // ── 방어구 (전열용 갑옷 / 후열용 로브)
   { id: 'armorLeather', label: '가죽 조끼', slot: 'armor', tier: 1, price: 50, def: [0, 4, 0, 1], blurb: '없는 것보다는.' },
@@ -133,6 +139,8 @@ export interface GearSummary {
   stats: Partial<Stats>
   traits: string[]
   weapon: WeaponType
+  /** 장비가 쥐여 주는 무기 스킬 (docs/31) */
+  skills: string[]
 }
 
 /** 강화 반영 가산치. 공격 둘과 방어 고정치(1·3번)만 오른다 — % 와 스탯은 그대로 */
@@ -146,7 +154,7 @@ export function refinedNumbers(def: ItemDef, refine: number): { atk: [number, nu
 
 /** 착용 장비 합산 — CharSetup.bonus / traits / weapon 으로 들어간다. 인스턴스의 강화·보너스 특성 포함 */
 export function summarizeGear(items: (ItemInstance | undefined)[]): GearSummary {
-  const out: GearSummary = { atk: [0, 0], def: [0, 0, 0, 0], stats: {}, traits: [], weapon: 'none' }
+  const out: GearSummary = { atk: [0, 0], def: [0, 0, 0, 0], stats: {}, traits: [], weapon: 'none', skills: [] }
   for (const it of items) {
     if (!it) continue
     const d = ITEMS[it.itemId]
@@ -157,6 +165,7 @@ export function summarizeGear(items: (ItemInstance | undefined)[]): GearSummary 
     for (let i = 0; i < 4; i++) out.def[i] += r.def[i]
     if (d.stats) for (const k of Object.keys(d.stats) as (keyof Stats)[]) out.stats[k] = (out.stats[k] ?? 0) + (d.stats[k] ?? 0)
     for (const t of [d.trait, it.trait]) if (t && TRAITS[t] && !out.traits.includes(t)) out.traits.push(t)
+    for (const k of d.skills ?? []) if (!out.skills.includes(k)) out.skills.push(k)
     if (d.slot === 'weapon' && d.weaponType) out.weapon = d.weaponType
   }
   return out

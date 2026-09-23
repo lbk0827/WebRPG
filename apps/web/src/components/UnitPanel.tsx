@@ -14,7 +14,7 @@ import { UnitPortrait } from './UnitPortrait'
 import { JOB_ADVANCE, RENAME_GOLD, STARTER_SKILLS, advanceChain } from '@webrpg/engine'
 import type { GameSave, Member, RulePreset } from '../game/save'
 import { RULE_PRESET_MAX } from '../game/save'
-import { cellOf, dismissMember, dismissRefund, learnSkill, memberCanAdvance, memberIcon, memberStats, renameMember, resetSkills, updateMember } from '../game/members'
+import { cellOf, dismissMember, dismissRefund, learnSkill, memberCanAdvance, memberIcon, gearSummary, memberStats, renameMember, resetSkills, updateMember } from '../game/members'
 import type { SlotState } from '../state'
 import { jobName, skillLabel } from '../lib/labels'
 import { STAT_LABEL } from '../lib/condition'
@@ -94,7 +94,8 @@ export function UnitPanel({ save, onSave, member, initial = 'stats', onGoShop, o
     rules: member.rules,
     stats: memberStats(member),
     level: member.level,
-    skills: member.skills,
+    // 배운 스킬 + 무기가 쥐여 주는 무기 스킬 (docs/31) — 수칙에 넣을 수 있어야 한다
+    skills: [...new Set([...member.skills, ...gearSummary(member).skills])],
   }
   const setSlot = (_: number, next: SlotState) => setMember({ ...member, guard: next.guard, rules: next.rules })
 

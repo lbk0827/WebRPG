@@ -345,6 +345,100 @@ const list: Skill[] = [
       { kind: 'applyStatus', status: 'poison', duration: 4, magnitude: 6 },
     ],
   },
+  // ── 주인공 전용 무기의 무기 스킬 (docs/31). `requires.weaponType: ['ego']` 이라 그 무기를 든 동안만 쓴다.
+  // 직업이 "어떤 조건을 쓰면 값이 나오나"(훅)를 정하면, 무기는 그 훅을 쓸 **도구**를 준다.
+  {
+    // 나무 몽둥이. 끊기가 아니라 **늦추기** — 시전은 침묵으로만 끊긴다.
+    // 대상이 없으면(아무도 시전 안 하면) 그 줄을 건너뛴다 → "적 시전 ≥ 1" 조건을 처음 배우는 자리
+    id: 'headKnock',
+    label: '머리 치기',
+    spCost: 6,
+    target: { side: 'enemy', scope: 'single', hits: 1 },
+    priority: { mode: 'require', by: 'casting' },
+    charge: 0,
+    stiff: 50,
+    ignoreCover: true,
+    requires: { weaponType: ['ego'] },
+    effects: [
+      { kind: 'damage', school: 'phys', power: 110 },
+      { kind: 'modifyGauge', delta: -400 },
+    ],
+  },
+  {
+    // 에고 소드 · 에고 블레이드. 동료의 차례를 당긴다 —
+    // 동료가 긴 기술을 준비하는 동안 쓰면 시전이 빨리 끝나 끊길 틈이 줄어든다
+    id: 'rally',
+    label: '구령',
+    spCost: 12,
+    target: { side: 'ally', scope: 'all', hits: 1 },
+    charge: 0,
+    stiff: 100,
+    isSupport: true,
+    requires: { weaponType: ['ego'] },
+    effects: [{ kind: 'modifyGauge', delta: 200 }],
+  },
+  {
+    // 에고 소드. 동료가 깎아 놓은 쪽을 마무리한다 — 적 하나가 줄면 그쪽 차례가 통째로 사라진다
+    id: 'wedge',
+    label: '쐐기',
+    spCost: 10,
+    target: { side: 'enemy', scope: 'single', hits: 1 },
+    priority: { mode: 'prefer', by: 'lowestHpPct' },
+    charge: 0,
+    stiff: 50,
+    requires: { weaponType: ['ego'] },
+    effects: [{ kind: 'damage', school: 'phys', power: 150 }],
+  },
+  {
+    // 에고 블레이드. 후열에서 뛰어들면 두 배로 치고 **앞줄로 나온다**.
+    // 물러서기(후열로)와 짝지어 "빠졌다가 뛰어드는" 순환을 수칙으로 짜게 만든다.
+    // damage 가 moveRow 보다 **앞에** 있어야 한다 — 뛰어들기 전의 자리로 위력을 판정한다
+    id: 'plunge',
+    label: '돌입',
+    spCost: 10,
+    target: { side: 'enemy', scope: 'single', hits: 1 },
+    charge: 0,
+    stiff: 50,
+    requires: { weaponType: ['ego'] },
+    effects: [
+      { kind: 'damage', school: 'phys', power: 80, scaleBy: 'dex', rowBonus: { selfRow: 'back', power: 160 } },
+      { kind: 'moveRow', who: 'self', to: 'front' },
+    ],
+  },
+  {
+    // 용사의 검. 적을 쓰러뜨리기보다 **적의 칼을 무디게** 한다.
+    // 공격↑ 이 걸린 적이 없으면 못 쓴다 — 전의 고양 · 봉화(docs/30)를 받아치는 줄이다
+    id: 'breakingEdge',
+    label: '꺾는 검',
+    spCost: 12,
+    target: { side: 'enemy', scope: 'single', hits: 1 },
+    priority: { mode: 'require', by: 'hasStatus', status: 'atkUp' },
+    charge: 0,
+    stiff: 50,
+    ignoreCover: true,
+    requires: { weaponType: ['ego'] },
+    effects: [
+      { kind: 'damage', school: 'phys', power: 150 },
+      { kind: 'applyStatus', status: 'atkDown', duration: 3, magnitude: 30 },
+    ],
+  },
+  {
+    // 다크 블레이드. **최대 HP 의 10%** 를 태우고 전원을 친다 (피의 분노와 곱해져 +110%).
+    // "지금 HP" 가 아니라 최대 HP 라서 네 번 쓰면 40% 가 사라진다 — 어디서 멈추나가 수칙의 판단이다.
+    // 선딜이 없으므로 끊기지 않는다. recoil 이 damage 보다 **앞에** 있어야 태운 만큼 세진다
+    id: 'darkRelease',
+    label: '어둠 해방',
+    spCost: 18,
+    target: { side: 'enemy', scope: 'all', hits: 1 },
+    charge: 0,
+    stiff: 150,
+    cooldown: 2,
+    requires: { weaponType: ['ego'] },
+    effects: [
+      { kind: 'recoil', pct: 10 },
+      { kind: 'damage', school: 'phys', power: 110 },
+    ],
+  },
   {
     // 적 전용 (docs/30 봉화 조). 끊지 않으면 저쪽 전원이 세지고 빨라진다. 준비가 길어 끊을 틈이 분명하다
     id: 'signalFire',

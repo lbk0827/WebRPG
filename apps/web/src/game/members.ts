@@ -58,7 +58,8 @@ export function memberSetup(m: Member, idx: number): CharSetup {
     row: m.row,
     guard: structuredClone(m.guard),
     stats: memberStats(m),
-    skills: [...(m.skills ?? p.skills)],
+    // 배운 스킬 + **무기가 쥐여 주는 스킬** (docs/31). 무기 스킬은 배운 것이 아니라 든 것이다
+    skills: [...new Set([...(m.skills ?? p.skills), ...g.skills])],
     rules: structuredClone(m.rules),
     bonus: { atk: g.atk, def: g.def },
     // 수칙 훅은 특성으로 붙는다 (docs/04 ADR-003)
@@ -95,9 +96,14 @@ export function resetAdvance(g: GameSave, id: string): GameSave {
   const m = g.members.find((x) => x.id === id)
   if (!m || !m.job2 || g.gold < ADVANCE_RESET_GOLD) return g
   const def = JOB_ADVANCE[m.job2]
-  const lost = new Set([...def.grants, ...def.learnable.map((l) => l.skillId)])
+  // 되돌리면 잃는 것: 이 전직이 준 스킬 + **한 단계 전 무기에는 없는 무기 스킬** (docs/31 §5)
+  const prevWeapon = ITEMS[boundWeaponFor(JOB_ADVANCE[def.base] ? def.base : undefined)]
+  const nowWeapon = def.weapon ? ITEMS[def.weapon] : undefined
+  const lostWeaponSkills = (nowWeapon?.skills ?? []).filter((k) => !(prevWeapon?.skills ?? []).includes(k))
+  const lost = new Set([...def.grants, ...def.learnable.map((l) => l.skillId), ...lostWeaponSkills])
   let refund = 0
   for (const l of def.learnable) if ((m.skills ?? []).includes(l.skillId)) refund += l.cost
+  // 무기 스킬은 배운 것이 아니라 든 것이라 m.skills 에 없다 — 수칙 줄만 되돌리면 된다
   const skills = (m.skills ?? []).filter((s) => !lost.has(s))
   // 잃은 스킬을 쓰던 수칙 줄은 기본 공격으로 되돌린다 — 우물쭈물하지 않게
   const rows = m.rules.rows.map((r) => (lost.has(r.skillId) ? { ...r, skillId: 'strike' } : r))
@@ -416,7 +422,8 @@ export function resetSkills(g: GameSave, m: Member): GameSave {
   // 전직으로 받은 대표 스킬은 되돌리지 않는다 — 그건 산 것이 아니라 직업이 준 것이다
   const granted = advanceChain(m.job2).flatMap((a) => a.grants)
   const skills = [...new Set([...(STARTER_SKILLS[m.job] ?? PRESETS[m.job].skills), ...granted])]
-  const next: Member = { ...m, skills, skillPoints: m.skillPoints + m.spentSkillPoints, spentSkillPoints: 0, rules: pruneRules(m.rules, skills) }
+  // 무기 스킬은 스킬 초기화로 잃지 않는다 — 든 무기가 주는 것이다 (docs/31)
+  const next: Member = { ...m, skills, skillPoints: m.skillPoints + m.spentSkillPoints, spentSkillPoints: 0, rules: pruneRules(m.rules, [...skills, ...gearSummary(m).skills]) }
   return { ...updateMember(g, next), gold: g.gold - SKILL_RESET_GOLD }
 }
 
