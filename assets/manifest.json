@@ -667,6 +667,36 @@
       "icon": "skills/rootbind.png",
       "color": "#5b4b8a"
     },
+    "headKnock": {
+      "name": "머리 치기",
+      "icon": "skills/headKnock.png",
+      "color": "#b23a48"
+    },
+    "rally": {
+      "name": "구령",
+      "icon": "skills/rally.png",
+      "color": "#3e8e5a"
+    },
+    "wedge": {
+      "name": "쐐기",
+      "icon": "skills/wedge.png",
+      "color": "#b23a48"
+    },
+    "plunge": {
+      "name": "돌입",
+      "icon": "skills/plunge.png",
+      "color": "#b23a48"
+    },
+    "breakingEdge": {
+      "name": "꺾는 검",
+      "icon": "skills/breakingEdge.png",
+      "color": "#b23a48"
+    },
+    "darkRelease": {
+      "name": "어둠 해방",
+      "icon": "skills/darkRelease.png",
+      "color": "#b23a48"
+    },
     "signalFire": {
       "name": "봉화",
       "icon": "skills/signalFire.png",
@@ -705,6 +735,14 @@
     "darkBlade": {
       "name": "다크 블레이드",
       "icon": "items/darkBlade.png"
+    },
+    "excalibur": {
+      "name": "성검 엑스칼리버",
+      "icon": "items/excalibur.png"
+    },
+    "apocalypse": {
+      "name": "마검 아포칼립스",
+      "icon": "items/apocalypse.png"
     },
     "daggerPlain": {
       "name": "단도",

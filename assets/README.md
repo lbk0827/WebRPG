@@ -506,6 +506,20 @@
 | `skills/rootbind.png` | rootbind 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/skills/signalFire-source.png` | signalFire AI 원본 | OpenAI 내장 ImageGen, 외부 이미지 입력 없음 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-18 |
 | `skills/signalFire.png` | signalFire 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-18 |
+| `../art-source/icons/skills/headKnock-source.png` | headKnock AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·계보·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-23 |
+| `skills/headKnock.png` | headKnock 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-23 |
+| `../art-source/icons/skills/rally-source.png` | rally AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·계보·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-23 |
+| `skills/rally.png` | rally 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-23 |
+| `../art-source/icons/skills/wedge-source.png` | wedge AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·계보·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-23 |
+| `skills/wedge.png` | wedge 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-23 |
+| `../art-source/icons/skills/plunge-source.png` | plunge AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·계보·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-23 |
+| `skills/plunge.png` | plunge 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-23 |
+| `../art-source/icons/skills/breakingEdge-source.png` | breakingEdge AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·계보·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-23 |
+| `skills/breakingEdge.png` | breakingEdge 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-23 |
+| `../art-source/icons/skills/darkRelease-source.png` | darkRelease AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·계보·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-23 |
+| `skills/darkRelease.png` | darkRelease 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-23 |
+| `../art-source/icons/order29-E-proof-1x.png` | 주문서 29 추가 8종 1배 검수판 | 신규 무기 스킬과 기존 강타·휩쓸기·침묵, Lv50 무기와 기존 5자루를 밝은·어두운 바탕에 1배 배치 | 각 원본과 동일 | 2026-09-23 |
+| `../art-source/icons/order29-E-proof-4x.png` | 주문서 29 추가 8종 4배 검수판 | 위 검수 구성을 최근접 정수 4배로 배치 | 각 원본과 동일 | 2026-09-23 |
 | `../art-source/icons/order29-D-proof-1x.png` | 주문서 29 D묶음 1배 검수판 | 신규 오의·장비·재료와 등급·윗단계 짝을 밝은·어두운 바탕에 1배 배치 | 각 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/order29-D-proof-4x.png` | 주문서 29 D묶음 4배 검수판 | 위 검수 구성을 최근접 정수 4배로 배치 | 각 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/order29-B-proof-1x.png` | 주문서 29 B묶음 1배 검수판 | 신규 스킬과 모든 구별 대상을 밝은·어두운 바탕에 1배 배치 | 각 원본과 동일 | 2026-09-17 |
@@ -646,6 +660,10 @@
 | `items/starShard.png` | starShard 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/items/kingSigil-source.png` | kingSigil AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘을 화풍·등급·구별 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-17 |
 | `items/kingSigil.png` | kingSigil 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-17 |
+| `../art-source/icons/items/excalibur-source.png` | excalibur AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘·용사 스프라이트를 화풍·계보·색 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-23 |
+| `items/excalibur.png` | excalibur 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-23 |
+| `../art-source/icons/items/apocalypse-source.png` | apocalypse AI 원본 | OpenAI 내장 ImageGen, 기존 프로젝트 아이콘·마검사 스프라이트를 화풍·계보·색 참고로 입력 | OpenAI 생성물 약관 적용·배포 전 법무 검토 | 2026-09-23 |
+| `items/apocalypse.png` | apocalypse 24px 게임 아이콘 | 위 AI 원본을 `tools/process-jrpg-icon.py`로 면적 평균 축소 · 10색 이하 · 외톨이 정리 | 원본과 동일 | 2026-09-23 |
 | `../art-source/icons/order29-A-proof-1x.png` | 주문서 29 A묶음 1배 검수판 | 게임용 PNG와 구별 대상 2종을 밝은·어두운 바탕에 1배 배치 | 각 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/order29-A-proof-4x.png` | 주문서 29 A묶음 4배 검수판 | 위 검수 구성을 최근접 정수 4배로 배치 | 각 원본과 동일 | 2026-09-17 |
 | `../art-source/icons/items/all-items-proof.png` | 아이템·재료 전체 검수판 | 게임용 PNG를 4배 최근접 확대해 배치 | 각 원본과 동일 | 2026-09-13 |
