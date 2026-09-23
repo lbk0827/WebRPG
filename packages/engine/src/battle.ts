@@ -6,19 +6,24 @@ import type { BattleState, CharState } from './state'
 import {
   chargeRate,
   createCharState,
+  effectiveCharge,
   emit,
   getChar,
   hasStatus,
   hpPct,
   snapshotTeams,
+  traitRuleRows,
 } from './state'
 import { evalCondition } from './conditions'
 import { resolveCover, selectTargets } from './targeting'
-import { applyEffect, kill } from './effects'
+import { applyEffect, freshCtx, kill, runTriggers } from './effects'
+import { maxRuleRows } from './progression'
 
 export function simulate(input: BattleInput): BattleResult {
   const st: BattleState = {
     rng: createRng(input.seed),
+    // 시드에서 갈라 낸 두 번째 흐름 — 같은 시드면 크리티컬도 같다 (결정론)
+    critRng: createRng((input.seed ^ 0x5bd1e995) >>> 0),
     teams: [
       input.teams[0].members.map((m, i) => createCharState(m, { team: 0, index: i })),
       input.teams[1].members.map((m, i) => createCharState(m, { team: 1, index: i })),
@@ -120,6 +125,7 @@ function takeTurn(actor: CharState, st: BattleState): void {
 
   tickStatuses(actor, st)
   if (!actor.alive) return
+  runTriggers(actor, 'turnStart', st)
 
   // 예약된 시전 발동
   if (actor.pending) {
@@ -132,14 +138,34 @@ function takeTurn(actor: CharState, st: BattleState): void {
     return
   }
 
+  // INT 로 정해지는 최대 패턴 수를 넘는 패턴은 평가하지 않는다 (progression.ts)
   const rows = actor.setup.rules.rows
-  for (let i = 0; i < rows.length; i++) {
+  const limit = Math.min(rows.length, maxRuleRows(actor.setup.stats, actor.setup.level) + traitRuleRows(actor))
+  for (let i = 0; i < limit; i++) {
     const row = rows[i]
+    if (row.disabled) continue
     if (row.maxUses !== undefined && actor.ruleUses[i] >= row.maxUses) continue
     if (!evalCondition(row.condition, actor, st)) continue
 
     const skill = st.skills[row.skillId]
     if (!skill) continue
+    // 배우지 않은 스킬 (M2-2). 수칙에 남아 있어도 쓸 수 없다 — 다음 패턴으로
+    if (!actor.setup.skills.includes(skill.id)) {
+      emit(st, { t: 'skillFailed', actor: actor.ref, ruleIndex: i, skillId: skill.id, reason: 'notLearned' })
+      continue
+    }
+
+    if (skill.requires?.weaponType && !skill.requires.weaponType.includes(actor.setup.weapon ?? 'none')) {
+      emit(st, { t: 'skillFailed', actor: actor.ref, ruleIndex: i, skillId: skill.id, reason: 'noWeapon' })
+      continue
+    }
+    if (
+      (actor.cooldownUntil[skill.id] ?? 0) > actor.actionCount ||
+      (skill.perBattle !== undefined && (actor.skillUses[skill.id] ?? 0) >= skill.perBattle)
+    ) {
+      emit(st, { t: 'skillFailed', actor: actor.ref, ruleIndex: i, skillId: skill.id, reason: 'cooldown' })
+      continue
+    }
 
     if (skill.spCost > 0 && hasStatus(actor, 'silence')) {
       emit(st, { t: 'skillFailed', actor: actor.ref, ruleIndex: i, skillId: skill.id, reason: 'silenced' })
@@ -167,12 +193,21 @@ function takeTurn(actor: CharState, st: BattleState): void {
       actor.sp -= skill.spCost
       emit(st, { t: 'spChange', target: actor.ref, delta: -skill.spCost })
     }
+    actor.skillUses[skill.id] = (actor.skillUses[skill.id] ?? 0) + 1
+    if (skill.cooldown) actor.cooldownUntil[skill.id] = actor.actionCount + 1 + skill.cooldown
+    if (skill.costHpPct) {
+      const cost = Math.min(actor.hp - 1, pctOf(actor.setup.stats.maxHp, skill.costHpPct))
+      if (cost > 0) {
+        actor.hp -= cost
+        emit(st, { t: 'damage', source: actor.ref, target: actor.ref, amount: cost, school: 'phys' })
+      }
+    }
 
     if (skill.charge > 0) {
       actor.pending = { skillId: skill.id, targets: targets.map((r) => ({ ref: r.target.ref, hits: r.hits })) }
       emit(st, { t: 'castStart', actor: actor.ref, skillId: skill.id })
       actor.actionCount++
-      actor.gauge = GAUGE_MAX - skill.charge
+      actor.gauge = GAUGE_MAX - effectiveCharge(skill.charge, actor)
       return
     }
 
@@ -189,7 +224,8 @@ function takeTurn(actor: CharState, st: BattleState): void {
 
 function finishAction(actor: CharState, skill: Skill): void {
   actor.actionCount++
-  actor.gauge = -skill.stiff
+  // 후딜 음수 = 고속 행동 (다음 차례가 빨리 온다). 즉시 재행동은 막는다
+  actor.gauge = Math.min(900, -skill.stiff)
 }
 
 function resolveSkill(
@@ -206,9 +242,13 @@ function resolveSkill(
   for (const { target, hits } of targets) {
     if (!target.alive && !isRevive) continue
     const actual = coverable && target.ref.team !== actor.ref.team ? resolveCover(target, skill, st) : target
+    const ctx = freshCtx()
+    ctx.viaCover = actual !== target
+    ctx.recoil = skill.effects.some((e) => e.kind === 'recoil')
     for (let h = 0; h < hits; h++) {
       if (!actual.alive && !isRevive) break
-      for (const effect of skill.effects) applyEffect(effect, actor, actual, skill, st)
+      ctx.hitIndex = h
+      for (const effect of skill.effects) applyEffect(effect, actor, actual, st, ctx)
     }
   }
 }
@@ -216,6 +256,19 @@ function resolveSkill(
 // ───────────────────────────── 상태 진행 (§4.6, §6.4)
 
 function tickStatuses(c: CharState, st: BattleState): void {
+  // 혼돈 (docs/31 §6.1): 쌓을 때 이미 방어까지 적용해 둔 값이라 그대로 깎는다.
+  // 중독(최대 HP 의 %)과 달리 **건 사람의 공격력**이 값을 정한다
+  const chaos = c.statuses.find((s) => s.id === 'chaos')
+  if (chaos && chaos.magnitude > 0) {
+    const amount = Math.max(1, chaos.magnitude)
+    c.hp = Math.max(0, c.hp - amount)
+    emit(st, { t: 'statusTick', target: c.ref, status: 'chaos', amount })
+    if (c.hp === 0) {
+      kill(c, st)
+      return
+    }
+  }
+
   const poison = c.statuses.find((s) => s.id === 'poison')
   if (poison) {
     const amount = Math.max(1, pctOf(c.setup.stats.maxHp, poison.magnitude))

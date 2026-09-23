@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>전사</title>
+  <circle cx="64" cy="64" r="60" fill="#b23a48"/>
+  <circle cx="64" cy="64" r="60" fill="none" stroke="#1d1d24" stroke-width="4"/>
+  <!-- shield -->
+  <path d="M64 30 L94 40 V66 C94 86 80 98 64 106 C48 98 34 86 34 66 V40 Z" fill="#e9e4d8" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M64 42 L84 48 V66 C84 78 75 87 64 93 C53 87 44 78 44 66 V48 Z" fill="#b23a48" opacity="0.35"/>
+  <!-- sword -->
+  <polygon points="64,14 70,26 70,78 58,78 58,26" fill="#cfd6e0" stroke="#1d1d24" stroke-width="3" stroke-linejoin="round"/>
+  <rect x="48" y="76" width="32" height="7" rx="2" fill="#8a7550" stroke="#1d1d24" stroke-width="3"/>
+  <rect x="60" y="83" width="8" height="16" rx="2" fill="#3a2f2f" stroke="#1d1d24" stroke-width="3"/>
+  <circle cx="64" cy="103" r="5" fill="#8a7550" stroke="#1d1d24" stroke-width="3"/>
+</svg>

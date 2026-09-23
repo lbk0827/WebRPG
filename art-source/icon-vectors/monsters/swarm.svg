@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>박쥐 떼</title>
+  <circle cx="64" cy="64" r="60" fill="#3a3450"/>
+  <circle cx="64" cy="64" r="60" fill="none" stroke="#1d1d24" stroke-width="4"/>
+  <!-- big bat -->
+  <g stroke="#1d1d24" stroke-width="4" stroke-linejoin="round">
+    <path d="M64 56 C56 44 40 42 28 50 C36 54 38 62 36 70 C46 64 56 66 64 74 C72 66 82 64 92 70 C90 62 92 54 100 50 C88 42 72 44 64 56 Z" fill="#6b5f8f"/>
+    <ellipse cx="64" cy="62" rx="8" ry="10" fill="#8a7db8"/>
+  </g>
+  <circle cx="61" cy="60" r="2.5" fill="#1d1d24"/>
+  <circle cx="67" cy="60" r="2.5" fill="#1d1d24"/>
+  <!-- small bats -->
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" fill="#6b5f8f">
+    <path d="M36 96 C32 90 24 89 18 93 C22 95 23 99 22 103 C27 100 32 101 36 105 C40 101 45 100 50 103 C49 99 50 95 54 93 C48 89 40 90 36 96 Z"/>
+    <path d="M94 96 C90 90 82 89 76 93 C80 95 81 99 80 103 C85 100 90 101 94 105 C98 101 103 100 108 103 C107 99 108 95 112 93 C106 89 98 90 94 96 Z"/>
+  </g>
+  <!-- top small bat -->
+  <g stroke="#1d1d24" stroke-width="3" stroke-linejoin="round" fill="#6b5f8f">
+    <path d="M64 24 C60 18 52 17 46 21 C50 23 51 27 50 31 C55 28 60 29 64 33 C68 29 73 28 78 31 C77 27 78 23 82 21 C76 17 68 18 64 24 Z"/>
+  </g>
+</svg>

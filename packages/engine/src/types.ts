@@ -5,6 +5,9 @@ export type Side = 'ally' | 'enemy'
 export type Row = 'front' | 'back'
 export type Cmp = 'gte' | 'lte' | 'eq'
 export type SkillId = string
+/** ego = 주인공 전용 무기 (docs/20). 전직하면 진화한다 */
+export type WeaponType = 'sword' | 'dagger' | 'staff' | 'relic' | 'bow' | 'ego' | 'none'
+export type StatKey = 'str' | 'int' | 'dex' | 'spd' | 'luk'
 
 export type StatusId =
   | 'poison'
@@ -16,6 +19,10 @@ export type StatusId =
   | 'spdDown'
   | 'silence'
   | 'barrier'
+  /** 혼돈 — 마검사가 때릴 때마다 쌓인다. 쌓인 만큼 그 대상의 차례마다 아프다 (docs/31 §6.1) */
+  | 'chaos'
+  /** 서약의 빛 — 영웅이 자기 차례마다 모은다. 「서약」으로 한 번에 나눠 준다 (docs/31 §6.4) */
+  | 'oath'
 
 // ───────────────────────────── 조건 (§5)
 
@@ -36,6 +43,25 @@ export type ConditionAtom =
   | { kind: 'teamRowCount'; side: Side; row: Row; cmp: Cmp; value: number }
   | { kind: 'teamSpPctBelow'; side: Side; value: number }
   | { kind: 'chance'; percent: number }
+  | { kind: 'selfStat'; stat: CondStat; cmp: Cmp; value: number }
+  // ── 제로식 판정 목록에서 채택 (docs/11 §5.6). 위의 *Below 둘은 아래 *Pct 의 lte 특수형 — 호환을 위해 남긴다
+  /** HP 비율이 N% 이상/이하인 대상이 존재 */
+  | { kind: 'teamAnyHpPct'; side: Side; cmp: Cmp; value: number }
+  /** HP 절대값이 N 이상/이하인 대상이 존재 */
+  | { kind: 'teamAnyHpAbs'; side: Side; cmp: Cmp; value: number }
+  /** SP 비율이 N% 이상/이하인 대상이 존재 */
+  | { kind: 'teamAnySpPct'; side: Side; cmp: Cmp; value: number }
+  /** 평균 SP 비율 */
+  | { kind: 'teamAvgSpPct'; side: Side; cmp: Cmp; value: number }
+  /** 자신의 N번째 행동마다 (N, 2N, 3N …) — 주기 버프용 */
+  | { kind: 'selfActionEvery'; value: number }
+  /** 누적 상태(혼돈 · 서약의 빛)가 N 겹 이상 쌓인 대상이 있다 (docs/31 §6) */
+  | { kind: 'teamAnyStatusStacks'; side: Side; status: StatusId; cmp: Cmp; value: number }
+  /** 내가 가진 누적 상태의 겹 수 */
+  | { kind: 'selfStatusStacks'; status: StatusId; cmp: Cmp; value: number }
+
+/** 조건에서 비교할 수 있는 능력치 — 분배 스탯 5 + 방어 2 */
+export type CondStat = StatKey | 'def' | 'mdef'
 
 export type Condition =
   | { op: 'always' }
@@ -49,6 +75,8 @@ export interface RuleRow {
   skillId: SkillId
   /** 전투당 발동 횟수 상한 ("N회만") */
   maxUses?: number
+  /** 꺼 둔 패턴 — 평가하지 않지만 칸은 차지한다 (지우지 않고 실험하기 위한 것, ADR-004 §5) */
+  disabled?: boolean
 }
 
 export interface RuleSet {
@@ -68,7 +96,11 @@ export interface Stats {
   maxSp: number
   str: number
   int: number
+  /** 손재주 — 도적·궁수 계열 물리 스킬의 위력 스탯, 시전 시간 단축 */
+  dex: number
   spd: number
+  /** 운 — 상태이상 저항 (전투 밖에서는 드롭·제작 확률, M2) */
+  luk: number
   /** 물리 고정 방어 */
   def: number
   /** 마법 고정 방어 */
@@ -78,16 +110,28 @@ export interface Stats {
 export interface CharSetup {
   id: string
   name: string
+  /** 레벨. 패턴 칸의 레벨 문턱(30·45)에 쓴다 (docs/22 §3). 생략 = 문턱 없음 */
+  level?: number
   row: Row
   guard: GuardPolicy
   stats: Stats
   skills: SkillId[]
   rules: RuleSet
+  /** 장비·특성이 합산한 가산치 (M2-4 에서 장비가 채운다). atk: [물리, 마법] / def: [물리%, 물리 고정, 마법%, 마법 고정] */
+  bonus?: { atk?: [number, number]; def?: [number, number, number, number] }
+  /** 보유 특성 id (data/traits.ts) */
+  traits?: string[]
+  /** 장착 무기 타입. 스킬 requires.weaponType 검사용. 생략 = none */
+  weapon?: WeaponType
+  /** 몬스터 전용 훅 (M2-1 의뢰 보상) */
+  monster?: { exp: number; gold: number; drops?: { itemId: string; permyriad: number }[] }
 }
 
 export interface TeamSetup {
   name: string
   members: CharSetup[]
+  /** 엘리트 조우면 그 조의 이름 (docs/30). 표시용 — 전투 판정에는 쓰지 않는다 */
+  elite?: string
 }
 
 // ───────────────────────────── 스킬 (§6)
@@ -104,7 +148,30 @@ export type TargetPriority =
   | { mode: 'require'; by: 'hasStatus'; status: StatusId }
 
 export type Effect =
-  | { kind: 'damage'; school: 'phys' | 'magic'; power: number; pierce?: boolean }
+  | {
+      kind: 'damage'
+      school: 'phys' | 'magic'
+      power: number
+      pierce?: boolean
+      /** 물리 위력 스탯. 기본 str */
+      scaleBy?: 'str' | 'dex'
+      /** 연타 점감: 2타부터 타수마다 위력 −N%p (하한 10%) */
+      falloff?: number
+      /** 열 조건부 위력: 조건이 맞으면 power 대신 이 위력 */
+      rowBonus?: { selfRow?: Row; targetRow?: Row; power: number }
+    }
+  | { kind: 'moveRow'; who: 'self' | 'target'; to: Row | 'swap' }
+  | { kind: 'damageSp'; power: number }
+  | { kind: 'drain'; resource: 'hp' | 'sp'; pct: number }
+  /**
+   * 시전자가 자기 HP 를 태운다 (M2-5b 광전사).
+   * `ofCurrent` 면 **지금 남은 HP** 의 pct%, 아니면 최대 HP 의 pct%. `gauge` 가 있으면 게이지도 잃는다.
+   * drain 과 반대 방향이다 — drain 은 음수 비율을 받지 못한다 (amount <= 0 이면 아무 일도 안 한다).
+   *
+   * 이 효과는 **damage 보다 앞에** 두어야 한다. 태운 양이 그 타격의 위력이 되기 때문이다
+   * (특성 recoilPowerPct — 광전사의 피의 분노).
+   */
+  | { kind: 'recoil'; pct: number; gauge?: number; ofCurrent?: boolean }
   | { kind: 'heal'; power: number }
   | { kind: 'restoreSp'; power: number }
   | { kind: 'applyStatus'; status: StatusId; duration: number; magnitude?: number }
@@ -112,6 +179,20 @@ export type Effect =
   | { kind: 'modifyGauge'; delta: number }
   | { kind: 'revive'; hpPct: number }
   | { kind: 'shield'; hits: number }
+  /**
+   * 시전자에게 쌓인 상태를 **전부 소모**해 그 겹 수만큼 일한다 (docs/31 §6.4 서약).
+   * 여러 대상에게 쓰는 스킬이면 **첫 대상에서 한 번만 소모**하고 그 겹 수를 모든 대상에 똑같이 적용한다.
+   */
+  | {
+      kind: 'consumeStatus'
+      status: StatusId
+      /** 겹당 회복 위력 */
+      healPerStack?: number
+      /** 몇 겹마다 보호막 1회인가 */
+      shieldPerStacks?: number
+      /** 보호막 상한 (회) */
+      shieldMax?: number
+    }
 
 export interface Skill {
   id: SkillId
@@ -126,7 +207,51 @@ export interface Skill {
   stiff: number
   ignoreCover?: boolean
   isSupport?: boolean
+  /** 재사용 대기: 사용 후 자신의 행동 N회 동안 사용 불가 */
+  cooldown?: number
+  /** 전투당 사용 횟수 상한 */
+  perBattle?: number
+  /** 사용 조건 */
+  requires?: { weaponType?: WeaponType[] }
+  /** 사용 시 최대 HP 의 N% 를 지불 (1 은 남긴다) */
+  costHpPct?: number
   effects: Effect[]
+}
+
+// ───────────────────────────── 특성 (M2-0)
+
+export type TraitEffect =
+  | { kind: 'castTimePct'; pct: number }
+  | { kind: 'coverDamagePct'; pct: number }
+  | { kind: 'damageVsRowPct'; row: Row; pct: number }
+  | { kind: 'startGauge'; amount: number }
+  | { kind: 'ruleRows'; add: number }
+  | { kind: 'resistPct'; pct: number }
+  /** 내가 건 상태이상의 세기 (M2-5b 암살자). 걸 때 한 번 곱한다 */
+  | { kind: 'statusPowerPct'; pct: number }
+  /** 디버프에 걸린 적에게 주는 피해 (M2-5b 심문관) */
+  | { kind: 'damageVsDebuffedPct'; pct: number }
+  /** 내가 깎는 행동 게이지의 세기 (M2-5b 파괴공작원). 끊기 전용 */
+  | { kind: 'gaugeDamagePct'; pct: number }
+  /**
+   * 자기 HP 를 대가로 내는 기술(recoil)의 피해 +pct% (M2-5b 광전사).
+   *
+   * "HP 가 낮으면 세진다"로 만들면 안 된다 — 적이 알아서 깎아 주므로 **공짜로 붙는다**
+   * (2026-09-12 실측: 수칙을 안 짜도 +29%p. 훅이 아니라 힘 도약이다).
+   * 대가를 **치른 행동**에만 값을 붙이면, "언제 태울 만한가"가 수칙의 판단이 된다.
+   */
+  | { kind: 'recoilPowerPct'; pct: number }
+  | { kind: 'trigger'; on: 'turnStart' | 'damaged' | 'lowHp'; hpPct?: number; perBattle?: number; effect: Effect }
+  /**
+   * 적을 때릴 때마다 그 대상에 누적 상태를 건다 (docs/31 §6.1 마검사의 혼돈).
+   * 세기는 **거는 순간의 내 공격력**으로 계산해 더한다 — 그래서 공격↑ 을 켜고 쌓은 것이 더 아프다.
+   */
+  | { kind: 'onHitStatus'; status: StatusId; power: number }
+
+export interface TraitDef {
+  id: string
+  label: string
+  effects: TraitEffect[]
 }
 
 export type SkillBook = Record<SkillId, Skill>
@@ -165,6 +290,8 @@ export interface CharRef {
 export interface CharSnapshot {
   id: string
   name: string
+  /** 레벨 — 전투판 이름표의 "Lv.N" 에 쓴다. CharSetup 에 레벨이 없으면(훈련 상대 등) 생략 */
+  level?: number
   hp: number
   maxHp: number
   sp: number
@@ -178,7 +305,7 @@ export interface CharSnapshot {
 
 export type TeamSnapshot = CharSnapshot[]
 
-export type SkillFailReason = 'noSp' | 'noRequiredTarget' | 'silenced'
+export type SkillFailReason = 'noSp' | 'noRequiredTarget' | 'silenced' | 'cooldown' | 'noWeapon' | 'notLearned'
 
 export type BattleEvent =
   | { t: 'battleStart'; teams: [TeamSnapshot, TeamSnapshot] }
@@ -190,13 +317,17 @@ export type BattleEvent =
   | { t: 'castResolve'; actor: CharRef; skillId: SkillId }
   | { t: 'castInterrupted'; target: CharRef; skillId: SkillId }
   | { t: 'cover'; defender: CharRef; protectedChar: CharRef }
-  | { t: 'damage'; source: CharRef; target: CharRef; amount: number; school: 'phys' | 'magic'; nullified?: boolean }
+  /** crit = 운으로 터진 더블 크리티컬 (amount 는 이미 2배 된 값) */
+  | { t: 'damage'; source: CharRef; target: CharRef; amount: number; school: 'phys' | 'magic'; nullified?: boolean; crit?: boolean }
   | { t: 'heal'; source: CharRef; target: CharRef; amount: number }
   | { t: 'spChange'; target: CharRef; delta: number }
-  | { t: 'statusApply'; target: CharRef; status: StatusId; duration: number }
+  | { t: 'statusApply'; target: CharRef; status: StatusId; duration: number; magnitude: number }
+  | { t: 'statusResisted'; target: CharRef; status: StatusId }
   | { t: 'statusTick'; target: CharRef; status: StatusId; amount: number }
   | { t: 'statusExpire'; target: CharRef; status: StatusId }
   | { t: 'gaugeShift'; target: CharRef; delta: number }
+  | { t: 'rowChange'; target: CharRef; row: Row }
+  | { t: 'traitTrigger'; target: CharRef; traitId: string }
   | { t: 'death'; target: CharRef }
   | { t: 'revive'; target: CharRef; hp: number }
   | { t: 'statusReport'; actionCount: number; teams: [TeamSnapshot, TeamSnapshot] }

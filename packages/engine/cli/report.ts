@@ -1,7 +1,7 @@
 // 전황 보고서 렌더러 (콘솔). 이벤트 로그가 UI 없이도 읽히는지 검증하는 도구.
 // 사용: npm run report -- --a balanced --b rush --seed 7
 import { DEFAULT_CONFIG, SKILLS, TEAMS, simulate } from '../src'
-import type { BattleEvent, BattleInput, CharRef, TeamSnapshot } from '../src'
+import type { BattleEvent, BattleInput, CharRef, SkillFailReason, TeamSnapshot } from '../src'
 
 const args = parseArgs(process.argv.slice(2))
 const aName = args.a ?? 'balanced'
@@ -38,11 +38,11 @@ function render(e: BattleEvent): string {
       step++
       return `\n[${String(step).padStart(3)}] ${who(e.actor)} 의 차례`
     case 'ruleFired':
-      return `      ${e.ruleIndex + 1}번 조항 발동 → ${sk(e.skillId)}`
+      return `      ${e.ruleIndex + 1}번 패턴 발동 → ${sk(e.skillId)}`
     case 'ruleExhausted':
       return `      ✗ 수칙에 없는 상황이라 우물쭈물했다`
     case 'skillFailed':
-      return `      · ${e.ruleIndex + 1}번 조항 ${sk(e.skillId)} 불가 (${failText(e.reason)})`
+      return `      · ${e.ruleIndex + 1}번 패턴 ${sk(e.skillId)} 불가 (${failText(e.reason)})`
     case 'castStart':
       return `      ${sk(e.skillId)} 시전 시작…`
     case 'castResolve':
@@ -61,12 +61,18 @@ function render(e: BattleEvent): string {
       return e.delta > 0 ? `      → ${who(e.target)} SP +${e.delta}` : ''
     case 'statusApply':
       return `      → ${who(e.target)} [${e.status}] ${e.duration}턴`
+    case 'statusResisted':
+      return `      ${who(e.target)} 이(가) [${e.status}] 을 저항했다`
     case 'statusTick':
       return `      ${who(e.target)} [${e.status}] ${e.amount} 피해`
     case 'statusExpire':
       return `      ${who(e.target)} [${e.status}] 해제`
     case 'gaugeShift':
       return `      → ${who(e.target)} 행동 게이지 ${e.delta > 0 ? '+' : ''}${e.delta}`
+    case 'rowChange':
+      return `      → ${who(e.target)} ${e.row === 'front' ? '전열' : '후열'}로 이동`
+    case 'traitTrigger':
+      return `      ✦ ${who(e.target)} 특성 [${e.traitId}] 발동`
     case 'death':
       return `      ☠ ${who(e.target)} 쓰러짐`
     case 'revive':
@@ -91,8 +97,16 @@ function roster(teams: [TeamSnapshot, TeamSnapshot]): string {
   return `${line(teams[0], '◆')}\n${line(teams[1], '◇')}`
 }
 
-function failText(r: 'noSp' | 'noRequiredTarget' | 'silenced'): string {
-  return r === 'noSp' ? 'SP 부족' : r === 'noRequiredTarget' ? '대상 없음' : '침묵 상태'
+function failText(r: SkillFailReason): string {
+  const text: Record<SkillFailReason, string> = {
+    noSp: 'SP 부족',
+    noRequiredTarget: '대상 없음',
+    silenced: '침묵 상태',
+    cooldown: '재사용 대기',
+    noWeapon: '무기 불일치',
+    notLearned: '배우지 않은 스킬',
+  }
+  return text[r]
 }
 
 function outcomeText(o: string): string {

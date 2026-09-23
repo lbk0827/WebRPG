@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <title>주술사</title>
+  <circle cx="64" cy="64" r="60" fill="#5b4b8a"/>
+  <circle cx="64" cy="64" r="60" fill="none" stroke="#1d1d24" stroke-width="4"/>
+  <!-- staff -->
+  <line x1="40" y1="112" x2="78" y2="26" stroke="#6b4b2a" stroke-width="8" stroke-linecap="round"/>
+  <!-- skull on top -->
+  <path d="M80 14 C92 14 98 22 98 32 C98 38 95 42 90 45 L90 52 H70 L70 45 C65 42 62 38 62 32 C62 22 68 14 80 14 Z" fill="#e9e4d8" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <circle cx="73" cy="31" r="4.5" fill="#1d1d24"/>
+  <circle cx="88" cy="31" r="4.5" fill="#1d1d24"/>
+  <!-- hood -->
+  <path d="M44 60 C56 60 64 70 64 84 C64 98 56 108 44 108 C32 108 24 98 24 84 C24 70 32 60 44 60 Z" fill="#7bd389" stroke="#1d1d24" stroke-width="4" stroke-linejoin="round"/>
+  <polygon points="30,82 44,86 30,90" fill="#1d1d24"/>
+  <polygon points="58,82 46,86 58,90" fill="#1d1d24"/>
+  <!-- sparks -->
+  <circle cx="102" cy="60" r="5" fill="#8fd3ff" stroke="#1d1d24" stroke-width="2.5"/>
+  <circle cx="94" cy="76" r="3.5" fill="#8fd3ff" stroke="#1d1d24" stroke-width="2"/>
+</svg>
